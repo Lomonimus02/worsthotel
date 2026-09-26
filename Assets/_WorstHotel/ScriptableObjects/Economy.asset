@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e64bdaed2a343694b9b6c0cd278eafc6, type: 3}
+  m_Name: Economy
+  m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.EconomyConfig
+  startingCash: 350
+  dailyOperatingCost: 450
+  minPrice: 120
+  maxPrice: 650
+  priceStep: 10
+  cheapPatchCost: 200
+  cheapPatchCondition: 15
+  properRepairCost: 1500
+  properRepairCondition: 95
+  compensationRate: 0.2
+  compensationGoodwill: 10
+  severeRefundThreshold: 35
+  severeRefundRate: 0.5
+  partialRefundThreshold: 60
+  partialRefundRate: 0.25
+  expectationSlope: 0.75
+  minExpectation: 0.65
+  maxExpectation: 1.75
+  qualityPenaltyScale: 60
+  patiencePenalty: 20
+  initialReputation: 60
+  reputationTarget: 70
+  reputationChangeFactor: 0.15
+  coldSeverityDegrees: 4
+  degradedSeverity: 0.15
+  brokenSeverity: 0.5
+  dirtySeverity: 0.3

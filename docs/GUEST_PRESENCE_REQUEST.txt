@@ -1,0 +1,617 @@
+==================================================
+GUEST PRESENCE / ROOM LIFE PASS
+==================================================
+
+The current guest simulation is functionally present,
+but visually and behaviorally too raw.
+
+Guests currently feel like simulation placeholders rather than people
+actually staying at a hotel.
+
+Examples of current problems:
+
+- room doors remain open;
+- players can casually enter while guests are showering;
+- guests may sleep while standing;
+- activities do not have convincing physical staging;
+- guests can behave strangely around furniture / rooms;
+- room privacy does not exist;
+- transitions between activities feel artificial.
+
+This pass should NOT create a complex life simulator.
+
+The goal is:
+
+MAKE SIMPLE GUEST BEHAVIOR BELIEVABLE.
+
+==================================================
+1. ROOM OWNERSHIP
+==================================================
+
+When a guest checks into a room:
+
+the room becomes their temporary private space.
+
+Room should know:
+
+AssignedGuest
+OccupancyState
+DoorState
+PrivacyState
+
+Example states:
+
+Vacant
+Occupied
+GuestAway
+GuestInside
+CheckoutPending
+
+The guest should behave as though they actually own the room temporarily.
+
+==================================================
+2. ROOM DOORS
+==================================================
+
+Room doors should physically open and close.
+
+After entering:
+
+guest normally closes the room door.
+
+Do not leave every occupied room permanently open.
+
+Door behavior should support:
+
+Closed
+Open
+Locked
+
+When guest is inside:
+
+door should normally be CLOSED.
+
+During private activities:
+
+door should be LOCKED.
+
+Examples:
+
+Shower
+Sleeping
+
+Do not require full realistic lock simulation.
+
+The goal is readable privacy.
+
+==================================================
+3. STAFF ACCESS / KNOCKING
+==================================================
+
+Players should not simply walk into occupied guest rooms.
+
+Normal interaction with a closed occupied room:
+
+KNOCK.
+
+Guest can respond.
+
+Possible contextual interactions:
+
+Ask to keep noise down
+Deliver / discuss something
+Offer room change
+Guest complaint conversation
+
+If gameplay requires entering the room:
+
+guest may allow access.
+
+Later the game can have a staff / master key.
+
+For now keep this simple.
+
+There should still be a way to enter during emergencies,
+but normal guest privacy must exist.
+
+==================================================
+4. ACTIVITY ANCHORS
+==================================================
+
+Do not let activities happen wherever the NavMesh agent happens to stop.
+
+Each room should contain explicit interaction anchors:
+
+BedAnchor
+ShowerAnchor
+RestAnchor
+DeskAnchor
+DoorInsideAnchor
+DoorOutsideAnchor
+
+Guest activities should move to the correct anchor.
+
+Example:
+
+Sleep
+
+Guest walks to bed
+→ reaches BedAnchor
+→ transitions to sleep pose
+→ remains correctly positioned.
+
+Not:
+
+Guest enters Sleep state while standing beside the bed.
+
+==================================================
+5. SLEEP
+==================================================
+
+Guests must not sleep standing.
+
+For Prototype:
+
+a perfect cinematic animation is NOT required.
+
+Acceptable implementation:
+
+Guest approaches bed.
+
+↓
+
+Simple transition / short animation.
+
+↓
+
+Character is positioned correctly on bed.
+
+↓
+
+Sleep pose / sleeping animation.
+
+↓
+
+Wake up transition.
+
+If animation assets are limited,
+a simple believable pose is much better than standing sleep.
+
+Make sure:
+
+body does not clip badly through bed.
+
+==================================================
+6. SHOWER
+==================================================
+
+Shower activity should feel private.
+
+Flow:
+
+Guest enters room.
+
+↓
+
+Walks into bathroom / shower area.
+
+↓
+
+Bathroom door or room privacy state closes.
+
+↓
+
+Shower begins.
+
+↓
+
+Player hears shower audio.
+
+↓
+
+Boiler / hot-water demand actually increases.
+
+The character does NOT need to visibly stand naked in the shower.
+
+For Prototype it is acceptable to:
+
+- hide character behind shower / bathroom geometry;
+- disable visible guest renderer while inside enclosed shower if necessary;
+- position them at a ShowerAnchor;
+- use audio + steam/water feedback.
+
+The important thing is:
+
+the hotel simulation communicates:
+
+"Someone is currently using the shower."
+
+Not:
+
+"There is an NPC standing strangely next to a bathtub."
+
+==================================================
+7. PRIVACY STATES
+==================================================
+
+Activities should be classified.
+
+PUBLIC:
+
+Walking
+Waiting at reception
+Leaving hotel
+
+SEMI-PRIVATE:
+
+Resting
+Watching TV
+Working at desk
+
+PRIVATE:
+
+Sleeping
+Showering
+
+Private activity:
+
+room normally cannot be casually entered.
+
+If player knocks:
+
+guest may refuse / respond differently.
+
+Do not build dialogue trees.
+
+Simple state-based reactions are enough.
+
+==================================================
+8. GUEST MOVEMENT QUALITY
+==================================================
+
+Fix obvious navigation problems.
+
+Guests should not:
+
+- stand inside doors;
+- sleep in corridors;
+- rotate constantly;
+- walk into walls indefinitely;
+- stack perfectly inside each other at reception;
+- stop far away from interaction targets.
+
+Use destination anchors and reasonable stopping distances.
+
+Add simple recovery:
+
+if guest cannot reach target after a timeout,
+recalculate path / safely reset to a nearby valid point.
+
+Do not allow one broken NavMesh path to permanently destroy a day.
+
+==================================================
+9. ACTIVITY TRANSITIONS
+==================================================
+
+Avoid abrupt:
+
+Walking
+→ instant Sleep
+→ Walking.
+
+Use lightweight transitions.
+
+Example:
+
+Walk to bed
+→ face bed
+→ sleep transition
+→ Sleep.
+
+Walk to shower
+→ close bathroom
+→ shower starts.
+
+Leave room
+→ approach door
+→ open
+→ exit
+→ close door.
+
+These can remain simple.
+
+Believability is more important than animation quantity.
+
+==================================================
+10. ROOM AMBIENCE
+==================================================
+
+When a guest occupies a room,
+the room should occasionally communicate their presence.
+
+Examples:
+
+TV audio through door.
+Shower audio.
+Footsteps.
+Light visible beneath door.
+Muffled activity.
+
+Do not constantly generate noise.
+
+These details make the hotel feel inhabited.
+
+They can also support gameplay.
+
+Example:
+
+player hears loud TV before receiving a noise complaint.
+
+==================================================
+11. BEHAVIOR DEBUGGING
+==================================================
+
+Extend debug tools.
+
+Selecting a guest should show:
+
+CurrentState
+CurrentActivity
+Destination
+AssignedRoom
+PrivacyState
+PathStatus
+NextScheduledActivity
+
+Developer controls:
+
+Force Sleep
+Force Shower
+Force Rest
+Force LeaveRoom
+Force ReturnRoom
+
+This is necessary for quickly finding broken guest behavior.
+
+==================================================
+12. DO NOT OVERBUILD
+==================================================
+
+Do NOT add:
+
+complex relationships;
+conversation AI;
+full Sims needs;
+bathroom bodily functions;
+hundreds of animations;
+procedural daily lives;
+guest social networks.
+
+The goal is only:
+
+A small number of behaviors that look believable.
+
+==================================================
+SOLO PLAY / DEVELOPMENT MODE
+==================================================
+
+The game must also be playable with ONE HUMAN PLAYER.
+
+This is important because frequent testing cannot depend on another person
+always being available.
+
+However:
+
+do NOT redesign the whole game around solo play yet.
+
+The main long-term fantasy remains co-op.
+
+==================================================
+13. ONE PLAYER SESSION
+==================================================
+
+Main menu should support:
+
+SOLO
+
+HOST
+
+JOIN BY IP
+
+Solo starts the same hotel simulation with one player.
+
+Do not require a second local controller.
+
+Do not spawn an inactive second player.
+
+All normal hotel systems should continue functioning.
+
+==================================================
+14. SOLO IS NOT SPLIT-SCREEN
+==================================================
+
+Solo mode:
+
+one player
+one camera
+one input device.
+
+Multiplayer:
+
+one player per machine.
+
+Do not reintroduce split-screen architecture.
+
+==================================================
+15. CO-OP INTERACTIONS IN SOLO
+==================================================
+
+Some current mechanics require two simultaneous players,
+especially boiler repair.
+
+For SOLO TESTING,
+provide a minimal alternate interaction path.
+
+Do NOT create an AI teammate.
+
+Do NOT redesign every cooperative mechanic.
+
+Example:
+
+Two-player boiler repair:
+
+Player A holds pressure valve.
+
+Player B resets machinery.
+
+Solo version:
+
+player can mechanically latch / temporarily secure the pressure valve,
+giving a limited time window to run to the second control.
+
+OR:
+
+allow a debug-friendly solo sequence:
+Valve → lock position temporarily → perform restart.
+
+The solo solution should:
+
+preserve the same underlying simulation;
+remain somewhat stressful;
+not affect multiplayer behavior.
+
+Do not convert all co-op mechanics into single-button actions.
+
+==================================================
+16. SOLO BALANCE
+==================================================
+
+Do not deeply rebalance the entire economy yet.
+
+For now:
+
+same hotel simulation.
+
+Potentially allow small configurable SoloAssist values for:
+
+guest patience;
+room preparation duration;
+critical repair timing.
+
+Defaults should remain close to multiplayer.
+
+Put these in configuration.
+
+Do not scatter:
+
+if (solo) magic multipliers
+
+through gameplay code.
+
+==================================================
+17. SOLO MODE PURPOSE
+==================================================
+
+Primary current purpose:
+
+FAST DEVELOPMENT AND PLAYTESTING.
+
+A developer should be able to:
+
+launch game;
+start Solo;
+play an entire 3-day prototype;
+experience guest simulation;
+clean rooms;
+handle reception;
+fix problems;
+test electricity;
+test noise;
+test boiler;
+test checkout.
+
+without needing another human.
+
+Later it can be decided whether Solo becomes a fully supported public game mode.
+
+Do not make that decision now.
+
+==================================================
+18. IMPLEMENTATION PRIORITY
+==================================================
+
+These tasks may be developed in parallel with the current correction pass.
+
+Priority:
+
+A.
+Fix obviously broken guest staging:
+sleeping, showering, room entry.
+
+B.
+Doors + privacy.
+
+C.
+Activity anchors.
+
+D.
+Guest navigation cleanup.
+
+E.
+Solo session boot.
+
+F.
+Minimal solo handling for explicitly co-op repair mechanics.
+
+Do not delay:
+keys,
+room turnover,
+noise counterplay
+
+for a huge NPC polish project.
+
+==================================================
+19. ACCEPTANCE CRITERIA
+==================================================
+
+This pass is successful when:
+
+1. Occupied room doors normally close.
+
+2. Guests do not sleep standing.
+
+3. Sleep happens at the bed.
+
+4. Shower happens in the shower / bathroom context.
+
+5. Shower activity still affects hotel infrastructure.
+
+6. Players cannot casually walk into every occupied room.
+
+7. Knocking on an occupied room works.
+
+8. Noise complaints can naturally lead to knocking on the source room.
+
+9. Guest private activity is visually believable.
+
+10. Guest movement does not routinely end in obviously broken poses.
+
+11. Guest activities use explicit environment anchors.
+
+12. The hotel sounds / feels inhabited.
+
+13. A single player can start the game.
+
+14. Solo does not require split-screen.
+
+15. Solo can complete the existing three-day prototype.
+
+16. Explicit two-person interactions have a minimal solo-compatible path.
+
+17. No AI teammate has been introduced.
+
+18. Multiplayer/LAN work remains intact.
+
+19. Existing simulation remains the same underlying simulation in Solo and multiplayer.
+
+20. This pass does not balloon into a life-simulator project.

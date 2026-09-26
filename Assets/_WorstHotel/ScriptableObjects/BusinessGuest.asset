@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ec5593dc16060c48ad0e7e4aea03201, type: 3}
+  m_Name: BusinessGuest
+  m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.GuestArchetypeDefinition
+  kind: 2
+  label: Business guest
+  description: Pays well. Expects quiet, working fixtures and a quick response.
+  referencePrice: 450
+  heatingDemand: 1
+  coldThreshold: 19.5
+  coldPenaltyWeight: 1
+  priceSensitivity: 10
+  patience: 45
+  noiseTolerance: 0.25

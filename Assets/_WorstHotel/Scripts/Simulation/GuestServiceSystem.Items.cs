@@ -1,0 +1,95 @@
+using System;
+using System.Linq;
+
+namespace WorstHotel
+{
+    public sealed partial class GuestServiceSystem
+    {
+        CommandResult CanHandle(int actor)
+        {
+            if (simulation.IsReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
+            return actor < 0 || actor > 1 ? CommandResult.Fail("Unknown player identity.") : CommandResult.Ok();
+        }
+
+        public CommandResult TakeItem(int actor, string id)
+        {
+            var allowed = CanHandle(actor); if (!allowed.Success) return allowed;
+            var item = FindItem(id);
+            if (item == null || (item.Location != ServiceItemLocation.OnShelf && item.Location != ServiceItemLocation.Dropped))
+                return CommandResult.Fail("This physical item is not available to take.");
+            if (HeldBy(actor) != null) return CommandResult.Fail("Put down the service item already being carried.");
+            if (item.Kind == ServiceItemKind.Luggage && item.Location == ServiceItemLocation.OnShelf &&
+                (Guest(item.GuestId)?.Agent.CheckedIn != false ||
+                !cases.Any(request => request.GuestId == item.GuestId && request.Kind == ServiceKind.LuggageStorage && request.Status == ServiceStatus.InProgress)))
+                return CommandResult.Fail("Accept the guest's luggage storage request before taking their suitcase.");
+            item.Location = ServiceItemLocation.HeldByPlayer; item.PlayerId = item.LastPlayerId = actor;
+            ItemChanged?.Invoke(item); return CommandResult.Ok("Picked up " + item.Kind + ".");
+        }
+
+        public CommandResult DropItem(int actor, string id)
+        {
+            var allowed = CanHandle(actor); if (!allowed.Success) return allowed;
+            var item = FindItem(id);
+            if (item == null || item.Location != ServiceItemLocation.HeldByPlayer || item.PlayerId != actor)
+                return CommandResult.Fail("You are not carrying this item.");
+            item.Location = ServiceItemLocation.Dropped; item.PlayerId = null; item.LastPlayerId = actor;
+            ItemChanged?.Invoke(item); return CommandResult.Ok("Item put down.");
+        }
+
+        public CommandResult ReturnItem(int actor, string id)
+        {
+            var allowed = CanHandle(actor); if (!allowed.Success) return allowed;
+            var item = FindItem(id);
+            if (item == null || item.Location != ServiceItemLocation.HeldByPlayer || item.PlayerId != actor || item.Kind == ServiceItemKind.Luggage)
+                return CommandResult.Fail("Carry an unused hotel supply back to its shelf.");
+            item.Location = ServiceItemLocation.OnShelf; item.PlayerId = null; item.LastPlayerId = actor;
+            ItemChanged?.Invoke(item); return CommandResult.Ok("Supply returned to its physical shelf.");
+        }
+
+        public CommandResult DeliverBlanket(int actor, string guestId)
+        {
+            var allowed = CanAct(actor); if (!allowed.Success) return allowed;
+            var guest = Guest(guestId); var item = HeldBy(actor);
+            if (guest == null || !guest.Agent.InAssignedRoom || Departed(guest)) return CommandResult.Fail("Deliver the blanket to a guest in their room.");
+            if (guest.Memory.BlanketsDelivered > 0) return CommandResult.Fail("This guest already has an extra blanket.");
+            if (item == null || item.Kind != ServiceItemKind.Blanket) return CommandResult.Fail("Carry an actual blanket from linen storage.");
+            guest.BlanketComfortBonus = Settings.BlanketComfortBonus;
+            guest.Memory.BlanketsDelivered = Count(guest.Memory.BlanketsDelivered);
+            Deliver(item, guest);
+            var request = cases.FirstOrDefault(request => request.GuestId == guestId && request.Kind == ServiceKind.ExtraBlanket && request.Active);
+            if (request != null) Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true);
+            else simulation.SignalEvent("Extra blanket delivered to room " + guest.RoomId);
+            return CommandResult.Ok("Blanket delivered. Personal cold comfort improves; room temperature and electrical load are unchanged.");
+        }
+
+        public CommandResult StoreLuggage(int actor, string guestId)
+        {
+            var allowed = CanAct(actor); if (!allowed.Success) return allowed;
+            var guest = Guest(guestId); var item = HeldBy(actor);
+            if (guest == null || item == null || item.Kind != ServiceItemKind.Luggage || item.GuestId != guestId)
+                return CommandResult.Fail("Carry this guest's actual suitcase to luggage storage.");
+            var request = cases.FirstOrDefault(request => request.GuestId == guestId && request.Kind == ServiceKind.LuggageStorage);
+            if (request == null) return CommandResult.Fail("There is no luggage storage agreement for this suitcase.");
+            item.Location = ServiceItemLocation.Stored; item.PlayerId = null; item.RoomId = null; ItemChanged?.Invoke(item);
+            if (request.Active)
+            { guest.Memory.LuggageStored = Count(guest.Memory.LuggageStored); Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true); }
+            return CommandResult.Ok("The suitcase is stored beside reception.");
+        }
+
+        public CommandResult ReplaceBulb(int actor, int roomId)
+        {
+            var allowed = CanHandle(actor); if (!allowed.Success) return allowed;
+            var item = HeldBy(actor);
+            if (!rooms.TryGetValue(roomId, out var room) || !room.LampBroken) return CommandResult.Fail("This room's lamp does not need a bulb.");
+            if (item == null || item.Kind != ServiceItemKind.ReplacementBulb) return CommandResult.Fail("Carry a replacement bulb from maintenance storage.");
+            room.LampCondition = 100; room.LampBroken = false;
+            item.Location = ServiceItemLocation.Delivered; item.RoomId = roomId; item.PlayerId = null; ItemChanged?.Invoke(item);
+            simulation.SignalEvent("Room " + roomId + ": bedside lamp repaired");
+            return CommandResult.Ok("Bulb replaced. The lamp works when the room has power.");
+        }
+
+        void Deliver(ServiceItemState item, GuestStay guest)
+        { item.Location = ServiceItemLocation.Delivered; item.PlayerId = null; item.GuestId = guest.GuestId;
+            item.RoomId = guest.RoomId; ItemChanged?.Invoke(item); }
+    }
+}

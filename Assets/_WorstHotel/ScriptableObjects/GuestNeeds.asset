@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffc8ceb6b5f91db49b9b4eafeb086f25, type: 3}
+  m_Name: GuestNeeds
+  m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.NeedConfig
+  temperatureSevereDelta: 4
+  tolerableSeverity: 0.25
+  buildupPerSecond: 0.02
+  recoveryPerSecond: 0.04
+  dirtySeverity: 0.45
+  degradedSeverity: 0.2
+  brokenSeverity: 0.65
+  serviceExpiredSeverity: 1
+  complaintDissatisfaction: 0.3
+  escalatedDissatisfaction: 0.65
+  criticalDissatisfaction: 0.9
+  complaintExposureSeconds: 20
+  escalatedExposureSeconds: 35
+  criticalExposureSeconds: 65
+  recoverySeconds: 8
+  recoverySeverityThreshold: 0.03
+  reopenCooldownSeconds: 12

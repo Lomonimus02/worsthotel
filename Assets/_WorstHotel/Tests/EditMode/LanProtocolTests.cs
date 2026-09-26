@@ -1,0 +1,47 @@
+using System;
+using NUnit.Framework;
+using UnityEngine;
+
+namespace WorstHotel.Tests
+{
+    public sealed class LanProtocolTests
+    {
+        static LanCommand Valid() => new LanCommand
+        { epoch = 41, sequence = 3, day = 1, phase = DayPhase.Planning, kind = LanCommandKind.Assign, roomId = 101, subject = "day1-guest1", amount = 180 };
+
+        [Test]
+        public void CommandEnvelopeRejectsStaleCrossDayCrossPhaseUnknownAndOversizedIntents()
+        {
+            Assert.That(LanProtocol.ValidCommand(Valid(), 41, 2, 1, DayPhase.Planning), Is.True);
+            var corruptions = new Action<LanCommand>[]
+            {
+                c => c.version++, c => c.epoch = 40, c => c.sequence = 2, c => c.sequence = -1,
+                c => c.day = 2, c => c.phase = DayPhase.Service, c => c.kind = (LanCommandKind)999,
+                c => c.roomId = 999, c => c.subject = new string('x', 129), c => c.amount = -1, c => c.amount = 100001
+            };
+            foreach (var corrupt in corruptions)
+            {
+                var command = Valid(); corrupt(command);
+                Assert.That(LanProtocol.ValidCommand(command, 41, 2, 1, DayPhase.Planning), Is.False);
+            }
+            Assert.That(LanProtocol.ValidCommand(null, 41, 2, 1, DayPhase.Planning), Is.False);
+            Assert.That(LanProtocol.ValidCommand(Valid(), 0, 2, 1, DayPhase.Planning), Is.False);
+            Assert.That(typeof(LanCommand).GetField("actorId"), Is.Null,
+                "Transport binds its authenticated sender; a payload must not select another player's identity.");
+        }
+
+        [Test]
+        public void DirectIpAndInputRejectInvalidBoundaryValuesWithoutRequiringNetworkingRuntime()
+        {
+            foreach (var address in new[] { "127.0.0.1", "192.168.1.10" }) Assert.That(LanProtocol.ValidAddress(address), Is.True);
+            foreach (var address in new[] { "", "0.0.0.0", "255.255.255.255", "224.0.0.1", "::1", "example.com", "999.1.1.1" })
+                Assert.That(LanProtocol.ValidAddress(address), Is.False);
+            Assert.That(new LanInputFrame { move = Vector2.one, lookDegrees = new Vector2(10, -10) }.IsFinite, Is.True);
+            Assert.That(new LanInputFrame { move = new Vector2(float.NaN, 0) }.IsFinite, Is.False);
+            Assert.That(new LanInputFrame { lookDegrees = new Vector2(0, float.PositiveInfinity) }.IsFinite, Is.False);
+            Assert.That(new LanInputFrame { navigate = new Vector2(float.NegativeInfinity, 0) }.IsFinite, Is.False);
+            Assert.That(typeof(LanInputFrame).GetField("deltaTime"), Is.Null,
+                "The host supplies elapsed work time; input packets cannot complete a bed with an invented time delta.");
+        }
+    }
+}

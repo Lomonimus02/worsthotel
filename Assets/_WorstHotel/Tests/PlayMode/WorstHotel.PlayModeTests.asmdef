@@ -1,0 +1,7 @@
+{
+  "name": "WorstHotel.PlayModeTests",
+  "rootNamespace": "WorstHotel.Tests",
+  "references": ["WorstHotel.Runtime", "Unity.InputSystem"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

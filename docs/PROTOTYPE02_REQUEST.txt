@@ -1,0 +1,2259 @@
+You are continuing development of an EXISTING Unity project.
+
+DO NOT create a new project.
+DO NOT rebuild Prototype 0.1 from scratch.
+
+The existing project is a playable Prototype 0.1 of:
+
+THE WORST HOTEL EVER
+
+Prototype 0.1 is already generally functional.
+
+It currently contains:
+- local 2-player split-screen;
+- hotel environment;
+- 6 rooms;
+- reception / planning interface;
+- booking applications;
+- guest assignment;
+- room pricing;
+- basic guest satisfaction;
+- money / economy;
+- boiler / heating simulation;
+- complaints;
+- boiler failure;
+- physical cooperative boiler repair;
+- three-day structure;
+- cheap patch vs proper repair;
+- reviews / end-of-day consequences;
+- existing stylized hotel art direction.
+
+The purpose of this task is NOT to rebuild these systems.
+
+The purpose is to evolve the project into:
+
+PROTOTYPE 0.2 — LIVING HOTEL
+
+==================================================
+1. MAIN GOAL OF PROTOTYPE 0.2
+==================================================
+
+Prototype 0.1 revealed an important problem:
+
+Once guests are accepted and checked in, the player can sometimes have nothing meaningful to do for approximately 1–2 minutes.
+
+DO NOT solve this by adding random chores.
+
+Do NOT fill empty time with:
+- bring towel;
+- carry luggage;
+- clean random object;
+- fetch item;
+- take object from A to B;
+- arbitrary NPC quests.
+
+The goal is:
+
+THE HOTEL MUST CONTINUE TO LIVE WITHOUT THE PLAYERS.
+
+Guests should:
+- arrive;
+- move;
+- use their rooms;
+- perform activities;
+- consume infrastructure;
+- generate noise;
+- affect temperature / power demand;
+- react to their environment;
+- interact indirectly with other guests.
+
+The player's job is not:
+
+"wait for a quest icon."
+
+The player's job is:
+
+OBSERVE
+→ UNDERSTAND
+→ PRIORITIZE
+→ INTERVENE
+→ ACCEPT CONSEQUENCES.
+
+Core emotional target:
+
+"We made this situation happen because of the decisions we made earlier."
+
+==================================================
+2. DESIGN PRINCIPLE: SITUATIONS, NOT QUESTS
+==================================================
+
+This is critical.
+
+DO NOT create gameplay like:
+
+Random timer
+→ pick QuestDefinition
+→ "Bring towel to room 104."
+
+Instead:
+
+WORLD STATE
++
+GUEST NEED
++
+PLAYER MANAGEMENT DECISION
+→ SITUATION.
+
+Example:
+
+BusinessGuest
+requires Noise < 40
+
+Room 103 occupant
+creates Noise = 65
+
+Rooms 102 and 103 are adjacent
+
+Noise propagates into Room 102
+
+BusinessGuest becomes uncomfortable
+
+After sustained exposure:
+Complaint is generated.
+
+This complaint exists because:
+- these particular guests were accepted;
+- players assigned these particular rooms;
+- the noisy guest is currently performing a noisy activity.
+
+If the players had assigned rooms differently,
+the problem might never have happened.
+
+This is the intended game.
+
+==================================================
+3. GUESTS ARE SIMULATION AGENTS
+==================================================
+
+Guests must no longer behave like passive data entries that simply occupy rooms.
+
+Each guest should have:
+
+GuestIdentity
+GuestArchetype
+GuestTraits
+GuestNeeds
+GuestSchedule
+GuestActivity
+GuestSatisfaction
+GuestPatience
+AssignedRoom
+CurrentLocation
+CurrentSituationState
+
+Use a relatively simple finite-state machine.
+
+Do NOT build a giant behavior tree framework.
+
+Possible high-level states:
+
+Arriving
+WaitingForCheckIn
+GoingToRoom
+InRoom
+PerformingActivity
+ReactingToProblem
+WaitingForResolution
+Sleeping
+CheckingOut
+Leaving
+
+Guests should physically move through the hotel where reasonable.
+
+Use the existing navigation solution if one exists.
+
+If there is no navigation solution:
+use Unity's official AI Navigation / NavMesh system.
+
+Do not introduce a large third-party AI dependency.
+
+==================================================
+4. GUEST ARCHETYPES AND TRAITS
+==================================================
+
+Keep Prototype 0.2 small.
+
+Do not create 20 guest types.
+
+Use approximately the existing three archetypes:
+
+BUDGET TRAVELER
+
+Characteristics:
+- low room budget;
+- relatively tolerant;
+- price-sensitive;
+- less sensitive to minor room problems.
+
+COLD-SENSITIVE GUEST
+
+Characteristics:
+- moderate/high payment;
+- low temperature tolerance;
+- reacts strongly to inadequate heating.
+
+BUSINESS GUEST
+
+Characteristics:
+- pays well;
+- low tolerance for problems;
+- noise-sensitive;
+- expects problems to be solved quickly.
+
+Use modular traits when practical.
+
+Examples:
+
+ColdSensitive
+NoiseSensitive
+Noisy
+Patient
+Impatient
+PriceSensitive
+
+This allows future combinations without creating huge inheritance trees.
+
+Do not make hidden guest rules impossible to understand.
+
+Important traits should be visible during Planning Phase.
+
+==================================================
+5. GUEST NEED MODEL
+==================================================
+
+Prototype 0.2 should support approximately four meaningful need dimensions:
+
+TEMPERATURE
+
+NOISE
+
+ROOM CONDITION
+
+SERVICE / PATIENCE
+
+Do NOT add Hunger, Thirst, Entertainment, Hygiene, Social, Bathroom,
+Sleep and ten other Sims-like needs yet.
+
+This is not The Sims.
+
+Needs exist to create meaningful hotel-management consequences.
+
+Each guest has:
+- preferred range;
+- tolerance;
+- accumulated dissatisfaction.
+
+Example:
+
+PreferredTemperature:
+20–23 C
+
+Tolerance:
+18–25 C
+
+Below 18:
+dissatisfaction accumulates quickly.
+
+20–23:
+comfortable.
+
+Do not instantly generate a complaint the moment a threshold is crossed.
+
+Use exposure over time.
+
+Example:
+
+temperature slightly bad
+→ discomfort accumulates slowly.
+
+temperature extremely bad
+→ discomfort accumulates quickly.
+
+This prevents noisy quest spam.
+
+==================================================
+6. SITUATION / ESCALATION SYSTEM
+==================================================
+
+Introduce or evolve the existing Incident / Request system into a more general:
+
+SITUATION SYSTEM.
+
+A Situation is not a quest.
+
+It represents an unresolved mismatch between:
+- guest needs;
+- room state;
+- infrastructure;
+- other guests.
+
+Example Situation:
+
+ColdRoomSituation
+
+Cause:
+RoomTemperature below Guest minimum.
+
+Stages could be:
+
+Observed
+Complaint
+Escalated
+Critical
+
+Example:
+
+0–20 seconds:
+guest notices discomfort.
+
+20–40 seconds:
+guest contacts reception.
+
+40–90 seconds unresolved:
+strong satisfaction penalty.
+
+Longer:
+guest demands compensation
+or considers leaving.
+
+Exact timings must be configurable.
+
+IMPORTANT:
+
+A situation should usually resolve when the UNDERLYING CONDITION changes.
+
+For example:
+
+ColdRoomSituation becomes resolved if:
+- room becomes warm enough;
+- guest moves to another acceptable room;
+- guest checks out;
+- management offers an accepted compensation path.
+
+Do NOT require:
+
+QuestObjective:
+"Press repair button."
+
+The system should observe state.
+
+==================================================
+7. MULTIPLE SOLUTIONS TO ONE PROBLEM
+==================================================
+
+This is one of the most important changes.
+
+There must NOT be one prescribed solution to every complaint.
+
+Example:
+
+Guest is cold.
+
+Possible player responses:
+
+A)
+Repair / improve boiler.
+
+B)
+Move guest to another warmer room.
+
+C)
+Give room a portable electric heater.
+
+D)
+Offer compensation.
+
+E)
+Ignore the problem and accept satisfaction / review loss.
+
+The game should not display:
+
+SOLUTION:
+1. GO TO BOILER
+2. TURN VALVE
+3. PRESS BUTTON
+
+Instead it should show the PROBLEM.
+
+Example:
+
+ROOM 104
+Guest complaint:
+"It's freezing in here."
+
+Players decide what to do.
+
+==================================================
+8. PORTABLE HEATER
+==================================================
+
+Add one important physical tool:
+
+PORTABLE ELECTRIC HEATER.
+
+Purpose:
+
+It provides a fast local workaround for a cold room.
+
+When active:
+- raises local room heating output;
+- consumes significant electrical power.
+
+It is therefore a bridge between:
+
+HEATING SYSTEM
+and
+ELECTRICAL SYSTEM.
+
+The player may physically carry it into a room.
+
+This is a GOOD carrying interaction because:
+
+the decision came first.
+
+The player decided:
+
+"We don't want to repair the boiler right now.
+Let's temporarily solve Room 104 with a heater."
+
+This is very different from:
+
+"NPC randomly asked us to carry an object."
+
+==================================================
+9. ELECTRICAL SYSTEM
+==================================================
+
+Add electricity as the second infrastructure system.
+
+Keep it understandable.
+
+Do NOT make a full electrical engineering simulator.
+
+Recommended prototype structure:
+
+CIRCUIT A:
+Rooms 101–103.
+
+CIRCUIT B:
+Rooms 104–106.
+
+Optional:
+Utility circuit for hotel infrastructure if useful.
+
+Each circuit has:
+
+MaxLoad
+CurrentLoad
+OverloadDuration
+BreakerState
+
+Sources of load:
+
+room baseline load;
+lights / normal guest activity;
+portable heaters;
+selected guest activities.
+
+Example:
+
+Circuit max = 4 units.
+
+Room baseline:
+1 unit.
+
+Portable heater:
+2 units.
+
+Three occupied rooms:
+3 units.
+
+Add heater:
+5 units.
+
+Circuit becomes overloaded.
+
+Do not trip instantly.
+
+Example:
+
+Overload for several seconds
+→ warning.
+
+Continued overload
+→ breaker trips.
+
+When breaker trips:
+
+rooms on that circuit lose electricity.
+
+Consequences can include:
+
+- guest complaints;
+- room condition penalties;
+- some devices stop functioning;
+- lighting changes visually.
+
+To restore:
+
+players can physically reset the breaker.
+
+BUT:
+
+If the underlying load is still too high,
+the breaker should trip again.
+
+This is very important.
+
+The player must solve the cause,
+not just spam reset.
+
+Possible solutions:
+
+- remove heater;
+- move guest;
+- accept cold room;
+- reduce another load;
+- reset after load falls.
+
+==================================================
+10. ELECTRICAL PANEL INTERACTION
+==================================================
+
+Create a physically readable breaker panel.
+
+Do not make it a flat UI texture.
+
+It should have actual geometry:
+
+metal box;
+panel door;
+two large breakers;
+labels;
+load indicators;
+warning lights.
+
+Example:
+
+CIRCUIT A
+101–103
+
+CIRCUIT B
+104–106
+
+When overloaded:
+
+indicator becomes visibly alarming.
+
+Use:
+- audio hum;
+- warning click;
+- light flicker if appropriate.
+
+Reset interaction should be simple and satisfying.
+
+Do not create a long minigame.
+
+The management decision is more important than the repair animation.
+
+==================================================
+11. GUEST ACTIVITIES
+==================================================
+
+Guests need activities that affect simulation.
+
+Do not create many.
+
+Prototype 0.2 needs approximately 3 meaningful activity types.
+
+Example:
+
+SHOWER
+
+Effect:
+temporary spike in boiler / hot-water demand.
+
+QUIET REST
+
+Effect:
+very low system load and noise.
+
+LOUD ROOM ACTIVITY
+
+For example:
+TV / music / social activity.
+
+Effect:
+creates room noise.
+
+Possibly slightly more electric demand.
+
+The guest schedule should naturally cause these events.
+
+Example:
+
+guest arrives
+→ enters room
+→ rests
+→ takes shower
+→ later performs evening activity
+→ sleeps.
+
+Activities should vary by guest trait/archetype.
+
+Do not trigger all guests simultaneously.
+
+==================================================
+12. DETERMINISTIC / TESTABLE SCHEDULES
+==================================================
+
+Guest schedules should be testable.
+
+Avoid uncontrolled randomness.
+
+Use:
+
+- configurable schedule windows;
+- seeded randomness based on session/day/guest ID.
+
+A developer should be able to replay a similar day.
+
+Debug panel should allow:
+
+- force guest activity;
+- skip to next activity;
+- inspect schedule;
+- inspect active needs.
+
+==================================================
+13. NOISE SYSTEM
+==================================================
+
+Add a simple room-based noise propagation model.
+
+Do NOT implement expensive acoustic simulation.
+
+Rooms should know adjacency.
+
+Example:
+
+Room 101 adjacent to 102.
+102 adjacent to 101 and 103.
+etc.
+
+Each activity generates NoiseOutput.
+
+Noise propagates to neighboring rooms with attenuation.
+
+Example:
+
+Room 103 noise = 70.
+
+Adjacent Room 102 receives:
+50.
+
+Room 101 receives either none
+or much smaller propagated amount.
+
+Values should be configurable.
+
+Business guest may have:
+
+ComfortNoiseMax = 35
+ToleranceNoiseMax = 50.
+
+A noisy guest beside a business guest should therefore be a real planning mistake.
+
+This should be visible in simulation/debug information.
+
+==================================================
+14. ROOM ASSIGNMENT MUST MATTER
+==================================================
+
+After these changes:
+
+Planning Phase room assignment should become significantly more important.
+
+Example:
+
+Business guest:
+high-paying;
+noise-sensitive.
+
+Budget tourist:
+noisy trait.
+
+If placed adjacent:
+
+high chance of conflict during evening.
+
+If separated:
+
+conflict avoided.
+
+The players should eventually learn:
+
+"Don't put those two next to each other."
+
+This creates genuine mastery.
+
+==================================================
+15. FAST FORWARD / WAIT SYSTEM
+==================================================
+
+Prototype 0.1 contains dead time.
+
+Solve it explicitly.
+
+Create a:
+
+WAIT / FAST FORWARD system.
+
+IMPORTANT:
+
+DO NOT simply increase Unity Time.timeScale globally.
+
+The project contains:
+- Rigidbody physics;
+- held objects;
+- player movement;
+- physical interactions.
+
+Changing global Time.timeScale aggressively can destabilize these systems.
+
+Instead create or extend a dedicated:
+
+HotelGameClock / SimulationClock.
+
+It should track:
+
+SimulationTime
+SimulationSpeed
+
+Possible speeds:
+
+1x
+4x
+8x
+
+or implement:
+
+AdvanceToNextInterestingEvent.
+
+Preferred approach:
+
+When both players opt to WAIT,
+simulation rapidly advances until:
+
+- guest arrival;
+- guest activity;
+- situation threshold;
+- complaint;
+- infrastructure warning;
+- checkout;
+- shift end;
+- another defined meaningful event.
+
+Then automatically return to normal speed.
+
+During waiting:
+
+physical players do NOT need to simulate every second of physics at 8x.
+
+Keep actual Rigidbody physics stable.
+
+Either:
+
+A)
+advance simulation clock independently;
+
+or
+
+B)
+perform controlled event-based simulation stepping.
+
+Do NOT make physics run at extreme accelerated speed.
+
+==================================================
+16. RULES FOR FAST FORWARD
+==================================================
+
+Fast-forward should require both local players to agree.
+
+Possible implementation:
+
+one player activates WAIT at reception;
+second player confirms.
+
+Or:
+
+both hold a Wait button for one second.
+
+Do not allow fast-forward while:
+
+- a critical physical repair is active;
+- a player is holding a dangerous/important physics interaction;
+- a major situation requires immediate attention.
+
+If an important situation occurs:
+
+fast-forward automatically ends.
+
+There must never again be a reason to stare at the screen for 2 real minutes waiting for the shift timer.
+
+==================================================
+17. PHYSICS / GRAB SYSTEM BUG
+==================================================
+
+There is currently an important bug.
+
+Example:
+
+Player grabs a suitcase.
+
+Player moves / shakes it slightly.
+
+The suitcase begins oscillating.
+
+The oscillation continues almost indefinitely
+without losing amplitude.
+
+This is wrong.
+
+Fix the grab / held-object physics system BEFORE adding many more carriable objects.
+
+First inspect how the current system works.
+
+Possible current implementations may include:
+
+- SpringJoint;
+- ConfigurableJoint;
+- force-based attraction;
+- manual Rigidbody velocity;
+- direct Transform manipulation.
+
+Do not blindly replace everything if existing system is close to correct.
+
+==================================================
+18. HELD OBJECT PHYSICS TARGET
+==================================================
+
+Held objects should feel:
+
+physical;
+slightly heavy;
+responsive;
+stable;
+damped.
+
+They should NOT:
+
+vibrate endlessly;
+gain energy;
+orbit the hold point;
+explode when touching walls;
+shake forever after camera movement.
+
+Do not parent a dynamic Rigidbody directly to the camera.
+
+Do not move dynamic Rigidbody using:
+
+transform.position = ...
+
+every frame.
+
+Use either:
+
+- properly configured ConfigurableJoint;
+
+or
+
+- a force / PD controller.
+
+If using spring-like forces:
+
+apply damping based on velocity difference.
+
+General PD concept:
+
+Force =
+PositionError * PositionSpring
+-
+RelativeVelocity * PositionDamping
+
+For angular rotation:
+
+Torque =
+RotationError * RotationSpring
+-
+AngularVelocity * AngularDamping.
+
+Use critically or near-critically damped behavior.
+
+A useful theoretical reference for a spring system:
+
+critical damping approximately:
+
+c = 2 * sqrt(k * m)
+
+where:
+c = damping
+k = spring stiffness
+m = rigidbody mass
+
+Do not necessarily hardcode this exact formula blindly,
+but use it to avoid underdamped infinite oscillation.
+
+==================================================
+19. PHYSICS IMPLEMENTATION DETAILS
+==================================================
+
+Check and tune:
+
+Rigidbody.interpolation
+
+CollisionDetectionMode
+
+linear damping / drag
+
+angular damping / angularDrag
+
+maximum angular velocity
+
+joint spring
+
+joint damper
+
+joint force limits
+
+mass dependence
+
+held distance
+
+collision behavior with player capsule.
+
+Important:
+
+When object is released:
+restore its original Rigidbody properties.
+
+Do not permanently overwrite:
+mass;
+drag;
+collision mode;
+constraints;
+interpolation.
+
+Store original state.
+
+Consider a very small dead-zone near the hold target.
+
+If:
+position error tiny
+AND
+velocity tiny
+
+do not continuously inject forces.
+
+Allow natural settling.
+
+==================================================
+20. PHYSICS VALIDATION
+==================================================
+
+Create a small debug test for the suitcase.
+
+Test:
+
+1. Grab suitcase.
+2. Move it sideways quickly.
+3. Stop player/camera.
+4. Observe oscillation.
+
+Expected:
+
+oscillation amplitude visibly decays.
+
+Object should settle quickly.
+
+Test:
+
+rotate player left/right rapidly.
+
+Expected:
+
+object follows with weight,
+but does not enter endless rotational oscillation.
+
+Test:
+
+touch doorway/wall while holding.
+
+Expected:
+
+object reacts physically,
+but does not gain uncontrolled energy.
+
+Add configurable physics tuning values.
+
+Do not scatter tuning magic numbers across scripts.
+
+==================================================
+21. CHECK-IN SHOULD BECOME PHYSICAL, BUT SHORT
+==================================================
+
+Guests should physically arrive over time.
+
+Avoid all guests appearing simultaneously.
+
+Simple sequence:
+
+Guest enters lobby.
+Guest approaches reception.
+Guest waits.
+
+If room assignment already exists:
+
+player can perform a quick check-in interaction.
+
+Possible:
+give room key / keycard.
+
+Keep this 5–15 seconds.
+
+Do NOT make reception paperwork a long minigame.
+
+If players are busy:
+guest waits;
+patience slowly decreases.
+
+This creates light scheduling pressure.
+
+==================================================
+22. LUGGAGE
+==================================================
+
+Luggage should exist,
+especially because the physical grab system is useful.
+
+But luggage delivery must NOT become a mandatory core chore.
+
+Helping with luggage should be:
+
+optional;
+situational;
+possibly reward:
+small tip / satisfaction bonus.
+
+Ignoring it should usually be acceptable.
+
+Do not turn game into:
+
+Suitcase Delivery Simulator.
+
+==================================================
+23. GUEST-GUEST CONFLICTS
+==================================================
+
+Guest conflicts should initially emerge primarily from:
+
+NOISE.
+
+Do not create scripted argument cutscenes.
+
+Example:
+
+Room 102:
+BusinessGuest.
+
+Room 103:
+Noisy BudgetTraveler.
+
+BudgetTraveler begins LoudActivity.
+
+Noise enters Room 102.
+
+BusinessGuest dissatisfaction increases.
+
+Complaint occurs.
+
+Players now choose:
+
+- ask / influence noisy guest;
+- move business guest;
+- move noisy guest;
+- compensate;
+- ignore.
+
+For Prototype 0.2,
+a very simple "request quiet" interaction can temporarily lower noisy activity output.
+
+But it should not always be a permanent magical solution.
+
+==================================================
+24. HOUSEKEEPING / ROOM TURNOVER
+==================================================
+
+Only implement this AFTER:
+guest simulation,
+noise,
+fast-forward,
+physics fix,
+and electricity
+are stable.
+
+Room turnover should be a MANAGEMENT CAPACITY SYSTEM.
+
+NOT a cleaning game.
+
+After checkout:
+
+Room becomes Dirty.
+
+Dirty room cannot normally accept a new guest.
+
+Introduce one basic NPC housekeeper.
+
+Housekeeper has:
+
+work queue;
+movement;
+cleaning duration;
+current task.
+
+Players can set room cleaning priority.
+
+Example:
+
+Room 101:
+next guest arrives soon.
+
+Room 103:
+no booking until later.
+
+Players prioritize Room 101.
+
+This creates:
+
+capacity planning.
+
+==================================================
+25. PLAYER HOUSEKEEPING INTERVENTION
+==================================================
+
+Players may optionally assist with room preparation.
+
+But:
+
+DO NOT create:
+10 trash items;
+5 towels;
+3 stains;
+bathroom scrub minigame.
+
+Prototype 0.2 should keep manual intervention concise.
+
+Possible:
+
+player enters dirty room;
+performs one short contextual "help clean" action;
+room cleaning progress accelerates.
+
+The main gameplay decision is:
+
+WHICH ROOM MATTERS FIRST?
+
+not:
+
+"click every piece of garbage."
+
+==================================================
+26. NPC HOUSEKEEPER LIMITS
+==================================================
+
+NPC exists to remove repetitive work.
+
+Do not make NPC solve the whole game.
+
+One housekeeper:
+can only clean one room at a time.
+
+If many guests check out:
+
+queue appears.
+
+Players decide priority.
+
+This creates another hotel capacity constraint.
+
+Do not add:
+skills;
+employee morale;
+wages;
+break schedules;
+hiring market.
+
+Not yet.
+
+==================================================
+27. DAY PACING
+==================================================
+
+After Prototype 0.2,
+a typical day should not feel like:
+
+Planning:
+2 minutes.
+
+Gameplay:
+1 minute.
+
+Waiting:
+2 minutes.
+
+Instead:
+
+Planning
+→ arrivals
+→ guest activities
+→ small state changes
+→ decisions
+→ possible complaints
+→ infrastructure pressure
+→ quiet period if lucky
+→ fast-forward
+→ next meaningful event.
+
+There should normally be:
+
+a meaningful decision,
+important observation,
+or state change
+
+approximately every 20–30 real seconds
+
+during active play.
+
+This does NOT mean:
+
+spawn a problem every 20 seconds.
+
+Quiet moments are allowed.
+
+But if nothing matters:
+players should be able to fast-forward.
+
+==================================================
+28. DAY 1 / DAY 2 / DAY 3 PACING
+==================================================
+
+Preserve the three-day prototype.
+
+DAY 1
+
+Goal:
+teach Living Hotel behavior.
+
+- few guests;
+- relatively safe boiler;
+- guest arrivals are staggered;
+- at least one guest activity affects heating;
+- possible minor complaint;
+- noise system visible but forgiving.
+
+Day 1 should NOT contain guaranteed disaster.
+
+But it should no longer contain long empty waiting.
+
+DAY 2
+
+- more guests;
+- room adjacency starts to matter;
+- noise conflict likely if players make poor assignments;
+- portable heater available;
+- electrical system becomes relevant;
+- more infrastructure pressure.
+
+DAY 3
+
+- attractive high-paying applications;
+- deteriorated boiler;
+- multiple guest personalities;
+- players are tempted to overload hotel;
+- heater can create electrical problems;
+- potentially 2–3 simultaneous situations.
+
+Again:
+
+DO NOT script mandatory catastrophe.
+
+Careful management may avoid disaster,
+but earns less money.
+
+==================================================
+29. CROSS-SYSTEM GAMEPLAY
+==================================================
+
+Prototype 0.2 must demonstrate at least one chain involving multiple systems.
+
+Ideal example:
+
+Players accept too many guests.
+
+↓
+
+Boiler load rises.
+
+↓
+
+Room 104 becomes cold.
+
+↓
+
+ColdSensitiveGuest complains.
+
+↓
+
+Players decide not to repair boiler immediately.
+
+↓
+
+They bring portable heater.
+
+↓
+
+Room temperature improves.
+
+↓
+
+Guest becomes happier.
+
+↓
+
+Circuit B load exceeds safe capacity.
+
+↓
+
+Breaker trips.
+
+↓
+
+Rooms 104–106 lose power.
+
+↓
+
+BusinessGuest in Room 105 becomes unhappy.
+
+This is EXACTLY the kind of emergent chain the game needs.
+
+==================================================
+30. DO NOT SCRIPT THAT CHAIN
+==================================================
+
+Very important.
+
+Do NOT write:
+
+SequenceManager:
+Step 1 cold complaint
+Step 2 heater
+Step 3 breaker trip.
+
+The chain must emerge because:
+
+Room 104 temperature is low.
+
+Heater actually adds heat.
+
+Heater actually consumes electricity.
+
+Circuit actually calculates load.
+
+Breaker actually reacts to overload.
+
+BusinessGuest actually reacts to power loss.
+
+Each system should work independently.
+
+==================================================
+31. UI CHANGES
+==================================================
+
+Keep UI readable and diegetic where practical.
+
+Planning screen should now communicate:
+
+Guest:
+- price;
+- main traits;
+- temperature sensitivity;
+- noise sensitivity.
+
+Rooms:
+- temperature tendency;
+- condition;
+- adjacency / location;
+- current circuit if relevant.
+
+Do not show players every underlying numeric stat by default.
+
+Use readable labels.
+
+Examples:
+
+Temperature:
+Warm
+Normal
+Cold-prone
+
+Noise:
+Quiet
+Average
+Noisy neighbor risk
+
+Guest:
+Noise Sensitive
+Cold Sensitive
+Low Maintenance
+
+==================================================
+32. ACTIVE SITUATION UI
+==================================================
+
+Do not create giant quest tracker.
+
+HUD may show:
+
+ROOM 104
+Too cold
+Guest patience declining.
+
+ROOM 102
+Noise complaint.
+
+CIRCUIT B
+High load.
+
+These are STATES,
+not task instructions.
+
+Do not show:
+
+"Go to room 104."
+"Pick up heater."
+"Deliver heater."
+
+Let players decide.
+
+==================================================
+33. VISUAL DIRECTION
+==================================================
+
+Preserve the existing established art direction from Prototype 0.1 and the attached visual reference.
+
+Do NOT replace the hotel with greybox geometry.
+
+Do NOT begin a massive production art pass either.
+
+Continue the existing visual philosophy:
+
+"Once-luxurious old grand hotel
+that has been repaired for decades
+faster than it can completely fall apart."
+
+New gameplay systems must be visually readable.
+
+Examples:
+
+Electrical panel:
+actual 3D panel geometry.
+
+Portable heater:
+large readable stylized silhouette.
+
+Guests:
+visually readable traits where possible.
+
+Examples:
+Business guest:
+clean formal silhouette.
+
+Budget traveler:
+more casual.
+
+Do not make caricatures offensive or stereotypical.
+
+==================================================
+34. ENVIRONMENTAL FEEDBACK
+==================================================
+
+Systems should communicate through the environment.
+
+HEATING PROBLEM:
+
+radiator cooling;
+boiler sound changes;
+gauge;
+steam / pressure cues.
+
+POWER PROBLEM:
+
+lights flicker;
+breaker panel indicator;
+room devices switch off;
+audible breaker snap.
+
+NOISE:
+
+sound actually audible near source;
+guest room noise source.
+
+Do not rely entirely on UI.
+
+==================================================
+35. AUDIO
+==================================================
+
+Add or improve placeholder audio for:
+
+guest footsteps;
+lobby arrival;
+guest room door;
+shower;
+TV/music/noisy activity;
+electrical hum;
+overload warning;
+breaker trip;
+breaker reset;
+portable heater;
+guest phone/reception complaint.
+
+Audio should help players notice situations before staring at UI.
+
+==================================================
+36. ARCHITECTURE
+==================================================
+
+Preserve separation between:
+
+HOTEL SIMULATION
+
+SITUATION GENERATION
+
+PLAYER PHYSICAL ACTIONS.
+
+Suggested additional components:
+
+GuestScheduleSystem
+GuestActivityController
+GuestNeedEvaluator
+SituationSystem
+SituationInstance
+NoiseSystem
+RoomAdjacencyGraph
+ElectricalSystem
+ElectricalCircuit
+PowerConsumer
+PortableHeater
+HotelGameClock
+WaitController
+HousekeepingSystem
+HousekeeperAgent
+
+Do not create one giant:
+LivingHotelManager.cs
+
+Avoid singleton abuse.
+
+==================================================
+37. CONFIGURATION
+==================================================
+
+Balance must remain data-driven.
+
+Configurable values include:
+
+Guest:
+temperature preference;
+temperature tolerance;
+noise tolerance;
+patience;
+complaint delay;
+activity probabilities/windows.
+
+Noise:
+activity output;
+wall attenuation;
+neighbor attenuation.
+
+Electricity:
+circuit capacity;
+consumer load;
+overload warning duration;
+breaker trip duration.
+
+Heater:
+electric load;
+heat output.
+
+Housekeeping:
+clean duration;
+priority.
+
+Time:
+guest activity schedule;
+arrival windows;
+fast-forward speed.
+
+Use ScriptableObjects for immutable definitions/config.
+
+Do NOT store shared runtime state in mutable ScriptableObjects.
+
+==================================================
+38. SIMULATION CLOCK
+==================================================
+
+Extend existing simulation architecture cleanly.
+
+Hotel simulation must not depend directly on:
+
+Time.time
+
+all over the project.
+
+Introduce a central game clock if one does not exist.
+
+Systems query:
+
+IGameClock
+or equivalent.
+
+This makes:
+
+- fast-forward;
+- deterministic testing;
+- future multiplayer;
+- replay/debugging
+
+much easier.
+
+Physics continues using Unity physics timing.
+
+Hotel simulation uses hotel simulation time.
+
+==================================================
+39. DEBUG PANEL
+==================================================
+
+Expand developer debug tools.
+
+Need controls to:
+
+Set hotel simulation speed.
+
+Advance to next scheduled event.
+
+Select guest.
+
+Inspect guest:
+- needs;
+- schedule;
+- activity;
+- dissatisfaction;
+- current situations.
+
+Force activity:
+- Shower
+- Quiet
+- Loud
+
+Set room temperature.
+
+Set room noise.
+
+Toggle portable heater.
+
+Set circuit load.
+
+Trip breaker.
+
+Reset breaker.
+
+Set boiler condition.
+
+Force checkout.
+
+Mark room dirty.
+
+Assign housekeeper.
+
+This is important for testing.
+
+==================================================
+40. DEBUG VISUALIZATION
+==================================================
+
+Optional but strongly recommended:
+
+developer-only overlay showing:
+
+Room 101
+Temp: 21.3
+Noise: 14
+Power: ON
+Circuit A load: 3/4
+
+Guest:
+Comfort
+Noise dissatisfaction: 0.15
+
+Do not ship this as normal UI.
+
+Use it for simulation tuning.
+
+==================================================
+41. TESTS
+==================================================
+
+Preserve all existing tests.
+
+Add EditMode tests for:
+
+Guest temperature dissatisfaction.
+
+Guest noise dissatisfaction.
+
+Situation escalation.
+
+Situation resolution when underlying state changes.
+
+Room adjacency noise propagation.
+
+Electrical circuit load calculation.
+
+Electrical overload timer.
+
+Breaker trip.
+
+Breaker re-trip if load remains excessive.
+
+Portable heater:
+adds heat.
+
+Portable heater:
+adds electrical load.
+
+Fast-forward simulation clock.
+
+Seeded guest schedules.
+
+Room turnover state.
+
+Housekeeper priority selection.
+
+==================================================
+42. PLAYMODE / MANUAL TESTS
+==================================================
+
+Create clear manual test scenarios.
+
+SCENARIO A — Noise conflict
+
+Put NoiseSensitive guest in Room 102.
+
+Put Noisy guest in Room 103.
+
+Trigger loud activity.
+
+Expected:
+Room 102 receives noise.
+Guest dissatisfaction increases.
+Complaint eventually appears.
+
+Move one guest.
+
+Expected:
+noise exposure ends.
+Situation resolves / stops escalating.
+
+------------------------------
+
+SCENARIO B — Heater consequence
+
+Make Room 104 cold.
+
+Cold-sensitive guest complains.
+
+Place heater in Room 104.
+
+Expected:
+temperature improves.
+
+Electrical Circuit B:
+load increases.
+
+------------------------------
+
+SCENARIO C — Electrical overload
+
+Create excessive Circuit B load.
+
+Expected:
+warning.
+breaker trips.
+
+Remove heater / load.
+
+Reset breaker.
+
+Expected:
+power remains restored.
+
+------------------------------
+
+SCENARIO D — Incorrect breaker reset
+
+Leave overload active.
+
+Reset breaker.
+
+Expected:
+circuit trips again.
+
+------------------------------
+
+SCENARIO E — Held suitcase
+
+Shake suitcase while held.
+
+Stop movement.
+
+Expected:
+oscillation decays quickly.
+
+No infinite vibration.
+
+------------------------------
+
+SCENARIO F — No dead time
+
+Finish all immediate tasks.
+
+Both players choose WAIT.
+
+Expected:
+simulation advances quickly.
+
+Stops automatically at next meaningful event.
+
+==================================================
+43. PERFORMANCE
+==================================================
+
+This is a small prototype.
+
+Do not prematurely optimize.
+
+But avoid:
+
+every guest performing expensive scene searches every Update;
+
+FindObjectOfType in gameplay loops;
+
+allocating large lists every simulation tick;
+
+each guest independently querying entire hotel.
+
+Use central systems where appropriate.
+
+Guest needs can update at lower simulation frequency.
+
+Example:
+2–4 times per second is more than enough.
+
+==================================================
+44. IMPORTANT NON-GOALS
+==================================================
+
+DO NOT add:
+
+restaurant;
+pool;
+spa;
+weddings;
+conference events;
+VIP floor;
+second hotel floor;
+elevator;
+full employee management;
+employee wages;
+employee skill trees;
+inventory crafting;
+dozens of repair tools;
+food simulation;
+hunger simulation;
+online multiplayer;
+procedural hotel;
+city exterior;
+story campaign;
+complex dialogue system;
+random fetch quest system.
+
+Do not add these even if they seem easy.
+
+Add them to BACKLOG only.
+
+==================================================
+45. DO NOT OVER-REFactor
+==================================================
+
+Prototype 0.1 is already working.
+
+Do not rewrite functioning systems just because another architecture looks cleaner.
+
+Refactor only when needed to support:
+
+Living Guests;
+Simulation Clock;
+Situations;
+Electricity;
+Physics stability.
+
+Maintain playable builds throughout development.
+
+==================================================
+46. IMPLEMENTATION ORDER
+==================================================
+
+PHASE 0 — BASELINE
+
+- inspect project;
+- compile;
+- tests;
+- document current behavior.
+
+------------------------------
+
+PHASE 1 — PHYSICS STABILITY
+
+Fix held-object oscillation.
+
+Create suitcase test.
+
+Do not continue until grab behavior is stable.
+
+------------------------------
+
+PHASE 2 — SIMULATION CLOCK + FAST FORWARD
+
+Implement HotelGameClock.
+
+Implement event-aware WAIT system.
+
+Make sure physics stays stable.
+
+------------------------------
+
+PHASE 3 — LIVING GUESTS
+
+Add:
+movement;
+guest schedule;
+guest activities;
+arrival timing.
+
+No new infrastructure yet.
+
+------------------------------
+
+PHASE 4 — NEEDS + SITUATIONS
+
+Temperature.
+Noise.
+Room condition.
+Patience.
+
+State-driven Situation system.
+
+No random chore generator.
+
+------------------------------
+
+PHASE 5 — GUEST CONFLICTS
+
+Room adjacency.
+Noise propagation.
+Noise-sensitive behavior.
+
+Verify planning assignments matter.
+
+------------------------------
+
+PHASE 6 — MULTIPLE SOLUTIONS
+
+Room move.
+
+Compensation.
+
+Ignore.
+
+Portable heater.
+
+Ensure UI communicates problem,
+not prescribed solution.
+
+------------------------------
+
+PHASE 7 — ELECTRICITY
+
+Circuits.
+Power consumers.
+Breaker.
+Overload.
+Physical breaker panel.
+
+Connect heater to electricity.
+
+------------------------------
+
+PHASE 8 — HOUSEKEEPING
+
+Only after previous systems work.
+
+Checkout → dirty room.
+
+One NPC housekeeper.
+
+Priority queue.
+
+No cleaning minigame.
+
+------------------------------
+
+PHASE 9 — THREE-DAY BALANCE
+
+Retune Day 1–3.
+
+Remove long empty waits.
+
+Ensure systems create increasing complexity.
+
+------------------------------
+
+PHASE 10 — POLISH
+
+Audio cues.
+VFX.
+Visual feedback.
+UI clarity.
+Bug fixes.
+
+==================================================
+47. HARD GATE AFTER EACH PHASE
+==================================================
+
+After every phase:
+
+1. Compile the project.
+
+2. Run tests.
+
+3. Launch / validate relevant gameplay path if possible.
+
+4. Update:
+
+docs/CHANGELOG.md
+
+5. Document:
+- what changed;
+- known issues;
+- tuning values;
+- manual verification steps.
+
+6. Do not start the next phase while the current phase contains major compile/runtime errors.
+
+==================================================
+48. ACCEPTANCE CRITERIA — PROTOTYPE 0.2
+==================================================
+
+Prototype 0.2 is complete only if:
+
+1.
+Guests are active simulation agents.
+
+2.
+Guests arrive at different times.
+
+3.
+Guests perform activities after check-in.
+
+4.
+At least one guest activity affects boiler load.
+
+5.
+At least one guest activity generates noise.
+
+6.
+Noise propagates between adjacent rooms.
+
+7.
+Different guests react differently to the same conditions.
+
+8.
+A complaint originates from world state,
+not from a random quest generator.
+
+9.
+Room assignment during Planning Phase can create or prevent a later problem.
+
+10.
+Cold guest situation has multiple valid responses.
+
+11.
+Portable heater actually affects room heating.
+
+12.
+Portable heater actually consumes electricity.
+
+13.
+Electrical overload can trip a breaker.
+
+14.
+Resetting the breaker without solving overload can cause another trip.
+
+15.
+Players can choose compensation instead of physical repair.
+
+16.
+Players may ignore a situation and accept consequences.
+
+17.
+Fast-forward exists.
+
+18.
+Fast-forward does not rely on globally accelerating Rigidbody physics.
+
+19.
+Fast-forward ends when something meaningful happens.
+
+20.
+Two players must consent to fast-forward.
+
+21.
+Held suitcase oscillations decay.
+
+22.
+Held physics does not continuously gain energy.
+
+23.
+Guest conflicts can emerge from noise.
+
+24.
+Three-day progression still works.
+
+25.
+Day 1 no longer contains obvious multi-minute dead periods.
+
+26.
+Day 3 can naturally produce multiple simultaneous situations.
+
+27.
+Those simultaneous situations arise from simulation state.
+
+28.
+Basic room turnover / housekeeper system works.
+
+29.
+Housekeeping does not become the dominant player activity.
+
+30.
+Existing art direction remains intact.
+
+==================================================
+49. CORE PLAYTEST QUESTIONS
+==================================================
+
+After Prototype 0.2, the most important questions are:
+
+Did players discuss where to place guests?
+
+Did a decision from Planning Phase visibly matter later?
+
+Did players ever say:
+
+"We shouldn't have put those two next to each other"?
+
+Did players ever solve one problem
+and accidentally create another?
+
+Did players choose between:
+
+money,
+guest happiness,
+and infrastructure safety?
+
+Did players ever intentionally ignore a complaint?
+
+Did players use more than one solution to the same type of problem?
+
+Did the hotel feel alive while the players were doing nothing?
+
+Did players ever need to use WAIT because things were genuinely quiet,
+rather than because the design simply ran out of content?
+
+Did physical carrying feel stable and pleasant?
+
+Most important:
+
+Did the game create a story that was NOT explicitly scripted?
+
+Example:
+
+"We put the businessman beside the loud tourist.
+Then the boiler started failing.
+We gave Room 104 a heater.
+That knocked out Circuit B.
+Then the businessman lost power and got even angrier."
+
+If this kind of story emerges from independent systems,
+Prototype 0.2 is successful.
+
+==================================================
+50. DESIGN PHILOSOPHY REMINDER
+==================================================
+
+The Worst Hotel Ever must NOT become:
+
+"Hotel-themed Overcooked with a list of chores."
+
+It should become:
+
+"A cooperative management simulation
+where players deliberately run an old hotel too close to its limits,
+then physically intervene when their decisions create cascading problems."
+
+A physical action is good when it is the CONSEQUENCE of a meaningful decision.
+
+Bad:
+
+"The game told me to carry a heater."
+
+Good:
+
+"Room 104 is freezing.
+Repairing the boiler is expensive.
+We decided to use a heater.
+Now we have to physically get it there.
+And now the electrical circuit is overloaded."
+
+Always protect this distinction.

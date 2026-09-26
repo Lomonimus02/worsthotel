@@ -1,0 +1,1541 @@
+You are continuing development of the EXISTING Unity project:
+
+THE WORST HOTEL EVER
+
+This is NOT a new project.
+Do NOT rebuild existing working systems.
+
+The current prototype already contains, in some form:
+
+- three-day hotel loop;
+- Solo mode;
+- LAN / direct-IP co-op foundation;
+- reception and booking applications;
+- room assignment;
+- physical room keys;
+- room turnover / linen;
+- guest simulation;
+- guest activities;
+- boiler / heating;
+- electricity;
+- noise;
+- physical interactions;
+- guest complaints;
+- compensation;
+- room relocation;
+- hotel economy.
+
+The next milestone is:
+
+PROTOTYPE 0.3 — GUEST AGENCY
+
+==================================================
+0. WHY THIS PASS EXISTS
+==================================================
+
+A full three-day solo playtest revealed a fundamental problem.
+
+The game has a reasonable amount of activity and pacing,
+but guest interaction currently feels too linear and abstract.
+
+Example current problem:
+
+The player receives many:
+
+NOISE DISTURBANCE
+
+notifications.
+
+However:
+
+- some have no understandable physical source;
+- the player cannot determine why the noise exists;
+- the player often cannot affect the underlying cause;
+- many complaints feel identical;
+- the same problem may create repeated notifications;
+- the obvious fallback becomes compensation.
+
+This makes guests feel like:
+
+complaint generators
+
+instead of:
+
+people living inside a simulated hotel.
+
+The goal of Prototype 0.3 is NOT:
+
+MORE NOTIFICATIONS.
+
+The goal is:
+
+MORE CAUSALITY,
+MORE READABILITY,
+MORE PLAYER AGENCY.
+
+==================================================
+1. CORE DESIGN LOOP
+==================================================
+
+Guest-related gameplay should follow:
+
+CAUSE
+→ GUEST EXPERIENCES IT
+→ GUEST REACTS
+→ PLAYER UNDERSTANDS WHY
+→ PLAYER CHOOSES A RESPONSE
+→ WORLD STATE CHANGES
+→ GUEST REMEMBERS THE RESULT.
+
+Not:
+
+Random complaint
+→ notification
+→ Offer Money.
+
+==================================================
+2. ONLY THREE SITUATION FAMILIES
+==================================================
+
+Do NOT add many new complaint types.
+
+For Prototype 0.3 focus on only:
+
+1. NOISE
+2. TEMPERATURE
+3. ROOM CONDITION
+
+Make these three GOOD.
+
+Do not add:
+
+hunger;
+food orders;
+entertainment requests;
+dozens of personal requests;
+concierge errands;
+random fetch quests;
+complex dialogue quests.
+
+Depth before breadth.
+
+==================================================
+3. NO ABSTRACT COMPLAINTS
+==================================================
+
+This is a hard rule.
+
+A complaint must NOT exist unless there is an identifiable underlying cause.
+
+Example:
+
+INVALID:
+
+Guest 102
+Noise dissatisfaction = high
+→ Noise Complaint
+
+with no source.
+
+VALID:
+
+Guest in Room 103
+is performing LoudTVActivity
+
+↓
+
+LoudTVActivity creates:
+NoiseOutput = 68
+
+↓
+
+Room adjacency causes Room 102 to receive:
+Noise = 44
+
+↓
+
+Guest in Room 102 has:
+ComfortNoiseMax = 32
+
+↓
+
+Noise dissatisfaction accumulates.
+
+↓
+
+Guest complains.
+
+Every noise complaint must know:
+
+AffectedGuest
+AffectedRoom
+SourceType
+SourceEntity
+SourceRoom
+CurrentIntensity
+
+If the system cannot identify a source:
+
+DO NOT GENERATE A NOISE COMPLAINT.
+
+==================================================
+4. NOISE SOURCES
+==================================================
+
+Create a general noise-source architecture.
+
+Prefer something conceptually like:
+
+INoiseSource
+
+with:
+
+NoiseOutput
+Active
+SourcePosition / Room
+NoiseCategory
+
+Possible Prototype 0.3 noise sources:
+
+- Loud TV / music.
+- Guest phone call / loud conversation.
+- Guest social / loud room activity.
+- Shower / plumbing noise if appropriate.
+- Door repeatedly slamming if already supported.
+- Actual hotel machinery ONLY if it genuinely exists.
+
+Do NOT generate fake invisible noise.
+
+Every source should have world feedback.
+
+Examples:
+
+TV:
+audible through door.
+
+Phone call:
+muffled speech.
+
+Music:
+clearly audible.
+
+Plumbing:
+actual pipe / water sound.
+
+The player should often be able to locate a source WITHOUT a quest marker.
+
+==================================================
+5. ONE PROBLEM = ONE SITUATION
+==================================================
+
+The current game must stop spamming repeated complaints for the same underlying problem.
+
+Introduce or strengthen:
+
+SituationInstance.
+
+Example key:
+
+SituationType = Noise
+AffectedGuest = Guest_12
+SourceEntity = TV_Room103
+
+If this situation already exists:
+
+DO NOT create another notification.
+
+Instead:
+
+update severity;
+update duration;
+escalate the existing Situation.
+
+Possible stages:
+
+Discomfort
+Complaint
+Frustrated
+Angry
+DemandsAction
+LeavingRisk
+
+A single persistent problem should remain one case.
+
+==================================================
+6. SITUATION DEDUPLICATION
+==================================================
+
+Implement a deterministic SituationKey.
+
+Example conceptual structure:
+
+SituationKey:
+- SituationType
+- AffectedGuestId
+- SourceEntityId
+
+or equivalent.
+
+SituationSystem should:
+
+Find existing situation.
+
+If found:
+update it.
+
+If not found:
+create it.
+
+Do NOT let one loud TV generate 8 separate noise complaints for the same guest.
+
+==================================================
+7. ACTIVITIES ARE NOT SITUATIONS
+==================================================
+
+This distinction is critical.
+
+ACTIVITY:
+
+Guest watches TV.
+
+This is normal life.
+
+No notification.
+
+ACTIVITY:
+
+Guest takes shower.
+
+Normal life.
+
+No notification.
+
+ACTIVITY:
+
+Guest talks on phone.
+
+Normal life.
+
+No notification.
+
+Only when activity causes meaningful negative consequences:
+
+SITUATION.
+
+Example:
+
+TV itself is not a problem.
+
+TV heard by noise-sensitive neighbor for long enough:
+
+problem.
+
+This will make the hotel feel busy
+without turning every event into work.
+
+==================================================
+8. EXPAND GUEST LIFE — BUT KEEP IT SMALL
+==================================================
+
+Guests currently repeat too few activities.
+
+Add enough variation for guests to feel like hotel residents.
+
+Target approximately:
+
+7–9 high-level activity types.
+
+Suggested:
+
+Arrive / CheckIn
+
+Unpack
+
+Rest
+
+WatchTV
+
+PhoneCall / Work
+
+Shower
+
+Sleep
+
+LeaveHotel
+
+ReturnToHotel
+
+Pack / Checkout
+
+Not every guest needs every activity.
+
+Do NOT create a life simulator.
+
+Activities may remain mechanically simple.
+
+==================================================
+9. GUESTS SHOULD SPEND TIME DOING NOTHING IMPORTANT
+==================================================
+
+It is completely acceptable for a guest to:
+
+rest quietly;
+sit;
+sleep;
+leave the hotel;
+work quietly.
+
+Not every guest should constantly create gameplay.
+
+The hotel should have:
+
+BACKGROUND LIFE
+
+and
+
+ACTIONABLE PROBLEMS.
+
+These are different.
+
+The player should sometimes walk through the hotel
+and simply hear that people are living there.
+
+==================================================
+10. ACTIVITIES SHOULD DEPEND ON PERSONALITY
+==================================================
+
+Guest archetypes / traits should influence behavior,
+not only numerical dissatisfaction multipliers.
+
+Examples:
+
+BUSINESS GUEST
+
+More likely:
+- Work
+- PhoneCall
+- early sleep
+
+Less tolerant:
+- night noise
+- unresolved service problems
+
+TOURIST / BUDGET TRAVELER
+
+More likely:
+- LeaveHotel
+- ReturnLate
+- WatchTV
+
+Potentially:
+- more tolerant overall
+
+NOISY GUEST TRAIT
+
+More likely:
+- LoudTV
+- LoudPhoneCall
+- LoudActivity
+
+COLD-SENSITIVE GUEST
+
+Potentially:
+- prefers warmer room;
+- may take longer hot shower;
+- contributes somewhat more heating demand.
+
+Keep these differences readable during booking / planning.
+
+==================================================
+11. SCHEDULE VARIATION
+==================================================
+
+Avoid every guest doing:
+
+Shower
+→ TV
+→ Sleep
+
+at identical times.
+
+Use:
+
+activity windows;
+trait preferences;
+seeded randomness.
+
+Example:
+
+Guest A:
+check in
+→ unpack
+→ leave hotel
+→ return
+→ shower
+→ sleep.
+
+Guest B:
+check in
+→ work
+→ phone call
+→ quiet rest
+→ sleep.
+
+Guest C:
+check in
+→ TV
+→ shower
+→ TV
+→ sleep.
+
+Schedules should be reproducible enough for debugging.
+
+==================================================
+12. NOISE: PLAYER RESPONSES
+==================================================
+
+Noise must have multiple possible responses.
+
+Example:
+
+Room 102 complains about Room 103.
+
+Possible player choices:
+
+A. ASK SOURCE GUEST TO QUIET DOWN
+
+Knock on Room 103.
+
+Contextual action:
+
+"Ask to keep it down."
+
+This changes actual simulation.
+
+Example:
+
+NoiseOutput:
+70 → 20.
+
+Do not just mark complaint complete.
+
+------------------------------
+
+B. MOVE AFFECTED GUEST
+
+Move Guest 102 elsewhere.
+
+Requires:
+- available suitable room;
+- corresponding room key;
+- physical relocation flow.
+
+The noise exposure then naturally stops.
+
+------------------------------
+
+C. MOVE NOISY GUEST
+
+Also valid when a room exists.
+
+------------------------------
+
+D. COMPENSATE
+
+Compensation improves guest reaction / patience.
+
+BUT DOES NOT REMOVE NOISE.
+
+If source remains loud:
+
+dissatisfaction can begin accumulating again.
+
+------------------------------
+
+E. IGNORE
+
+Accept:
+- lower satisfaction;
+- worse review;
+- possible escalation.
+
+This is a legitimate management decision.
+
+==================================================
+13. ASK TO KEEP IT DOWN IS NOT MAGIC
+==================================================
+
+Do not make:
+
+AskToKeepItDown
+→ source permanently silent forever.
+
+Guest traits should matter.
+
+Example:
+
+Normal guest:
+usually remains quieter.
+
+Noisy guest:
+may resume loud behavior later.
+
+Repeated requests should affect guest response.
+
+More on memory below.
+
+==================================================
+14. TEMPERATURE SITUATIONS
+==================================================
+
+Temperature should follow the same philosophy.
+
+Cause examples:
+
+- boiler underperforming;
+- excessive heating demand;
+- room receives poor heating;
+- power loss disables portable heater.
+
+Guest experiences cold.
+
+Possible responses:
+
+- repair / improve boiler;
+- use heater;
+- move guest;
+- compensation;
+- ignore.
+
+Again:
+
+complaint must resolve because actual guest temperature experience improved
+or because guest moved / left.
+
+Do NOT resolve it by pressing:
+"Resolve Temperature Complaint."
+
+==================================================
+15. ROOM CONDITION SITUATIONS
+==================================================
+
+Room-condition complaints must also have concrete causes.
+
+Do NOT use:
+
+RoomCondition = 42%
+→ generic complaint
+
+unless the player can understand what 42% physically means.
+
+Use concrete state where possible.
+
+Prototype examples:
+
+- room not properly prepared;
+- dirty linen remains;
+- trash remains;
+- obvious fixture is broken IF that fixture actually exists;
+- room is still marked degraded because of a real supported issue.
+
+Guest should complain about the concrete issue.
+
+Example:
+
+"The bed hasn't been changed."
+
+Not:
+
+"The room condition is poor."
+
+If a physical/systemic cause is not implemented,
+do not generate that complaint yet.
+
+==================================================
+16. SITUATION DISCOVERY
+==================================================
+
+Do not always reveal perfect information immediately.
+
+But give enough clues that investigation is possible.
+
+Example:
+
+Complaint:
+
+ROOM 102
+"I can hear someone next door."
+
+Player now knows:
+
+source is probably adjacent.
+
+No quest arrow required.
+
+Walk toward Room 103.
+
+Hear TV.
+
+Now the cause is clear.
+
+For temperature:
+
+"It is freezing in here."
+
+Player can:
+- inspect room temperature;
+- check boiler;
+- think about moving guest.
+
+For room condition:
+
+"The sheets don't look clean."
+
+Cause is obvious.
+
+==================================================
+17. WORLD FEEDBACK OVER UI
+==================================================
+
+Whenever possible:
+
+WORLD FIRST,
+UI SECOND.
+
+Noise:
+
+hear it.
+
+Cold room:
+
+radiator is cold;
+room thermometer;
+guest behavior if available.
+
+Power issue:
+
+lights off;
+heater stops.
+
+Dirty room:
+
+visibly unmade bed.
+
+The HUD should communicate important situations,
+not replace observation.
+
+==================================================
+18. GUEST MEMORY
+==================================================
+
+Add lightweight memory.
+
+Do NOT create AI memory / LLM dialogue.
+
+Simple state only.
+
+Each guest should track:
+
+NumberOfComplaints
+RepeatedProblemCount by category
+CompensationReceived
+ProblemsResolvedSuccessfully
+ProblemsIgnored
+PreviousNoiseWarnings if guest is source
+
+This should influence future reactions.
+
+==================================================
+19. REPEATED PROBLEM ESCALATION
+==================================================
+
+Example:
+
+Business guest complains about noise.
+
+FIRST TIME:
+
+player solves it quickly.
+
+Guest:
+mostly satisfied.
+
+SECOND TIME:
+
+same night.
+
+Guest:
+patience is lower.
+
+THIRD TIME:
+
+guest may no longer accept a tiny compensation.
+
+Possible reaction:
+
+"I already complained about this."
+
+May request:
+- room change;
+- larger compensation;
+- eventually leave.
+
+Do not create complex dialogue.
+
+Simple contextual text is sufficient.
+
+==================================================
+20. SOURCE GUEST MEMORY
+==================================================
+
+The noisy guest should also remember being warned.
+
+Example:
+
+First warning:
+
+"Sorry, I'll keep it down."
+
+Noise reduction strong.
+
+Second warning:
+
+guest becomes slightly annoyed.
+
+Third warning:
+
+depending on trait,
+may:
+- remain quiet;
+- resume noise later;
+- become less cooperative.
+
+Keep this lightweight.
+
+The point is:
+
+interaction should not feel stateless.
+
+==================================================
+21. CONTEXTUAL GUEST INTERACTION
+==================================================
+
+When player knocks / talks to guest,
+show only contextually relevant actions.
+
+Example NOISE SOURCE:
+
+Ask to keep it down
+Offer room change
+Cancel
+
+Example COMPLAINING GUEST:
+
+Apologize
+Offer compensation
+Offer another room
+Cancel
+
+Do NOT show a giant dialogue menu.
+
+Do NOT build dialogue trees.
+
+==================================================
+22. NO GENERIC "INTERACT WITH GUEST" QUESTS
+==================================================
+
+Guest interaction exists to affect a real situation.
+
+Not:
+
+NPC wants chat.
+
+No arbitrary social quests.
+
+==================================================
+23. NOTIFICATIONS
+==================================================
+
+Reduce notification spam.
+
+Separate:
+
+AMBIENT EVENT
+
+from
+
+ACTIONABLE SITUATION.
+
+No notification for:
+
+Guest starts TV.
+
+Guest showers.
+
+Guest sleeps.
+
+Guest leaves hotel.
+
+Potentially subtle world / debug feedback only.
+
+Notification when:
+
+Guest actually contacts staff.
+
+Infrastructure reaches important warning.
+
+Guest situation escalates.
+
+==================================================
+24. NOTIFICATION COOLDOWN / UPDATE
+==================================================
+
+When an existing Situation escalates:
+
+update existing HUD entry.
+
+Do not repeatedly spawn new toast notifications.
+
+Example:
+
+Room 102 — Noise
+
+Stage 1:
+Complaint
+
+later:
+
+Room 102 — Noise
+Guest is becoming angry.
+
+This should be one persistent situation card / state.
+
+==================================================
+25. ACTIVE SITUATIONS UI
+==================================================
+
+Keep UI compact.
+
+Example:
+
+ROOM 102
+Noise complaint
+"I can hear someone next door."
+
+Severity:
+Concerned
+
+Do NOT show:
+
+GO TO ROOM 103
+PRESS E
+ASK GUEST TO QUIET DOWN
+
+Let the player reason.
+
+==================================================
+26. SITUATION HISTORY
+==================================================
+
+For debugging and potentially player clarity,
+store a short reason history.
+
+Example:
+
+Noise Situation:
+
+Source:
+Room 103 — Television
+
+Started:
+21:14
+
+Complaint:
+21:19
+
+Guest warned:
+21:21
+
+Noise reduced:
+21:21
+
+Resolved:
+21:22
+
+Do not necessarily expose full history to player UI.
+
+Useful for debug panel.
+
+==================================================
+27. LIFE INSIDE ROOMS
+==================================================
+
+Continue improving believable room occupancy.
+
+Activities should use correct anchors.
+
+Examples:
+
+WatchTV:
+sit / stand at reasonable TV/rest anchor.
+
+Work:
+desk anchor if room contains desk.
+
+Sleep:
+bed.
+
+Shower:
+bathroom.
+
+Unpack:
+luggage / room anchor.
+
+Do NOT allow:
+
+TV activity while standing in shower.
+
+Sleep standing.
+
+Phone call while clipped into bed.
+
+Perfect animation is not required.
+
+Correct staging is required.
+
+==================================================
+28. LEAVING THE HOTEL
+==================================================
+
+Add a simple:
+
+LeaveHotel
+ReturnToHotel
+
+activity.
+
+This provides a lot of perceived life for relatively little complexity.
+
+Guest:
+
+walks from room;
+exits hotel;
+becomes logically Away.
+
+Later:
+
+returns through lobby;
+goes to room.
+
+While Away:
+
+room still occupied,
+but guest cannot complain about room noise/temperature that they are not experiencing.
+
+This is important.
+
+Do not simulate the outside city.
+
+Guest may despawn after leaving front door
+and respawn on return.
+
+==================================================
+29. GUEST PERCEPTION MUST FOLLOW LOCATION
+==================================================
+
+Guest should only experience a room condition when actually relevant.
+
+Example:
+
+Guest is Away.
+
+Room 104 becomes cold.
+
+Do NOT accumulate temperature dissatisfaction.
+
+Guest returns.
+
+Now they experience room temperature.
+
+Likewise:
+
+Guest is in lobby.
+
+Noise in their room should not immediately affect them.
+
+This makes simulation more coherent.
+
+==================================================
+30. QUIET PERIODS ARE GOOD
+==================================================
+
+Do not tune guests so that someone complains every 20 seconds.
+
+Existing pacing already feels reasonably active.
+
+The goal is NOT to increase event frequency.
+
+Instead:
+
+make existing events meaningful.
+
+If there is genuinely nothing important happening:
+
+WAIT / FAST FORWARD remains correct.
+
+==================================================
+31. DO NOT ADD MORE INFRASTRUCTURE
+==================================================
+
+For this milestone:
+
+DO NOT add:
+
+water plumbing network;
+restaurant;
+food;
+pool;
+elevator;
+new floor;
+HVAC simulation;
+laundry machines;
+security;
+fire system;
+events / weddings;
+employee system.
+
+Work with current hotel.
+
+Guest depth first.
+
+==================================================
+32. ARCHITECTURE
+==================================================
+
+Inspect existing code before changing structure.
+
+Prefer extending existing systems.
+
+Possible concepts:
+
+GuestActivity
+GuestSchedule
+GuestMemory
+GuestPerception
+SituationInstance
+SituationKey
+SituationCause
+SituationSeverity
+INoiseSource
+RoomNoiseState
+
+Do NOT create one:
+
+GuestAgencyManager.cs
+
+that controls everything.
+
+Keep responsibilities separated.
+
+==================================================
+33. GUEST PERCEPTION
+==================================================
+
+Prefer a clear perception layer.
+
+Guest should evaluate:
+
+current environment
+
+based on:
+
+CurrentLocation
+AssignedRoom
+CurrentActivity
+
+Example:
+
+if guest in assigned room:
+
+evaluate:
+temperature
+noise
+room condition
+
+if guest away:
+
+do not evaluate room comfort
+
+if guest in lobby:
+
+evaluate only relevant lobby conditions if needed.
+
+This will prevent nonsensical complaints.
+
+==================================================
+34. DEBUG TOOLS
+==================================================
+
+Expand guest debug panel.
+
+For selected guest show:
+
+CurrentLocation
+CurrentActivity
+NextActivity
+AssignedRoom
+
+Temperature experienced
+Noise experienced
+Noise source(s)
+
+Current dissatisfaction:
+Temperature
+Noise
+RoomCondition
+
+Memory:
+Complaint count
+Repeated problems
+Compensation received
+
+Active Situations
+
+For a Noise Situation show:
+
+Affected Guest
+Affected Room
+Source Entity
+Source Room
+Raw Source Noise
+Received Noise
+Guest Threshold
+Duration
+Severity
+
+This will make tuning dramatically easier.
+
+==================================================
+35. DEBUG SOURCE VISUALIZATION
+==================================================
+
+Developer-only option:
+
+Show noise propagation.
+
+Example labels:
+
+Room 103
+SOURCE: TV 68
+
+Room 102
+RECEIVED: 44
+
+Room 101
+RECEIVED: 12
+
+This should be debug-only.
+
+==================================================
+36. TESTS — SITUATIONS
+==================================================
+
+Add tests for:
+
+Noise complaint requires actual source.
+
+No source:
+no complaint.
+
+Same source + same guest:
+does not create duplicate Situation.
+
+Situation escalates over time.
+
+Situation resolves when source noise falls.
+
+Situation resolves when affected guest moves.
+
+Compensation does NOT remove source noise.
+
+Repeated unresolved issue affects guest memory.
+
+==================================================
+37. TESTS — GUEST LOCATION
+==================================================
+
+Guest Away:
+does not accumulate room noise dissatisfaction.
+
+Guest Away:
+does not accumulate room temperature dissatisfaction.
+
+Guest returns:
+perception resumes.
+
+Guest moves room:
+old room condition no longer affects guest.
+
+==================================================
+38. TESTS — MEMORY
+==================================================
+
+First complaint:
+normal patience.
+
+Repeated same-category complaint:
+lower effective patience / stronger reaction according to configuration.
+
+Resolved problem:
+stored correctly.
+
+Ignored problem:
+stored correctly.
+
+Do not hardcode large behavioral rules inside tests.
+
+Use configuration.
+
+==================================================
+39. PLAYTEST SCENARIO A — REAL NOISE
+==================================================
+
+Room 102:
+NoiseSensitive BusinessGuest.
+
+Room 103:
+Noisy guest.
+
+Room 103 begins TV.
+
+Expected:
+
+Player can physically hear TV.
+
+Noise propagates.
+
+Guest 102 becomes uncomfortable.
+
+No immediate spam.
+
+After sustained exposure:
+
+one Noise Situation appears.
+
+Player knocks on 103.
+
+Ask to keep it down.
+
+TV / noise output decreases.
+
+Situation automatically begins resolving.
+
+No manual "Complete Quest" call.
+
+==================================================
+40. PLAYTEST SCENARIO B — REPEATED NOISE
+==================================================
+
+Same setup.
+
+Resolve first complaint.
+
+Later noisy guest resumes activity.
+
+Expected:
+
+new episode may occur.
+
+Guest memory knows this happened before.
+
+Affected guest has lower tolerance / stronger reaction.
+
+Source guest knows they have already been warned.
+
+Do NOT simply replay identical interaction with identical consequence.
+
+==================================================
+41. PLAYTEST SCENARIO C — ALTERNATIVE SOLUTION
+==================================================
+
+Noise complaint.
+
+Do NOT talk to source guest.
+
+Move affected guest to free room.
+
+Expected:
+
+noise exposure stops.
+
+Situation resolves naturally.
+
+No quest script explicitly completes it.
+
+==================================================
+42. PLAYTEST SCENARIO D — COMPENSATION
+==================================================
+
+Noise complaint.
+
+Offer compensation.
+
+Expected:
+
+guest patience / satisfaction improves.
+
+BUT:
+
+noise continues.
+
+If exposure continues long enough:
+
+problem can return / continue.
+
+Money is not a magic "delete problem" button.
+
+==================================================
+43. PLAYTEST SCENARIO E — LIFE WITHOUT PROBLEMS
+==================================================
+
+Observe several guests during a quiet period.
+
+Expected:
+
+different guests do different things.
+
+Some:
+rest.
+
+Some:
+leave hotel.
+
+Some:
+shower.
+
+Some:
+work.
+
+Some:
+watch TV quietly.
+
+Not every activity produces a notification.
+
+The hotel still feels inhabited.
+
+==================================================
+44. PLAYTEST SCENARIO F — TEMPERATURE
+==================================================
+
+Cold room.
+
+ColdSensitive guest inside.
+
+Expected:
+
+temperature dissatisfaction accumulates.
+
+Guest complains.
+
+Possible:
+heater;
+move room;
+repair heating;
+compensation;
+ignore.
+
+If guest leaves hotel during the problem:
+
+temperature dissatisfaction stops accumulating while away.
+
+==================================================
+45. ACCEPTANCE CRITERIA
+==================================================
+
+Prototype 0.3 Guest Agency is complete when:
+
+1. No noise complaint can exist without an identifiable cause.
+
+2. The player can discover common noise sources through the world.
+
+3. One persistent cause does not generate repeated duplicate complaint notifications.
+
+4. One Situation escalates instead.
+
+5. Player can actually reduce guest-generated noise.
+
+6. Reducing noise changes the simulation,
+not just the UI.
+
+7. Compensation does not remove the underlying cause.
+
+8. Room relocation genuinely changes exposure.
+
+9. Guests have lightweight memory.
+
+10. Repeated problems can lead to different reactions.
+
+11. Guests perform more than the original small repeating activity loop.
+
+12. Different guest archetypes have noticeably different activity tendencies.
+
+13. Guests can leave and return to the hotel.
+
+14. Guests do not react to room conditions while physically away.
+
+15. Most guest activities do NOT create notifications.
+
+16. Notifications represent meaningful situations.
+
+17. Temperature complaint has multiple real solutions.
+
+18. Room-condition complaint refers to a concrete supported condition.
+
+19. Player never receives generic unexplained "room condition bad" complaints.
+
+20. Existing Solo mode works.
+
+21. Existing LAN co-op continues working.
+
+22. Existing keys / linen / boiler / electricity systems remain functional.
+
+23. No new large hotel subsystem was introduced.
+
+24. A complete three-day playthrough remains possible.
+
+==================================================
+46. MOST IMPORTANT PLAYTEST QUESTION
+==================================================
+
+After this milestone:
+
+When a guest complains,
+
+does the player think:
+
+"Okay, WHY is this happening and what do I want to do about it?"
+
+instead of:
+
+"Another notification. Where is the compensation button?"
+
+If the second reaction is still common,
+the milestone is not finished.
+
+==================================================
+47. DESIGN NORTH STAR
+==================================================
+
+Guests are not quest dispensers.
+
+They are simulated hotel customers
+whose behavior creates consequences.
+
+A good guest situation should feel like:
+
+"I put these people in these rooms,
+they behaved this way,
+the building reacted,
+and now I need to decide what response is worth my time and money."
+
+Protect that idea throughout implementation.

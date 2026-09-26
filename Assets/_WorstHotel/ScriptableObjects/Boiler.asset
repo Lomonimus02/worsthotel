@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a19c10840f7b69146b8c79f88efdfaa5, type: 3}
+  m_Name: Boiler
+  m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.BoilerConfig
+  initialCondition: 85
+  safeLoad: 4.2
+  baseWearPerMinute: 4
+  overloadWearPerMinute: 16
+  pressureBase: 40
+  pressureOverloadFactor: 70
+  pressureConditionThreshold: 65
+  pressureConditionFactor: 0.85
+  pressureTimeConstant: 12
+  failurePressure: 85
+  failureExposureSeconds: 8
+  warningPressure: 70
+  heatOverloadLoss: 0.45
+  heatConditionThreshold: 70
+  heatConditionLoss: 0.004
+  minimumHeatOutput: 0.25
+  failedHeatOutput: 0.1
+  startPressure: 20
+  repairSafeMin: 35
+  repairSafeMax: 55
+  reliefTarget: 43
+  reliefRate: 4
+  failedPressureRise: 4
+  latchTravelSeconds: 2.5
+  restartPressure: 40

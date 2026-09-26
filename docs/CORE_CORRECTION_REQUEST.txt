@@ -1,0 +1,926 @@
+Continue working on the EXISTING project.
+
+This is a CORE GAMEPLAY CORRECTION pass.
+
+Do not add new large systems until the issues below are addressed.
+
+Priority order:
+
+1. Physical check-in / room keys.
+2. Player-performed room chores.
+3. Proper solutions to noise complaints.
+4. Remove starting housekeeper.
+5. Minimal LAN co-op foundation.
+6. Only then continue expanding simulation.
+
+==================================================
+1. ROOM KEYS — REMOVE HOLD-E CHECK-IN
+==================================================
+
+The current check-in interaction is not satisfying.
+
+Currently, issuing a room key effectively behaves like:
+
+Hold E
+→ wait several seconds
+→ guest receives key.
+
+Remove this.
+
+There should be an actual physical source of room keys.
+
+Create a KEY RACK behind or beside the reception desk.
+
+Example:
+
+101
+102
+103
+104
+105
+106
+
+Each occupied room has a corresponding physical key.
+
+The key should be:
+
+- a small but clearly readable physical object;
+- preferably an old hotel key with a large numbered brass/plastic tag;
+- grabbable through the existing physics interaction system;
+- visually associated with its room number.
+
+CHECK-IN FLOW:
+
+Guest arrives.
+
+↓
+
+Guest waits at reception.
+
+↓
+
+Player checks the guest's assigned room.
+
+↓
+
+Player physically takes the correct room key from the rack.
+
+↓
+
+Player hands / gives the key to the guest.
+
+↓
+
+Guest proceeds to the room.
+
+This interaction should take seconds, not 10 seconds of holding a button.
+
+The interesting part is:
+
+finding / grabbing / giving the correct key.
+
+Not waiting for a progress bar.
+
+Do not make this intentionally tedious.
+
+The rack must be immediately accessible from reception.
+
+==================================================
+2. KEY STATE
+==================================================
+
+Keys should have actual game state.
+
+Example:
+
+Room 103 Key:
+OnRack
+HeldByPlayer
+HeldByGuest
+Returned
+
+When a guest checks out:
+
+the key should eventually return to reception.
+
+For Prototype purposes this can be simple.
+
+Do NOT yet add:
+
+lost keys;
+duplicate keys;
+key cutting;
+master keys;
+key theft.
+
+These may become future systems.
+
+Right now the important thing is:
+
+the key exists in the world.
+
+==================================================
+3. REMOVE THE STARTING HOUSEKEEPER
+==================================================
+
+Remove / disable the automatic housekeeper from the early prototype.
+
+The players should perform basic hotel work themselves at the beginning of the game.
+
+This is intentional.
+
+Do not automatically clean rooms for them.
+
+During the early game, the two hotel owners ARE the staff.
+
+This includes:
+
+- preparing rooms;
+- changing bed linen;
+- dealing with basic trash;
+- resetting rooms after checkout;
+- basic hotel maintenance;
+- reception;
+- responding to guests.
+
+NPC employees should become a FUTURE PROGRESSION REWARD.
+
+The fantasy should eventually become:
+
+"We used to do all of this ourselves.
+Now the hotel is large enough that we can afford staff."
+
+Do NOT implement employee progression yet.
+
+Simply remove the starting employee.
+
+==================================================
+4. ROOM TURNOVER — PLAYER CHORES
+==================================================
+
+After checkout:
+
+Room state becomes:
+
+DIRTY / NOT READY.
+
+The room cannot accept another normal guest until it is prepared.
+
+However:
+
+DO NOT turn this into a cleaning simulator.
+
+Avoid:
+
+20 individual trash objects;
+scrubbing every surface;
+clicking five stains;
+repetitive pixel hunting.
+
+The room preparation process should be tactile but concise.
+
+Prototype room turnover should require approximately:
+
+A. REMOVE DIRTY LINEN
+
+Player physically removes dirty sheets / linen bundle.
+
+B. DISPOSE / DELIVER DIRTY LINEN
+
+Dirty linen goes into a laundry hamper / dirty linen cart / chute.
+
+C. GET CLEAN LINEN
+
+Clean linen exists physically in a linen closet or storage shelf.
+
+D. MAKE BED
+
+Bring clean linen to bed.
+
+Perform a short contextual interaction.
+
+Do NOT use a 10-second Hold E progress bar.
+
+A short 1–2 second interaction / animation is acceptable.
+
+E. BASIC ROOM RESET
+
+Optional one simple task such as:
+- remove trash bag;
+- replace one consumable;
+- reset obvious room disorder.
+
+Then:
+
+Room → READY.
+
+==================================================
+5. WHY THESE CHORES EXIST
+==================================================
+
+These chores are not random quests.
+
+They come from hotel operation.
+
+Guest stayed in room.
+
+↓
+
+Guest checked out.
+
+↓
+
+Room is dirty.
+
+↓
+
+Room cannot be sold again.
+
+↓
+
+Players must decide when it is worth spending time preparing it.
+
+This is MANAGEMENT CAPACITY.
+
+It should matter especially when:
+
+Room 104 is dirty
+
+but
+
+a valuable guest arrives in 3 minutes.
+
+Now cleaning Room 104 is meaningful.
+
+Do NOT create:
+
+"Random task: Change sheets in Room 104."
+
+The room itself must generate the need.
+
+==================================================
+6. LINEN SHOULD COME FROM SOMEWHERE
+==================================================
+
+Just like room keys:
+
+clean sheets should NOT magically appear through an interaction.
+
+Create a small LINEN STORAGE area.
+
+It can initially be extremely simple:
+
+shelf with clean linen bundles.
+
+Clean linen:
+finite physical bundles during a shift.
+
+Dirty linen:
+goes into a hamper.
+
+For now:
+
+Do NOT implement a full industrial laundry simulation.
+
+At the end / start of a day the clean stock may refill automatically.
+
+Later this can become a real laundry system.
+
+The important Prototype 0.2 principle is:
+
+PHYSICAL ITEMS SHOULD HAVE A SOURCE.
+
+Keys come from the key rack.
+
+Clean linen comes from linen storage.
+
+Portable heater comes from utility storage.
+
+Do not spawn gameplay objects directly into player hands.
+
+==================================================
+7. NOISE COMPLAINTS CURRENTLY HAVE POOR COUNTERPLAY
+==================================================
+
+Currently a noise complaint appears,
+but the obvious response seems to be:
+
+Offer Money.
+
+This is not enough.
+
+A noise complaint should have several valid responses.
+
+Example:
+
+Room 102:
+Business Guest
+Noise complaint.
+
+Source:
+Room 103
+Noisy Guest.
+
+Players should be able to:
+
+A. TALK TO THE NOISY GUEST
+
+Go to Room 103.
+
+Knock / interact.
+
+Ask them to keep the noise down.
+
+This should reduce NoiseOutput significantly.
+
+But it may be temporary.
+
+A particularly noisy guest may become loud again later.
+
+Do not make this a long dialogue system.
+
+Simple contextual interaction:
+
+"Ask to keep it down"
+
+is enough.
+
+------------------------------
+
+B. MOVE THE COMPLAINING GUEST
+
+If another suitable room is available:
+
+reassign guest.
+
+Need:
+new room;
+new room key.
+
+This should immediately change the simulation.
+
+------------------------------
+
+C. MOVE THE NOISY GUEST
+
+If possible.
+
+May be less attractive if the noisy guest is tolerant but moving them costs time.
+
+------------------------------
+
+D. OFFER COMPENSATION
+
+Existing solution.
+
+Money exchanged for reduced dissatisfaction / patience recovery.
+
+This should NOT erase the actual noise source.
+
+If noise continues,
+the guest may become unhappy again.
+
+------------------------------
+
+E. IGNORE IT
+
+Take the satisfaction / review consequence.
+
+This is a valid management decision.
+
+==================================================
+8. NOISE MUST HAVE AN UNDERLYING SOURCE
+==================================================
+
+Do not create:
+
+NoiseComplaint
+without a meaningful source.
+
+There should be identifiable state such as:
+
+Room 103:
+LoudActivity
+NoiseOutput = 70
+
+Room 102:
+ReceivedNoise = 48
+
+Guest tolerance = 35
+
+Therefore:
+
+complaint.
+
+When the loud guest is asked to quiet down:
+
+NoiseOutput might drop:
+
+70 → 20.
+
+Then the underlying condition improves.
+
+The Situation system should detect this automatically.
+
+Do not manually mark the quest complete.
+
+==================================================
+9. MAKE THE SOURCE UNDERSTANDABLE
+==================================================
+
+The player currently needs enough information to understand what can be done.
+
+Do NOT necessarily give perfect omniscient information.
+
+But make the problem readable.
+
+Example complaint:
+
+ROOM 102
+"There's a lot of noise coming from next door."
+
+This implies:
+
+check adjacent rooms.
+
+When approaching Room 103:
+
+the player should audibly hear music / TV / guests.
+
+This is much better than a UI saying:
+
+QUEST TARGET: ROOM 103.
+
+Use environmental communication.
+
+==================================================
+10. NOISE INTERACTION
+==================================================
+
+Implement a basic interaction on an occupied noisy room:
+
+Knock.
+
+Guest answers / interaction becomes available.
+
+Option:
+
+ASK TO KEEP IT DOWN.
+
+Result:
+
+current loud activity becomes QuietActivity,
+or NoiseOutput receives a large temporary modifier.
+
+Guest personality can affect duration.
+
+For Prototype:
+
+Budget / Noisy guest:
+may become noisy again later.
+
+Normal guest:
+usually stays quiet.
+
+Do not build dialogue trees.
+
+==================================================
+11. CHORES SHOULD BE PHYSICAL — BUT NOT TEDIOUS
+==================================================
+
+Use an important design rule:
+
+NO LONG HOLD-E INTERACTIONS.
+
+Holding E may be appropriate for something physically continuous:
+
+turning a valve;
+holding a pressure release;
+pushing something;
+maintaining a mechanical action.
+
+It is NOT appropriate for:
+
+giving someone a key;
+changing a room state;
+performing paperwork;
+cleaning abstractly for ten seconds.
+
+Prefer:
+
+physical object interaction
++
+short contextual animation/action.
+
+==================================================
+12. EARLY GAME FANTASY
+==================================================
+
+The early game should feel like:
+
+Two people inherited an old hotel.
+
+They have almost no staff.
+
+They personally:
+
+- run reception;
+- issue keys;
+- prepare rooms;
+- change linen;
+- respond to complaints;
+- carry equipment;
+- fix failures;
+- make management decisions.
+
+This is desirable.
+
+Later progression can automate boring work.
+
+But FIRST the player must understand and experience that work.
+
+==================================================
+13. FUTURE EMPLOYEE PROGRESSION
+==================================================
+
+Do NOT implement this now.
+
+But preserve architecture for later progression:
+
+At first:
+players do everything.
+
+Later:
+hire first housekeeper.
+
+Later:
+hire receptionist.
+
+Later:
+hire maintenance worker.
+
+Hiring staff should remove repetitive work as the hotel grows.
+
+This makes employees feel valuable.
+
+Do not give them away at the beginning.
+
+==================================================
+14. IMPORTANT NETWORKING DIRECTION CHANGE
+==================================================
+
+Final game target is NOT split-screen.
+
+Final product target:
+
+2+ player ONLINE CO-OP suitable for eventual Steam release.
+
+One player per computer.
+
+However:
+
+NETWORKING IS NOT THE MAIN TASK OF THIS PASS.
+
+Do NOT spend weeks on:
+Steam integration;
+matchmaking;
+Steam lobbies;
+NAT traversal;
+relay servers;
+invites;
+authentication.
+
+For now implement only the minimum foundation needed to stop the project from becoming dependent on split-screen architecture.
+
+==================================================
+15. CURRENT NETWORK PROTOTYPE TARGET
+==================================================
+
+For development only:
+
+LAN / direct-IP multiplayer.
+
+Required:
+
+HOST GAME
+
+JOIN GAME
+
+JOIN BY IP ADDRESS
+
+Example:
+
+Host:
+192.168.1.10
+
+Client:
+connects to:
+192.168.1.10
+
+Support:
+two computers on the same local network.
+
+Localhost connection can also be useful for development if supported.
+
+Use an appropriate Unity networking solution.
+
+Prefer a maintained, suitable networking layer.
+
+Keep implementation minimal.
+
+==================================================
+16. NETWORKING PRIORITY
+==================================================
+
+Gameplay fixes are higher priority than networking.
+
+Implementation order:
+
+1. Keys.
+2. Player housekeeping.
+3. Noise complaint solutions.
+4. Remove NPC worker.
+5. Verify game loop.
+6. THEN minimal LAN networking.
+
+Do NOT stop gameplay development to build production networking infrastructure.
+
+==================================================
+17. NETWORK AUTHORITY DIRECTION
+==================================================
+
+Architect toward:
+
+HOST AUTHORITATIVE HOTEL SIMULATION.
+
+The host owns:
+
+- HotelSimulation;
+- GuestSimulation;
+- Room state;
+- Boiler state;
+- Electrical state;
+- Situations;
+- Economy;
+- Game clock.
+
+Clients send player intentions / interactions.
+
+Avoid designing systems where every client independently simulates hotel state.
+
+This will make future online co-op much safer.
+
+==================================================
+18. NETWORK PHYSICS — KEEP IT SIMPLE FOR NOW
+==================================================
+
+Do NOT attempt advanced networked physics prediction yet.
+
+For the LAN prototype:
+
+Host authority over important physical gameplay objects is acceptable.
+
+Examples:
+
+key;
+linen bundle;
+portable heater;
+suitcase.
+
+Clients should see synchronized object position/state.
+
+Interactions should work.
+
+Perfect latency hiding is NOT required now.
+
+Gameplay architecture is more important.
+
+==================================================
+19. REMOVE SPLIT-SCREEN DEPENDENCY
+==================================================
+
+Do not necessarily delete every split-screen component immediately if doing so would destabilize the project.
+
+But new gameplay code must NOT assume:
+
+Player 1 = left camera
+Player 2 = right camera
+same process
+shared local input.
+
+Gameplay systems should identify players through:
+
+PlayerId / network identity / player entity.
+
+Each player should eventually have:
+
+their own machine;
+their own camera;
+their own input.
+
+==================================================
+20. NEW PLAYTEST FLOW
+==================================================
+
+A good early day should now look approximately like:
+
+Players review applications.
+
+↓
+
+Assign rooms.
+
+↓
+
+Guest arrives.
+
+↓
+
+Player looks up assigned room.
+
+↓
+
+Takes Room 103 key physically from rack.
+
+↓
+
+Hands it to guest.
+
+↓
+
+Guest walks to room.
+
+↓
+
+Another guest checks out.
+
+↓
+
+Room 101 becomes DIRTY.
+
+↓
+
+Players notice:
+valuable guest arrives soon.
+
+↓
+
+One player goes to Room 101.
+
+↓
+
+Removes dirty linen.
+
+↓
+
+Takes it to hamper.
+
+↓
+
+Gets clean linen from storage.
+
+↓
+
+Prepares bed.
+
+↓
+
+Meanwhile other player handles reception.
+
+↓
+
+Later:
+Room 102 calls about noise.
+
+↓
+
+Players hear loud activity from Room 103.
+
+↓
+
+One player goes there.
+
+↓
+
+Asks guest to quiet down.
+
+↓
+
+Noise falls.
+
+↓
+
+Complaint resolves because simulation state improved.
+
+This is much closer to the intended game.
+
+==================================================
+21. DO NOT OVERDO CHORES
+==================================================
+
+Important:
+
+Adding physical chores DOES NOT mean turning the game into chore spam.
+
+For one room turnover:
+
+target approximately 30–60 seconds
+for one player once they understand the process.
+
+Not 3 minutes.
+
+Players should become increasingly efficient.
+
+The interesting pressure comes from:
+
+multiple responsibilities competing for their time.
+
+Not from making individual actions painfully slow.
+
+==================================================
+22. ACCEPTANCE CRITERIA
+==================================================
+
+This correction pass is complete when:
+
+1. Room keys physically exist.
+
+2. Keys come from a room-numbered key rack.
+
+3. Giving a key does not require holding E for 10 seconds.
+
+4. Starting housekeeper is removed / disabled.
+
+5. Players personally prepare dirty rooms.
+
+6. Clean linen physically comes from linen storage.
+
+7. Dirty linen physically goes somewhere meaningful.
+
+8. Room turnover affects room availability.
+
+9. A room cannot simply magically become clean.
+
+10. Housekeeping takes limited player time but is not tedious.
+
+11. Noise complaint identifies / implies an underlying noise source.
+
+12. Players can ask the noisy guest to become quieter.
+
+13. Noise actually decreases in simulation.
+
+14. Situation resolves because received noise falls.
+
+15. Guest relocation is a valid alternative solution.
+
+16. Compensation remains a valid alternative.
+
+17. Ignoring complaint remains valid.
+
+18. No solution is represented as a mandatory quest path.
+
+19. Game architecture no longer assumes split-screen as the final target.
+
+20. A minimal host / join-by-IP LAN prototype exists.
+
+21. Networking work has NOT consumed the majority of this development pass.
+
+22. Existing hotel management, boiler, electricity and guest systems still work.
+
+==================================================
+23. DESIGN REMINDER
+==================================================
+
+Physical gameplay should answer:
+
+"Because of the hotel state, what do we need to do right now?"
+
+It should NOT answer:
+
+"What random task did the game assign us?"
+
+Good:
+
+"We need Room 104 ready before the next guest arrives."
+
+Bad:
+
+"Quest: Change sheets in Room 104."
+
+Good:
+
+"Guest 102 cannot sleep because 103 is loud."
+
+Bad:
+
+"Quest: Silence guest."
+
+Good:
+
+"We need the Room 105 key because that guest is checking in."
+
+Bad:
+
+"Hold E for 10 seconds to perform check-in."
+
+Protect this distinction throughout implementation.

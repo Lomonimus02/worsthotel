@@ -1,0 +1,1673 @@
+You are continuing development of the EXISTING Unity project:
+
+THE WORST HOTEL EVER
+
+Do NOT create a new project.
+Do NOT rebuild existing working systems.
+
+The current version already includes the work from Prototype 0.3 — Guest Agency.
+
+This next iteration is:
+
+PROTOTYPE 0.3.1 — GUEST SERVICE LAYER
+
+This is NOT a large new milestone.
+
+The purpose is to complete the Guest Agency milestone by adding the missing middle layer between:
+
+NORMAL GUEST LIFE
+
+and
+
+SERIOUS COMPLAINTS / INFRASTRUCTURE FAILURES.
+
+The current game has improved guest behavior and better causal incidents.
+
+However, playtesting revealed:
+
+- guests now live more believable lives;
+- infrastructure incidents such as boiler and electrical problems can be interesting;
+- but normal hotel operation sometimes feels too passive;
+- there is not enough sense of "servicing hotel guests";
+- we must NOT solve this by generating many random fetch quests.
+
+The target is:
+
+SMALL, MEANINGFUL, SYSTEMIC HOTEL SERVICE.
+
+==================================================
+1. CORE MODEL
+==================================================
+
+Guest-related events should now exist at three levels:
+
+LEVEL 1 — ACTIVITY
+
+Guest simply lives.
+
+Examples:
+
+Sleep.
+Shower.
+Watch TV.
+Leave hotel.
+Work.
+Rest.
+
+No player action required.
+
+No notification unless relevant.
+
+------------------------------
+
+LEVEL 2 — SERVICE NEED
+
+Guest wants something from the hotel.
+
+This is not yet a complaint.
+
+Examples:
+
+Extra blanket.
+Late checkout.
+Luggage storage.
+Wake-up call.
+Request that another guest reduce noise.
+
+The player may:
+
+help;
+decline;
+delay;
+sometimes ignore.
+
+These should create light hotel work.
+
+------------------------------
+
+LEVEL 3 — INCIDENT / COMPLAINT
+
+Something is actually wrong.
+
+Examples:
+
+Room is extremely cold.
+Persistent noise.
+Power outage.
+Boiler problem.
+Concrete room fault.
+
+These are more serious.
+
+The goal is a natural day rhythm:
+
+ACTIVITY
+→ SERVICE
+→ ACTIVITY
+→ SMALL DECISION
+→ INCIDENT
+→ CONSEQUENCE
+
+Not:
+
+ACTIVITY
+→ NOTHING
+→ NOTHING
+→ BOILER EXPLODES.
+
+==================================================
+2. IMPORTANT RULE — DO NOT RETURN TO QUEST SPAM
+==================================================
+
+Do NOT implement:
+
+Random timer
+→ choose service request
+→ spawn quest.
+
+Service needs should originate from:
+
+Guest state
+Guest traits
+Room state
+Booking conditions
+Hotel state
+Guest schedule
+
+Examples:
+
+Guest mildly cold
+→ may request extra blanket.
+
+Guest arrives before room ready
+→ may ask to store luggage.
+
+Guest has early departure schedule
+→ may request wake-up call.
+
+Guest hears real nearby noise
+→ may ask staff to intervene.
+
+Do NOT generate meaningless requests purely to keep players busy.
+
+==================================================
+3. PERSISTENT SERVICE CASES
+==================================================
+
+Do not create repeated notifications for the same request.
+
+Create / extend a:
+
+ServiceCase
+
+system.
+
+Example:
+
+Room 104
+Extra Blanket
+Status: Waiting
+
+This remains ONE case.
+
+Possible states:
+
+Requested
+Acknowledged
+InProgress
+Fulfilled
+Declined
+Expired
+Escalated
+
+If player delays:
+
+update same case.
+
+Do NOT spawn:
+
+Extra Blanket
+Extra Blanket
+Extra Blanket
+
+notifications repeatedly.
+
+==================================================
+4. SERVICE REQUEST FREQUENCY
+==================================================
+
+Keep service requests relatively sparse.
+
+Not every guest needs to ask for something.
+
+A normal guest may complete an entire stay with:
+
+zero requests.
+
+This is good.
+
+Requests exist to create texture and decisions,
+not to guarantee constant chores.
+
+==================================================
+5. EXTRA BLANKET
+==================================================
+
+Add a physical:
+
+EXTRA BLANKET
+
+system.
+
+This is one of the key service interactions.
+
+A guest may request an extra blanket when:
+
+they are mildly uncomfortable from cold
+
+but
+
+the situation has not yet become a serious temperature complaint.
+
+Example thresholds conceptually:
+
+Comfortable:
+no request.
+
+Mildly cold:
+possible blanket request.
+
+Very cold:
+temperature complaint / escalation.
+
+Exact values must be configurable.
+
+==================================================
+6. BLANKET EFFECT
+==================================================
+
+A blanket should NOT increase actual room temperature.
+
+Instead it improves:
+
+GuestPerceivedTemperatureComfort
+
+or equivalent.
+
+Example:
+
+Room temperature:
+18 C
+
+Blanket comfort bonus:
+guest experiences it as tolerable.
+
+This creates an important distinction:
+
+BLANKET
+
+Pros:
+- no electricity;
+- cheap;
+- fast;
+- simple.
+
+Cons:
+- limited effect.
+
+PORTABLE HEATER
+
+Pros:
+- stronger temperature solution.
+
+Cons:
+- consumes electricity;
+- may contribute to circuit overload.
+
+BOILER REPAIR
+
+Pros:
+- systemic solution.
+
+Cons:
+- potentially more work / money / risk.
+
+ROOM MOVE
+
+Pros:
+- potentially solves issue completely.
+
+Cons:
+- consumes another room.
+
+This is exactly the type of systemic choice the game needs.
+
+==================================================
+7. BLANKETS HAVE A PHYSICAL SOURCE
+==================================================
+
+Extra blankets must come from:
+
+LINEN STORAGE.
+
+Do not spawn a blanket in player hands.
+
+Create a readable storage location.
+
+Example:
+
+Shelf:
+CLEAN BLANKETS
+
+Player:
+
+takes blanket
+→ carries it
+→ delivers it.
+
+Do not make the delivery itself artificially slow.
+
+No 10-second Hold E.
+
+==================================================
+8. LIMITED SHIFT STOCK
+==================================================
+
+For Prototype 0.3.1:
+
+make blanket stock limited during a shift.
+
+Example:
+
+3 spare blankets.
+
+Do NOT build full inventory logistics yet.
+
+Purpose:
+
+sometimes two guests may want the same limited resource.
+
+This can create:
+
+"We have one blanket left.
+Who actually needs it?"
+
+At the start of a new day,
+stock may refill automatically for now.
+
+==================================================
+9. LATE CHECKOUT
+==================================================
+
+Add:
+
+LATE CHECKOUT REQUEST.
+
+This is primarily a MANAGEMENT interaction.
+
+Guest asks:
+
+"Can I check out later?"
+
+Player can:
+
+ACCEPT
+
+or
+
+DECLINE.
+
+If accepted:
+
+- guest occupies room longer;
+- checkout time changes;
+- room turnover begins later;
+- room may not be ready for an incoming guest.
+
+Guest should preferably offer:
+
+additional payment
+
+or
+
+satisfaction benefit.
+
+This creates a real tradeoff.
+
+==================================================
+10. LATE CHECKOUT MUST AFFECT OPERATIONS
+==================================================
+
+Do not make late checkout only:
+
++money.
+
+Example:
+
+Guest 103 gets late checkout until 12:00.
+
+Next booking for Room 103 arrives at 12:30.
+
+Now players have only 30 minutes to:
+
+checkout;
+remove linen;
+prepare room.
+
+This is meaningful.
+
+==================================================
+11. NO MULTI-DAY STAYS YET
+==================================================
+
+DO NOT implement multi-day guest stays in Prototype 0.3.1.
+
+A normal stay remains:
+
+check-in
+→ evening/night
+→ sleep
+→ morning
+→ checkout.
+
+Multi-day stays are a future system.
+
+Do not restructure booking/economy/day persistence just for this milestone.
+
+==================================================
+12. WAKE-UP CALL
+==================================================
+
+Add one small delayed-promise mechanic:
+
+WAKE-UP CALL.
+
+This works WITHIN A SINGLE-NIGHT STAY.
+
+No multi-day stay is required.
+
+Example:
+
+Guest checks in during evening.
+
+Guest has:
+
+EarlyDeparture
+
+or another suitable schedule/trait.
+
+They may ask:
+
+"Could you wake me at 6:30?"
+
+Player may:
+
+ACCEPT
+
+or
+
+DECLINE.
+
+If accepted:
+
+create a Promise / ServiceCase:
+
+Wake Room 104
+06:30
+
+==================================================
+13. WAKE-UP CALL IMPLEMENTATION
+==================================================
+
+Use hotel simulation time.
+
+At the requested time:
+
+the player should perform a short reception interaction.
+
+Prefer something physical / thematic.
+
+Example:
+
+old reception telephone / switchboard.
+
+Player selects:
+
+Room 104
+
+and places wake-up call.
+
+This should take only a few seconds.
+
+Do not make it a minigame.
+
+==================================================
+14. WAKE-UP CALL CONSEQUENCES
+==================================================
+
+If fulfilled close to requested time:
+
+small satisfaction bonus.
+
+If significantly late:
+
+small dissatisfaction.
+
+If completely forgotten:
+
+guest remembers broken promise;
+review / satisfaction penalty.
+
+Do NOT make missing one wake-up call catastrophic.
+
+This is a soft obligation.
+
+==================================================
+15. PROMISE SYSTEM
+==================================================
+
+Wake-up call should introduce a small reusable concept:
+
+PROMISES.
+
+Do not overbuild it.
+
+A Promise has:
+
+Guest
+PromiseType
+DueTime
+Status
+
+Possible statuses:
+
+Accepted
+Completed
+Missed
+Cancelled
+
+For Prototype 0.3.1 only WakeUpCall needs to use this system.
+
+Potential future use:
+
+Late checkout
+Quiet room promise
+Early check-in
+Extra bed
+
+But do NOT implement those promise types yet.
+
+==================================================
+16. LUGGAGE STORAGE
+==================================================
+
+Add / improve:
+
+LUGGAGE STORAGE.
+
+Example situations:
+
+Guest arrives before room is ready.
+
+Guest may ask:
+
+"Can I leave my luggage here?"
+
+Player can:
+
+accept;
+decline.
+
+If accepted:
+
+physical luggage must go to:
+
+LUGGAGE STORAGE AREA.
+
+Do not make this a long delivery route.
+
+Storage should be reasonably close to reception.
+
+==================================================
+17. LUGGAGE ASSISTANCE
+==================================================
+
+Optional:
+
+A guest may ask for help with a heavy suitcase.
+
+Helping can provide:
+
+small satisfaction bonus;
+small tip.
+
+Declining / ignoring is acceptable.
+
+This should remain optional.
+
+Do NOT turn luggage handling into the dominant gameplay loop.
+
+==================================================
+18. NOISE SERVICE REQUEST
+==================================================
+
+Noise now has two possible service stages.
+
+Example:
+
+Guest experiences moderate persistent noise.
+
+First response:
+
+SERVICE REQUEST:
+
+"Could you ask the people next door to keep it down?"
+
+This is softer than:
+
+ANGRY NOISE COMPLAINT.
+
+Player can:
+
+investigate;
+ask source guest to quiet down;
+move guest;
+compensate;
+ignore.
+
+If unresolved:
+
+Service Need
+→ Complaint
+→ Escalation.
+
+==================================================
+19. NOISE STILL REQUIRES A REAL SOURCE
+==================================================
+
+Preserve Prototype 0.3 rules.
+
+Noise request must have:
+
+actual source;
+actual source room/entity;
+actual propagated noise.
+
+Do not reintroduce abstract noise complaints.
+
+==================================================
+20. RADIATOR VALVES
+==================================================
+
+Add a simple physical:
+
+RADIATOR VALVE
+
+to guest rooms.
+
+Each room may have a radiator setting.
+
+Example:
+
+0
+1
+2
+3
+
+or a simple analog range.
+
+Higher setting:
+
+increases local heating output.
+
+But also:
+
+increases hotel heating demand / boiler load.
+
+==================================================
+21. RADIATOR DESIGN PURPOSE
+==================================================
+
+This gives players a quick local temperature response.
+
+Example:
+
+Room 104 mildly cold.
+
+Player enters / gets permission.
+
+Turns radiator:
+
+1 → 3.
+
+Guest becomes warmer.
+
+But total boiler demand rises.
+
+If several rooms are turned high:
+
+boiler load may increase significantly.
+
+This creates:
+
+LOCAL SOLUTION
+→ SYSTEMIC CONSEQUENCE.
+
+This is excellent gameplay.
+
+==================================================
+22. RADIATOR INTERACTION
+==================================================
+
+Physical interaction should be short and readable.
+
+Prefer:
+
+turn knob / valve.
+
+Not:
+
+Hold E for 10 seconds.
+
+Use visible state.
+
+Player should be able to glance at radiator
+and understand whether it is low/high.
+
+==================================================
+23. CONCRETE ROOM FAULTS
+==================================================
+
+Add ONLY 1–2 small room faults.
+
+Do not build a large maintenance catalogue.
+
+Recommended initial faults:
+
+A. BURNT-OUT LAMP
+
+B. STUCK / BAD RADIATOR VALVE
+
+or another fault already supported naturally by existing systems.
+
+==================================================
+24. BURNT-OUT LAMP
+==================================================
+
+A lamp may fail because:
+
+lamp condition degraded.
+
+Guest notices:
+
+"The bedside lamp stopped working."
+
+The actual lamp should visibly be off.
+
+The player can physically inspect it.
+
+Replacement bulb comes from:
+
+maintenance storage.
+
+Replace bulb:
+
+short interaction.
+
+No long progress bar.
+
+==================================================
+25. ROOM FAULTS MUST BE REAL
+==================================================
+
+Do NOT create:
+
+RoomFault = LampBroken
+
+while lamp visually works.
+
+World state and simulation state must agree.
+
+Broken lamp:
+
+visually off.
+
+Fixed lamp:
+
+visually works.
+
+Guest complaint resolves because:
+
+actual underlying fault is gone.
+
+==================================================
+26. PROACTIVE HOTEL WORK
+==================================================
+
+The game should not only be reactive.
+
+Players should be able to notice upcoming problems
+and prepare before guests ask.
+
+Examples:
+
+- check room readiness before arrival;
+- prepare a room that will soon be needed;
+- notice blanket stock;
+- inspect radiator settings;
+- see upcoming wake-up calls;
+- notice high circuit load;
+- notice boiler load increasing;
+- prepare luggage area.
+
+This is important.
+
+The player should feel:
+
+"I RUN THIS HOTEL."
+
+Not:
+
+"I WAIT FOR NOTIFICATIONS."
+
+==================================================
+27. RECEPTION SERVICE BOARD
+==================================================
+
+Improve reception UI / board to communicate:
+
+ACTIVE SERVICE CASES
+
+UPCOMING PROMISES
+
+ARRIVALS
+
+CHECKOUTS
+
+Do not create a huge management spreadsheet.
+
+Example:
+
+NOW
+
+Room 104 — Extra blanket
+Room 102 — Noise request
+
+UPCOMING
+
+06:30 — Wake Room 105
+11:30 — Late checkout Room 103
+12:00 — Checkout Room 101
+
+This makes future workload readable.
+
+==================================================
+28. PRIORITY / ATTENTION
+==================================================
+
+Do not force players to resolve service cases in order.
+
+They decide priorities.
+
+Example:
+
+Extra blanket waiting.
+
+At same time:
+
+Circuit B overload warning.
+
+The rational player may ignore blanket temporarily.
+
+This is intended.
+
+==================================================
+29. SERVICE NEEDS SHOULD HAVE DIFFERENT URGENCY
+==================================================
+
+Example:
+
+Extra blanket:
+low urgency.
+
+Luggage storage:
+low/moderate urgency.
+
+Wake-up call:
+time-critical but low consequence.
+
+Noise request:
+moderate.
+
+Serious cold complaint:
+high.
+
+Power failure:
+high.
+
+Do not present every request with identical alarm UI.
+
+==================================================
+30. DO NOT TURN ITEMS INTO INVENTORY ICONS
+==================================================
+
+Preserve physical hotel philosophy:
+
+Blankets:
+linen storage.
+
+Keys:
+key rack.
+
+Replacement bulb:
+maintenance shelf.
+
+Heater:
+utility storage.
+
+Luggage:
+actual luggage area.
+
+When practical:
+
+hotel work items should exist somewhere in the hotel.
+
+==================================================
+31. DO NOT OVERDO CARRYING
+==================================================
+
+Physical source does NOT mean every service needs a delivery.
+
+Avoid adding:
+
+soap;
+toothbrush;
+water bottles;
+shampoo;
+five pillow types;
+ice bucket;
+newspaper;
+random room service objects.
+
+These currently add breadth but not depth.
+
+==================================================
+32. POWER CIRCUIT — IMPROVE THE DECISION, NOT REPAIR DURATION
+==================================================
+
+Playtesting shows:
+
+electrical failure is a good event,
+
+but resetting the circuit takes only a few seconds.
+
+THIS IS NOT NECESSARILY A PROBLEM.
+
+Do NOT make reset artificially longer.
+
+The interesting gameplay should be:
+
+WHY DID IT TRIP?
+
+and:
+
+WHAT LOAD SHOULD I REMOVE?
+
+==================================================
+33. BREAKER RESET SHOULD NOT FIX OVERLOAD CAUSE
+==================================================
+
+Example:
+
+Circuit capacity:
+6
+
+Current load:
+7
+
+Breaker trips.
+
+Player resets breaker.
+
+If load remains:
+7
+
+then after a short safety interval:
+
+breaker trips again.
+
+This forces diagnosis.
+
+Possible player decisions:
+
+remove portable heater;
+
+change room heating strategy;
+
+move guest;
+
+accept colder room;
+
+reduce another supported electrical load.
+
+==================================================
+34. CIRCUIT READABILITY
+==================================================
+
+At electrical panel:
+
+show readable information.
+
+Example:
+
+CIRCUIT B
+104–106
+
+LOAD
+7 / 6
+
+Consumers:
+
+Room baseline
+Room 104 heater
+Room 105 heater
+
+Do not require electrical engineering knowledge.
+
+This is management information.
+
+==================================================
+35. BREAKER PHYSICAL ACTION
+==================================================
+
+Physical reset can remain:
+
+fast;
+simple;
+satisfying.
+
+Example:
+
+open panel;
+flip breaker.
+
+5 seconds is acceptable.
+
+The GAMEPLAY is the decision that precedes reset.
+
+==================================================
+36. BOILER BEHAVIOR
+==================================================
+
+Do NOT force boiler failure.
+
+Existing emergent behavior is good.
+
+A well-managed boiler may survive all three days.
+
+That is desirable.
+
+Guest Service Layer exists partly so:
+
+a quiet day without infrastructure disaster
+still contains meaningful hotel work.
+
+==================================================
+37. SERVICE GENERATION BUDGET
+==================================================
+
+Introduce sensible limits to avoid chore spam.
+
+Do not simply roll service requests independently for every guest every few minutes.
+
+Suggested principles:
+
+- many guests generate zero requests;
+- guest usually has at most one low-level active service request at a time;
+- repeated service requests should be limited;
+- critical complaints are separate;
+- traits influence probability;
+- current hotel state influences probability.
+
+Exact balance is configurable.
+
+==================================================
+38. SERVICE NEED ORIGIN
+==================================================
+
+Examples of VALID service generation:
+
+MildCold
++
+Guest allows blanket request
+→ ExtraBlanket ServiceNeed.
+
+EarlyDeparture
++
+Wake-up service preference
+→ WakeUpCall request.
+
+RoomNotReady
++
+Guest arrives
+→ LuggageStorage possibility.
+
+ModerateRealNoise
+→ AskNeighborsQuiet service request.
+
+Examples of INVALID generation:
+
+Random service timer fires
+→ select "Blanket".
+
+Random service timer fires
+→ select "Luggage".
+
+Do not do this.
+
+==================================================
+39. GUEST PERSONALITY
+==================================================
+
+Traits should influence service behavior.
+
+Examples:
+
+LowMaintenance:
+less likely to ask for soft services.
+
+Demanding:
+more likely to request service sooner.
+
+ColdSensitive:
+more likely to request blanket.
+
+Business:
+more likely to request wake-up call / late checkout.
+
+Patient:
+waits longer before escalation.
+
+Do not make every archetype deterministic.
+
+==================================================
+40. SERVICE MEMORY
+==================================================
+
+Extend existing GuestMemory.
+
+Track:
+
+ServicesRequested
+ServicesFulfilled
+ServicesDeclined
+PromisesKept
+PromisesBroken
+
+These can contribute modestly to:
+
+final satisfaction;
+review.
+
+Do not make individual small requests dominate total rating.
+
+==================================================
+41. REVIEWS
+==================================================
+
+Reviews can reference memorable service.
+
+Examples conceptually:
+
+"They brought an extra blanket quickly."
+
+"The room was cold, but the staff handled it well."
+
+"I asked for a wake-up call and nobody called."
+
+"Very helpful with luggage."
+
+Do not require large procedural language system.
+
+Template-based lines are sufficient.
+
+==================================================
+42. PLAYER CHORE DENSITY
+==================================================
+
+Target:
+
+Players have something meaningful to consider fairly often,
+
+but are NOT continuously sprinting between service icons.
+
+A useful target:
+
+during normal active play,
+some meaningful:
+
+decision;
+service;
+preparation;
+observation;
+or incident
+
+should commonly exist within approximately 20–40 real seconds.
+
+This is NOT a hard event timer.
+
+If nothing meaningful exists:
+
+WAIT / FAST FORWARD remains correct.
+
+==================================================
+43. SOLO MODE
+==================================================
+
+All systems must remain usable in Solo.
+
+Do not balance service density solely for two players.
+
+For Solo:
+
+service frequency may receive a small configurable multiplier.
+
+Example:
+
+SoloServiceFrequencyModifier
+
+or patience adjustment.
+
+Keep this data-driven.
+
+Do not scatter:
+
+if (solo)
+
+through every service implementation.
+
+==================================================
+44. CO-OP
+==================================================
+
+In co-op:
+
+service naturally creates role separation.
+
+Example:
+
+Player A:
+reception / arrivals.
+
+Player B:
+preparing room.
+
+Then:
+
+noise request arrives.
+
+They decide who handles it.
+
+Do NOT create artificial class roles.
+
+Players remain interchangeable.
+
+==================================================
+45. DEBUG PANEL
+==================================================
+
+Add developer controls:
+
+Force Extra Blanket Request.
+
+Force Luggage Storage Request.
+
+Force Late Checkout Request.
+
+Force Wake-up Call Request.
+
+Force Noise Service Request.
+
+Set blanket stock.
+
+Set guest mild cold.
+
+Set radiator setting.
+
+Break lamp.
+
+Set circuit load.
+
+Advance to next Promise due time.
+
+Inspect ServiceCase.
+
+Inspect Promise.
+
+==================================================
+46. TESTS
+==================================================
+
+Add tests for:
+
+Mild cold may create blanket ServiceNeed.
+
+Severe cold creates / escalates temperature complaint appropriately.
+
+Blanket improves perceived comfort
+without changing room temperature.
+
+Heater changes room temperature / comfort
+and consumes electricity.
+
+Radiator setting increases heating demand.
+
+Late checkout changes checkout time.
+
+Late checkout delays room turnover availability.
+
+Wake-up promise stores correct due time.
+
+Wake-up completion before tolerance window succeeds.
+
+Missed wake-up call is recorded.
+
+Same service need does not spam duplicate cases.
+
+Noise service request requires actual noise source.
+
+Breaker reset does not remove excessive electrical load.
+
+Breaker can re-trip.
+
+==================================================
+47. MANUAL PLAYTEST — BLANKET VS HEATER
+==================================================
+
+Room 104 mildly cold.
+
+Guest requests blanket.
+
+Player brings blanket.
+
+Expected:
+
+guest comfort improves.
+
+No additional electrical load.
+
+Then make room significantly colder.
+
+Expected:
+
+blanket alone becomes insufficient.
+
+Player may:
+
+heater;
+radiator;
+boiler;
+room move;
+compensation.
+
+==================================================
+48. MANUAL PLAYTEST — LATE CHECKOUT
+==================================================
+
+Guest requests late checkout.
+
+Accept.
+
+Another guest is scheduled for same room shortly afterward.
+
+Expected:
+
+player now experiences real turnover pressure.
+
+The game should not invent a separate scripted event.
+
+==================================================
+49. MANUAL PLAYTEST — WAKE-UP CALL
+==================================================
+
+Guest requests wake-up at 06:30.
+
+Player accepts.
+
+Reception board shows:
+
+06:30 — Wake Room 104.
+
+At approximately 06:30:
+
+player uses reception phone.
+
+Expected:
+
+Promise completed.
+
+Repeat and intentionally forget.
+
+Expected:
+
+Promise missed.
+
+Guest remembers.
+
+==================================================
+50. MANUAL PLAYTEST — CIRCUIT
+==================================================
+
+Two heaters push circuit above capacity.
+
+Breaker trips.
+
+Player resets without changing anything.
+
+Expected:
+
+breaker trips again.
+
+Player removes one heater.
+
+Reset.
+
+Expected:
+
+circuit remains operational.
+
+==================================================
+51. MANUAL PLAYTEST — NORMAL QUIET DAY
+==================================================
+
+Play a day where boiler never fails.
+
+Expected:
+
+day is still engaging through a mixture of:
+
+arrivals;
+room preparation;
+guest life;
+1–3 service interactions;
+proactive hotel work;
+possibly small room fault;
+management choices.
+
+Do NOT guarantee all service types every day.
+
+==================================================
+52. NON-GOALS
+==================================================
+
+DO NOT add:
+
+multi-day stays;
+restaurant;
+food service;
+room-service meals;
+pool;
+spa;
+second floor;
+elevator;
+employees;
+full laundry simulation;
+complex inventory;
+large maintenance catalogue;
+dozens of guest requests;
+concierge quest chains;
+Steam matchmaking.
+
+These remain future work.
+
+==================================================
+53. IMPLEMENTATION ORDER
+==================================================
+
+PHASE 1
+
+Persistent ServiceCase system.
+
+Notification / UI cleanup.
+
+------------------------------
+
+PHASE 2
+
+Extra blanket.
+
+Physical storage.
+
+Perceived temperature effect.
+
+------------------------------
+
+PHASE 3
+
+Radiator valves.
+
+Connect to boiler demand.
+
+------------------------------
+
+PHASE 4
+
+Noise soft-service stage.
+
+------------------------------
+
+PHASE 5
+
+Luggage storage / optional luggage assistance.
+
+------------------------------
+
+PHASE 6
+
+Late checkout.
+
+Operational consequences.
+
+------------------------------
+
+PHASE 7
+
+Promise system.
+
+Wake-up call.
+
+------------------------------
+
+PHASE 8
+
+1–2 concrete room faults.
+
+------------------------------
+
+PHASE 9
+
+Electrical diagnostics / re-trip behavior.
+
+------------------------------
+
+PHASE 10
+
+Three-day tuning.
+
+Solo tuning.
+
+Bug fixing.
+
+==================================================
+54. ACCEPTANCE CRITERIA
+==================================================
+
+Prototype 0.3.1 is complete when:
+
+1. Normal guest life continues to exist without constant player intervention.
+
+2. Service Needs exist between normal activity and serious complaint.
+
+3. Service needs are causal, not random chore spam.
+
+4. Same service need does not create repeated notifications.
+
+5. Extra blanket physically exists.
+
+6. Blankets come from linen storage.
+
+7. Blanket improves guest comfort without heating room.
+
+8. Portable heater remains a stronger but electrically expensive alternative.
+
+9. Room radiator can be adjusted physically.
+
+10. Radiator setting affects boiler demand.
+
+11. Late checkout is a genuine management decision.
+
+12. Late checkout affects room availability / turnover.
+
+13. Wake-up calls work within one-night stays.
+
+14. Wake-up calls create a delayed promise.
+
+15. Forgetting a promise has a modest consequence.
+
+16. Luggage storage exists.
+
+17. Noise service requests still require real noise sources.
+
+18. At least 1 concrete room fault exists physically.
+
+19. Electrical reset does not magically solve overload.
+
+20. Infrastructure failures are not artificially forced.
+
+21. A day with no boiler failure can still feel occupied.
+
+22. Player can proactively prepare for upcoming work.
+
+23. Solo remains fully testable.
+
+24. LAN co-op continues working.
+
+25. No multi-day stay system was added.
+
+==================================================
+55. NORTH STAR
+==================================================
+
+The player should feel:
+
+"I am operating a hotel."
+
+Not:
+
+"I am completing hotel-themed quests."
+
+A good service interaction is:
+
+A guest has a reason to need something.
+
+The player understands why.
+
+The player decides whether it is worth responding.
+
+The response uses the physical hotel.
+
+The response changes simulation state.
+
+Sometimes the response creates a new tradeoff.
+
+Example:
+
+Guest is slightly cold.
+
+↓
+
+Requests blanket.
+
+↓
+
+Player has only one blanket left.
+
+↓
+
+Player gives it.
+
+↓
+
+Later another guest becomes cold.
+
+↓
+
+Now player must choose:
+heater,
+radiator,
+room move,
+or leave them uncomfortable.
+
+That is hotel gameplay.
+
+Protect this principle.

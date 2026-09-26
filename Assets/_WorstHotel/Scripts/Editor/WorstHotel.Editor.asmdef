@@ -1,0 +1,7 @@
+{
+  "name": "WorstHotel.Editor",
+  "rootNamespace": "WorstHotel.Editor",
+  "references": ["WorstHotel.Runtime", "Unity.InputSystem", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}

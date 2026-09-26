@@ -1,0 +1,238 @@
+using System;
+using System.Text;
+using UnityEngine;
+
+namespace WorstHotel
+{
+    /// <summary>Physical display and room luminaires follow the authoritative circuits, never inventing an outage.</summary>
+    public sealed class ElectricalPanelPresentation : MonoBehaviour
+    {
+        [Serializable]
+        public sealed class CircuitView
+        {
+            public string circuitId;
+            public Transform lever;
+            public TextMesh readout;
+            public TextMesh consumers;
+            public Renderer warningLens;
+            public Light warningLight;
+            [NonSerialized] internal bool initialized, wasTripped, wasWarning;
+            [NonSerialized] internal int textKey = int.MinValue;
+        }
+
+        [Serializable]
+        public sealed class RoomPowerBinding
+        {
+            public int roomId;
+            public Light[] lights;
+            public Renderer[] luminousSurfaces;
+            [NonSerialized] internal RoomState room;
+            [NonSerialized] internal ElectricalCircuit circuit;
+            [NonSerialized] internal float[] originalIntensities;
+            [NonSerialized] internal float lastDim = -1;
+            [NonSerialized] internal bool initialized, lastPower;
+        }
+
+        public DoorInteractable cover;
+        public CircuitView[] circuits = Array.Empty<CircuitView>();
+        public RoomPowerBinding[] roomLights = Array.Empty<RoomPowerBinding>();
+        GameSession session;
+        HotelSimulation simulation;
+        MaterialPropertyBlock properties;
+        AudioSource hum, effects;
+        AudioClip humClip, warningClip, relayClip;
+        bool paused;
+
+        void Awake()
+        {
+            properties = new MaterialPropertyBlock();
+            humClip = Synthesize(0); warningClip = Synthesize(1); relayClip = Synthesize(2);
+            hum = gameObject.AddComponent<AudioSource>();
+            hum.playOnAwake = false; hum.loop = true; hum.spatialBlend = 0; hum.volume = 0; hum.clip = humClip; hum.priority = 210;
+            effects = gameObject.AddComponent<AudioSource>();
+            effects.playOnAwake = false; effects.spatialBlend = 0; effects.priority = 100;
+            foreach (var binding in roomLights)
+            {
+                binding.originalIntensities = new float[binding.lights.Length];
+                for (int i = 0; i < binding.lights.Length; i++)
+                    if (binding.lights[i] != null) binding.originalIntensities[i] = binding.lights[i].intensity;
+            }
+        }
+
+        void Update()
+        {
+            var authority = GameSession.Instance;
+            var next = authority != null ? authority.Simulation : null;
+            if (session != authority || !ReferenceEquals(simulation, next))
+            {
+                session = authority; simulation = next;
+                foreach (var view in circuits) { view.initialized = false; view.textKey = int.MinValue; }
+                foreach (var binding in roomLights)
+                {
+                    binding.initialized = false;
+                    binding.room = session != null ? Array.Find(session.Rooms, room => room.Profile.Id == binding.roomId) : null;
+                    binding.circuit = simulation?.Electrical?.CircuitForRoom(binding.roomId);
+                    binding.lastDim = -1;
+                }
+            }
+            var coop = LocalCoopBootstrap.Instance;
+            bool pause = coop != null && coop.IsPaused;
+            if (pause != paused)
+            {
+                paused = pause;
+                if (paused) { hum.Pause(); effects.Pause(); }
+                else { hum.UnPause(); effects.UnPause(); }
+            }
+            if (simulation?.Electrical == null) return;
+            float audible = Audibility(coop);
+            bool anyPower = false;
+            foreach (var view in circuits)
+            {
+                var circuit = simulation.Electrical.Find(view.circuitId);
+                if (circuit == null) continue;
+                anyPower |= circuit.HasPower;
+                if (view.initialized && !paused)
+                {
+                    if (view.wasTripped != circuit.Tripped) effects.PlayOneShot(relayClip, audible * .65f);
+                    else if (!view.wasWarning && circuit.Warning) effects.PlayOneShot(warningClip, audible * .30f);
+                }
+                view.wasTripped = circuit.Tripped; view.wasWarning = circuit.Warning; view.initialized = true;
+                if (view.lever != null) view.lever.localRotation = Quaternion.Euler(circuit.Tripped ? 28 : -28, 0, 0);
+                int key = Mathf.RoundToInt(circuit.RequestedLoad * 100) * 10000 + Mathf.FloorToInt(circuit.OverloadSeconds) * 10 +
+                    (circuit.Tripped ? 2 : circuit.Warning ? 1 : 0);
+                if (circuit.LoadOverride.HasValue) key ^= Mathf.RoundToInt(circuit.ActualRequestedLoad * 100) * 31 + 17897;
+                if (view.textKey != key && view.readout != null)
+                {
+                    view.textKey = key;
+                    view.readout.text = (circuit.LoadOverride.HasValue ? "OVERRIDE " : "LOAD ") + circuit.RequestedLoad.ToString("F2") + " / " + circuit.Capacity.ToString("F2") + "\n" +
+                        (circuit.LoadOverride.HasValue ? "ACTUAL " + circuit.ActualRequestedLoad.ToString("F2") + "\n" : "") +
+                        (circuit.Tripped ? "TRIPPED · POWER OFF" : circuit.Warning ? "OVERLOAD " + Mathf.FloorToInt(circuit.OverloadSeconds) + "s" : "POWER ON");
+                }
+                if (view.consumers != null) view.consumers.text = ConsumerBreakdown(simulation.Electrical, view.circuitId);
+                bool pulse = circuit.Warning && !circuit.Tripped && Mathf.Sin(Time.time * 7) > 0;
+                Color signal = circuit.Tripped ? new Color(.95f, .08f, .025f) : circuit.Warning ?
+                    new Color(1, pulse ? .65f : .28f, .02f) : new Color(.12f, .62f, .23f);
+                SetSurface(view.warningLens, signal, signal * (circuit.Tripped || pulse ? 1.3f : .35f));
+                if (view.warningLight != null)
+                {
+                    view.warningLight.color = signal;
+                    view.warningLight.intensity = circuit.Tripped ? .35f : pulse ? .55f : 0;
+                }
+            }
+            foreach (var binding in roomLights)
+            {
+                if (binding.room == null) continue;
+                bool power = binding.room.HasPower;
+                bool warning = power && binding.circuit != null && binding.circuit.Warning && !binding.circuit.Tripped;
+                // Gentle 18% sag every2.4 real seconds. It never fabricates a blackout or accelerates in WAIT.
+                float dim = warning ? 1 - .18f * (.5f + .5f * Mathf.Sin(Time.time * Mathf.PI * 2 / 2.4f)) : 1;
+                if (binding.initialized && binding.lastPower == power && Mathf.Abs(binding.lastDim - dim) < .005f) continue;
+                binding.initialized = true; binding.lastPower = power; binding.lastDim = dim;
+                for (int i = 0; i < binding.lights.Length; i++)
+                    if (binding.lights[i] != null)
+                    { binding.lights[i].enabled = power; binding.lights[i].intensity = binding.originalIntensities[i] * dim; }
+                foreach (var surface in binding.luminousSurfaces)
+                {
+                    if (surface == null || surface.sharedMaterial == null) continue;
+                    var material = surface.sharedMaterial;
+                    SetSurface(surface, material.GetColor("_BaseColor") * (power ? 1 : .22f),
+                        power ? material.GetColor("_EmissionColor") * dim : Color.black);
+                }
+            }
+            if (paused) return;
+            hum.volume = Mathf.MoveTowards(hum.volume, anyPower ? audible * .055f : 0, Time.deltaTime * .4f);
+            if (hum.volume > .001f && !hum.isPlaying) hum.Play();
+            else if (hum.volume <= .001f && hum.isPlaying) hum.Stop();
+        }
+
+        public static string ConsumerBreakdown(ElectricalSystem electrical, string circuitId)
+        {
+            if (electrical == null) return "NO REGISTERED LOAD";
+            var text = new StringBuilder();
+            float rooms = 0, entertainment = 0;
+            int occupied = 0;
+            foreach (var item in electrical.Consumers)
+            {
+                if (item.CircuitId != circuitId || !item.Id.StartsWith("guest:", StringComparison.Ordinal)) continue;
+                occupied++;
+                float baseline = Math.Min(item.RequestedLoad, electrical.Settings.OccupiedRoomLoad);
+                rooms += baseline; entertainment += Math.Max(0, item.RequestedLoad - baseline);
+            }
+            text.Append("ROOMS (").Append(occupied).Append(") ").Append(rooms.ToString("F2"));
+            if (entertainment > 0) text.Append("\nTV / MUSIC ").Append(entertainment.ToString("F2"));
+            int heaters = 0;
+            foreach (var item in electrical.Consumers)
+            {
+                if (item.CircuitId != circuitId || !item.Id.StartsWith("heater:", StringComparison.Ordinal) || item.RequestedLoad <= 0) continue;
+                heaters++;
+                text.Append("\nHEATER ").Append(item.RoomId).Append("  ").Append(item.RequestedLoad.ToString("F2"));
+            }
+            if (heaters == 0) text.Append("\nHEATERS OFF");
+            text.Append("\nREMOVE LOAD BEFORE RESET");
+            return text.ToString();
+        }
+
+        void SetSurface(Renderer surface, Color color, Color emission)
+        {
+            if (surface == null) return;
+            surface.GetPropertyBlock(properties); properties.SetColor("_BaseColor", color); properties.SetColor("_EmissionColor", emission);
+            surface.SetPropertyBlock(properties);
+        }
+
+        float Audibility(LocalCoopBootstrap coop)
+        {
+            if (coop == null) return 0;
+            float distance = 24;
+            foreach (var player in coop.Players)
+                if (player != null && player.PlayerCamera != null && coop.IsLocalActor(player.ActorId))
+                    distance = Mathf.Min(distance, Vector3.Distance(transform.position + Vector3.up * 1.8f, player.PlayerCamera.transform.position));
+            float near = 1 - distance / 24;
+            return near * near;
+        }
+
+        static AudioClip Synthesize(int kind)
+        {
+            const int rate = 22050;
+            float seconds = kind == 0 ? 2 : kind == 1 ? .42f : .18f;
+            var samples = new float[Mathf.CeilToInt(rate * seconds)];
+            var random = new System.Random(6107 + kind);
+            for (int i = 0; i < samples.Length; i++)
+            {
+                float t = i / (float)rate;
+                float value = kind == 0 ? .18f * Mathf.Sin(100 * t * Mathf.PI * 2) + .035f * Mathf.Sin(200 * t * Mathf.PI * 2) :
+                    kind == 1 ? Mathf.Sin(880 * t * Mathf.PI * 2) * .3f * (t < .14f || t > .24f ? 1 : 0) :
+                    ((float)random.NextDouble() * 2 - 1 + Mathf.Sin(160 * t * Mathf.PI * 2)) * .34f * Mathf.Exp(-t * 35);
+                samples[i] = value * Mathf.Clamp01(Mathf.Min(t, seconds - t) / .006f);
+            }
+            var clip = AudioClip.Create(kind == 0 ? "Original electrical panel hum" : kind == 1 ? "Original overload warning" : "Original breaker relay", samples.Length, 1, rate, false);
+            clip.SetData(samples, 0); return clip;
+        }
+
+        void OnDisable()
+        {
+            if (hum != null) hum.Stop();
+            if (effects != null) effects.Stop();
+            foreach (var binding in roomLights)
+            {
+                if (binding.originalIntensities == null) continue;
+                for (int i = 0; i < binding.lights.Length; i++)
+                    if (binding.lights[i] != null) binding.lights[i].intensity = binding.originalIntensities[i];
+                foreach (var surface in binding.luminousSurfaces)
+                    if (surface != null && surface.sharedMaterial != null)
+                        SetSurface(surface, surface.sharedMaterial.GetColor("_BaseColor") * (binding.lastPower ? 1 : .22f),
+                            binding.lastPower ? surface.sharedMaterial.GetColor("_EmissionColor") : Color.black);
+                binding.lastDim = -1;
+            }
+            simulation = null; session = null; paused = false;
+        }
+
+        void OnDestroy()
+        {
+            if (humClip != null) Destroy(humClip);
+            if (warningClip != null) Destroy(warningClip);
+            if (relayClip != null) Destroy(relayClip);
+            if (hum != null) Destroy(hum);
+            if (effects != null) Destroy(effects);
+        }
+    }
+}

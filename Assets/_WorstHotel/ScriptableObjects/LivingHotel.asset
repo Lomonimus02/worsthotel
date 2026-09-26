@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8c85f8678a2bcd4496034412f332924, type: 3}
+  m_Name: LivingHotel
+  m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.LivingHotelConfig
+  seed: 1947
+  firstArrivalSeconds: 8
+  arrivalSpacingSeconds: 14
+  arrivalJitterSeconds: 4
+  keyRetrievalEstimateSeconds: 5
+  firstActivityDelay: 8
+  activityDurationMin: 16
+  activityDurationMax: 28
+  quietDurationMin: 12
+  quietDurationMax: 22
+  quietDemandMultiplier: 0.85
+  showerDemandMultiplier: 1.6
+  loudDemandMultiplier: 1
+  quietNoiseOutput: 0.08
+  showerNoiseOutput: 0.22
+  loudNoiseOutput: 0.75
+  sleepStartFraction: 0.8
+  checkoutFraction: 0.94
+  checkoutInteractionSeconds: 2
+  waitingPatienceMultiplier: 1
+  noisyLoudProbability: 0.75
+  normalLoudProbability: 0.35

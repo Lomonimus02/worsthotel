@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c209ac2351e72c04698be4dfd21fdc69, type: 3}
+  m_Name: PrototypeSession
+  m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.SessionConfig
+  guestArchetypes:
+  - {fileID: 11400000, guid: ae87274c3f9f84542a070cc0be426c76, type: 2}
+  - {fileID: 11400000, guid: 2b443ca5c9896a94db0b03a57d4edb6b, type: 2}
+  - {fileID: 11400000, guid: d244b6ad9ca69fd41b6da497f4990858, type: 2}
+  rooms:
+  - {fileID: 11400000, guid: 51cd5480113af704ba49966b5a056392, type: 2}
+  - {fileID: 11400000, guid: 0777ef5e75ac62d4ba31e660d44ee8e9, type: 2}
+  - {fileID: 11400000, guid: 699e9d58e7ab93f4bbd0258197ee330b, type: 2}
+  - {fileID: 11400000, guid: d693e9d48aaddf849a21d278e80bc846, type: 2}
+  - {fileID: 11400000, guid: 139b8ab18df7c494c9b5fc4129bd844d, type: 2}
+  - {fileID: 11400000, guid: 981fd9ada5572fd47a272ce683927b77, type: 2}
+  boiler: {fileID: 11400000, guid: 338ddd6c9b50f714db663d64592a3ddc, type: 2}
+  economy: {fileID: 11400000, guid: 07f7e5032719534489ebbf410567c547, type: 2}
+  living: {fileID: 11400000, guid: 52fe6e358e45e9744b64bebcad18cabe, type: 2}
+  needs: {fileID: 11400000, guid: e0fc0cdeeeec68646af36eab2cb439a2, type: 2}
+  noise: {fileID: 11400000, guid: 6c2eccb1aa97f1e48975b16a824ebc6b, type: 2}
+  heater: {fileID: 11400000, guid: 5183ef8728d230d4cb0be43df0147f82, type: 2}
+  electricity: {fileID: 11400000, guid: d3d75bf1d048c0a42b68f227e21295b5, type: 2}
+  housekeeping: {fileID: 11400000, guid: ad23b2c24dff329489534f4bf4256f5d, type: 2}
+  soloAssist: {fileID: 11400000, guid: 5053e2ebed395514e8f09a560ab0328c, type: 2}
+  services: {fileID: 11400000, guid: 74078d4b559090743b845c5616eba1c0, type: 2}
+  infrastructure: {fileID: 11400000, guid: 6b6591b37302ac544be68dbeaa9a1c25, type: 2}
+  tickRate: 5
+  serviceSeconds: 300
+  totalDays: 3
+  day3BusinessReferencePrice: 525
+  temperatureBase: 9
+  heatTemperatureGain: 13
+  temperatureTimeConstant: 45
+  incidentDelaySeconds: 15
+  resolutionDelaySeconds: 10
+  coldResolutionHysteresis: 0.5
+  overnightSeconds: 180

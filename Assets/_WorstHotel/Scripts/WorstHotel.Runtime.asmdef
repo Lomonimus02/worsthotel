@@ -1,0 +1,6 @@
+{
+  "name": "WorstHotel.Runtime",
+  "rootNamespace": "WorstHotel",
+  "references": ["Unity.InputSystem", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime", "Unity.Netcode.Runtime", "Unity.Networking.Transport", "Unity.Collections"],
+  "autoReferenced": true
+}

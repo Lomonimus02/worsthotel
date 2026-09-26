@@ -1,0 +1,1335 @@
+Ты работаешь как lead gameplay programmer + technical game designer + technical artist.
+
+Нужно с нуля создать рабочий playable prototype кооперативной 3D-игры с рабочим названием:
+
+THE WORST HOTEL EVER
+
+I have also attached a visual reference image showing the preferred general art direction, visual readability, proportions, material simplicity and stylized 3D feel.
+
+Use this image as a STRONG visual reference for:
+- chunky stylized proportions;
+- readable silhouettes;
+- exaggerated object scale;
+- simple but appealing materials;
+- friendly/cartoon-like 3D presentation;
+- clean visual hierarchy;
+- first-person readability.
+
+Do NOT copy specific characters, assets, branding, environment design or IP from the reference.
+
+The location shown in the reference is NOT the desired environment.
+The reference is for VISUAL LANGUAGE only.
+
+Adapt this visual language specifically to:
+
+"A once-luxurious old grand hotel that has been repaired for decades faster than it can completely fall apart."
+
+The hotel should feel:
+- warm;
+- inviting;
+- slightly absurd;
+- visibly old;
+- patched and repaired;
+- still operational;
+- NOT abandoned;
+- NOT horror;
+- NOT photorealistic.
+
+The final environment should reinterpret the reference into:
+- old hotel architecture;
+- chunky doors and furniture;
+- warm wall lamps;
+- aged brass;
+- dark wood;
+- patterned carpets;
+- thick pipes;
+- large analog gauges;
+- oversized readable switches and valves;
+- mismatched repairs from different decades;
+- visible wear and maintenance patches.
+
+The attached reference should influence the WHOLE art direction of the prototype, not just characters.
+
+ENGINE
+- Unity, актуальная стабильная LTS-версия.
+- C#.
+- Universal Render Pipeline (URP).
+- Unity Input System.
+- Physics-based interactions через стандартную Unity Physics.
+- Для Prototype 0.1: 2 локальных игрока через split-screen.
+- Архитектуру делать multiplayer-ready, но НЕ внедрять онлайн-сетевой код в Prototype 0.1.
+- Не использовать платные ассеты и зависимости, без которых проект невозможно открыть на чистой установке Unity.
+
+Сначала прочитай весь документ.
+Не начинай расширять scope самостоятельно.
+
+==================================================
+1. ГЛАВНАЯ ИДЕЯ ИГРЫ
+==================================================
+
+Это НЕ игра про выполнение случайных hotel chores.
+
+Это НЕ "принеси полотенце NPC".
+Это НЕ Overcooked в гостинице.
+Это НЕ список бесконечных fetch quests.
+
+Это кооперативный hotel-management simulator, в котором:
+
+1. Игроки принимают менеджериальные решения.
+2. Решения меняют реальное состояние гостиницы.
+3. Перегрузка и плохое состояние инфраструктуры вызывают физические проблемы.
+4. Во время смены игрокам приходится лично разгребать последствия собственных решений.
+5. После смены экономические последствия возвращаются в management layer.
+
+Главная фантазия:
+
+"Мы управляем когда-то роскошным, но ужасно старым отелем.
+Он способен приносить хорошие деньги, если постоянно эксплуатировать его выше разумного предела.
+Мы сами решаем, насколько сильно рискнуть."
+
+Основная формула:
+
+MORE HOTEL
+→ MORE GUESTS
+→ MORE MONEY
+→ MORE LOAD
+→ MORE PROBLEMS
+→ MORE CHAOS
+
+Игрок должен регулярно чувствовать:
+
+"Мы сами виноваты, что это произошло."
+
+И одновременно:
+
+"Но если бы мы не приняли этих гостей, нам бы не хватило денег."
+
+==================================================
+2. ЦЕЛЬ PROTOTYPE 0.1
+==================================================
+
+Не строить полноценную игру.
+
+Нужно доказать один вопрос:
+
+"Интересно ли двум людям вместе управлять перегруженным старым отелем, когда стратегические решения приводят к физическому кооперативному хаосу?"
+
+Prototype 0.1 должен занимать примерно 15–25 минут.
+
+Он должен содержать три игровых дня.
+
+Не добавлять ресторан, бассейн, свадьбы, VIP-этаж, десятки работников, навыки, crafting, inventory RPG, большой skill tree и т.п.
+
+Prototype 0.1:
+
+- 1 этаж.
+- Lobby / reception.
+- 6 гостиничных номеров.
+- 1 небольшой utility / boiler room.
+- 6 потенциально заселяемых гостей за смену.
+- Несколько booking applications, из которых игроки выбирают гостей.
+- 3 guest archetypes.
+- 1 инфраструктурная система: BOILER / HEATING.
+- 1 тип серьёзной поломки.
+- 1 полноценная физическая cooperative repair procedure.
+- Деньги.
+- Цена номера.
+- Удовлетворённость гостей.
+- Жалобы.
+- Компенсации.
+- Отзывы.
+- Износ бойлера.
+- Решение между сменами:
+  CHEAP PATCH
+  или
+  PROPER REPAIR.
+- 3 игровых дня.
+- Итоговый экран результатов.
+
+==================================================
+3. ОСНОВНОЙ GAME LOOP
+==================================================
+
+Каждый игровой день имеет три фазы.
+
+------------------------------
+A. PLANNING PHASE
+------------------------------
+
+Игроки находятся у reception desk.
+
+На management terminal показывается:
+
+- текущий cash;
+- состояние бойлера;
+- состояние шести номеров;
+- список booking applications;
+- характеристики гостей;
+- ожидаемая цена проживания;
+- базовые требования каждого гостя;
+- прогноз нагрузки на инфраструктуру.
+
+У каждой комнаты минимум есть:
+
+- Cleanliness:
+  Clean / Dirty
+
+- RepairState:
+  Working / Degraded / Broken
+
+- Temperature
+
+- Noise level
+
+- Occupied / Free
+
+Для Prototype 0.1 можно часть параметров держать фиксированными или использовать только там, где они реально влияют на gameplay.
+
+Главное — не делать фейковые характеристики.
+
+Игроки должны:
+
+1. решить, каких гостей принять;
+2. назначить им комнаты;
+3. определить цену;
+4. решить, насколько сильно загрузить отель;
+5. запустить смену.
+
+На этом этапе уже должны возникать реальные решения.
+
+Пример:
+
+Room 101:
+good condition
+warm
+quiet
+
+Room 102:
+cold tendency
+
+Room 103:
+noisy
+
+Room 104:
+slightly degraded
+
+Гости:
+
+BUDGET TRAVELER
+- мало платит;
+- почти не требователен;
+- чувствителен к цене.
+
+COLD-SENSITIVE GUEST
+- нормально платит;
+- сильно реагирует на низкую температуру.
+
+BUSINESS GUEST
+- платит много;
+- низкая терпимость к проблемам;
+- сильно реагирует на плохое обслуживание.
+
+Не делать скрытые параметры непонятными игроку.
+Management decisions должны быть читаемыми.
+
+------------------------------
+B. SERVICE / SHIFT PHASE
+------------------------------
+
+После подтверждения плана начинается реальное время.
+
+Игроки управляют персонажами от первого лица.
+
+Оба свободно ходят по отелю.
+
+Гости появляются и занимают назначенные комнаты.
+
+Состояние гостей должно вычисляться из реального состояния комнаты и инфраструктуры.
+
+ВАЖНО:
+
+Incident System НЕ должен работать так:
+
+RandomTimer
+→ SpawnRandomQuest("Bring towel")
+
+Это запрещено как фундамент дизайна.
+
+Он должен работать так:
+
+BoilerLoad high
++
+BoilerCondition poor
+→ HeatingEfficiency falls
+→ Room temperature decreases
+→ Cold-sensitive guest becomes unhappy
+→ Complaint generated.
+
+То есть REQUEST — это следствие SIMULATION STATE.
+
+Не наоборот.
+
+------------------------------
+C. END OF DAY
+------------------------------
+
+После окончания смены:
+
+для каждого гостя рассчитывается:
+
+- насколько комната соответствовала ожиданиям;
+- сколько времени существовали проблемы;
+- насколько быстро реагировали игроки;
+- насколько цена соответствовала качеству;
+- были ли компенсации.
+
+Гость:
+
+- платит;
+- может потребовать компенсацию;
+- оставляет короткий review;
+- влияет на reputation.
+
+После этого:
+
+- оплачиваются базовые расходы;
+- бойлер показывает новое состояние;
+- игрокам предлагается maintenance decision.
+
+Пример:
+
+BOILER CONDITION: 38%
+
+OPTION A:
+Patch repair
+$200
++20 condition
+temporary / unreliable
+
+OPTION B:
+Proper repair
+$1,500
+restore much more condition
+expensive but reliable
+
+Команда может физически позволить себе только первый вариант.
+
+Это желательная ситуация.
+
+==================================================
+4. BOILER SYSTEM — СЕРДЦЕ PROTOTYPE
+==================================================
+
+Для Prototype 0.1 boiler — единственная сложная infrastructure system.
+
+Он должен иметь:
+
+- Condition 0–100.
+- Maximum safe load.
+- Current load.
+- Heating output.
+- Failure threshold.
+- Degradation rate.
+
+Load зависит от:
+
+- количества занятых комнат;
+- demand гостей;
+- общей температуры / heating demand.
+
+Не обязательно делать глубокую thermodynamics simulation.
+
+Но связь должна быть причинной и понятной.
+
+Например:
+
+4 occupied rooms:
+safe.
+
+6 occupied rooms:
+high load.
+
+6 rooms + bad boiler condition:
+dangerous.
+
+При перегрузке:
+
+- boiler efficiency начинает падать;
+- трубы / радиаторы хуже греют;
+- некоторые комнаты становятся холодными;
+- гости начинают реагировать;
+- при дальнейшей нагрузке возможна авария.
+
+Поломка не должна быть просто random event.
+
+Она должна быть результатом состояния системы.
+
+==================================================
+5. COOPERATIVE REPAIR
+==================================================
+
+Не использовать:
+
+"Hold E for 10 seconds to repair."
+
+Нужна физическая cooperative procedure.
+
+Пример реализации для Prototype 0.1:
+
+BOILER OVERPRESSURE FAILURE.
+
+Player A:
+должен открыть pressure relief valve
+и удерживать давление в допустимой зоне.
+
+Player B:
+одновременно должен:
+
+- открыть panel;
+- переключить breaker;
+- повернуть два механических фиксатора;
+- нажать restart sequence.
+
+Если Player A отпускает valve слишком рано:
+
+pressure снова растёт.
+
+Если Player B делает неправильную последовательность:
+
+restart fails.
+
+Использовать:
+
+- реальные 3D lever;
+- valve wheel;
+- large switch;
+- pressure gauge.
+
+Все элементы должны быть физически хорошо читаемыми.
+
+Не нужно делать hardcore simulation.
+
+Задача — создать коммуникацию:
+
+"Держи клапан!"
+"Держу!"
+"Давление падает?"
+"Еще нет!"
+"Теперь!"
+"Не отпускай!"
+
+Repair должен занимать примерно 20–60 секунд и быть эмоционально понятным.
+
+==================================================
+6. GUEST REQUEST SYSTEM
+==================================================
+
+Requests генерируются только из состояния simulation.
+
+Примеры допустимых причин:
+
+Room too cold
+→ "It's freezing in here."
+
+Room still dirty
+→ complaint.
+
+Room equipment broken
+→ complaint.
+
+Excessive noise
+→ complaint.
+
+Не использовать для core loop:
+
+"Bring me a towel because RNG selected towel quest."
+
+В Prototype 0.1 вообще можно почти отказаться от item-delivery quests.
+
+Главное — triage и обслуживание состояния здания.
+
+У каждого request:
+
+- source guest;
+- reason;
+- urgency;
+- patience timer;
+- possible management response;
+- resolved / unresolved state.
+
+Игрок может:
+
+- физически устранить причину;
+- предложить compensation через reception terminal;
+- при некоторых проблемах ничего не делать и принять reputation loss.
+
+Это важно:
+
+НЕ КАЖДАЯ ПРОБЛЕМА ОБЯЗАНА РЕШАТЬСЯ БЕГОТНЕЙ.
+
+==================================================
+7. ECONOMY
+==================================================
+
+Prototype economy должна быть простой и прозрачной.
+
+Cash income:
+
+- room payment.
+
+Expenses:
+
+- fixed daily operating cost;
+- repair;
+- compensation.
+
+Цена комнаты влияет на expectation.
+
+Если дешёвый плохой номер продан дешево:
+гость может быть относительно доволен.
+
+Если тот же плохой номер продан очень дорого:
+expectation выше;
+штраф к satisfaction больше.
+
+Это должно создавать искушение:
+
+"Может, продадим Room 104 бизнесмену за дорого?
+Возможно, бойлер выдержит."
+
+Не добавлять пока:
+
+- налоги;
+- сложные зарплаты;
+- десятки ресурсов;
+- банковские кредиты;
+- сложную бухгалтерию.
+
+Но код экономики делать расширяемым.
+
+==================================================
+8. THREE-DAY PROGRESSION
+==================================================
+
+DAY 1:
+- низкая нагрузка;
+- обучение;
+- 3–4 гостя;
+- бойлер относительно здоров.
+
+DAY 2:
+- больше booking applications;
+- возможность загрузить все 6 комнат;
+- бойлер заметно изношен;
+- появляется реальный риск.
+
+DAY 3:
+- очень привлекательные дорогие гости;
+- плохое состояние бойлера;
+- игрокам выгодно принять больше нагрузки;
+- высокая вероятность аварии, если они слишком жадные.
+
+Игроки сами должны принять решение.
+
+Не скриптовать обязательную катастрофу.
+
+Если они осторожны, день может пройти легче, но они заработают меньше.
+
+==================================================
+9. PLAYER CONTROLS
+==================================================
+
+2 local players.
+
+Split-screen.
+
+Использовать Unity Input System.
+
+Поддержать:
+
+- 2 gamepads;
+- keyboard + gamepad как fallback.
+
+First-person movement.
+
+Нужны:
+
+- walk;
+- look;
+- interact;
+- grab / release;
+- secondary interaction;
+- use management terminal.
+
+Не делать сложный parkour.
+
+Физические предметы должны иметь немного exaggerated weight и readable movement.
+
+Не превращать игру в slapstick-ragdoll simulator.
+
+Комедия должна идти в первую очередь от ситуации и систем.
+
+==================================================
+10. ВИЗУАЛЬНОЕ НАПРАВЛЕНИЕ
+==================================================
+
+К проекту приложен visual reference.
+
+Не копировать персонажей, ассеты или конкретный IP из reference.
+
+Использовать reference только для:
+
+- читаемости;
+- stylized chunky proportions;
+- крупных форм;
+- простых материалов;
+- слегка карикатурной 3D-геометрии;
+- friendly readable first-person presentation.
+
+Собственная художественная формула игры:
+
+"Когда-то роскошный мультяшный отель,
+который десятилетиями чинят быстрее,
+чем он успевает окончательно развалиться."
+
+Это НЕ abandoned horror hotel.
+
+Это НЕ грязная помойка.
+
+Отель всё ещё:
+
+- уютный;
+- тёплый;
+- работающий;
+- посещаемый людьми.
+
+Но очевидно старый и постоянно ремонтируемый.
+
+Визуальная эпоха / настроение:
+
+старый grand hotel примерно 1960s–1980s,
+с более старыми элементами архитектуры.
+
+Пример визуальных элементов:
+
+- cream walls;
+- burgundy / patterned carpets;
+- dark old wood;
+- aged brass;
+- large room numbers;
+- warm wall lamps;
+- heavy curtains;
+- old radiators;
+- chunky plumbing;
+- analog gauges;
+- oversized switches;
+- luggage carts;
+- slightly mismatched furniture;
+- repairs from different decades.
+
+Юмор должен читаться через environment.
+
+Например:
+
+На стене красивая табличка:
+
+★★★★ GRAND HOTEL
+
+А под ней стоит ведро,
+куда капает вода с потолка.
+
+==================================================
+11. НЕ ДЕЛАТЬ ПЛОСКИЕ СТЕНЫ С ФОТОТЕКСТУРОЙ
+==================================================
+
+Это критически важно.
+
+Environment НЕ должен выглядеть как:
+
+Cube room
++
+photo wallpaper texture
++
+flat doors.
+
+Архитектура должна иметь реальный объём.
+
+Создать modular hotel kit.
+
+Минимальный набор:
+
+- wall segment with thickness;
+- inner corner;
+- outer corner;
+- door frame;
+- actual door slab;
+- skirting/baseboard;
+- crown moulding / ceiling trim;
+- window frame where relevant;
+- wall column / pilaster;
+- radiator;
+- ceiling light;
+- wall lamp;
+- exposed maintenance pipe;
+- floor transition;
+- reception desk;
+- boiler machinery.
+
+Стены должны иметь:
+
+- thickness;
+- proper doorway recess;
+- frame depth;
+- skirting;
+- trim.
+
+Добавлять реальные geometry layers.
+
+Texture должна поддерживать форму, а не заменять её.
+
+==================================================
+12. AI-GENERATED TEXTURES
+==================================================
+
+Разрешается использовать image generation для создания texture source material.
+
+Подходящие вещи для генерации:
+
+- seamless old hotel wallpaper;
+- patterned carpet;
+- worn plaster;
+- dark varnished wood;
+- aged brass;
+- old ceramic tiles;
+- repair patches;
+- stains;
+- water damage decals;
+- faded hotel signs;
+- framed generic paintings;
+- maintenance labels.
+
+Не использовать:
+
+- copyrighted characters;
+- logos;
+- узнаваемые реальные бренды.
+
+После генерации:
+
+- сделать материалы stylized;
+- уменьшить photographic high-frequency noise;
+- при необходимости сделать seamless;
+- получить roughness / normal из source;
+- использовать moderate normal strength.
+
+Не превращать сцену в photorealism.
+
+Предпочтительный texture scale:
+
+1K для большинства материалов.
+2K только если действительно нужно.
+
+Форму должны создавать meshes.
+
+==================================================
+13. ART SCALE
+==================================================
+
+Игровое пространство НЕ должно иметь реалистично тесные размеры настоящего отеля.
+
+Это cooperative game.
+
+Примерное exaggeration:
+
+- doors slightly oversized;
+- corridors примерно 1.4–1.7x comfortable real-world width;
+- utility room достаточно большая для двух игроков;
+- reception spacious;
+- interactable objects примерно на 10–25% крупнее realistic scale.
+
+Игрок должен с расстояния понимать:
+
+это valve,
+это breaker,
+это phone,
+это guest door,
+это boiler.
+
+Silhouette readability важнее realism.
+
+==================================================
+14. DAMAGE / FAILURE READABILITY
+==================================================
+
+Поломка должна визуально объяснять себя.
+
+Не:
+
+"маленькая реалистичная микротрещина".
+
+А:
+
+pipe vibrating;
+steam;
+water droplets;
+gauge entering red zone;
+flickering lamp;
+sparks;
+audible knocking.
+
+Сделать базовые VFX:
+
+- steam;
+- drip / leak;
+- small sparks;
+- flicker;
+- pressure warning.
+
+Не перебарщивать.
+
+==================================================
+15. LIGHTING
+==================================================
+
+URP.
+
+Hotel lighting:
+
+- warm interior lighting;
+- slightly aged;
+- comfortable;
+- comic, not horror.
+
+Использовать:
+
+- baked or mixed lighting для static environment;
+- realtime lights только где нужны;
+- light probes;
+- reflection probes;
+- subtle ambient occlusion;
+- mild bloom only if it helps;
+- no cinematic heavy post-processing.
+
+Utility room:
+
+немного холоднее и industrial,
+но всё ещё стилизованный и читаемый.
+
+==================================================
+16. CHARACTERS
+==================================================
+
+Для Prototype 0.1 НЕ тратить много времени на финальных персонажей.
+
+Использовать stylized placeholder characters.
+
+Требования:
+
+- exaggerated head / hands;
+- readable silhouette;
+- simple face;
+- simple hotel staff outfit;
+- distinct player colors/details;
+- basic walk animation;
+- idle;
+- interaction pose where practical.
+
+Не копировать характеры из reference.
+
+Guest NPC могут быть простыми stylized variants.
+
+Главное сейчас:
+система и взаимодействие.
+
+==================================================
+17. UI / UX
+==================================================
+
+Management UI должна выглядеть как часть отеля.
+
+Предпочтение:
+
+reception terminal / desk UI
++
+in-world signage.
+
+Не делать sci-fi HUD.
+
+В management terminal:
+
+LEFT:
+booking list.
+
+CENTER:
+simple floor plan / 6 rooms.
+
+RIGHT:
+selected guest / room details.
+
+BOTTOM:
+cash / projected income / boiler load.
+
+Игрок должен быстро понимать:
+
+- сколько заработает;
+- насколько рискует;
+- какой guest требовательный;
+- какое состояние комнаты.
+
+Во время смены HUD минимальный.
+
+Можно показать:
+
+- current cash;
+- active complaints;
+- shift time;
+- critical infrastructure warning.
+
+Не делать permanent giant quest tracker.
+
+==================================================
+18. SOFTWARE ARCHITECTURE
+==================================================
+
+Отделить три слоя:
+
+A. HOTEL SIMULATION
+B. INCIDENT / REQUEST GENERATION
+C. PLAYER PHYSICAL INTERACTION
+
+Это принципиально.
+
+Simulation должна существовать независимо от presentation.
+
+Не связывать Guest напрямую с UI.
+
+Предпочтительная структура:
+
+GameSession
+DayDirector
+HotelSimulation
+EconomySystem
+RoomSystem
+GuestSystem
+GuestSatisfactionSystem
+InfrastructureSystem
+BoilerSystem
+IncidentSystem
+RequestSystem
+ReviewSystem
+InteractionSystem
+RepairSequenceController
+
+Использовать composition.
+
+Избегать giant God Manager.
+
+ScriptableObjects использовать для immutable configuration / balancing:
+
+GuestArchetypeDefinition
+RoomDefinition
+BoilerConfig
+EconomyConfig
+
+Runtime state НЕ хранить в mutable ScriptableObjects.
+
+Runtime state:
+
+plain C# state objects
+или MonoBehaviour runtime components.
+
+Создать ясные C# events / interfaces.
+
+Пример:
+
+BoilerSystem
+raises:
+OnConditionChanged
+OnLoadChanged
+OnFailureStarted
+OnFailureResolved
+
+IncidentSystem подписывается на simulation state.
+
+RequestSystem создаёт complaint только из Incident.
+
+UI подписывается на state/events.
+
+==================================================
+19. SIMULATION TICK
+==================================================
+
+Не привязывать hotel simulation к every-frame Update.
+
+Сделать отдельный simulation tick.
+
+Например:
+
+4–10 ticks per second
+или 1 tick per second для slow systems.
+
+Physics остаётся FixedUpdate.
+
+Simulation должна быть deterministic enough,
+чтобы позже было возможно сделать server-authoritative multiplayer.
+
+==================================================
+20. DATA-DRIVEN DESIGN
+==================================================
+
+Все balance parameters вынести из кода:
+
+- room price;
+- guest tolerance;
+- boiler max load;
+- degradation rate;
+- temperature thresholds;
+- complaint patience;
+- compensation values.
+
+Использовать ScriptableObject configs.
+
+Не зашивать magic numbers по разным MonoBehaviour.
+
+==================================================
+21. SCENE / PREFAB PIPELINE
+==================================================
+
+Сделать проект воспроизводимым.
+
+Создать Editor tooling.
+
+Желательно:
+
+Tools
+→ Worst Hotel
+→ Build Prototype Scene
+
+Команда должна:
+
+- создать / обновить PrototypeHotel scene;
+- расставить lobby;
+- corridor;
+- 6 rooms;
+- boiler room;
+- player spawn points;
+- room doors;
+- reception terminal;
+- boiler interactables;
+- basic lighting.
+
+Использовать prefabs / modular environment.
+
+Не создавать критически важную сцену только вручную.
+
+Если возможно, создать procedural / editor-generated blockout,
+который потом можно hand-tune.
+
+==================================================
+22. PROJECT STRUCTURE
+==================================================
+
+Пример:
+
+Assets/
+  _WorstHotel/
+    Art/
+      Materials/
+      Models/
+      Textures/
+      VFX/
+    Audio/
+    Prefabs/
+      Environment/
+      Gameplay/
+      Characters/
+      UI/
+    Scenes/
+    Scripts/
+      Core/
+      Simulation/
+      Guests/
+      Rooms/
+      Infrastructure/
+      Economy/
+      Interaction/
+      UI/
+      Editor/
+    ScriptableObjects/
+    Tests/
+
+Создать:
+
+README.md
+docs/GAME_VISION.md
+docs/ARCHITECTURE.md
+docs/PROTOTYPE_SCOPE.md
+docs/CHANGELOG.md
+
+==================================================
+23. TESTS
+==================================================
+
+Написать EditMode unit tests как минимум для:
+
+- guest satisfaction;
+- room-price expectation modifier;
+- boiler load;
+- boiler degradation;
+- incident condition generation;
+- compensation;
+- day-end revenue.
+
+Не пытаться unit test'ить физические interaction sequences полностью.
+
+Для них создать clear debug controls.
+
+==================================================
+24. DEBUG TOOLS
+==================================================
+
+Добавить developer debug panel.
+
+Нужно уметь:
+
+- set cash;
+- set boiler condition;
+- force boiler load;
+- force failure;
+- set room temperature;
+- spawn guest;
+- advance time;
+- resolve request;
+- start / end shift.
+
+Без debug tools балансировка станет слишком медленной.
+
+==================================================
+25. AUDIO
+==================================================
+
+Для Prototype достаточно placeholder audio.
+
+Но предусмотреть:
+
+- boiler hum;
+- pipe knock;
+- pressure hiss;
+- steam;
+- phone ring;
+- guest complaint notification;
+- door;
+- footsteps;
+- UI click.
+
+Audio должен помогать понимать состояние отеля.
+
+Например:
+
+игрок должен услышать,
+что boiler начал работать плохо,
+ещё до того как увидит UI warning.
+
+==================================================
+26. ЧТО ЗАПРЕЩЕНО ДО ЗАВЕРШЕНИЯ PROTOTYPE 0.1
+==================================================
+
+Не добавлять:
+
+- restaurant;
+- pool;
+- spa;
+- bar;
+- weddings;
+- conferences;
+- VIP floors;
+- skill trees;
+- crafting;
+- complex inventory;
+- open city;
+- multiple buildings;
+- dozens of guest types;
+- elevators;
+- procedural hotel generation;
+- online multiplayer;
+- elaborate character customization;
+- monetization;
+- achievements;
+- full campaign.
+
+Если возникает идея новой feature:
+записать в BACKLOG,
+но не реализовывать.
+
+==================================================
+27. ACCEPTANCE CRITERIA
+==================================================
+
+Prototype 0.1 считается успешным, только если:
+
+1. Два игрока могут начать новую игру.
+
+2. Они видят booking applications.
+
+3. Они реально принимают решение:
+кого принять и куда поселить.
+
+4. Цена комнаты имеет последствия.
+
+5. Число гостей реально увеличивает boiler load.
+
+6. Плохое состояние boiler + высокая нагрузка может вызвать проблемы.
+
+7. Complaint появляется из simulation state,
+а не из random quest generator.
+
+8. Есть хотя бы одна проблема,
+которая вынуждает игроков кооперироваться физически.
+
+9. Boiler repair НЕ является progress bar.
+
+10. Игроки могут проигнорировать проблему
+и принять финансовые / reputation последствия.
+
+11. После смены гости платят / требуют compensation.
+
+12. Игроки видят reviews.
+
+13. Между сменами есть выбор:
+дешёвая заплатка или хороший ремонт.
+
+14. Решение предыдущего дня влияет на следующий.
+
+15. Три дня можно пройти от начала до конца.
+
+16. Environment уже имеет читаемое художественное направление:
+не только grey cubes.
+
+17. При этом Prototype не должен содержать production-level content.
+
+Самая важная эмоциональная проверка:
+
+Во время теста хотя бы один раз должна естественно возникать ситуация:
+
+"Не стоило нам заселять столько людей."
+
+А другой игрок отвечает:
+
+"Зато посмотри, сколько мы заработали."
+
+==================================================
+28. ВАЖНАЯ ПРОВЕРКА: ЭТО НЕ RUNNER ЗА ПОЛОТЕНЦАМИ
+==================================================
+
+Перед реализацией любой gameplay feature задай вопрос:
+
+"Эта feature создаёт management decision
+или является следствием management decision?"
+
+Если нет —
+скорее всего её не нужно добавлять сейчас.
+
+Если большая часть времени игроков превращается в:
+
+walk to A
+pick up item
+walk to B
+deliver item
+
+значит дизайн ушёл в неправильную сторону.
+
+Core gameplay должен состоять из:
+
+DECIDE
+→ COMMIT
+→ SYSTEM REACTS
+→ PRIORITIZE
+→ COOPERATE
+→ ACCEPT CONSEQUENCES.
+
+==================================================
+29. ПОРЯДОК РАЗРАБОТКИ
+==================================================
+
+Не пытайся реализовать всё одновременно.
+
+PHASE 1:
+Project bootstrap
+Input
+2-player split screen
+basic interaction
+blockout environment.
+
+PHASE 2:
+Rooms
+guests
+planning terminal
+assignments
+price.
+
+PHASE 3:
+Day lifecycle
+check-in
+satisfaction
+economy
+end-of-day.
+
+PHASE 4:
+Boiler simulation
+temperature effect
+state-driven complaints.
+
+PHASE 5:
+physical cooperative boiler repair.
+
+PHASE 6:
+3-day progression
+maintenance choice
+reviews.
+
+PHASE 7:
+art-direction pass:
+modular geometry
+materials
+textures
+lighting
+small props
+VFX.
+
+PHASE 8:
+polish / balancing / debugging.
+
+После каждой PHASE:
+
+- project must compile;
+- prototype must remain playable;
+- update docs/CHANGELOG.md;
+- write remaining issues;
+- do not silently expand scope.
+
+==================================================
+30. FIRST TASK
+==================================================
+
+До написания большого количества gameplay code:
+
+1. Создай проектную структуру.
+2. Создай docs/GAME_VISION.md.
+3. Создай docs/ARCHITECTURE.md.
+4. Создай docs/PROTOTYPE_SCOPE.md.
+5. Опиши scene/prefab/data architecture.
+6. Создай basic Unity project setup.
+7. Реализуй PHASE 1.
+8. Проверь compile errors.
+9. Только после этого переходи к PHASE 2.
+
+Не делай заглушки вида TODO для ключевой логики
+и не объявляй feature готовой,
+если gameplay path фактически не работает.
+
+Если Unity Editor доступен через CLI:
+регулярно запускай project compile / tests в batch mode.
+
+Если что-то невозможно проверить автоматически:
+явно укажи это в README,
+вместе с точными ручными шагами проверки.
