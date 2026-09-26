@@ -23,7 +23,9 @@ namespace WorstHotel
                     (overridden ? "\nDIAGNOSTIC TOTAL OVERRIDE: requested " + circuit.RequestedLoad.ToString("F2") +
                         " / delivered " + circuit.DeliveredLoad.ToString("F2") + " — not the physical consumer sum" : "\nBreaker follows actual demand") +
                     " / overload " + circuit.OverloadSeconds.ToString("F1") + "s / " + (circuit.Tripped ? "TRIPPED" : circuit.Warning ? "WARNING" : "ON") +
-                    " / trip count " + circuit.TripCount, body);
+                    " / trip count " + circuit.TripCount + (simulation.ContinuousOperations ?
+                        "\nLoad ratio " + CapacityLabels.Percent(circuit.LoadRatio) + " / reserve " + CapacityLabels.Reserve(circuit.Reserve) + " u" +
+                        " / stress " + CapacityLabels.Percent(circuit.Stress01) + " / " + CapacityLabels.Band(circuit.CapacityBand) : ""), body);
                 if (!circuitLoadInputs.TryGetValue(id, out var input)) input = "5";
                 NumericRow("Diagnostic total " + id, ref input, "Set override", value => simulation.DebugSetCircuitLoad(id, value));
                 circuitLoadInputs[id] = input;

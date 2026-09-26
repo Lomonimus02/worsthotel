@@ -8,6 +8,9 @@ namespace WorstHotel
         [Range(0, 1)] public float radiatorHeatStep = .12f;
         [Min(0)] public float radiatorDemandStep = .25f;
         [Min(0)] public float lampWearPerSecond = .035f;
-        public RoomInfrastructureSettings ToData() => new RoomInfrastructureSettings(radiatorHeatStep, radiatorDemandStep, lampWearPerSecond);
+        [Min(0)] public float vacantRadiatorDemand = .08f;
+        [Min(0)] public float heatLossDemandFactor = .04f;
+        public RoomInfrastructureSettings ToData() => new RoomInfrastructureSettings(radiatorHeatStep, radiatorDemandStep,
+            lampWearPerSecond, vacantRadiatorDemand, heatLossDemandFactor);
     }
 }

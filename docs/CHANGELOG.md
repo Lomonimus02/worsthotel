@@ -22,6 +22,10 @@ Added coherent bounded retirement of completed stays, schedules, service history
 
 Integrated finite Direct decisions with guest schedules, exterior physical blanket DropOff with deferred actual receipt, and Remote factual incidents that do not recover merely because their guest is away. Closing UI preserves waits; decision, timeout, actual key handoff and checkout release them coherently. Cancelled/unreceived parcels remain physically reclaimable. Added atomic intent/item snapshot validation and exact Direct revision checks for delayed LAN move cancellation. Corrected shelf placement against real knocker and wall colliders. Compile/scene passed, full EditMode **441/441**, all seven selected gameplay cases passed across runs, including physical pickup/carry/drop/receipt/reclaim/return and pause/WAIT. [Evidence, fixture corrections and limits](verification/core04-phase4.md). Model schema 7 / LAN protocol 8.
 
+## Prototype 0.4 — phase 5 measured capacity
+
+Continuous demand now comes from each real room radiator and physically staged shower. Boiler capacity, condition, gradual stress and pressure remain separate; safe load recovers stress and sustained excess causes failure. Circuits retain requested consumers after tripping and recover exposure gradually. Physical displays and F2 show actual demand, reserve and bands. Production settings measure mixed 3/4/5/6 guests at roughly 67/83/103/123 percent utilization; closing valves or changing guest profiles changes the result. Compile/scene passed; full Edit **484/485** plus corrected legacy expectation **1/1**, all 44 new cases passed; physical Play **4/4**. [Evidence and limits](verification/core04-phase5.md). Model schema 8 / LAN protocol 9.
+
 ## Prototype 0.3.2 — Natural Service
 
 26 September 2026. Natural Service implemented and packaged as Windows 0.3.2; the pause investigation remains explicitly deferred.

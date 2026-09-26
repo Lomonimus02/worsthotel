@@ -21,6 +21,29 @@ namespace WorstHotel
             return demand;
         }
 
+        public RoomHeatingDemand HeatingDemandForRoom(RoomState room, GuestStay occupant, LivingHotelSettings living)
+        {
+            if (room == null) throw new ArgumentNullException(nameof(room));
+            if (living == null) throw new ArgumentNullException(nameof(living));
+            var agent = occupant?.Agent;
+            // A reservation, an old departure body, or a duplicated/stale room reference does
+            // not make another consumer. An away owner still heats their assigned room.
+            bool ownsRoom = occupant != null && room.Occupied && room.GuestId == occupant.GuestId &&
+                occupant.RoomId == room.Profile.Id && !occupant.ReceiptPosted && agent != null && agent.CheckedIn &&
+                agent.State != GuestAgentState.CheckingOut && agent.State != GuestAgentState.Leaving && agent.State != GuestAgentState.Left;
+            float spaceBase = ownsRoom ? occupant.Application.Archetype.HeatingDemand * living.QuietDemandMultiplier :
+                Infrastructure.VacantRadiatorDemand;
+            float space = spaceBase * Infrastructure.DemandMultiplier(room.RadiatorSetting) *
+                (1 + Math.Max(0, room.Profile.HeatLoss) * Infrastructure.HeatLossDemandFactor);
+            bool runningShower = ownsRoom && agent.HasReachedRoom && agent.InAssignedRoom &&
+                agent.State == GuestAgentState.PerformingActivity && agent.Activity == GuestActivity.Shower && agent.ActivityStaged;
+            // Hot water has its own tap: a radiator valve cannot subtract from this room's
+            // shower or any other room. Walking to a shower is not running it yet.
+            float water = runningShower ? occupant.Application.Archetype.HeatingDemand *
+                Math.Max(0, living.ShowerDemandMultiplier - living.QuietDemandMultiplier) : 0;
+            return new RoomHeatingDemand(room.Profile.Id, ownsRoom ? occupant.GuestId : null, space, water);
+        }
+
         public void TickInfrastructure(IEnumerable<RoomState> rooms, float dt)
         {
             if (rooms == null || !Number.IsFinite(dt) || dt < 0) throw new ArgumentException("Valid rooms and elapsed time required.");

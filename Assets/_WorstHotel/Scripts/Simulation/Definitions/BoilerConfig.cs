@@ -32,10 +32,23 @@ namespace WorstHotel
         public float restartPressure = 40;
         public float maxPressure = 120;
 
+        [Header("Continuous operation: capacity and hotel-time wear")]
+        [Range(.01f, 1)] public float conditionCapacityFloor = .85f;
+        [Range(.01f, .99f)] public float strainedLoadRatio = .85f;
+        [Range(.01f, 1)] public float criticalStress = .8f;
+        [Min(0)] public float stressGainPerHotelHour = .25f;
+        [Min(0)] public float stressRecoveryPerHotelHour = .25f;
+        [Min(0)] public float poorConditionStressPenalty = .5f;
+        [Min(0)] public float runningWearPerHotelDay = 3;
+        [Min(0)] public float overloadWearPerHotelDay = 12;
+        [Min(0)] public float pressureStressFactor = 30;
+
         public BoilerSettings ToData() => new BoilerSettings(initialCondition, safeLoad, baseWearPerMinute,
             overloadWearPerMinute, pressureBase, pressureOverloadFactor, pressureConditionThreshold, pressureConditionFactor,
             pressureTimeConstant, failurePressure, failureExposureSeconds, warningPressure, heatOverloadLoss,
             heatConditionThreshold, heatConditionLoss, minimumHeatOutput, failedHeatOutput, startPressure,
-            repairSafeMin, repairSafeMax, reliefTarget, reliefRate, failedPressureRise, latchTravelSeconds, restartPressure, maxPressure);
+            repairSafeMin, repairSafeMax, reliefTarget, reliefRate, failedPressureRise, latchTravelSeconds, restartPressure, maxPressure,
+            new BoilerCapacitySettings(conditionCapacityFloor, strainedLoadRatio, criticalStress, stressGainPerHotelHour,
+                stressRecoveryPerHotelHour, poorConditionStressPenalty, runningWearPerHotelDay, overloadWearPerHotelDay, pressureStressFactor));
     }
 }

@@ -17,7 +17,7 @@ namespace WorstHotel
             public Renderer warningLens;
             public Light warningLight;
             [NonSerialized] internal bool initialized, wasTripped, wasWarning;
-            [NonSerialized] internal int textKey = int.MinValue;
+            [NonSerialized] internal string lastReadout;
         }
 
         [Serializable]
@@ -66,7 +66,7 @@ namespace WorstHotel
             if (session != authority || !ReferenceEquals(simulation, next))
             {
                 session = authority; simulation = next;
-                foreach (var view in circuits) { view.initialized = false; view.textKey = int.MinValue; }
+                foreach (var view in circuits) { view.initialized = false; view.lastReadout = null; }
                 foreach (var binding in roomLights)
                 {
                     binding.initialized = false;
@@ -98,25 +98,23 @@ namespace WorstHotel
                 }
                 view.wasTripped = circuit.Tripped; view.wasWarning = circuit.Warning; view.initialized = true;
                 if (view.lever != null) view.lever.localRotation = Quaternion.Euler(circuit.Tripped ? 28 : -28, 0, 0);
-                int key = Mathf.RoundToInt(circuit.RequestedLoad * 100) * 10000 + Mathf.FloorToInt(circuit.OverloadSeconds) * 10 +
-                    (circuit.Tripped ? 2 : circuit.Warning ? 1 : 0);
-                if (circuit.LoadOverride.HasValue) key ^= Mathf.RoundToInt(circuit.ActualRequestedLoad * 100) * 31 + 17897;
-                if (view.textKey != key && view.readout != null)
-                {
-                    view.textKey = key;
-                    view.readout.text = (circuit.LoadOverride.HasValue ? "OVERRIDE " : "LOAD ") + circuit.RequestedLoad.ToString("F2") + " / " + circuit.Capacity.ToString("F2") + "\n" +
-                        (circuit.LoadOverride.HasValue ? "ACTUAL " + circuit.ActualRequestedLoad.ToString("F2") + "\n" : "") +
-                        (circuit.Tripped ? "TRIPPED · POWER OFF" : circuit.Warning ? "OVERLOAD " + Mathf.FloorToInt(circuit.OverloadSeconds) + "s" : "POWER ON");
-                }
+                string readout = simulation.ContinuousOperations ? CapacityLabels.CircuitReadout(circuit) :
+                    (circuit.LoadOverride.HasValue ? "OVERRIDE " : "LOAD ") + circuit.RequestedLoad.ToString("F2") + " / " + circuit.Capacity.ToString("F2") + "\n" +
+                    (circuit.LoadOverride.HasValue ? "ACTUAL " + circuit.ActualRequestedLoad.ToString("F2") + "\n" : "") +
+                    (circuit.Tripped ? "TRIPPED · POWER OFF" : circuit.Warning ? "OVERLOAD " + Mathf.FloorToInt(circuit.OverloadSeconds) + "s" : "POWER ON");
+                if (view.lastReadout != readout && view.readout != null)
+                { view.lastReadout = readout; view.readout.text = readout; }
                 if (view.consumers != null) view.consumers.text = ConsumerBreakdown(simulation.Electrical, view.circuitId);
-                bool pulse = circuit.Warning && !circuit.Tripped && Mathf.Sin(Time.time * 7) > 0;
-                Color signal = circuit.Tripped ? new Color(.95f, .08f, .025f) : circuit.Warning ?
+                bool capacityWarning = simulation.ContinuousOperations && circuit.CapacityBand >= CapacityBand.Strained;
+                bool severe = simulation.ContinuousOperations && circuit.CapacityBand == CapacityBand.Critical;
+                bool pulse = (circuit.Warning || severe) && !circuit.Tripped && Mathf.Sin(Time.time * 7) > 0;
+                Color signal = circuit.Tripped || severe ? new Color(.95f, .08f, .025f) : circuit.Warning || capacityWarning ?
                     new Color(1, pulse ? .65f : .28f, .02f) : new Color(.12f, .62f, .23f);
                 SetSurface(view.warningLens, signal, signal * (circuit.Tripped || pulse ? 1.3f : .35f));
                 if (view.warningLight != null)
                 {
                     view.warningLight.color = signal;
-                    view.warningLight.intensity = circuit.Tripped ? .35f : pulse ? .55f : 0;
+                    view.warningLight.intensity = circuit.Tripped ? .35f : pulse ? .55f : capacityWarning ? .18f : 0;
                 }
             }
             foreach (var binding in roomLights)

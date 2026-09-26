@@ -8,15 +8,21 @@ namespace WorstHotel
         public float RadiatorHeatStep { get; }
         public float RadiatorDemandStep { get; }
         public float LampWearPerSecond { get; }
+        public float VacantRadiatorDemand { get; }
+        public float HeatLossDemandFactor { get; }
         public RoomInfrastructureSettings(float radiatorHeatStep = .12f, float radiatorDemandStep = .25f,
-            float lampWearPerSecond = .035f)
+            float lampWearPerSecond = .035f, float vacantRadiatorDemand = .08f, float heatLossDemandFactor = .04f)
         {
             if (!Number.IsFinite(radiatorHeatStep) || radiatorHeatStep < 0 || radiatorHeatStep > 1 ||
                 !Number.IsFinite(radiatorDemandStep) || radiatorDemandStep < 0 ||
-                !Number.IsFinite(lampWearPerSecond) || lampWearPerSecond < 0)
+                !Number.IsFinite(lampWearPerSecond) || lampWearPerSecond < 0 ||
+                !Number.IsFinite(vacantRadiatorDemand) || vacantRadiatorDemand < 0 ||
+                !Number.IsFinite(heatLossDemandFactor) || heatLossDemandFactor < 0)
                 throw new ArgumentException("Infrastructure tuning must be finite and nonnegative.");
             RadiatorHeatStep = radiatorHeatStep; RadiatorDemandStep = radiatorDemandStep; LampWearPerSecond = lampWearPerSecond;
+            VacantRadiatorDemand = vacantRadiatorDemand; HeatLossDemandFactor = heatLossDemandFactor;
         }
         public float HeatMultiplier(int setting) => setting <= 0 ? 0 : 1 + (Math.Min(3, setting) - 1) * RadiatorHeatStep;
+        public float DemandMultiplier(int setting) => setting <= 0 ? 0 : 1 + (Math.Min(3, setting) - 1) * RadiatorDemandStep;
     }
 }

@@ -8,6 +8,8 @@ namespace WorstHotel
         public Transform needle;
         public Light warningLight;
         public Renderer warningLens;
+        public TextMesh capacityReadout;
+        public GameObject capacityDisplay;
         Material lensMaterial;
         void Start()
         {
@@ -19,13 +21,26 @@ namespace WorstHotel
             if (!session || session.Simulation == null) return;
             var boiler = session.Simulation.Boiler;
             if (needle) needle.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(120, -120, boiler.Pressure / session.BoilerSettings.MaxPressure));
-            bool alarm = boiler.Failed || boiler.Pressure >= session.BoilerSettings.WarningPressure;
+            if (capacityDisplay && capacityDisplay.activeSelf != boiler.CapacityModelEnabled) capacityDisplay.SetActive(boiler.CapacityModelEnabled);
+            if (capacityReadout && boiler.CapacityModelEnabled)
+            {
+                capacityReadout.text = CapacityLabels.BoilerReadout(boiler);
+                capacityReadout.color = boiler.Failed || boiler.CapacityModelEnabled && boiler.CapacityBand >= CapacityBand.Overloaded ?
+                    new Color(.65f, .12f, .06f) : new Color(.18f, .21f, .19f);
+            }
+            bool pressureWarning = boiler.Pressure >= session.BoilerSettings.WarningPressure;
+            bool strained = boiler.CapacityModelEnabled && boiler.CapacityBand >= CapacityBand.Strained;
+            bool alarm = boiler.Failed || pressureWarning || boiler.CapacityModelEnabled && boiler.CapacityBand >= CapacityBand.Overloaded;
+            bool critical = boiler.Failed || boiler.CapacityModelEnabled && boiler.CapacityBand == CapacityBand.Critical;
             float pulse = alarm ? .65f + .35f * Mathf.Sin(Time.time * 8) : .15f;
-            if (warningLight) warningLight.intensity = alarm ? pulse * 2 : 0;
+            if (warningLight) warningLight.intensity = alarm ? pulse * 2 : strained ? .25f : 0;
+            Color signal = critical || !boiler.CapacityModelEnabled && alarm ? new Color(.95f, .16f, .045f) :
+                alarm || strained ? new Color(.95f, .57f, .08f) : new Color(.20f, .35f, .18f);
+            if (warningLight) warningLight.color = signal;
             if (lensMaterial)
             {
-                lensMaterial.SetColor("_BaseColor", alarm ? new Color(.95f, .16f, .045f) : new Color(.20f, .35f, .18f));
-                lensMaterial.SetColor("_EmissionColor", alarm ? new Color(1, .09f, .015f) * pulse : Color.black);
+                lensMaterial.SetColor("_BaseColor", signal);
+                lensMaterial.SetColor("_EmissionColor", alarm || strained ? signal * pulse : Color.black);
             }
         }
         void OnDestroy() { if (lensMaterial) Destroy(lensMaterial); }

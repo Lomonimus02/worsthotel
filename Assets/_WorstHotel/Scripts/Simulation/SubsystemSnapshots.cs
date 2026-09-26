@@ -13,9 +13,9 @@ namespace WorstHotel
     {
         internal bool ReadOnlyMirror;
         internal BoilerSnapshot CaptureSnapshot() => new BoilerSnapshot{Condition=Condition,Load=Load,HeatingOutput=HeatingOutput,Pressure=Pressure,Failed=Failed,
-            ReliefActorId=ReliefActorId,FailureExposure=FailureExposure,OccupancyLoad=occupancyLoad,HasLoadOverride=LoadOverride.HasValue,LoadOverride=LoadOverride??0};
+            ReliefActorId=ReliefActorId,FailureExposure=FailureExposure,OccupancyLoad=occupancyLoad,HasLoadOverride=LoadOverride.HasValue,LoadOverride=LoadOverride??0,Stress01=Stress01};
         internal void RestoreSnapshot(BoilerSnapshot s)
-        {Condition=s.Condition;Load=s.Load;HeatingOutput=s.HeatingOutput;Pressure=s.Pressure;Failed=s.Failed;ReliefActorId=s.ReliefActorId;FailureExposure=s.FailureExposure;occupancyLoad=s.OccupancyLoad;LoadOverride=s.HasLoadOverride?s.LoadOverride:(float?)null;}
+        {Condition=s.Condition;Load=s.Load;HeatingOutput=s.HeatingOutput;Pressure=s.Pressure;Failed=s.Failed;ReliefActorId=s.ReliefActorId;FailureExposure=s.FailureExposure;occupancyLoad=s.OccupancyLoad;LoadOverride=s.HasLoadOverride?s.LoadOverride:(float?)null;Stress01=s.Stress01;}
     }
     public sealed partial class EconomySystem
     {

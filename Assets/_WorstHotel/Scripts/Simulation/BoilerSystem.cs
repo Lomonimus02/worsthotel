@@ -13,7 +13,7 @@ namespace WorstHotel
         public bool InRepairBand => Pressure >= settings.RepairSafeMin && Pressure <= settings.RepairSafeMax;
         public float FailureExposure { get; private set; }
         public float? LoadOverride { get; private set; }
-        public float Overload => Math.Max(0, Load / settings.SafeLoad - 1);
+        public float Overload => CapacityModelEnabled ? Math.Max(0, LoadRatio - 1) : Math.Max(0, Load / settings.SafeLoad - 1);
         public event Action<float> OnConditionChanged;
         public event Action<float> OnLoadChanged;
         public event Action<float> OnHeatingOutputChanged;
@@ -23,9 +23,12 @@ namespace WorstHotel
         private readonly BoilerSettings settings;
         private float occupancyLoad;
 
-        public BoilerSystem(BoilerSettings settings)
+        public BoilerSystem(BoilerSettings settings, float? operatingSecondsPerDay = null)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            if (operatingSecondsPerDay.HasValue && (!Number.IsFinite(operatingSecondsPerDay.Value) || operatingSecondsPerDay.Value <= 0))
+                throw new ArgumentOutOfRangeException(nameof(operatingSecondsPerDay));
+            this.operatingSecondsPerDay = operatingSecondsPerDay;
             Condition = settings.InitialCondition; Pressure = settings.StartPressure;
             UpdateOutput();
         }
@@ -35,7 +38,7 @@ namespace WorstHotel
             if (ReadOnlyMirror) return;
             ReliefActorId = -1;
             CancelSoloLatch();
-            if (!Failed) { SetPressure(settings.StartPressure); FailureExposure = 0; }
+            if (!Failed && !CapacityModelEnabled) { SetPressure(settings.StartPressure); FailureExposure = 0; }
             UpdateOutput();
         }
 
@@ -71,6 +74,7 @@ namespace WorstHotel
             if (ReadOnlyMirror) return;
             if (!Number.IsFinite(dt) || dt < 0) throw new ArgumentOutOfRangeException(nameof(dt));
             if (dt == 0) return;
+            if (CapacityModelEnabled) { TickCapacity(dt); return; }
             SetCondition(Condition - (settings.BaseWearPerMinute + settings.OverloadWearPerMinute * Overload) * dt / 60);
             if (Failed)
             {
@@ -124,6 +128,7 @@ namespace WorstHotel
                 return CommandResult.Fail("A different staff member must hold the relief valve, or the solo catch must be secured.");
             if (!InRepairBand) return CommandResult.Fail("Pressure must stay inside the marked repair band.");
             Failed = false; FailureExposure = 0; ReliefActorId = -1;
+            Stress01 = 0;
             CancelSoloLatch();
             SetPressure(settings.RestartPressure);
             UpdateOutput();
@@ -137,6 +142,7 @@ namespace WorstHotel
             if (!Number.IsFinite(restoredCondition)) throw new ArgumentOutOfRangeException(nameof(restoredCondition));
             bool wasFailed = Failed;
             Failed = false; FailureExposure = 0; ReliefActorId = -1;
+            Stress01 = 0;
             CancelSoloLatch();
             SetCondition(restoredCondition);
             SetPressure(settings.StartPressure);
@@ -152,7 +158,7 @@ namespace WorstHotel
 
         private void UpdateOutput()
         {
-            float next = Failed ? settings.FailedHeatOutput : Number.Clamp(1 - settings.HeatOverloadLoss * Overload
+            float next = Failed ? settings.FailedHeatOutput : CapacityModelEnabled ? CapacityHeatOutput : Number.Clamp(1 - settings.HeatOverloadLoss * Overload
                 - settings.HeatConditionLoss * Math.Max(0, settings.HeatConditionThreshold - Condition), settings.MinimumHeatOutput, 1);
             if (HeatingOutput != next) { HeatingOutput = next; OnHeatingOutputChanged?.Invoke(HeatingOutput); }
         }

@@ -32,7 +32,9 @@ namespace WorstHotel
                     "DAY " + session.Day + "   •   " + remaining / 60 + ":" + (remaining % 60).ToString("D2") + " left";
                 Label(new Rect(x + 14, 66, 730, 27), clock + "   •   Cash $" + session.Cash.ToString("F0") + "   •   Complaints " + session.Simulation.Requests.ActiveCount, Body, LightPaper);
                 var boiler = session.Simulation.Boiler;
-                Label(new Rect(x + 14, 94, 730, 25), "Boiler " + boiler.Condition.ToString("F0") + "%   /   load " + boiler.Load.ToString("F2") + "   /   pressure " + boiler.Pressure.ToString("F0") + "   /   heat " + (boiler.HeatingOutput * 100).ToString("F0") + "%", Small, boiler.Failed ? new Color(1, .56f, .28f) : Paper);
+                Label(new Rect(x + 14, 94, 730, 25), "Boiler " + boiler.Condition.ToString("F0") + "%   /   " + (boiler.CapacityModelEnabled ?
+                    "load " + CapacityLabels.Percent(boiler.LoadRatio) + " · " + CapacityLabels.Band(boiler.CapacityBand) : "load " + boiler.Load.ToString("F2")) +
+                    "   /   pressure " + boiler.Pressure.ToString("F0") + "   /   heat " + (boiler.HeatingOutput * 100).ToString("F0") + "%", Small, boiler.Failed ? new Color(1, .56f, .28f) : Paper);
                 DrawElectricalStatus(session, x);
                 if (session.Simulation.LivingEnabled)
                 {

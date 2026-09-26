@@ -42,7 +42,7 @@ namespace WorstHotel.Editor
                 Box("Large breaker grip", lever, new Vector3(0, .02f, -.07f), new Vector3(.43f, .51f, .19f), "Safety red", true, false);
                 Text("Breaker on marking", station.transform, "ON", new Vector3(0, .38f, -.124f), .075f, Lettering);
                 Text("Breaker off marking", station.transform, "OFF", new Vector3(0, -.39f, -.124f), .075f, Lettering);
-                var readout = Text("Circuit " + id + " actual load", cabinet.transform, "LOAD 0.00 / 4.00\nPOWER ON", new Vector3(x, 1.01f, -.12f), .070f, Mat("Ink").color);
+                var readout = Text("Circuit " + id + " actual load", cabinet.transform, "LOAD 0.00 / 4.00\nPOWER ON", new Vector3(x, 1.01f, -.12f), .051f, Mat("Ink").color);
                 Box("Circuit consumer list backing " + id, cabinet.transform, new Vector3(x, .48f, -.17f), new Vector3(1.01f, .64f, .06f), "Gauge ivory", true, false);
                 var consumers = Text("Circuit " + id + " real consumers", cabinet.transform, "ROOMS (0) 0.00\nHEATERS OFF\nREMOVE LOAD BEFORE RESET",
                     new Vector3(x, .49f, -.208f), .045f, Mat("Ink").color);

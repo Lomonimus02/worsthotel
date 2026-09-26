@@ -8,6 +8,7 @@ namespace WorstHotel
     public sealed partial class ElectricalSystem
     {
         public ElectricitySettings Settings { get; }
+        public bool ContinuousStress { get; }
         public IReadOnlyList<ElectricalCircuit> Circuits { get; }
         public IReadOnlyList<PowerConsumer> Consumers { get; private set; } = Array.AsReadOnly(new PowerConsumer[0]);
         public event Action<ElectricalCircuit, string> Changed;
@@ -17,17 +18,18 @@ namespace WorstHotel
         private readonly List<(ElectricalCircuit circuit, string reason)> changes = new List<(ElectricalCircuit, string)>();
         private HeaterSystem lastHeaters;
 
-        public ElectricalSystem(ElectricitySettings settings, IEnumerable<int> roomIds)
+        public ElectricalSystem(ElectricitySettings settings, IEnumerable<int> roomIds, bool continuousStress = false)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            ContinuousStress = continuousStress;
             if (roomIds == null) throw new ArgumentNullException(nameof(roomIds));
             int[] ids = roomIds.OrderBy(id => id).ToArray();
             if (ids.Length == 0 || ids.Any(id => id < 101 || id > 106) || ids.Distinct().Count() != ids.Length)
                 throw new ArgumentException("The authored electrical panel requires unique room IDs from 101 through 106.");
             var circuits = new[]
             {
-                new ElectricalCircuit("A", ids.Where(id => id <= 103).ToArray(), settings.CircuitCapacity),
-                new ElectricalCircuit("B", ids.Where(id => id >= 104).ToArray(), settings.CircuitCapacity)
+                new ElectricalCircuit("A", ids.Where(id => id <= 103).ToArray(), settings),
+                new ElectricalCircuit("B", ids.Where(id => id >= 104).ToArray(), settings)
             };
             Circuits = Array.AsReadOnly(circuits);
             foreach (var circuit in circuits)
@@ -83,7 +85,9 @@ namespace WorstHotel
                 if (circuit.RequestedLoad <= circuit.Capacity)
                 {
                     if (circuit.Warning) changes.Add((circuit, "overload warning cleared"));
-                    circuit.Warning = false; circuit.OverloadSeconds = 0;
+                    circuit.Warning = false;
+                    circuit.OverloadSeconds = ContinuousStress ?
+                        (float)Math.Max(0, circuit.OverloadSeconds - (double)dt * Settings.StressRecoveryPerSecond) : 0;
                     continue;
                 }
                 if (circuit.Tripped) continue;
@@ -135,10 +139,10 @@ namespace WorstHotel
                 return CommandResult.Fail("Diagnostic circuit demand must be a finite nonnegative total, or cleared.");
             if (circuit.LoadOverride == total) return CommandResult.Ok("Diagnostic circuit demand is unchanged.");
             circuit.LoadOverride = total;
-            // A continuous overload ends immediately when its effective total falls below capacity.
+            // Changing a diagnostic input must not erase continuous stored stress without elapsed recovery time.
             // Clearing the override never repairs an existing trip or advances the hotel clock.
             if (circuit.RequestedLoad <= circuit.Capacity)
-            { circuit.Warning = false; circuit.OverloadSeconds = 0; }
+            { circuit.Warning = false; if (!ContinuousStress) circuit.OverloadSeconds = 0; }
             Changed?.Invoke(circuit, total.HasValue ? "diagnostic load override applied; actual consumers retained" :
                 "diagnostic load override cleared; actual consumer demand restored");
             return CommandResult.Ok(total.HasValue ? "Circuit " + circuit.Id + " uses a diagnostic total; actual consumers are unchanged." :

@@ -5,8 +5,18 @@ namespace WorstHotel
 {
     public sealed partial class HotelSimulation
     {
-        private void RefreshGuestLoad() => Boiler.SetLoad(Math.Max(0, guests.Where(guest => !guest.ReceiptPosted).Sum(guest => guest.Application.Archetype.HeatingDemand *
-            (LivingEnabled ? guest.Agent.HeatingDemandMultiplier : 1)) + (LivingEnabled ? roomSystem.ExtraBoilerDemand(rooms.Values) : 0)));
+        private void RefreshGuestLoad()
+        {
+            if (Boiler.CapacityModelEnabled && LivingEnabled)
+            {
+                Boiler.SetLoad(HeatingDemands.Sum(row => row.Total));
+                return;
+            }
+            // Historical shifts and the no-agent diagnostic model retain their old calculation.
+            // Production continuous operations require living guests and use the room sources above.
+            Boiler.SetLoad(Math.Max(0, guests.Where(guest => !guest.ReceiptPosted).Sum(guest => guest.Application.Archetype.HeatingDemand *
+                (LivingEnabled ? guest.Agent.HeatingDemandMultiplier : 1)) + (LivingEnabled ? roomSystem.ExtraBoilerDemand(rooms.Values) : 0)));
+        }
 
         private void ReleaseRoom(GuestStay guest)
         {
@@ -58,6 +68,7 @@ namespace WorstHotel
             Services?.CompleteCheckInContext(guest);
             NeedEvaluator.ClearInstantaneous(guest);
             Transition(guest, GuestAgentState.GoingToRoom, Elapsed, guest.Name + " checked in to room " + guest.RoomId);
+            if (Boiler.CapacityModelEnabled) RefreshGuestLoad();
             Keys.NotifyHandToGuest(guest.RoomId);
             return CommandResult.Ok("Room " + guest.RoomId + " key handed to " + guest.Name + " by player " + actorId + ".");
         }

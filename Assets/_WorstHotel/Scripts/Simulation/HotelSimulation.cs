@@ -79,13 +79,13 @@ namespace WorstHotel
             ElectricitySettings = living != null ? electricity ?? new ElectricitySettings() : null;
             if (ElectricitySettings != null)
             {
-                Electrical = new ElectricalSystem(ElectricitySettings, rooms.Keys);
+                Electrical = new ElectricalSystem(ElectricitySettings, rooms.Keys, ContinuousOperations);
                 Electrical.Changed += (circuit, reason) => SignalEvent("Circuit " + circuit.Id + ": " + reason);
                 RefreshElectrical();
             }
             Economy = new EconomySystem(settings.Economy);
             Satisfaction = new GuestSatisfactionSystem(settings.Economy);
-            Boiler = new BoilerSystem(settings.Boiler);
+            Boiler = new BoilerSystem(settings.Boiler, Operations?.SecondsPerDay);
             NeedEvaluator?.ConfigureEnvironment(Noise, Boiler);
             Incidents = new IncidentSystem(settings, NeedsSettings);
             Incidents.ShouldDeferRemoteEvaluation = _ => ContinuousOperations;

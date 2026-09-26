@@ -32,6 +32,7 @@ namespace WorstHotel
         public float LatchTravelSeconds { get; }
         public float RestartPressure { get; }
         public float MaxPressure { get; }
+        public BoilerCapacitySettings Capacity { get; }
 
         public BoilerSettings(float initialCondition = 85, float safeLoad = 4.2f, float baseWearPerMinute = 4,
             float overloadWearPerMinute = 16, float pressureBase = 40, float pressureOverloadFactor = 70,
@@ -40,7 +41,8 @@ namespace WorstHotel
             float heatOverloadLoss = 0.45f, float heatConditionThreshold = 70, float heatConditionLoss = 0.004f,
             float minimumHeatOutput = 0.25f, float failedHeatOutput = 0.1f, float startPressure = 20,
             float repairSafeMin = 35, float repairSafeMax = 55, float reliefTarget = 43, float reliefRate = 4,
-            float failedPressureRise = 4, float latchTravelSeconds = 2.5f, float restartPressure = 40, float maxPressure = 120)
+            float failedPressureRise = 4, float latchTravelSeconds = 2.5f, float restartPressure = 40, float maxPressure = 120,
+            BoilerCapacitySettings capacity = null)
         {
             var values = new[] { initialCondition, safeLoad, baseWearPerMinute, overloadWearPerMinute, pressureBase,
                 pressureOverloadFactor, pressureConditionThreshold, pressureConditionFactor, pressureTimeConstant,
@@ -61,6 +63,7 @@ namespace WorstHotel
             ReliefTarget = reliefTarget; ReliefRate = reliefRate; FailedPressureRise = failedPressureRise;
             LatchTravelSeconds = latchTravelSeconds; RestartPressure = restartPressure;
             MaxPressure = maxPressure;
+            Capacity = capacity ?? new BoilerCapacitySettings();
         }
     }
 

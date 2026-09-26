@@ -70,7 +70,8 @@ namespace WorstHotel
                 OptionalId(r.GuestId);OptionalId(r.ReservedGuestId);OptionalId(r.DepartingGuestId);OptionalId(r.CircuitId,32);
                 Require((string.IsNullOrEmpty(r.GuestId)||guestIds.Contains(r.GuestId)) && (string.IsNullOrEmpty(r.ReservedGuestId)||guestIds.Contains(r.ReservedGuestId)),"Unknown room guest.");
             }
-            Require(s.Boiler!=null,"Missing boiler.");var b=s.Boiler;Range(b.Condition,0,100);Unit(b.HeatingOutput);Nonnegative(b.Load,b.Pressure,b.FailureExposure,b.OccupancyLoad,b.LoadOverride);Require(b.ReliefActorId>=-1,"Invalid relief owner.");
+            Require(s.Boiler!=null,"Missing boiler.");var b=s.Boiler;Range(b.Condition,0,100);Unit(b.HeatingOutput);Unit(b.Stress01);Nonnegative(b.Load,b.Pressure,b.FailureExposure,b.OccupancyLoad,b.LoadOverride);Require(b.ReliefActorId>=-1,"Invalid relief owner.");
+            Require(s.HasOperations || b.Stress01 == 0, "Legacy boiler cannot contain continuous stress.");
             var cs=Array(s.Circuits,2);Unique(cs.Select(c=>c.Id));Require(cs.Select(c=>c.Id).OrderBy(x=>x).SequenceEqual(circuitIds.OrderBy(x=>x)),"Circuit set differs.");
             foreach(var c in cs){Text(c.Id,32);Nonnegative(c.ActualRequestedLoad,c.LoadOverride,c.OverloadSeconds);Require(c.TripCount>=0,"Invalid trip count.");}
             var consumers=Array(s.Consumers,24);Unique(consumers.Select(c=>c.Id));foreach(var c in consumers){Text(c.Id);OptionalId(c.CircuitId,32);Require(Room(c.RoomId,true) && (string.IsNullOrEmpty(c.CircuitId)||cs.Any(x=>x.Id==c.CircuitId)),"Invalid consumer placement.");Nonnegative(c.RequestedLoad,c.DeliveredLoad);Require(c.DeliveredLoad<=c.RequestedLoad,"Invalid delivered power.");}

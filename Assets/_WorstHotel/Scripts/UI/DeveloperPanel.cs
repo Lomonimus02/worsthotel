@@ -121,6 +121,7 @@ namespace WorstHotel
             var boiler = simulation.Boiler;
             GUILayout.Label("Day " + Session.Day + "  /  " + Session.Phase + "  /  " + simulation.Elapsed.ToString("F1") + " seconds\nCash $" + simulation.Economy.Cash + "  •  Reputation " + simulation.Economy.Reputation.ToString("F1") +
                 "\nCondition " + boiler.Condition.ToString("F1") + "  •  Load " + boiler.Load.ToString("F2") + "  •  Pressure " + boiler.Pressure.ToString("F1") + (boiler.LoadOverride.HasValue ? "  [LOAD OVERRIDE]" : ""), body);
+            DrawHeatingCapacityDebug();
             NumericRow("Cash", ref cash, "Set cash", value => simulation.DebugSetCash(value));
             NumericRow("Boiler condition", ref condition, "Set condition", value => { boiler.SetCondition(value); return CommandResult.Ok("Condition updated; an active fault still needs repair."); });
             NumericRow("Forced demand", ref load, "Override load", value => { boiler.OverrideLoad(value); return CommandResult.Ok("Load override set; reset it to restore guest demand."); });

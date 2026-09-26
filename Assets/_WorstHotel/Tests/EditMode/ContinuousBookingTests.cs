@@ -119,7 +119,9 @@ namespace WorstHotel.Tests
                 Assert.That(offer.Application.ReferencePrice, Is.EqualTo(offer.Application.Archetype.ReferencePrice));
             }
             Assert.That(hotel.Guests, Is.Empty, "Applications are not materialized guest bodies or infrastructure consumers.");
-            Assert.That(hotel.Boiler.Load, Is.Zero);
+            Assert.That(hotel.Boiler.Load, Is.EqualTo(.48f).Within(.00001f),
+                "The six open vacant radiators still consume heat; booking offers add no guest or shower demand.");
+            Assert.That(hotel.HeatingDemands.All(row => row.GuestId == null && row.HotWater == 0), Is.True);
             Assert.That(hotel.Electrical.Consumers, Is.Empty);
         }
 

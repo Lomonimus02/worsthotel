@@ -11,7 +11,7 @@ Each phase requires a successful compile, relevant tests and gameplay checks, an
 | 2 | Dated one-night reservations, live booking decisions, absolute guest schedules, production activation | Passed: compile, full Edit 379/379, continuous Play 10/10 across two runs, legacy Play 3/3; verification/core04-phase2.md |
 | 3 | Boundary persistence, bounded history, atomic validated LAN snapshots | Passed: compile/build, full Edit 398/398, four selected Play cases across runs, actual continuous LAN host45/client121; verification/core04-phase3.md |
 | 4 | Remote / DropOff / Direct integrated with guest life and finite availability | Passed: compile/scene, full Edit 441/441, seven selected gameplay cases across runs; verification/core04-phase4.md |
-| 5 | Measured capacity, causal stress, load feedback | Pending |
+| 5 | Measured capacity, causal stress, load feedback | Passed: compile/scene, full Edit 484/485 plus corrected focused 1/1, four physical Play cases; verification/core04-phase5.md |
 | 6 | Emergency patch versus proper maintenance and downtime | Pending |
 | 7 | One persistent boiler upgrade and one electrical upgrade | Pending |
 | 8 | Income, expenses, load forecasts and tradeoffs | Pending |
