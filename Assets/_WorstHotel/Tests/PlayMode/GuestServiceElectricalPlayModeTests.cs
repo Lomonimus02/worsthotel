@@ -52,8 +52,12 @@ namespace WorstHotel.Tests
                 heaters[index].Body.rotation = Quaternion.identity;
                 heaters[index].Body.linearVelocity = heaters[index].Body.angularVelocity = Vector3.zero;
             }
-            yield return WaitForCondition(() => heaters.All(item => item.State != null && item.State.RoomId == 104), 3,
-                "Both authored heater bodies must resolve room104 from their real collider bounds.");
+            // Room detection reads physics bounds, whereas an interpolated Transform can still
+            // show the old shelf pose for a frame after the labelled Rigidbody placement.
+            // Wait for both representations before deriving an empty employee approach.
+            yield return WaitForCondition(() => heaters.All(item => item.State != null && item.State.RoomId == 104 &&
+                Vector3.Distance(item.transform.TransformPoint(item.placementCollider.center), item.placementCollider.bounds.center) < .05f), 3,
+                "Both authored heater bodies and interpolated poses must reach room104 before aiming at their real colliders.");
             var panel = Object.FindAnyObjectByType<ElectricalPanelPresentation>();
             var circuit = simulation.Electrical.Find("B");
             var otherCircuit = simulation.Electrical.Find("A");
@@ -67,7 +71,7 @@ namespace WorstHotel.Tests
             for (int index = 0; index < heaters.Length; index++)
             {
                 var heater = heaters[index];
-                yield return UseElectricalServiceControl(heater, heater.transform.TransformPoint(heater.placementCollider.center));
+                yield return UseElectricalServiceControl(heater, heater.placementCollider.bounds.center);
                 Assert.That(heater.State.SwitchedOn && heater.State.Powered, Is.True);
                 Assert.That(circuit.RequestedLoad, Is.EqualTo(.85f + (index + 1) * 2f).Within(.001f));
             }
@@ -115,7 +119,7 @@ namespace WorstHotel.Tests
             Assert.That(circuit.TripCount, Is.EqualTo(previousTrips + 1));
             Assert.That(heaters.All(item => !item.State.Powered), Is.True);
 
-            yield return UseElectricalServiceControl(heaters[1], heaters[1].transform.TransformPoint(heaters[1].placementCollider.center));
+            yield return UseElectricalServiceControl(heaters[1], heaters[1].placementCollider.bounds.center);
             Assert.That(heaters[1].State.SwitchedOn, Is.False);
             Assert.That(heaters[0].State.SwitchedOn, Is.True, "Only the touched heater's switch changes.");
             Assert.That(circuit.RequestedLoad, Is.EqualTo(2.85f).Within(.001f));

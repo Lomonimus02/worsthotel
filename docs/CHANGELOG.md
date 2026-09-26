@@ -1,6 +1,10 @@
 # Changelog
 
-Latest work is Prototype 0.3.2 Natural Service: [requirements](NATURAL_SERVICE_REQUEST.txt), [player guide](GUEST_SERVICES.md), [current verification](VERIFICATION.md). Earlier entries retain their historical scope and test results.
+Latest development is Prototype 0.4 Continuous Operations: [requirements](CORE04_REQUEST.txt), [phase plan](CORE04_PLAN.md). Released version remains 0.3.2 until the new milestone passes its gates. Earlier entries retain their historical scope and test results.
+
+## Prototype 0.4 — phase 0 baseline
+
+27 September 2026. Audited calendar resets, guests/services, UI/LAN and causal infrastructure. Compile and full EditMode 316/316 passed. Full PlayMode 48/49 passed; fixed the remaining test's interpolated heater-placement race, then its focused rerun passed 1/1 without relaxing physical interaction assertions. Fresh released EXE passed SOLO and two-process localhost LAN. Ordinary pause/WAIT tests passed; the previously reported Alt+Tab hang remains unresolved. [Exact evidence and limits](verification/core04-phase0.md).
 
 ## Prototype 0.3.2 — Natural Service
 

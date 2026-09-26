@@ -1,0 +1,2385 @@
+You are continuing development of the EXISTING Unity project:
+
+THE WORST HOTEL EVER
+
+Do NOT create a new project.
+Do NOT rebuild existing working systems unless a specific architectural change is required by this milestone.
+
+This is the next major core milestone:
+
+PROTOTYPE 0.4 — THE WORST HOTEL CORE
+CONTINUOUS OPERATIONS + CAPACITY PRESSURE
+
+==================================================
+0. WHY THIS MILESTONE EXISTS
+==================================================
+
+Recent full three-day playtests revealed a deeper core-design problem.
+
+The game currently contains several individually promising systems:
+
+- guests now behave more believably;
+- boiler failures can create good physical gameplay;
+- electrical overload can create useful decisions;
+- temperature problems can connect guests to infrastructure;
+- room keys / housekeeping / physical items provide hotel atmosphere;
+- guest service has improved.
+
+However, the overall fantasy still often feels like:
+
+"A normal functioning hotel where something occasionally breaks."
+
+This is NOT the intended core fantasy.
+
+The intended fantasy is:
+
+"We inherited an old hotel that technically works,
+but its infrastructure is slightly weaker than the business
+we are trying to run through it.
+
+We constantly decide how hard to push it."
+
+The hotel should NOT require constant arbitrary failures.
+
+The hotel should NOT contain a list of fake permanent defects
+whose only purpose is to give the player quests.
+
+Instead:
+
+THE BUILDING HAS REAL LIMITS.
+
+Players choose how close to those limits they operate.
+
+The key fantasy:
+
+"Technically, it still works."
+
+==================================================
+1. CORE DESIGN CHANGE
+==================================================
+
+The new core loop should become:
+
+OBSERVE HOTEL
+
+↓
+
+REVIEW UPCOMING BUSINESS
+
+↓
+
+DECIDE HOW MUCH LOAD TO ACCEPT
+
+↓
+
+GUESTS ARRIVE AND USE THE BUILDING
+
+↓
+
+LOAD EXPOSES INFRASTRUCTURE LIMITS
+
+↓
+
+PLAYER CHOOSES:
+- tolerate;
+- redistribute;
+- patch;
+- maintain;
+- repair;
+- compensate;
+- relocate;
+- reduce load.
+
+↓
+
+QUIET TIME IS USED TO REDUCE MAINTENANCE DEBT
+OR PREPARE FOR FUTURE DEMAND
+
+↓
+
+NEW BUSINESS ARRIVES
+
+↓
+
+REPEAT CONTINUOUSLY.
+
+The game should no longer fundamentally be:
+
+Planning Screen
+→ 5-minute Shift
+→ Stop
+→ Next Day Menu
+→ Reset
+→ 5-minute Shift.
+
+==================================================
+2. HARD RULE — DO NOT SOLVE THIS WITH CHRONIC QUEST DEFECTS
+==================================================
+
+Do NOT make the new core:
+
+Room 101 has broken window.
+Repair it.
+
+Room 102 has bad pipe.
+Repair it.
+
+Room 103 has bad lamp.
+Repair it.
+
+If these can simply be fixed in two minutes and forgotten,
+they are NOT the core gameplay.
+
+Small faults may continue to exist as texture.
+
+But the actual core should come from:
+
+LIMITED CAPACITY
+
++
+
+GUEST LOAD
+
++
+
+EQUIPMENT CONDITION
+
++
+
+PLAYER AMBITION.
+
+==================================================
+3. STRUCTURAL LIMITS, NOT CONSTANT BREAKAGE
+==================================================
+
+The hotel should be capable of operating successfully.
+
+However:
+
+the amount of business players WANT to run
+should often be greater than the amount the old hotel
+can comfortably support.
+
+For Prototype 0.4 tuning:
+
+The hotel physically has 6 guest rooms.
+
+A reasonable initial target could be:
+
+3–4 occupied rooms:
+comfortable infrastructure load.
+
+5 occupied rooms:
+noticeably strained depending on guest behavior.
+
+6 occupied rooms:
+potentially risky during peak usage.
+
+Do NOT hardcode these exact numbers into game logic.
+
+Make them configurable.
+
+The important design principle is:
+
+PHYSICAL ROOM CAPACITY
+>
+COMFORTABLE INFRASTRUCTURE CAPACITY.
+
+==================================================
+PART A — CONTINUOUS HOTEL TIME
+==================================================
+
+4. REMOVE HARD SHIFT BOUNDARIES
+==================================================
+
+The current structure:
+
+Start Shift
+→ countdown
+→ Shift Ends
+→ world effectively freezes
+→ next-day management
+→ start next shift
+
+must be replaced.
+
+The hotel should run on ONE CONTINUOUS SIMULATION CLOCK.
+
+There can still be:
+
+calendar days;
+morning;
+afternoon;
+evening;
+night.
+
+But:
+
+the hotel itself never magically stops.
+
+Infrastructure never freezes because a shift ended.
+
+Guest state does not reset because a timer reached zero.
+
+==================================================
+5. NO MORE FIVE-MINUTE ROUNDS
+==================================================
+
+Do not structure gameplay around:
+
+"survive the next 5 minutes."
+
+Instead:
+
+time continues.
+
+Example:
+
+23:48
+
+Boiler fails.
+
+00:00 occurs.
+
+The boiler is STILL FAILED.
+
+Heating continues deteriorating.
+
+Guests remain affected.
+
+At 00:25 the player may still be repairing it.
+
+There is no magical freeze or reset.
+
+==================================================
+6. CALENDAR DAY
+==================================================
+
+Keep the concept of days only as a BUSINESS / REPORTING unit.
+
+Example:
+
+06:00 or another configurable hotel-day boundary:
+
+previous day's report becomes available.
+
+It may contain:
+
+Revenue
+Operating costs
+Compensation
+Guest reviews
+Average occupancy
+Maintenance expenses
+
+BUT:
+
+do NOT pause world simulation automatically.
+
+Do NOT force player into a modal menu.
+
+The report may:
+
+appear as a notification;
+be reviewed at reception;
+be opened later.
+
+==================================================
+7. DAILY REPORT IS NOT A LEVEL COMPLETE SCREEN
+==================================================
+
+Day transition should feel like:
+
+"another morning arrived."
+
+Not:
+
+"Level 2 complete."
+
+The world continues.
+
+Guest schedules continue.
+
+Infrastructure continues.
+
+Room state continues.
+
+Cash continues.
+
+Maintenance state continues.
+
+==================================================
+8. BOOKING SCHEDULE
+==================================================
+
+Convert booking management toward a continuous schedule.
+
+Reception / booking board should show:
+
+UPCOMING ARRIVALS
+
+CURRENT GUESTS
+
+UPCOMING CHECKOUTS
+
+AVAILABLE / DIRTY / RESERVED ROOMS
+
+FUTURE APPLICATIONS
+
+Example:
+
+TODAY
+
+14:00 — Guest A — Room 103
+15:30 — Guest B — Room 101
+18:00 — Guest C — Unassigned
+
+TOMORROW
+
+09:00 — Checkout Room 104
+14:30 — New arrival
+
+Do not require a hard "Start Day" button.
+
+==================================================
+9. APPLICATION ACCEPTANCE
+==================================================
+
+Players should be able to review future booking applications
+while the hotel continues operating.
+
+Do not create a separate frozen planning dimension.
+
+Player may use:
+
+reception terminal / booking desk.
+
+World continues unless manually paused.
+
+==================================================
+10. EXISTING ONE-NIGHT STAYS
+==================================================
+
+Do NOT add multi-day stays in this milestone.
+
+Keep current one-night guest stays if that is what the current project uses.
+
+Guests:
+
+arrive;
+stay;
+sleep;
+checkout next morning.
+
+Multi-day guests remain future work.
+
+==================================================
+11. WAIT / FAST FORWARD
+==================================================
+
+Preserve the existing WAIT / FAST FORWARD system.
+
+It becomes even more important with continuous time.
+
+If:
+
+nothing important is happening
+
+and
+
+players want to advance,
+
+allow simulation to move toward next meaningful scheduled event.
+
+Do not globally accelerate Rigidbody physics.
+
+Preserve previous stable implementation.
+
+==================================================
+PART B — CAPACITY PRESSURE
+==================================================
+
+12. HOTEL INFRASTRUCTURE SHOULD HAVE RATED CAPACITY
+==================================================
+
+Existing boiler and electrical systems should now communicate:
+
+RATED CAPACITY
+
+CURRENT DEMAND
+
+CURRENT CONDITION
+
+CURRENT STRESS / RESERVE
+
+The player should understand:
+
+"We are close to the limit."
+
+before:
+
+"Everything exploded."
+
+==================================================
+13. CAPACITY STATES
+==================================================
+
+Use understandable operating states.
+
+For example:
+
+COMFORTABLE
+
+STRAINED
+
+OVERLOADED
+
+CRITICAL
+
+Do not require player to understand engineering formulas.
+
+Debug UI may expose exact numeric values.
+
+Player-facing UI should prioritize readability.
+
+==================================================
+14. DO NOT MAKE 100% = INSTANT FAILURE
+==================================================
+
+Capacity limits should produce pressure before failure.
+
+Example concept:
+
+Load well below rated capacity:
+
+stable.
+
+Near rated capacity:
+
+reduced reserve;
+more wear;
+performance may begin dropping.
+
+Above rated capacity:
+
+system cannot fully satisfy demand;
+stress accumulates;
+wear accelerates.
+
+Sustained severe overload + poor condition:
+
+eventual failure.
+
+Do not immediately explode when demand crosses one threshold.
+
+==================================================
+15. SYSTEM STRESS
+==================================================
+
+Prefer a causal, inspectable STRESS / OVERLOAD EXPOSURE model.
+
+Example concept:
+
+System stress increases when:
+
+Demand > effective safe capacity.
+
+Stress increases faster when:
+
+equipment condition is poor;
+overload is severe.
+
+Stress decreases when:
+
+load returns to safe range.
+
+Failure may occur when:
+
+stress reaches configured critical threshold.
+
+Prefer this over arbitrary:
+
+Random.Range() < FailureChance.
+
+If existing failure system uses randomness:
+
+inspect it.
+
+Do not necessarily remove all randomness,
+but the dominant cause should be understandable state.
+
+==================================================
+PART C — BOILER
+==================================================
+
+16. BOILER ROLE
+==================================================
+
+The boiler should be one of the main examples of:
+
+CAPACITY MANAGEMENT.
+
+It has:
+
+RatedHeatingCapacity
+Condition
+CurrentDemand
+CurrentOutput
+Stress
+FailureState
+
+Guest behavior contributes to demand.
+
+Examples:
+
+radiator settings;
+number of occupied rooms;
+room heat loss;
+guest temperature preferences;
+portable heating strategy indirectly affects electricity instead.
+
+==================================================
+17. BOILER UNDERLOAD
+==================================================
+
+When demand is comfortably within capacity:
+
+rooms heat normally.
+
+Condition degrades slowly.
+
+No reason for boiler failure.
+
+Do NOT force a Day 3 boiler failure.
+
+==================================================
+18. BOILER STRAIN
+==================================================
+
+When demand approaches / exceeds available output:
+
+not every room necessarily receives ideal heating.
+
+Existing room heat model may determine:
+
+which rooms cool first.
+
+This should naturally create:
+
+guest discomfort.
+
+No scripted ColdGuestEvent is required.
+
+==================================================
+19. CONDITION AFFECTS PERFORMANCE
+==================================================
+
+Boiler condition should matter.
+
+Poor condition can affect:
+
+effective capacity;
+efficiency;
+stress accumulation;
+reliability.
+
+Keep effects configurable and readable.
+
+Do NOT make 50% condition literally mean:
+50% output
+unless intentionally tuned.
+
+==================================================
+PART D — ELECTRICAL SYSTEM
+==================================================
+
+20. ELECTRICAL CIRCUITS ARE CAPACITY CONSTRAINTS
+==================================================
+
+Existing electrical circuits should remain simple.
+
+Each has:
+
+RatedCapacity
+CurrentLoad
+OverloadDuration / Stress
+BreakerState
+
+Consumers include actual supported systems.
+
+Examples:
+
+occupied room baseline;
+portable heater;
+other existing devices.
+
+==================================================
+21. BREAKER IS NOT A RANDOM FAILURE
+==================================================
+
+The breaker should trip because:
+
+load exceeded circuit capacity for long enough.
+
+Resetting breaker is fast.
+
+That is fine.
+
+The gameplay question is:
+
+"Why is this circuit overloaded?"
+
+not:
+
+"Can I perform a 30-second breaker minigame?"
+
+==================================================
+22. RESET DOES NOT SOLVE CAPACITY
+==================================================
+
+If:
+
+Circuit capacity = 6
+
+Load = 7
+
+Player resets breaker.
+
+Circuit should eventually trip again.
+
+Player must change load or upgrade infrastructure.
+
+==================================================
+PART E — ROOM CHARACTERISTICS
+==================================================
+
+23. ROOMS MAY HAVE STRUCTURAL CHARACTERISTICS
+==================================================
+
+Rooms should not all be identical.
+
+But these should NOT be arbitrary quest defects.
+
+Examples:
+
+HeatLossMultiplier
+Distance / effectiveness from heating branch
+Circuit assignment
+Noise adjacency
+Room quality
+Window insulation
+
+Example:
+
+Room 104 may naturally lose heat faster than Room 101.
+
+This is not:
+
+"Repair Room 104 quest."
+
+It is simply a property of the building.
+
+==================================================
+24. ROOM CHARACTERISTICS SHOULD AFFECT ASSIGNMENT
+==================================================
+
+Example:
+
+Cold-sensitive guest.
+
+Room 104:
+high heat loss.
+
+Room 101:
+good heat retention.
+
+This makes room assignment meaningful.
+
+If hotel load is low:
+
+104 may still be completely acceptable.
+
+If boiler is strained:
+
+104 becomes risky.
+
+This is the intended interaction.
+
+==================================================
+25. STRUCTURAL IMPROVEMENTS MAY EXIST LATER
+==================================================
+
+A future renovation can improve room insulation.
+
+But do NOT turn every room property into a tiny repair chore now.
+
+For Prototype 0.4:
+
+keep room characteristics simple and data-driven.
+
+==================================================
+PART F — MAINTENANCE DEBT
+==================================================
+
+26. QUIET TIME SHOULD HAVE PURPOSE
+==================================================
+
+When no guest currently needs attention,
+the player should still be able to improve their future situation.
+
+Introduce / strengthen:
+
+MAINTENANCE BACKLOG.
+
+This is NOT a quest list.
+
+It is information about the current state of the building.
+
+Example:
+
+BOILER
+Condition: 58%
+Recommended maintenance
+
+CIRCUIT B
+Frequent overload
+
+Room 104
+High heating demand
+
+Room 106
+Needs turnover
+
+Players decide what matters.
+
+==================================================
+27. MAINTENANCE IS OPTIONAL UNTIL IT IS NOT
+==================================================
+
+Do not force:
+
+"Perform boiler maintenance now."
+
+Player may ignore maintenance.
+
+That is a valid risk.
+
+But:
+
+condition remains poor;
+stress builds faster;
+future load becomes harder to manage.
+
+==================================================
+28. THREE LEVELS OF INFRASTRUCTURE RESPONSE
+==================================================
+
+Separate:
+
+A. EMERGENCY PATCH
+
+B. PROPER MAINTENANCE / REPAIR
+
+C. CAPITAL UPGRADE
+
+These must mean different things.
+
+==================================================
+29. EMERGENCY PATCH
+==================================================
+
+Purpose:
+
+get failed infrastructure running again quickly.
+
+Characteristics:
+
+fast;
+relatively cheap;
+restores operation;
+does NOT fully restore condition;
+may leave a reliability penalty / degraded state.
+
+Example:
+
+Boiler failed.
+
+Emergency patch:
+
+restores function at 35–50% condition.
+
+Exact values configurable.
+
+This is appropriate during crisis.
+
+==================================================
+30. PROPER MAINTENANCE / REPAIR
+==================================================
+
+Purpose:
+
+restore existing equipment.
+
+Characteristics:
+
+takes longer;
+costs more;
+may require temporary shutdown;
+restores significant condition;
+removes temporary patch penalty.
+
+IMPORTANT:
+
+A proper repair must feel meaningful.
+
+Do NOT make the same failure return 5 minutes later
+just because the game needs content.
+
+If properly repaired:
+
+the player has genuinely improved the hotel.
+
+==================================================
+31. CAPITAL UPGRADE
+==================================================
+
+Purpose:
+
+increase what the hotel is capable of.
+
+Example:
+
+OLD BOILER
+
+Rated capacity:
+X
+
+UPGRADED BOILER
+
+Rated capacity:
+X + meaningful amount.
+
+Likewise:
+
+Circuit B rewiring / upgrade
+may increase circuit capacity.
+
+This is not maintenance.
+
+This is PROGRESSION.
+
+==================================================
+32. UPGRADE CREATES ROOM FOR MORE AMBITION
+==================================================
+
+Core progression principle:
+
+Player solves old bottleneck.
+
+↓
+
+Hotel becomes easier at current scale.
+
+↓
+
+Player accepts more business / later opens more hotel.
+
+↓
+
+New bottleneck appears.
+
+Do NOT artificially make repaired systems worse again.
+
+Growth should create new pressure.
+
+==================================================
+33. PROTOTYPE 0.4 UPGRADE SCOPE
+==================================================
+
+Do NOT build a full upgrade tree.
+
+Implement only enough to prove the concept.
+
+Recommended:
+
+ONE boiler capacity upgrade.
+
+ONE electrical capacity upgrade.
+
+Both:
+
+expensive enough to matter;
+persistent;
+clearly improve system capacity.
+
+No skill trees.
+
+No 20 upgrade nodes.
+
+==================================================
+34. MAINTENANCE DOWNTIME
+==================================================
+
+Proper maintenance may require system downtime.
+
+Example:
+
+Boiler maintenance:
+
+heating unavailable for a configured in-game duration.
+
+This creates planning:
+
+Do it now while occupancy is low?
+
+Or keep operating and risk failure?
+
+Keep implementation understandable.
+
+==================================================
+PART G — ECONOMIC PRESSURE
+==================================================
+
+35. PLAYER NEEDS A REASON TO PUSH THE HOTEL
+==================================================
+
+If the optimal strategy is:
+
+"Only accept 3 easy guests forever,"
+
+the system fails.
+
+There must be a meaningful economic reason
+to operate closer to capacity.
+
+Use existing economy where possible.
+
+Inspect current implementation first.
+
+==================================================
+36. SIMPLE OPERATING PRESSURE
+==================================================
+
+Do NOT implement full campaign debt yet.
+
+For Prototype 0.4,
+ensure there is at least a simple recurring operating expense.
+
+Examples:
+
+daily building operating cost;
+utilities;
+existing fixed hotel cost.
+
+Player should feel:
+
+under-booking is safe
+but financially weak.
+
+High occupancy earns much more
+but stresses the building.
+
+==================================================
+37. DO NOT MAKE ECONOMY PUNITIVE FOR ITS OWN SAKE
+==================================================
+
+Economic pressure exists to create decisions.
+
+Not to create grind.
+
+A cautious player should survive.
+
+An ambitious player should earn enough to afford:
+
+proper repairs;
+capacity upgrades.
+
+==================================================
+38. BOOKINGS SHOULD SHOW TEMPTATION
+==================================================
+
+Applications should sometimes create attractive choices.
+
+Example:
+
+High-paying cold-sensitive guest.
+
+Hotel heating already strained.
+
+Accepting them is lucrative.
+
+But risky.
+
+Or:
+
+Two good applications arrive.
+
+Only one comfortable room is available.
+
+The player decides.
+
+==================================================
+39. LOAD FORECAST
+==================================================
+
+Reception / operations UI should provide an approximate forecast.
+
+Example:
+
+CURRENT:
+Heating Load — Comfortable
+
+AFTER ACCEPTING THIS BOOKING:
+Heating Load — Strained
+
+Do NOT provide perfect future prediction.
+
+Guest activities can still change actual demand.
+
+But player should not be completely blind.
+
+==================================================
+PART H — GUEST LOAD
+==================================================
+
+40. GUESTS ARE DEMAND GENERATORS
+==================================================
+
+Guests should matter mechanically through what they DO.
+
+Examples:
+
+occupying room:
+base electricity / heating demand.
+
+taking shower:
+existing boiler/hot-water demand if currently supported.
+
+turning radiator higher:
+more heating demand.
+
+portable heater:
+more electrical load.
+
+Activities should use existing simulation.
+
+Do NOT create invisible fake demand solely for balance.
+
+==================================================
+41. GUEST TRAITS AFFECT LOAD INDIRECTLY
+==================================================
+
+Examples:
+
+ColdSensitive:
+
+prefers warmer room;
+may increase radiator sooner;
+may request blanket;
+therefore indirectly increases heating pressure.
+
+BusinessGuest:
+
+more noise sensitive;
+may value reliable electricity more.
+
+NoisyGuest:
+
+creates room assignment conflicts.
+
+This makes booking decisions meaningful.
+
+==================================================
+PART I — GUEST REQUESTS AND BEHAVIOR MUST BECOME ONE SYSTEM
+==================================================
+
+42. CURRENT PROBLEM
+==================================================
+
+Recent playtesting exposed an architecture / behavior problem.
+
+A guest may:
+
+request something
+
+while their schedule independently decides:
+
+go shower;
+sleep;
+leave hotel.
+
+This creates absurd behavior.
+
+Example:
+
+Guest asks for room change.
+
+↓
+
+Immediately leaves hotel.
+
+Or:
+
+asks for something requiring direct interaction.
+
+↓
+
+goes to sleep and refuses door access.
+
+This means:
+
+Guest Service
+
+and
+
+Guest Schedule
+
+currently behave like parallel systems.
+
+This must be corrected.
+
+==================================================
+43. SERVICE INTENT
+==================================================
+
+Introduce a concept similar to:
+
+ServiceIntent
+
+or an equivalent architecture.
+
+Each active service request must declare
+what interaction relationship it requires.
+
+At minimum:
+
+REMOTE
+
+DROP_OFF
+
+DIRECT
+
+==================================================
+44. REMOTE SERVICE
+==================================================
+
+REMOTE means:
+
+guest does not need to remain available.
+
+Examples:
+
+Room is cold.
+Power problem.
+Noise source affecting room.
+
+Guest may:
+
+continue activity;
+leave room;
+sometimes leave hotel.
+
+Player can fix underlying hotel condition.
+
+When guest returns / perception updates,
+service case may resolve.
+
+==================================================
+45. DROP_OFF SERVICE
+==================================================
+
+DROP_OFF means:
+
+guest requested a physical item,
+but player does not need to chase them.
+
+Example:
+
+Extra blanket.
+
+Guest may say:
+
+"Could you leave one for me?"
+
+Provide a clear delivery location.
+
+Examples:
+
+outside-room service point;
+room delivery spot if access is permitted.
+
+The item must physically arrive there.
+
+When guest next returns / becomes available,
+they consume / acknowledge delivery.
+
+Do NOT require catching moving guest NPC.
+
+==================================================
+46. DIRECT SERVICE
+==================================================
+
+DIRECT means:
+
+guest interaction requires guest presence.
+
+Examples:
+
+Room change.
+Compensation discussion.
+Late checkout decision.
+Certain front-desk requests.
+
+When Direct Service becomes active:
+
+GuestSchedule MUST respect it.
+
+Guest enters an appropriate state:
+
+WaitingAtReception
+WaitingInRoom
+WaitingForStaff
+
+for a reasonable amount of time.
+
+They do NOT immediately:
+
+take shower;
+sleep;
+leave hotel.
+
+==================================================
+47. DIRECT SERVICE TIMEOUT
+==================================================
+
+Guests should not wait forever.
+
+If ignored:
+
+after configured time:
+
+guest may:
+- become frustrated;
+- abandon request;
+- continue schedule;
+- escalate later.
+
+But the schedule must understand
+that the guest was waiting.
+
+==================================================
+48. REQUEST GENERATION MUST CHECK SCHEDULE CONTEXT
+==================================================
+
+Do NOT generate ordinary service requests
+at obviously incompatible moments.
+
+Examples:
+
+Do not generate extra blanket request:
+while guest is leaving hotel in 10 seconds.
+
+Do not generate late-checkout conversation:
+while guest is showering.
+
+Do not create ordinary service contact:
+while guest is asleep.
+
+Instead:
+
+defer evaluation until a sensible activity window.
+
+==================================================
+49. SERVICE STATE MUST AFFECT GUEST FSM
+==================================================
+
+Do not store ServiceCase only in a separate manager.
+
+Guest behavior needs access to:
+
+active ServiceIntent;
+whether direct interaction is pending;
+whether delivery is expected;
+whether remote issue exists.
+
+No two independent systems fighting over the same guest.
+
+==================================================
+PART J — PERSISTENCE
+==================================================
+
+50. NOTHING IMPORTANT RESETS AT DAY BOUNDARY
+==================================================
+
+Persist:
+
+boiler condition;
+boiler failure;
+electrical state;
+maintenance state;
+room cleanliness;
+room reservations;
+guest stay state;
+active incidents;
+cash;
+temporary patches;
+stress where appropriate.
+
+If day report occurs:
+
+these states remain unchanged.
+
+==================================================
+51. FAILURES PERSIST
+==================================================
+
+If Circuit B is broken at midnight:
+
+it is still broken after midnight.
+
+If boiler failed:
+
+it remains failed.
+
+If player leaves it broken:
+
+guests continue experiencing consequences.
+
+This is critical.
+
+==================================================
+52. PATCHES PERSIST
+==================================================
+
+Emergency patch state persists until:
+
+proper maintenance;
+replacement;
+another actual failure.
+
+Do not clear it because a new day started.
+
+==================================================
+PART K — PROACTIVE PLAY
+==================================================
+
+53. PLAYER SHOULD HAVE SOMETHING USEFUL TO DO WITHOUT A REQUEST
+==================================================
+
+Do NOT create fake chores to fill time.
+
+Instead the player may:
+
+inspect infrastructure;
+perform maintenance;
+prepare rooms;
+review bookings;
+adjust room assignments;
+manage heating settings;
+move equipment;
+prepare for arrivals;
+reduce known overload;
+perform proper repair during quiet period.
+
+This fills quiet periods through player choice.
+
+==================================================
+54. NO OBJECTIVE ARROWS FOR MAINTENANCE BACKLOG
+==================================================
+
+Maintenance board provides:
+
+information.
+
+Not orders.
+
+Example:
+
+BOILER
+Condition: Poor
+Current Load: High
+Recommended Maintenance: Yes
+
+The player chooses whether to act.
+
+==================================================
+PART L — UI / READABILITY
+==================================================
+
+55. OPERATIONS BOARD
+==================================================
+
+Create / improve one central hotel operations view.
+
+It should communicate:
+
+Current hotel time
+
+Upcoming arrivals
+
+Upcoming checkouts
+
+Room readiness
+
+Occupancy
+
+Heating state
+
+Electrical state
+
+Maintenance warnings
+
+Current cash
+
+Do NOT turn this into a giant spreadsheet.
+
+Use readable high-level states.
+
+==================================================
+56. CAPACITY FEEDBACK
+==================================================
+
+Player should be able to understand:
+
+Heating:
+Comfortable / Strained / Overloaded
+
+Circuit A:
+Normal
+
+Circuit B:
+Near Limit
+
+Boiler:
+Condition 54%
+
+Exact numbers may be available in expanded view.
+
+==================================================
+57. PHYSICAL FEEDBACK
+==================================================
+
+Do not rely only on UI.
+
+When heating strained:
+
+boiler sound changes;
+gauge higher;
+radiators less effective;
+rooms cool.
+
+When electrical circuit near overload:
+
+panel indicator;
+hum;
+light flicker only if appropriate.
+
+World should communicate stress.
+
+==================================================
+PART M — SMALL ROOM FAULTS
+==================================================
+
+58. KEEP SMALL FAULTS, BUT THEY ARE NOT THE CORE
+==================================================
+
+Existing small faults may remain:
+
+lamp;
+minor valve issue;
+etc.
+
+They provide texture.
+
+Do NOT increase their frequency
+to solve boredom.
+
+Do NOT make every room constantly break.
+
+==================================================
+59. SMALL FAULTS SHOULD STAY FIXED
+==================================================
+
+If player replaces a bulb:
+
+the bulb is fixed.
+
+Do not immediately re-break it through artificial content generation.
+
+If something fails again later:
+
+it must be due to meaningful wear / state.
+
+==================================================
+PART N — CURRENT SYSTEMS TO PRESERVE
+==================================================
+
+60. PRESERVE WORKING FEATURES
+==================================================
+
+Do not casually remove working current systems.
+
+Preserve, adapt, or migrate:
+
+Solo mode
+
+LAN / direct-IP multiplayer
+
+Room keys
+
+Physical linen
+
+Guest activities
+
+Guest privacy
+
+Reception phone
+
+Service Cases
+
+Guest memory
+
+Noise source system
+
+Blankets
+
+Portable heaters
+
+Radiator valves
+
+Boiler repair
+
+Electrical breaker
+
+Room turnover
+
+Fast forward
+
+Pause system and any previous pause-crash fix.
+
+==================================================
+61. DO NOT REGRESS PAUSE
+==================================================
+
+Continuous time refactor must NOT reintroduce:
+
+long-pause crash;
+simulation catch-up burst;
+guest event flood.
+
+Run previous pause regression tests.
+
+Pause means:
+
+hotel simulation time stops.
+
+Resume means:
+
+continue from same hotel simulation time.
+
+==================================================
+PART O — NON-GOALS
+==================================================
+
+62. DO NOT ADD YET
+==================================================
+
+Do NOT add:
+
+second floor;
+elevator;
+water/plumbing system;
+restaurant;
+bar;
+pool;
+spa;
+employees;
+multi-day stays;
+weddings;
+tour groups;
+full campaign debt;
+Steam matchmaking;
+complex upgrade tree;
+procedural hotel;
+large inventory system;
+new giant catalogue of service requests.
+
+This milestone is about fixing the CORE.
+
+==================================================
+PART P — ARCHITECTURE
+==================================================
+
+63. INSPECT BEFORE REFACTORING
+==================================================
+
+Before changing architecture:
+
+inspect current implementation.
+
+Do not assume previous class names or structures still exist.
+
+Compile.
+
+Run tests.
+
+Make safe checkpoint.
+
+==================================================
+64. SUGGESTED CORE CONCEPTS
+==================================================
+
+Use existing architecture where possible.
+
+Potential concepts that may be needed:
+
+HotelCalendar
+HotelGameClock
+BookingSchedule
+InfrastructureCapacityState
+InfrastructureStress
+MaintenanceState
+TemporaryRepairState
+CapacityUpgradeDefinition
+MaintenanceBacklog
+ServiceIntent
+ServiceIntentType
+OperationsForecast
+
+Do NOT create:
+
+WorstHotelManager.cs
+
+containing everything.
+
+==================================================
+65. DATA-DRIVEN CONFIG
+==================================================
+
+Make configurable:
+
+Rated capacity
+
+Safe load thresholds
+
+Stress rates
+
+Stress recovery
+
+Condition effect
+
+Wear rates
+
+Patch recovery
+
+Proper repair recovery
+
+Maintenance duration
+
+Upgrade cost
+
+Upgrade capacity improvement
+
+Daily operating cost
+
+Room heat-loss characteristics
+
+Guest load contribution
+
+ServiceIntent timing
+
+Do not scatter magic numbers.
+
+==================================================
+PART Q — TESTING
+==================================================
+
+66. AUTOMATED TEST — DAY BOUNDARY
+==================================================
+
+Scenario:
+
+Boiler failed at 23:59.
+
+Advance calendar through midnight/day boundary.
+
+Expected:
+
+boiler remains failed.
+
+No freeze.
+No reset.
+
+==================================================
+67. AUTOMATED TEST — OVERLOAD WITHOUT INSTANT FAILURE
+==================================================
+
+Set:
+
+Boiler demand slightly above safe capacity.
+
+Expected:
+
+stress rises.
+
+Performance may degrade.
+
+No instant failure.
+
+==================================================
+68. AUTOMATED TEST — STRESS RECOVERY
+==================================================
+
+Reduce demand below safe capacity.
+
+Expected:
+
+stress begins recovering.
+
+==================================================
+69. AUTOMATED TEST — PROPER REPAIR
+==================================================
+
+Poor-condition boiler.
+
+Perform proper repair.
+
+Expected:
+
+condition significantly restored.
+
+Temporary patch penalty removed.
+
+System remains repaired.
+
+==================================================
+70. AUTOMATED TEST — CAPITAL UPGRADE
+==================================================
+
+Upgrade boiler capacity.
+
+Expected:
+
+same guest load produces lower utilization / stress.
+
+Upgrade persists through day boundary.
+
+==================================================
+71. AUTOMATED TEST — BREAKER LOAD
+==================================================
+
+Circuit overloaded.
+
+Breaker trips.
+
+Reset without load reduction.
+
+Expected:
+
+re-trip.
+
+Reduce load.
+
+Reset.
+
+Expected:
+
+stable.
+
+==================================================
+72. AUTOMATED TEST — SERVICE INTENT
+==================================================
+
+Guest creates Direct request.
+
+Expected:
+
+guest schedule enters waiting-compatible state.
+
+Guest does not immediately start:
+Sleep
+Shower
+LeaveHotel.
+
+==================================================
+73. AUTOMATED TEST — DROP-OFF
+==================================================
+
+Guest requests blanket as DropOff service.
+
+Guest leaves room.
+
+Player delivers blanket to valid delivery location.
+
+Expected:
+
+request does not require chasing guest.
+
+Guest later receives / acknowledges item.
+
+==================================================
+74. AUTOMATED TEST — REMOTE ISSUE
+==================================================
+
+Guest has remote cold-room situation.
+
+Guest leaves hotel.
+
+Player fixes heating.
+
+Guest returns.
+
+Expected:
+
+guest evaluates improved room state.
+
+Case resolves appropriately.
+
+==================================================
+PART R — MANUAL PLAYTEST SCENARIOS
+==================================================
+
+75. SCENARIO A — SAFE OPERATION
+==================================================
+
+Accept only 3–4 guests.
+
+Expected:
+
+hotel mostly stable.
+
+Player earns modest income.
+
+Quiet periods exist.
+
+No forced failure.
+
+==================================================
+76. SCENARIO B — AMBITIOUS OPERATION
+==================================================
+
+Accept 5–6 guests,
+including demanding / cold-sensitive guests.
+
+Expected:
+
+heating/electric reserve noticeably lower.
+
+Player must observe and make decisions.
+
+Failure is possible,
+but not guaranteed.
+
+==================================================
+77. SCENARIO C — STRAIN BEFORE FAILURE
+==================================================
+
+Push heating close to capacity.
+
+Expected:
+
+player sees consequences BEFORE failure.
+
+Examples:
+
+rooms warming more slowly;
+boiler reserve low;
+stress increasing;
+cold-sensitive guest reacts.
+
+==================================================
+78. SCENARIO D — PATCH VS MAINTENANCE
+==================================================
+
+Cause boiler failure.
+
+Emergency patch.
+
+Expected:
+
+boiler works again,
+but condition remains poor.
+
+Later perform proper maintenance.
+
+Expected:
+
+condition meaningfully improves.
+
+==================================================
+79. SCENARIO E — UPGRADE
+==================================================
+
+Play under strained boiler capacity.
+
+Purchase boiler upgrade.
+
+Expected:
+
+same occupancy becomes noticeably easier.
+
+This improvement must feel real.
+
+==================================================
+80. SCENARIO F — PLAYER CREATES NEW PROBLEM THROUGH GROWTH
+==================================================
+
+After capacity upgrade:
+
+accept additional business / operate more aggressively.
+
+Expected:
+
+new pressure emerges because player increased ambition,
+not because game secretly nerfed repaired boiler.
+
+==================================================
+81. SCENARIO G — MIDNIGHT FAILURE
+==================================================
+
+Cause failure shortly before calendar boundary.
+
+Do nothing.
+
+Expected:
+
+failure and consequences continue after midnight.
+
+==================================================
+82. SCENARIO H — SERVICE + BEHAVIOR
+==================================================
+
+Guest requests direct room change.
+
+Expected:
+
+guest waits in coherent state.
+
+Guest does not immediately:
+
+leave;
+shower;
+sleep.
+
+==================================================
+83. SCENARIO I — QUIET HOTEL
+==================================================
+
+No active guest complaint.
+
+Expected:
+
+player can still choose useful proactive work:
+
+maintenance;
+room prep;
+booking;
+load management.
+
+No fake request needs to appear.
+
+==================================================
+PART S — TUNING TARGET
+==================================================
+
+84. THREE-DAY TEST SHOULD FEEL DIFFERENT NOW
+==================================================
+
+For current prototype playtest,
+continue using approximately three calendar days.
+
+But they are now continuous.
+
+No Start Day button.
+
+No five-minute isolated rounds.
+
+==================================================
+85. DAY 1 TARGET
+==================================================
+
+The player learns:
+
+hotel has limited reserve.
+
+If cautious:
+
+hotel runs reasonably well.
+
+If ambitious:
+
+early strain becomes visible.
+
+No forced disaster.
+
+==================================================
+86. DAY 2 TARGET
+==================================================
+
+Wear / poor maintenance decisions from Day 1 begin to matter.
+
+Player should have:
+
+some maintenance backlog;
+more confidence accepting business;
+meaningful temptation to push capacity.
+
+==================================================
+87. DAY 3 TARGET
+==================================================
+
+Two very different Day 3 outcomes should be possible.
+
+CAREFUL PLAYER:
+
+stable hotel;
+lower earnings;
+better infrastructure condition.
+
+AGGRESSIVE PLAYER:
+
+higher revenue;
+more overload;
+larger maintenance debt;
+possible cascading problems.
+
+Neither path should be scripted.
+
+==================================================
+PART T — IMPLEMENTATION ORDER
+==================================================
+
+88. PHASE 0 — BASELINE
+==================================================
+
+Inspect current project.
+
+Compile.
+
+Run all tests.
+
+Verify:
+
+Solo
+LAN
+Pause
+Fast Forward.
+
+Create safe checkpoint.
+
+==================================================
+89. PHASE 1 — CONTINUOUS CALENDAR
+==================================================
+
+Remove hard shift freeze.
+
+Introduce / adapt continuous hotel calendar.
+
+Preserve day reporting without stopping world.
+
+Do not touch capacity tuning yet.
+
+Test thoroughly.
+
+==================================================
+90. PHASE 2 — BOOKING SCHEDULE
+==================================================
+
+Move bookings / arrivals / checkouts
+into continuous time schedule.
+
+Remove dependency on Start Day.
+
+==================================================
+91. PHASE 3 — STATE PERSISTENCE
+==================================================
+
+Ensure all important room / infrastructure / guest states
+persist through calendar boundaries.
+
+==================================================
+92. PHASE 4 — SERVICE INTENT INTEGRATION
+==================================================
+
+Fix guest schedule and request systems.
+
+Add:
+
+Remote
+DropOff
+Direct
+
+behavior integration.
+
+Do this before adding more load complexity.
+
+==================================================
+93. PHASE 5 — CAPACITY / STRESS MODEL
+==================================================
+
+Refactor existing boiler and electricity
+to communicate capacity pressure clearly.
+
+No forced failures.
+
+==================================================
+94. PHASE 6 — MAINTENANCE STATES
+==================================================
+
+Implement:
+
+Emergency Patch
+Proper Maintenance
+
+with meaningful difference.
+
+==================================================
+95. PHASE 7 — MINIMAL CAPITAL UPGRADES
+==================================================
+
+One boiler upgrade.
+
+One electrical capacity upgrade.
+
+No upgrade tree.
+
+==================================================
+96. PHASE 8 — ECONOMIC PRESSURE
+==================================================
+
+Tune existing economy.
+
+Add simple recurring operating cost only if necessary.
+
+Make overbooking financially tempting.
+
+==================================================
+97. PHASE 9 — OPERATIONS UI
+==================================================
+
+Improve visibility of:
+
+schedule;
+load;
+condition;
+maintenance;
+upcoming pressure.
+
+==================================================
+98. PHASE 10 — THREE-DAY RETUNE
+==================================================
+
+Run full three-calendar-day Solo test.
+
+Then LAN if practical.
+
+Tune:
+
+safe capacity;
+load;
+wear;
+maintenance;
+economy;
+service timing.
+
+==================================================
+99. HARD GATE AFTER EVERY PHASE
+==================================================
+
+After each phase:
+
+Compile.
+
+Run tests.
+
+Verify relevant gameplay.
+
+Update CHANGELOG.
+
+Do not continue with major runtime errors.
+
+==================================================
+PART U — ACCEPTANCE CRITERIA
+==================================================
+
+100. PROTOTYPE 0.4 IS COMPLETE ONLY IF:
+==================================================
+
+1.
+There is no hard 5-minute shift reset.
+
+2.
+Hotel simulation runs continuously across calendar days.
+
+3.
+Daily report does not freeze or reset world.
+
+4.
+Boiler failure at end of day remains failed afterward.
+
+5.
+Infrastructure has readable rated capacity and current demand.
+
+6.
+Operating near capacity creates pressure before failure.
+
+7.
+Failure is not automatically scripted for Day 3.
+
+8.
+Hotel can run safely if player chooses low load.
+
+9.
+Higher occupancy is financially more attractive.
+
+10.
+The player has a reason to consider operating above comfortable capacity.
+
+11.
+Emergency patch differs meaningfully from proper repair.
+
+12.
+Proper repair provides persistent real improvement.
+
+13.
+At least one boiler capacity upgrade exists.
+
+14.
+At least one electrical capacity upgrade exists.
+
+15.
+Capacity upgrade makes same workload objectively easier.
+
+16.
+Game does not secretly re-break repaired system merely to create content.
+
+17.
+Growth / increased ambition is what produces new pressure.
+
+18.
+Room assignment interacts with infrastructure / room characteristics.
+
+19.
+Small room faults are not the main gameplay loop.
+
+20.
+Quiet periods can be used for proactive maintenance.
+
+21.
+Maintenance backlog gives information, not mandatory quests.
+
+22.
+Guest requests and guest schedules no longer behave as independent competing systems.
+
+23.
+Direct requests cause guest to wait appropriately.
+
+24.
+Drop-off requests do not require chasing NPCs.
+
+25.
+Remote problems can be solved while guest continues their life.
+
+26.
+Requests are not generated at obviously incompatible activity moments.
+
+27.
+Fast-forward still works.
+
+28.
+Pause still works.
+
+29.
+Previous pause crash does not regress.
+
+30.
+Solo works.
+
+31.
+LAN co-op works.
+
+32.
+Three continuous calendar days can be played from start to finish.
+
+==================================================
+101. MOST IMPORTANT PLAYTEST QUESTIONS
+==================================================
+
+After this milestone, ask:
+
+While nothing is broken,
+do I already have meaningful information to think about?
+
+Do I understand what part of the hotel is currently near its limit?
+
+Am I tempted to take one more guest because the money is good?
+
+When something fails,
+can I trace the failure back to load / condition / decisions?
+
+If I repair something properly,
+does it feel genuinely solved?
+
+Does upgrading infrastructure make me feel more powerful?
+
+Do I then voluntarily use that extra capacity to create new pressure?
+
+During quiet time,
+do I have meaningful proactive options?
+
+Does midnight feel like time passing,
+rather than a level transition?
+
+Do guests behave coherently around their own service requests?
+
+Most important:
+
+Does the game feel like:
+
+"We are trying to run TOO MUCH HOTEL
+through an old building"
+
+rather than:
+
+"We are waiting for the next random hotel task"?
+
+If not,
+the core milestone is not complete.
+
+==================================================
+102. DESIGN NORTH STAR
+==================================================
+
+THE WORST HOTEL EVER is NOT fundamentally about:
+
+repairing endless random broken things.
+
+It is about:
+
+OPERATING AN OLD HOTEL TOO CLOSE TO ITS LIMITS.
+
+The hotel is not automatically incompetent.
+
+The owners are ambitious.
+
+The infrastructure is old.
+
+The guests create demand.
+
+Money rewards risk.
+
+Maintenance buys safety.
+
+Upgrades increase capacity.
+
+Growth creates the next problem.
+
+The player should regularly say:
+
+"We COULD accept one more booking."
+
+and then immediately realize:
+
+"We probably shouldn't."
+
+That tension is the core.
