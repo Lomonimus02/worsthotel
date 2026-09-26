@@ -46,7 +46,12 @@ namespace WorstHotel
                 var a=g.Agent;EnumValue(a.State);EnumValue(a.Activity);Nonnegative(a.ArrivalTime,a.SleepTime,a.CheckoutTime,a.StateChangedAt,a.WaitingSeconds,a.WaitingPatience,a.HeatingDemandMultiplier,a.QuietUntil,a.NextActivityTime,a.ActivityEndsAt);Unit(a.NoiseOutput);
                 Nonnegative(a.PendingActivityDuration,a.AwayReturnTime);
                 Require(a.CheckoutTime>=a.ArrivalTime && a.WaitingPatience>0 && a.ActivityIndex>=0 && Room(a.PendingMoveRoomId,true) && Room(a.TransferFromRoomId,true),"Invalid guest schedule.");
-                foreach(var entry in Array(a.Schedule,24)){EnumValue(entry.Activity);Range(entry.Duration,float.Epsilon);}
+                foreach(var entry in Array(a.Schedule,24))
+                {
+                    EnumValue(entry.Activity);Range(entry.Duration,float.Epsilon);
+                    Require(entry.Activity != GuestActivity.AdjustRadiator && entry.Activity != GuestActivity.CallReception,
+                        "A response action cannot be a scheduled leisure activity.");
+                }
                 Require(a.Schedule.Length>0,"Missing scheduled activities.");
             }
             Unique(gs.Select(g=>g.Application.Id));var guestIds=new HashSet<string>(gs.Select(g=>g.Application.Id));

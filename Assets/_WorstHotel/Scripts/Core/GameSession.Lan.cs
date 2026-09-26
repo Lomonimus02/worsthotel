@@ -104,6 +104,11 @@ namespace WorstHotel
                 case LanCommandKind.AcknowledgeService: AcknowledgeService(playerId, command.subject); break;
                 case LanCommandKind.CompleteWakeUp: CompleteWakeUpCall(playerId, command.subject); break;
                 case LanCommandKind.CloseWakePhone: CloseWakePhone(playerId); break;
+                case LanCommandKind.AnswerServiceCall: AnswerIncomingServiceCall(playerId, command.subject); break;
+                case LanCommandKind.TalkServiceGuest:
+                    TalkToServiceGuest(playerId, Simulation.Services?.FindResponse(command.subject)?.GuestId, command.subject); break;
+                case LanCommandKind.DiscussRoomConcern:
+                    DiscussRoomConcern(playerId, Simulation.Services?.FindResponse(command.subject)?.GuestId, command.subject); break;
             }
         }
     }

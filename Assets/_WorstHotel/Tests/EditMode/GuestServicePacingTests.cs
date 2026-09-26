@@ -12,6 +12,9 @@ namespace WorstHotel.Tests
         {
             public GuestAgentState State = GuestAgentState.Scheduled;
             public float Due;
+            public string ResponseId;
+            public int ResponseVersion;
+            public float ResponseDue;
         }
 
         static string[] QuietDay()
@@ -36,6 +39,33 @@ namespace WorstHotel.Tests
                 {
                     if (!travel.TryGetValue(guest.GuestId, out var route)) travel.Add(guest.GuestId, route = new Travel());
                     var state = guest.Agent.State;
+                    if (guest.Agent.ResponseActionId != null && (route.ResponseId != guest.Agent.ResponseActionId ||
+                        route.ResponseVersion != guest.Agent.ResponseActionVersion))
+                    {
+                        route.ResponseId = guest.Agent.ResponseActionId; route.ResponseVersion = guest.Agent.ResponseActionVersion;
+                        route.ResponseDue = hotel.Elapsed + (guest.Agent.IsServiceReceptionTrip ? 12 : 2);
+                    }
+                    if (guest.Agent.ResponseActionId != null)
+                    {
+                        var response = hotel.Services.FindResponse(guest.Agent.ResponseActionId);
+                        if (hotel.Elapsed >= route.ResponseDue)
+                        {
+                            // Explicit model-only travel and conversation adapter. This does not
+                            // prove physical geometry, which has separate scene tests.
+                            if (state == GuestAgentState.GoingToServiceReception)
+                                hotel.SignalGuestResponseAnchorReached(guest.GuestId, response.Id, response.ActionVersion, GuestResponseAnchor.Reception);
+                            else if (state == GuestAgentState.ReturningFromServiceReception)
+                                hotel.SignalGuestResponseAnchorReached(guest.GuestId, response.Id, response.ActionVersion, GuestResponseAnchor.AssignedRoom);
+                            else if (guest.Agent.Activity == GuestActivity.AdjustRadiator)
+                                hotel.SignalGuestResponseAnchorReached(guest.GuestId, response.Id, response.ActionVersion, GuestResponseAnchor.Radiator);
+                            else if (guest.Agent.Activity == GuestActivity.CallReception && response.AttemptStartedAt < 0)
+                                hotel.SignalGuestResponseAnchorReached(guest.GuestId, response.Id, response.ActionVersion, GuestResponseAnchor.RoomPhone);
+                            if (hotel.Services.IncomingCall == response) hotel.AnswerIncomingServiceCall(0, response.Id);
+                            else if (guest.Agent.State == GuestAgentState.WaitingAtServiceReception || guest.Agent.State == GuestAgentState.WaitingForCheckIn)
+                                hotel.TalkToServiceGuest(0, guest.GuestId, response.Id);
+                        }
+                        if (guest.Agent.ResponseActionId != null) continue;
+                    }
                     if (state != route.State)
                     {
                         route.State = state;
@@ -59,14 +89,14 @@ namespace WorstHotel.Tests
                         Assert.That(hotel.SignalGuestLeft(guest.GuestId).Success, Is.True);
                     }
                 }
-                foreach (var item in hotel.Services.Cases.Where(item => item.Active).ToArray())
+                foreach (var item in hotel.Services.Cases.Where(item => item.Active && item.IsKnownToHotel).ToArray())
                 {
                     var guest = hotel.Guests.Single(guest => guest.GuestId == item.GuestId);
                     Assert.That(item.SourceEntityId, Is.Not.Empty);
                     Assert.That(hotel.Services.Cases.Count(other => other.GuestId == guest.GuestId && other.Active), Is.LessThanOrEqualTo(1));
                     if (hotel.Elapsed < item.CreatedAt + 12) continue;
                     if (item.Status != ServiceStatus.InProgress) hotel.RespondToService(0, item.Id, true);
-                    if (item.Kind == ServiceKind.ExtraBlanket && guest.Agent.InAssignedRoom)
+                    if (item.Kind == ServiceKind.ExtraBlanket && guest.Agent.InAssignedRoom && guest.Memory.BlanketsDelivered == 0)
                     {
                         var blanket = hotel.Services.Items.FirstOrDefault(supply => supply.Kind == ServiceItemKind.Blanket && supply.Location == ServiceItemLocation.OnShelf);
                         if (blanket != null)
@@ -86,11 +116,13 @@ namespace WorstHotel.Tests
             }
             Assert.That(hotel.IsServiceComplete, Is.True);
             Assert.That(failed, Is.False, "This representative quiet day must have service texture without forcing a boiler disaster.");
-            Assert.That(hotel.Services.Cases.Count, Is.InRange(1, Math.Min(3, asset.services.maxCasesPerShift)));
-            Assert.That(hotel.Services.Cases.Any(item => item.Kind != ServiceKind.WakeUpCall), Is.True);
+            int contacts = hotel.Services.Cases.Count(item => item.BudgetCharged);
+            Assert.That(contacts, Is.InRange(0, Math.Min(3, asset.services.maxCasesPerShift)));
+            Assert.That(hotel.Services.Cases.Where(item => item.IsKnownToHotel).All(item => item.Response == null || item.Response.CommunicatedAt >= 0), Is.True);
+            Assert.That(hotel.Services.Responses.All(item => item.ContactAttempts <= asset.services.maxContactAttempts), Is.True);
             Assert.That(hotel.Guests.Any(guest => guest.Memory.ServicesRequested == 0), Is.True);
             Assert.That(hotel.Services.Cases.GroupBy(item => item.GuestId + "/" + item.Kind).All(group => group.Count() == 1), Is.True);
-            TestContext.WriteLine("Production quiet day: seed=" + asset.living.seed + ", cases=" + hotel.Services.Cases.Count + ", boilerFailed=" + failed +
+            TestContext.WriteLine("Production quiet day: seed=" + asset.living.seed + ", contacts=" + contacts + ", private/case records=" + hotel.Services.Cases.Count + ", boilerFailed=" + failed +
                 "; " + string.Join("; ", hotel.Services.Cases.Select(item => item.CreatedAt.ToString("F1") + "s " + item.GuestId + " " + item.Kind + " " + item.Status)));
             return hotel.Services.Cases.Select(item => item.Id).ToArray();
         }

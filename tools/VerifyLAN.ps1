@@ -9,7 +9,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 if ($AgencyFixtures -and $ServiceFixtures) { throw 'Choose AgencyFixtures or ServiceFixtures in separate LAN runs.' }
-if ($ServiceFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 225 }
+if ($ServiceFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 345 }
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $playerPath = Join-Path (Join-Path $projectRoot $BuildDirectory) 'TheWorstHotelEver.exe'
 if (-not (Test-Path -LiteralPath $playerPath)) { throw 'Build the Windows development player with the LAN verification driver first.' }
@@ -89,7 +89,8 @@ try {
             $report -notmatch 'DisconnectedReadOnly=True')) { throw 'Client report lacks model roundtrip, pose agreement or read-only disconnect evidence.' }
     }
     if ($Capture) {
-        $captureNames = if ($ServiceFixtures) { @('client-service-stock.png', 'client-service-delivered.png', 'client-service-phone.png') }
+        $captureNames = if ($ServiceFixtures) { @('client-service-stock.png', 'client-service-delivered.png', 'client-service-phone.png',
+            'client-natural-cold-ringing.png', 'client-natural-cold-heard.png', 'client-natural-wake-heard.png') }
             elseif ($AgencyFixtures) { @('client-agency-context.png', 'client-agency-quiet.png') }
             else { @('client-connection-menu.png', 'client-one-camera-play.png', 'client-host-join-menu.png') }
         foreach ($name in $captureNames) {

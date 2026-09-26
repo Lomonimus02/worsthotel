@@ -13,7 +13,7 @@ namespace WorstHotel
             Fill(new Rect(15, 50, 770, 820), Paper);
             Border(new Rect(23, 58, 754, 804), Brass);
             Label(new Rect(42, 78, 700, 48), "GUEST RELATIONS", Title);
-            Label(new Rect(42, 132, 448, 61), "Read what a guest experienced, then decide whether to act on the cause, change rooms or accept the cost.", Small, Muted);
+            Label(new Rect(42, 132, 448, 61), "Conversations and agreements with your guests. They may also call or come to reception.", Small, Muted);
             if (Session.Simulation.Boiler.Failed)
                 ButtonAt(new Rect(502, 139, 245, 48), Session.Simulation.BoilerFailureAcknowledged ? "Boiler loss accepted" : "Leave boiler failed",
                     () => Session.AcceptBoilerConsequences(owner), !Session.Simulation.BoilerFailureAcknowledged);
@@ -26,12 +26,11 @@ namespace WorstHotel
                     (guest.Agent.CheckedIn ? GuestLabels.State(guest.Agent) + " / " + room.Temperature.ToString("F1") + "°C" : GuestLabels.State(guest.Agent));
                 string id = guest.GuestId;
                 ButtonAt(new Rect(42, y, 438, 44), guest.RoomId + "  " + guest.Name + "\n" + status + "   /   $" + guest.Price + (guest.Compensated ? " credit $" + guest.CompensationCredit : ""), () => { selectedServiceGuest = id; focus = 0; });
-                var requests = Session.Simulation.Requests.Items.Where(r => r.GuestId == guest.GuestId && !r.Resolved).ToArray();
                 var situation = Session.Simulation.Incidents.Items.Where(s => s.GuestId == id && GuestLabels.IsActionable(s)).OrderByDescending(s => s.Stage).FirstOrDefault();
-                var service = Session.Simulation.Services?.Cases.FirstOrDefault(c => c.GuestId == id && c.Active);
+                var service = Session.Simulation.Services?.Cases.FirstOrDefault(c => c.GuestId == id && GuestLabels.IsKnownOpenService(c));
                 string complaint = situation != null ? GuestLabels.Problem(situation.Reason) + " / " + GuestLabels.Situation(situation.Stage) :
                     service != null ? "Request: " + GuestLabels.Service(service.Kind) : "No reported problem";
-                Label(new Rect(42, y + 48, 438, 25), complaint, Small, requests.Any(r => r.Urgency == RequestUrgency.High) ? Red : Muted);
+                Label(new Rect(42, y + 48, 438, 25), complaint, Small, situation?.Stage >= SituationStage.Escalated ? Red : Muted);
                 ButtonAt(new Rect(502, y + 2, 245, 48), situation != null ? "Read concern / choices" : "Room / stay details",
                     () => { selectedServiceGuest = id; focus = 0; });
                 i++;

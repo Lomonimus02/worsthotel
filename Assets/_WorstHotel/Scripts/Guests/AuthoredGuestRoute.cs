@@ -10,6 +10,7 @@ namespace WorstHotel
         public DoorInteractable door;
         public Transform roomTarget, rest, shower, loud;
         public Transform bedAnchor, bedApproach, deskAnchor, unpackAnchor, phoneAnchor, doorInsideAnchor, doorOutsideAnchor;
+        public Transform radiatorAnchor, radiatorTarget, roomPhoneAnchor, roomPhoneTarget;
         public GameObject showerWater, showerCurtain, loudIndicator;
         [System.NonSerialized] public bool showerActive, loudActive;
     }
@@ -67,11 +68,13 @@ namespace WorstHotel
             float side = Mathf.Sign(room.door.transform.position.x), z = room.door.transform.position.z;
             ReturnToInnerLane(route, current, side, z);
             var target = sleeping ? room.bedApproach : activity == GuestActivity.Shower ? room.shower :
+                activity == GuestActivity.AdjustRadiator ? room.radiatorAnchor : activity == GuestActivity.CallReception ? room.roomPhoneAnchor :
                 activity == GuestActivity.Work ? room.deskAnchor : activity == GuestActivity.Unpack || activity == GuestActivity.Pack ? room.unpackAnchor :
                 activity == GuestActivity.PhoneCall ? room.phoneAnchor :
                 activity == GuestActivity.LoudRoom || activity == GuestActivity.WatchTV ? room.loud : room.rest;
             if (target == null) { route.Add(room.roomTarget.position); return route; }
-            float traverseZ = activity == GuestActivity.Shower || activity == GuestActivity.Work ? z + 2.60f : z - 1.6f;
+            float traverseZ = activity == GuestActivity.Shower || activity == GuestActivity.Work ? z + 2.60f :
+                activity == GuestActivity.AdjustRadiator ? z - .9f : z - 1.6f;
             route.Add(side * 4.18f, traverseZ); route.Add(target.position.x, traverseZ); route.Add(target.position);
             return route;
         }
@@ -113,6 +116,15 @@ namespace WorstHotel
         public static AuthoredGuestRoute GuestAway(Vector3 current, GuestRoomMarkers room, Vector3 exteriorExit) =>
             Exit(current, room, exteriorExit, IsOnRoomSide(current, room));
 
+        public static AuthoredGuestRoute ToServiceReception(Vector3 current, GuestRoomMarkers room, Vector3 reception, bool inRoom)
+        {
+            // Follow the same real doorway and clear corridor as a departure, then use the
+            // reception waiting lane instead of the exterior. Room ownership is unchanged.
+            var route = Exit(current, room, new Vector3(0, Feet, .35f), inRoom);
+            route.Add(reception.x, .35f); route.Add(reception);
+            return route;
+        }
+
         static Vector3 Inside(GuestRoomMarkers room) => room.doorInsideAnchor ? room.doorInsideAnchor.position :
             new Vector3(Mathf.Sign(room.door.transform.position.x) * 3.25f, Feet, room.door.transform.position.z);
         static Vector3 Outside(GuestRoomMarkers room) => room.doorOutsideAnchor ? room.doorOutsideAnchor.position :
@@ -132,7 +144,9 @@ namespace WorstHotel
         static void ReturnToInnerLane(AuthoredGuestRoute route, Vector3 current, float side, float roomZ)
         {
             // Go around the north or south end of the bed, never through its middle.
-            float z = current.z >= roomZ + 2.3f ? roomZ + 2.60f :
+            // The radiator's outer aisle also returns around the foot of the bed. Crossing
+            // straight from the right-hand valve at roomZ+1.2 would cut through the mattress.
+            float z = current.z >= roomZ + 2.3f ? roomZ + 2.60f : current.x * side > 7.75f ? roomZ - .9f :
                 current.z <= roomZ - .8f ? roomZ - 1.6f : current.z;
             route.Add(current.x, z); route.Add(side * 4.18f, z); route.Add(side * 4.18f, roomZ);
         }

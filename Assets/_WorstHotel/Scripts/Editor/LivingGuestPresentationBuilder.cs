@@ -35,6 +35,7 @@ namespace WorstHotel.Editor
                     deskAnchor = Group("DeskAnchor" + id, anchors, new Vector3(side * 5.15f, .01f, z + 2.45f)).transform,
                     unpackAnchor = Group("UnpackAnchor" + id, anchors, new Vector3(side * 5.30f, .01f, z - 2.10f)).transform,
                     phoneAnchor = Group("PhoneAnchor" + id, anchors, new Vector3(side * 4.75f, .01f, z - 1.60f)).transform,
+                    roomPhoneAnchor = Group("RoomPhoneAnchor" + id, anchors, new Vector3(side * 4.75f, .01f, z - 1.60f)).transform,
                     doorInsideAnchor = Group("DoorInsideAnchor" + id, anchors, new Vector3(side * 3.25f, .01f, z)).transform,
                     doorOutsideAnchor = Group("DoorOutsideAnchor" + id, anchors, new Vector3(side * 1.15f, .01f, z)).transform
                 };
@@ -47,6 +48,17 @@ namespace WorstHotel.Editor
                 markers.unpackAnchor.rotation = Quaternion.Euler(0, 180, 0);
                 markers.door.roomId = id;
                 presentation.roomMarkers[i] = markers;
+
+                // Fixed room telephone mounted on the room-facing wardrobe panel. It adds
+                // no new walking obstruction; guests approach the existing clear south lane.
+                var roomPhone = Group("Room reception telephone " + id, room,
+                    new Vector3(-side * 1.45f, 1.32f, -2.10f)).transform;
+                Box("Room phone housing", roomPhone, Vector3.zero, new Vector3(.34f, .46f, .09f), "Mahogany", false, false);
+                Box("Room telephone receiver", roomPhone, new Vector3(-.08f, .05f, .065f), new Vector3(.095f, .31f, .10f), "Ink", false, false);
+                for (int key = 0; key < 6; key++)
+                    Box("Room phone key", roomPhone, new Vector3(.04f + key % 2 * .06f, .03f - key / 2 * .055f, .053f),
+                        new Vector3(.035f, .033f, .02f), "Gauge ivory", false, false);
+                markers.roomPhoneTarget = roomPhone;
 
                 var desk = Group("Guest writing desk " + id, room, new Vector3(-side * .85f, 0, 3.15f)).transform;
                 Box("Writing desk top", desk, new Vector3(0, .90f, 0), new Vector3(1.32f, .10f, .55f), "Walnut panels", true, false);

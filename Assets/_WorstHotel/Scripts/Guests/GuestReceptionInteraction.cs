@@ -45,6 +45,7 @@ namespace WorstHotel
         bool IsWaiting => session != null && session.Phase == DayPhase.Service && stay?.Agent != null &&
             stay.Agent.State == GuestAgentState.WaitingForCheckIn;
         bool IsInRoom => session != null && session.Phase == DayPhase.Service && stay?.Agent != null && stay.Agent.InAssignedRoom;
+        bool AtServiceDesk => session != null && session.Phase == DayPhase.Service && stay?.Agent?.State == GuestAgentState.WaitingAtServiceReception;
         bool IsTemporarilyQuiet => session?.Simulation != null && stay?.Agent != null &&
             stay.Agent.QuietUntil > session.Simulation.Clock.SimulationTime;
         bool RoomPrepared => assignedRoom != null && assignedRoom.Cleanliness == Cleanliness.Clean &&
@@ -52,11 +53,8 @@ namespace WorstHotel
             assignedRoom.TurnoverState != HousekeepingState.Moving && assignedRoom.TurnoverState != HousekeepingState.Cleaning;
         int NeededKey => stay?.Agent?.PendingMoveRoomId ?? displayedRoom;
         bool HasPendingMove => IsInRoom && stay.Agent.PendingMoveRoomId.HasValue;
-        bool HasRealProblem => session.Simulation.Incidents.Items.Any(s => s.GuestId == GuestId && GuestLabels.IsActionable(s));
-        bool HasServiceRequest => session?.Simulation.Services?.Cases.Any(c => c.GuestId == GuestId && c.Active) == true;
-        InteractionMode Mode => HasPendingMove ? InteractionMode.RoomKey : IsWaiting ? (RoomPrepared ? InteractionMode.RoomKey : HasServiceRequest ? InteractionMode.Conversation : InteractionMode.None) :
-            IsInRoom && stay.Agent.State != GuestAgentState.Sleeping && stay.Agent.Activity != GuestActivity.Shower &&
-            (ManagementUI.CanAskForQuiet(session.Simulation, stay) || HasRealProblem || HasServiceRequest) ? InteractionMode.Conversation : InteractionMode.None;
+        InteractionMode Mode => HasPendingMove ? InteractionMode.RoomKey : IsWaiting ? (RoomPrepared ? InteractionMode.RoomKey : InteractionMode.Conversation) :
+            AtServiceDesk || IsInRoom && stay.Agent.State != GuestAgentState.Sleeping && stay.Agent.Activity != GuestActivity.Shower ? InteractionMode.Conversation : InteractionMode.None;
 
         void Update()
         {
@@ -66,7 +64,7 @@ namespace WorstHotel
                 assignedRoom = System.Array.Find(session.Rooms, room => room.Profile.Id == displayedRoom);
                 displayName = stay.Name + " · Room " + displayedRoom;
             }
-            bool visibleTarget = PresentationTargetVisible && (IsWaiting || IsInRoom);
+            bool visibleTarget = PresentationTargetVisible && (IsWaiting || IsInRoom || AtServiceDesk);
             if (target != null && target.enabled != visibleTarget)
             {
                 target.enabled = visibleTarget;
@@ -76,8 +74,7 @@ namespace WorstHotel
         }
 
         public override bool CanInteract(PlayerInteractor actor) => PresentationTargetVisible && base.CanInteract(actor) && Mode != InteractionMode.None &&
-            actor != null && (OwnerActorId < 0 || OwnerActorId == actor.ActorId) &&
-            (Mode != InteractionMode.RoomKey || CorrectHeldKey(actor) || HasServiceRequest);
+            actor != null && (OwnerActorId < 0 || OwnerActorId == actor.ActorId);
 
         bool CorrectHeldKey(PlayerInteractor actor)
         {
@@ -92,19 +89,20 @@ namespace WorstHotel
         {
             if (OwnerActorId >= 0 && actor != null && OwnerActorId != actor.ActorId)
                 return "Staff " + (OwnerActorId + 1) + " is speaking with this guest";
-            if (IsWaiting && !RoomPrepared) return HasServiceRequest ? "Guest service request · talk" : "Room " + displayedRoom + " awaiting preparation";
+            if (AtServiceDesk) return "Guest waiting at reception · talk";
+            if (IsWaiting && !RoomPrepared) return "Room " + displayedRoom + " awaiting preparation · " +
+                (actor && actor.HeldBody && actor.HeldBody.GetComponent<RoomKeyItem>() ? "keep the key until ready" : "talk to guest");
             if (IsWaiting || HasPendingMove)
             {
                 if (CorrectHeldKey(actor)) return HasPendingMove ? "Give key " + NeededKey + " · exchange rooms" : "Give room " + NeededKey + " key";
-                if (HasServiceRequest) return "Guest service request · talk";
                 var heldKey = actor && actor.HeldBody ? actor.HeldBody.GetComponent<RoomKeyItem>() : null;
-                return heldKey ? "Needs key " + NeededKey + " · you have " + heldKey.roomId : "Take key " + NeededKey + " from the reception rack";
+                return heldKey ? "Needs key " + NeededKey + " · you have " + heldKey.roomId : "Talk to guest · room " + NeededKey + " key at reception";
             }
             if (!IsInRoom) return "Guest is on the way";
             if (stay.Agent.State == GuestAgentState.Sleeping) return "Sleeping · Keep voices down";
             if (stay.Agent.Activity == GuestActivity.Shower) return "Using the shower · Guest is busy";
             if (Mode == InteractionMode.Conversation) return ManagementUI.CanAskForQuiet(session.Simulation, stay) ?
-                "Talk about the noise · choose a response" : HasServiceRequest ? "Guest service request · talk" : "Guest has a concern · talk";
+                "Talk about the noise · choose a response" : "Talk to guest";
             if (IsTemporarilyQuiet) return "Volume turned down · " +
                 Mathf.CeilToInt(stay.Agent.QuietUntil - session.Simulation.Clock.SimulationTime) + " hotel seconds left";
             return GuestLabels.State(stay.Agent);
@@ -113,7 +111,9 @@ namespace WorstHotel
         public override void Interact(PlayerInteractor actor)
         {
             if (!CanInteract(actor)) return;
-            if (Mode == InteractionMode.RoomKey && CorrectHeldKey(actor))
+            // A carried room key always attempts the physical exchange first. The authority
+            // rejects a wrong key or unprepared room without opening UI or dropping the body.
+            if ((IsWaiting || HasPendingMove) && actor.HeldBody && actor.HeldBody.GetComponent<RoomKeyItem>())
             {
                 session.GiveRoomKey(actor.ActorId, GuestId);
                 return;

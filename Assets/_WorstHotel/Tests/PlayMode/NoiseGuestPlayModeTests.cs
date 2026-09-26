@@ -10,6 +10,16 @@ namespace WorstHotel.Tests
 {
     public sealed partial class Phase1PlayModeTests
     {
+        GuestServiceConfig noiseConversationServices;
+
+        [UnityTearDown]
+        public IEnumerator DisposeNoiseConversationServices()
+        {
+            if (noiseConversationServices) Object.Destroy(noiseConversationServices);
+            noiseConversationServices = null;
+            yield return null;
+        }
+
         [UnityTest]
         public IEnumerator PhysicalGuestConversationCancelsWithoutChangingNoiseThenSelectedQuietResponseLowersSource()
         {
@@ -97,14 +107,17 @@ namespace WorstHotel.Tests
             Assert.That(neighbour.ReceivedNoise, Is.EqualTo(originalReceived * multiplier).Within(.0001f));
             Assert.That(guest.Agent.Activity, Is.EqualTo(GuestActivity.LoudRoom), "A quiet request must not skip the scheduled activity.");
             Assert.That(guest.Agent.NextActivityTime, Is.EqualTo(scheduledActivityEnd));
-            Assert.That(target.CanInteract(bootstrap.Players[0].Interactor), Is.False);
-            Assert.That(target.GetPrompt(bootstrap.Players[0].Interactor), Does.Contain("Volume turned down").And.Not.Contain("room key"));
+            Assert.That(target.CanInteract(bootstrap.Players[0].Interactor), Is.True,
+                "Ordinary conversation stays available for other concerns during the finite quiet agreement.");
+            Assert.That(target.GetPrompt(bootstrap.Players[0].Interactor), Does.Contain("Talk to guest").And.Not.Contain("room key"));
             float quietDeadline = guest.Agent.QuietUntil;
             QueueUse(padA, true);
-            yield return new WaitForSecondsRealtime(.2f);
-            QueueUse(padA, false);
-            yield return null;
+            yield return WaitForCondition(() => ManagementUI.Instance.IsGuestContextOpen, 2, "Quiet guest still permits an ordinary conversation.");
+            QueueUse(padA, false); yield return null; yield return null;
+            Assert.That(ManagementUI.Instance.ContextOptionTitles, Does.Not.Contain("Ask to keep it down"),
+                "The actual input collection must not offer a duplicate quiet request during its agreement.");
             Assert.That(guest.Agent.QuietUntil, Is.EqualTo(quietDeadline), "Repeated use must not refresh the temporary agreement.");
+            ManagementUI.Instance.Close();
             Assert.That(Time.timeScale, Is.EqualTo(1));
             LogAssert.NoUnexpectedReceived();
         }
@@ -123,6 +136,15 @@ namespace WorstHotel.Tests
             waitScenarioLivingConfig.activityDurationMin = 120;
             waitScenarioLivingConfig.activityDurationMax = 120;
             waitScenarioSessionConfig.living = waitScenarioLivingConfig;
+            // The synchronous exposure adapter below cannot execute competing physical contact
+            // routes. Isolate this source-door input test from optional preferences/self-help,
+            // retaining natural disclosure and all production noise/need/recovery settings.
+            noiseConversationServices = Object.Instantiate(session.config.services);
+            noiseConversationServices.naturalCommunicationEnabled = true;
+            noiseConversationServices.eligibility = 0;
+            noiseConversationServices.selfResponseObserveSeconds = 1000;
+            noiseConversationServices.toleranceSeconds = 1000;
+            waitScenarioSessionConfig.services = noiseConversationServices;
             session.config = waitScenarioSessionConfig;
             session.NewGame();
             var offers = new[]
@@ -157,14 +179,24 @@ namespace WorstHotel.Tests
             session.RaiseChanged();
             yield return WaitForCondition(() => sourceGuest.Agent.ActivityStaged && affectedGuest.Agent.ActivityStaged,
                 20, "Both guests must reach their actual activity anchors before measuring a sustained noise complaint.");
-            HotelRequest request = null;
-            for (int tick = 0; tick < 225 && request == null; tick++)
+            HotelIncident concern = null;
+            for (int tick = 0; tick < 225 && concern == null; tick++)
             {
                 session.AdvanceTime(.2f);
-                request = simulation.Requests.Items.SingleOrDefault(item => item.GuestId == affectedGuest.GuestId &&
-                    item.Reason == IncidentReason.Noise && !item.Resolved);
+                concern = simulation.Incidents.Items.SingleOrDefault(item => item.GuestId == affectedGuest.GuestId &&
+                    item.Reason == IncidentReason.Noise && item.Active && item.Stage >= SituationStage.Complaint &&
+                    item.Response != null && item.Response.DwellSeconds >= simulation.Services.Settings.ObservationSeconds);
             }
-            Assert.That(request, Is.Not.Null, "The measured 103-to-102 noise link must first produce a real complaint.");
+            Assert.That(concern, Is.Not.Null, "The measured 103-to-102 noise link must first produce a real private concern.");
+            Assert.That(concern.HasContactedStaff, Is.False);
+            // Labelled model conversation adapter isolates the separately tested victim disclosure.
+            // The subject below remains the real closed-source-door knock and selected quiet action.
+            var disclosure = simulation.DiscussRoomConcern(0, affectedGuest.GuestId, concern.Response.Id);
+            Assert.That(disclosure.Success, Is.True, disclosure.Message + " / guest=" + affectedGuest.Agent.State +
+                " activity=" + affectedGuest.Agent.Activity + " activeResponse=" + affectedGuest.Agent.ResponseActionId +
+                " targetResponse=" + concern.Response.Id + " phase=" + concern.Response.Phase +
+                " dwell=" + concern.Response.DwellSeconds + " severity=" + concern.Severity + " stage=" + concern.Stage);
+            var request = simulation.Requests.Items.Single(item => item.Id == concern.Id);
             yield return null; yield return null;
             var target = Object.FindObjectsByType<RoomNoiseInteraction>(FindObjectsSortMode.None).Single(item => item.roomId == 103);
             var door = target.GetComponentInParent<DoorInteractable>();

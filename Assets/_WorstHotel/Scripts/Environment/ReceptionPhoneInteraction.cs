@@ -7,13 +7,16 @@ namespace WorstHotel
         public TextMesh phoneLabel;
         public override bool CanInteract(PlayerInteractor actor) => base.CanInteract(actor) && actor && GameSession.Instance &&
             GameSession.Instance.Phase == DayPhase.Service;
-        public override string GetPrompt(PlayerInteractor actor) => "Reception telephone · place a promised wake-up call";
+        public override string GetPrompt(PlayerInteractor actor) => GameSession.Instance?.Simulation?.Services?.IncomingCall != null ?
+            "Reception telephone ringing · pick up" : "Reception telephone · incoming / promised calls";
         public override void Interact(PlayerInteractor actor)
         { if (CanInteract(actor)) GameSession.Instance.OpenWakePhone(actor.ActorId, this); }
         void LateUpdate()
         {
             var simulation = GameSession.Instance ? GameSession.Instance.Simulation : null;
             if (!phoneLabel || simulation?.Services == null) return;
+            if (simulation.Services.IncomingCall != null)
+            { phoneLabel.text = "RECEPTION PHONE\nINCOMING CALL"; return; }
             PromiseWakeUp next = null;
             foreach (var promise in simulation.Services.Promises)
                 if (promise.Status == PromiseStatus.Accepted && (next == null || promise.DueTime < next.DueTime)) next = promise;

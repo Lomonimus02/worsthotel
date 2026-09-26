@@ -29,7 +29,8 @@ namespace WorstHotel
         { Settings = settings ?? throw new ArgumentNullException(nameof(settings)); this.simulation = simulation;
             this.rooms = rooms.ToDictionary(room => room.Profile.Id);
             AddStock(ServiceItemKind.Blanket, "blanket:", settings.BlanketStock);
-            AddStock(ServiceItemKind.ReplacementBulb, "bulb:", settings.BulbStock); }
+            AddStock(ServiceItemKind.ReplacementBulb, "bulb:", settings.BulbStock);
+            simulation.Incidents.RequirePhysicalCommunication = settings.NaturalCommunicationEnabled; }
         public ServiceCase FindCase(string id) => cases.FirstOrDefault(item => item.Id == id);
         public PromiseWakeUp FindPromise(string id) => promises.FirstOrDefault(item => item.Id == id);
         public ServiceItemState FindItem(string id) => items.FirstOrDefault(item => item.Id == id);
@@ -40,7 +41,7 @@ namespace WorstHotel
         internal void StartDay(int dayNumber, float end)
         {
             if (simulation.IsReadOnlyMirror) return;
-            day = dayNumber; serviceEnd = end; cases.Clear(); promises.Clear();
+            day = dayNumber; serviceEnd = end; cases.Clear(); promises.Clear(); responses.Clear();
             items.RemoveAll(item => item.Kind == ServiceItemKind.Luggage);
             RefillForDay(dayNumber);
             foreach (var guest in simulation.Guests) EnsureLuggage(guest);
@@ -78,11 +79,12 @@ namespace WorstHotel
         internal void SyncGuestRoom(GuestStay guest)
         {
             if (simulation.IsReadOnlyMirror) return;
+            SyncResponseRoom(guest);
             foreach (var request in cases.Where(item => item.GuestId == guest.GuestId))
             {
                 // A physical room move is a response to an existing environmental request.
                 // Its original causal identity remains intact until measured recovery closes it.
-                if (request.RoomId != guest.RoomId && request.Status == ServiceStatus.Requested &&
+                if (!NaturalCommunicationEnabled && request.RoomId != guest.RoomId && request.Status == ServiceStatus.Requested &&
                     (request.Kind == ServiceKind.ExtraBlanket || request.Kind == ServiceKind.AskNeighborsQuiet))
                     request.Status = ServiceStatus.Acknowledged;
                 request.RoomId = guest.RoomId;
@@ -95,6 +97,7 @@ namespace WorstHotel
         internal void Tick(float now, float dt)
         {
             if (simulation.IsReadOnlyMirror) return;
+            if (NaturalCommunicationEnabled) { TickNaturalResponses(now, dt); return; }
             TickPromises(now);
             foreach (var guest in simulation.Guests.OrderBy(guest => guest.GuestId, StringComparer.Ordinal))
             {
@@ -144,18 +147,18 @@ namespace WorstHotel
                     if (!agent.InAssignedRoom || guest.Memory.BlanketsDelivered > 0 || guest.Needs == null || seriousTemperature ||
                         room.Temperature >= guest.Application.Archetype.Needs.PreferredTemperatureMin ||
                         guest.Needs.Temperature.Severity < Settings.MildColdMinimum || guest.Needs.Temperature.Severity > Settings.MildColdMaximum ||
-                        (!debug && guest.Needs.Temperature.ExposureSeconds < Settings.ObservationSeconds)) return false;
+                        (!NaturalCommunicationEnabled && !debug && guest.Needs.Temperature.ExposureSeconds < Settings.ObservationSeconds)) return false;
                     source = "room/" + room.Profile.Id + "/temperature";
-                    reason = "It is a little cold. Could I have an extra blanket?"; return true;
+                    reason = "It is still a little cold in my room."; return true;
                 case ServiceKind.AskNeighborsQuiet:
                     if (!agent.InAssignedRoom || HasComplaint(guest, IncidentReason.Noise)) return false;
                     var noise = simulation.Incidents.Items.Where(item => item.GuestId == guest.GuestId && item.Active &&
-                        item.Reason == IncidentReason.Noise && item.Stage == SituationStage.Observed && (debug || item.ExposureSeconds >= Settings.ObservationSeconds) &&
+                        item.Reason == IncidentReason.Noise && item.Stage == SituationStage.Observed && (NaturalCommunicationEnabled || debug || item.ExposureSeconds >= Settings.ObservationSeconds) &&
                         item.Cause != null && guest.Perception.NoiseSources.Any(emitter => emitter.SourceEntityId == item.Cause.SourceEntityId && emitter.ReceivedNoise > 0))
                         .OrderByDescending(item => item.Severity).ThenBy(item => item.Id, StringComparer.Ordinal).FirstOrDefault();
                     if (noise == null) return false;
                     source = noise.Cause.SourceEntityId; sourceRoom = noise.Cause.SourceRoomId;
-                    reason = "Could you ask the people nearby to keep it down?"; return true;
+                    reason = "I can hear noise nearby and cannot rest comfortably."; return true;
                 case ServiceKind.LuggageStorage:
                     if (agent.State != GuestAgentState.WaitingForCheckIn || (!debug && agent.WaitingSeconds < Settings.ObservationSeconds) ||
                         (!room.Occupied && room.Cleanliness == Cleanliness.Clean && room.DepartingGuestId == null &&
@@ -163,6 +166,7 @@ namespace WorstHotel
                     source = "room/" + room.Profile.Id + "/readiness";
                     reason = "While my room is being prepared, may I leave my luggage here?"; return true;
                 case ServiceKind.WakeUpCall:
+                    if (NaturalCommunicationEnabled && !ScheduleContext(guest, kind, now)) return false;
                     if (!agent.InAssignedRoom || (!debug && (agent.SleepStarted || guest.Application.Archetype.Kind != GuestKind.Business)) ||
                         (!debug && now < agent.Schedule.SleepTime - Settings.ReplySeconds) ||
                         agent.CheckoutTime - now < Settings.WakeLeadSeconds + Settings.ReplySeconds * .5f) return false;
@@ -171,6 +175,7 @@ namespace WorstHotel
                     source = "schedule/" + guest.GuestId + "/departure";
                     reason = "I have an early departure. Could you give me a wake-up call?"; return true;
                 case ServiceKind.LateCheckout:
+                    if (NaturalCommunicationEnabled && !ScheduleContext(guest, kind, now)) return false;
                     if (!agent.InAssignedRoom || (!debug && now < agent.CheckoutTime - Settings.LateCheckoutRequestLead) ||
                         now >= agent.CheckoutTime - Settings.ObservationSeconds || agent.State == GuestAgentState.Sleeping ||
                         (!debug && guest.Application.Archetype.Kind != GuestKind.Business && (guest.Application.Archetype.Traits & GuestTraits.Patient) == 0)) return false;
@@ -183,14 +188,18 @@ namespace WorstHotel
         }
 
         bool HasComplaint(GuestStay guest, IncidentReason reason) => simulation.Incidents.Items.Any(item => item.GuestId == guest.GuestId &&
-            item.Reason == reason && item.Active && item.HasContactedStaff);
+            item.Reason == reason && item.Active && item.HasContactedStaff && item.Stage >= SituationStage.Complaint);
 
         ServiceCase TryCreate(GuestStay guest, ServiceKind kind, float now, float due, string source, int sourceRoom, string reason)
         {
             string id = guest.GuestId + "/service/" + kind + "/" + source;
             if (cases.Any(item => item.Id == id || item.GuestId == guest.GuestId && item.Kind == kind)) return null;
+            if (NaturalCommunicationEnabled && (kind == ServiceKind.ExtraBlanket || kind == ServiceKind.AskNeighborsQuiet) &&
+                !simulation.Incidents.Items.Any(item => item.GuestId == guest.GuestId && item.Active && item.Cause?.SourceEntityId == source)) return null;
             var result = new ServiceCase(id, guest.GuestId, guest.RoomId, kind, now, due, source, sourceRoom, reason);
-            cases.Add(result); guest.Memory.ServicesRequested = Count(guest.Memory.ServicesRequested);
+            cases.Add(result);
+            if (NaturalCommunicationEnabled) BindCaseResponse(result, guest, now);
+            else { result.BudgetCharged = true; guest.Memory.ServicesRequested = Count(guest.Memory.ServicesRequested); }
             Notify(result, "requested"); return result;
         }
 
@@ -206,7 +215,9 @@ namespace WorstHotel
             if (item.Kind == ServiceKind.ExtraBlanket || item.Kind == ServiceKind.AskNeighborsQuiet)
             {
                 IncidentReason reason = item.Kind == ServiceKind.ExtraBlanket ? IncidentReason.Temperature : IncidentReason.Noise;
-                if (HasComplaint(guest, reason)) { Finish(item, guest, ServiceStatus.Escalated, 0); return; }
+                bool escalated = NaturalCommunicationEnabled ? item.Response != null && Incident(item.Response)?.Active == true &&
+                    Incident(item.Response).HasContactedStaff && Incident(item.Response).Stage >= SituationStage.Complaint : HasComplaint(guest, reason);
+                if (escalated) { Finish(item, guest, ServiceStatus.Escalated, 0); return; }
                 if (guest.Agent.InAssignedRoom)
                 {
                     bool improved = item.Kind == ServiceKind.ExtraBlanket ? guest.Needs.Temperature.Severity <= simulation.NeedsSettings.RecoverySeverityThreshold :
@@ -215,7 +226,8 @@ namespace WorstHotel
                     item.RecoverySeconds = improved ? item.RecoverySeconds + dt : 0;
                     if (item.RecoverySeconds >= simulation.NeedsSettings.RecoverySeconds)
                     {
-                        bool staffHelped = item.Status != ServiceStatus.Requested || guest.BlanketComfortBonus > 0 ||
+                        bool staffHelped = NaturalCommunicationEnabled ? item.Response?.StaffActionAt >= 0 && item.IsKnownToHotel :
+                            item.Status != ServiceStatus.Requested || guest.BlanketComfortBonus > 0 ||
                             simulation.Guests.Any(source => item.SourceEntityId.StartsWith(source.GuestId + "/", StringComparison.Ordinal) && source.Agent.QuietUntil > now);
                         Finish(item, guest, ServiceStatus.Fulfilled, staffHelped ? Settings.FulfilledBonus : 0, staffHelped); return;
                     }
@@ -233,18 +245,20 @@ namespace WorstHotel
             guest.ServiceSatisfactionAdjustment + delta, -Settings.MaximumScoreAdjustment, Settings.MaximumScoreAdjustment);
         void Finish(ServiceCase item, GuestStay guest, ServiceStatus status, float score, bool fulfilled = false)
         {
-            if (!item.Active) return;
-            item.Status = status;
+            if (item == null || !item.Active) return;
+            item.Status = status; item.ResolutionAt = simulation.Elapsed; item.ResolutionReason = status.ToString();
             if (fulfilled) guest.Memory.ServicesFulfilled = Count(guest.Memory.ServicesFulfilled);
             if (status == ServiceStatus.Declined) guest.Memory.ServicesDeclined = Count(guest.Memory.ServicesDeclined);
             Score(guest, score); Notify(item, status.ToString().ToLowerInvariant());
         }
         void Notify(ServiceCase item, string verb)
-        { Changed?.Invoke(item); simulation.SignalEvent("Room " + item.RoomId + ": " + item.Kind + " service " + verb); }
+        { Changed?.Invoke(item); if (item.IsKnownToHotel && !(NaturalCommunicationEnabled && item.Status == ServiceStatus.Escalated))
+                simulation.SignalEvent("Room " + item.RoomId + ": " + item.Kind + " service " + verb); }
 
         internal void EndGuestStay(GuestStay guest)
         {
             if (simulation.IsReadOnlyMirror) return;
+            EndGuestResponses(guest);
             foreach (var promise in promises.Where(item => item.GuestId == guest.GuestId && item.Status == PromiseStatus.Accepted).ToArray())
                 MissPromise(promise, guest);
             foreach (var item in cases.Where(item => item.GuestId == guest.GuestId && item.Active).ToArray()) Finish(item, guest, ServiceStatus.Expired, 0);

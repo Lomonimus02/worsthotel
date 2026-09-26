@@ -31,6 +31,7 @@ namespace WorstHotel
             var guest = FindLivingGuest(guestId);
             var agent = guest?.Agent;
             if (agent == null || !agent.IsRoomState || !agent.RequiresActivityStaging || agent.ActivityStaged ||
+                !string.IsNullOrEmpty(agent.ResponseActionId) ||
                 agent.State != expectedState || agent.Activity != expectedActivity || rooms[guest.RoomId].GuestId != guestId)
                 return CommandResult.Fail("Guest activity changed before its physical staging completed.");
             agent.ActivityStaged = true;
@@ -45,6 +46,7 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             var guest = FindLivingGuest(guestId);
             if (guest?.Agent == null || !guest.Agent.IsRoomState) return CommandResult.Fail("Sleep requires a guest inside their assigned room.");
+            if (!string.IsNullOrEmpty(guest.Agent.ResponseActionId)) return CommandResult.Fail("Let the current guest response finish or cancel it first.");
             SetActivity(guest, GuestActivity.QuietRest, Elapsed, LivingSettings.ActivityDurationMin);
             guest.Agent.TemporarySleep = true;
             guest.Agent.SleepStarted = true;
@@ -58,6 +60,7 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             var guest = FindLivingGuest(guestId);
             if (guest?.Agent == null || !guest.Agent.IsRoomState) return CommandResult.Fail("Only a guest in their assigned room can leave it.");
+            if (!string.IsNullOrEmpty(guest.Agent.ResponseActionId)) return CommandResult.Fail("Let the current guest response finish or cancel it first.");
             StartGuestHotelTrip(guest, LivingSettings.AwayDurationMin);
             return CommandResult.Ok("Guest will leave through the lobby, keeping their room and key until returning.");
         }
@@ -146,7 +149,7 @@ namespace WorstHotel
                 var agent = guest?.Agent;
                 room.OccupancyState = !room.Occupied ? string.IsNullOrEmpty(room.DepartingGuestId) ? RoomOccupancyState.Vacant : RoomOccupancyState.CheckoutPending :
                     agent != null && agent.IsRoomState ? RoomOccupancyState.GuestInside :
-                    agent != null && (agent.State == GuestAgentState.GuestAway || agent.State == GuestAgentState.ReturningToRoom) ? RoomOccupancyState.GuestAway : RoomOccupancyState.Occupied;
+                    agent != null && (agent.IsServiceReceptionTrip || agent.State == GuestAgentState.GuestAway || agent.State == GuestAgentState.ReturningToRoom) ? RoomOccupancyState.GuestAway : RoomOccupancyState.Occupied;
                 room.PrivacyState = !room.Occupied ? RoomPrivacyState.Public : agent != null && agent.IsRoomState &&
                     (agent.State == GuestAgentState.Sleeping || agent.Activity == GuestActivity.Shower) ? RoomPrivacyState.Private : RoomPrivacyState.SemiPrivate;
                 if (room.DoorState != RoomDoorState.Open)

@@ -29,7 +29,8 @@ namespace WorstHotel
             int changed = 0;
             foreach (var incident in incidents.Values)
             {
-                if (incident.GuestId != guestId || !incident.Active || incident.AttentionAcknowledged) continue;
+                if (incident.GuestId != guestId || !incident.Active || incident.AttentionAcknowledged ||
+                    RequirePhysicalCommunication && !incident.HasContactedStaff) continue;
                 incident.AttentionAcknowledged = true;
                 changed++;
             }
@@ -39,7 +40,8 @@ namespace WorstHotel
         internal void AcceptCompensationResponse(GuestStay guest)
         {
             if (!LivingEnabled) return;
-            var accepted = incidents.Values.Where(incident => incident.GuestId == guest.GuestId && incident.Active).ToArray();
+            var accepted = incidents.Values.Where(incident => incident.GuestId == guest.GuestId && incident.Active &&
+                (!RequirePhysicalCommunication || incident.HasContactedStaff)).ToArray();
             guest.Memory.CompensationReceived = guest.CompensationCredit;
             foreach (var incident in accepted)
             {

@@ -72,6 +72,11 @@ namespace WorstHotel.Tests
             yield return null; yield return null;
             Assert.That(guest.Agent.CheckedIn, Is.False, "An empty hand cannot generate an imaginary room key.");
             Assert.That(reception.HoldProgress, Is.Zero);
+            Assert.That(ManagementUI.Instance.IsGuestContextOpen, Is.True, "An empty-handed greeting opens an ordinary conversation.");
+            Assert.That(ManagementUI.Instance.ContextGuestId, Is.EqualTo(guest.GuestId));
+            QueueUse(padA, false, true); yield return null; yield return null;
+            QueueUse(padA, false); yield return null; yield return null;
+            Assert.That(ManagementUI.Instance.IsOpen, Is.False, "Actual cancel input closes the greeting before fetching the key.");
             yield return TakeRoomKeyFromActualRack(0, 101);
             yield return CarryRackKeyToReceptionGuest(0, 101, reception);
             yield return GiveHeldKeyByInstantUse(0, guest, 101);

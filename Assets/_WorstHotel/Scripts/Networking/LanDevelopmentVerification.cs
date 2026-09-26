@@ -72,7 +72,7 @@ namespace WorstHotel
         void Update()
         {
             if (finished) return;
-            float watchdog = services ? 210 : 140;
+            float watchdog = services ? 330 : 140;
             if (Time.realtimeSinceStartup - began > watchdog) { Fail(watchdog + "-second internal watchdog"); return; }
             if (agency && host) MaintainAgencyFixture();
             if (services && host) MaintainServicesFixture();

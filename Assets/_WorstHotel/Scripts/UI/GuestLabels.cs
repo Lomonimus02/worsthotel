@@ -14,6 +14,8 @@ namespace WorstHotel
                 case GuestActivity.WatchTV: return "Watching TV";
                 case GuestActivity.LeaveHotel: return "Going out";
                 case GuestActivity.Pack: return "Packing";
+                case GuestActivity.AdjustRadiator: return "Adjusting the radiator";
+                case GuestActivity.CallReception: return "Calling reception";
                 default: return "Quiet rest";
             }
         }
@@ -39,6 +41,9 @@ namespace WorstHotel
                 case GuestAgentState.GuestAway: return "Out of the hotel";
                 case GuestAgentState.ReturningToRoom: return "Returning from outside";
                 case GuestAgentState.CheckingOut: return "Checking out";
+                case GuestAgentState.GoingToServiceReception: return "Walking to reception";
+                case GuestAgentState.WaitingAtServiceReception: return "Waiting to speak at reception";
+                case GuestAgentState.ReturningFromServiceReception: return "Returning to room";
                 default: return agent.State.ToString();
             }
         }

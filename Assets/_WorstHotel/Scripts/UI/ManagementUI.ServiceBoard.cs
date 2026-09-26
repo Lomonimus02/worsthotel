@@ -18,6 +18,7 @@ namespace WorstHotel
         public bool IsServiceBoardOpen => IsOpen && showingServiceBoard;
         public bool IsWakePhoneOpen => IsOpen && wakePhone;
         public bool IsWakeCallInProgress => IsWakePhoneOpen && callingPromise != null;
+        public IEnumerable<string> ServiceOptionTitles => serviceChoices.Select(choice => choice.title);
 
         public void OpenReceptionServiceBoard(int actorId)
         {
@@ -38,6 +39,7 @@ namespace WorstHotel
             if (!IsOpen) return;
             wakePhone = true; showingServiceBoard = false; servicePage = 0;
             callingPromise = null;
+            phoneResponseId = null;
             phoneSimulation = Session.Simulation;
             selectedServiceCase = null; serviceHasResponse = false;
             UpdateServicePanel();
@@ -68,20 +70,12 @@ namespace WorstHotel
                     string completed = callingPromise; callingPromise = null; serviceHasResponse = true;
                     Session.CompleteWakeUpCall(owner, completed);
                 }
-                var promises = services.Promises.Where(p => p.Status == PromiseStatus.Accepted).OrderBy(p => p.DueTime).ToArray();
-                for (int i = 0; i < promises.Length && i < 6; i++)
-                {
-                    var promise = promises[i];
-                    bool due = Session.Simulation.Elapsed >= promise.DueTime - services.Settings.WakeToleranceSeconds;
-                    AddServiceChoice(new Rect(42, 236 + i * 65, 705, 56), "Room " + promise.RoomId + " · " +
-                        (due ? "Call now" : "Call at " + GuestLabels.HotelTime(promise.DueTime)) + "\n" + GuestName(promise.GuestId),
-                        () => { callingPromise = promise.Id; callCompletesAt = Time.unscaledTime + 1.2f; serviceHasResponse = false; }, due && callingPromise == null);
-                }
+                BuildPhoneChoices();
                 AddServiceChoice(new Rect(42, 799, 705, 42), "Put down the phone", Close);
             }
             else if (selectedServiceCase != null)
             {
-                var item = services.Cases.FirstOrDefault(c => c.Id == selectedServiceCase);
+                var item = services.Cases.FirstOrDefault(c => c.Id == selectedServiceCase && GuestLabels.IsKnownToHotel(c));
                 if (item == null) { selectedServiceCase = null; UpdateServicePanel(); return; }
                 if (item.Active)
                 {
@@ -105,7 +99,7 @@ namespace WorstHotel
             }
             else
             {
-                var cases = services.Cases.Where(c => c.Active).OrderBy(c => c.CreatedAt).ToArray();
+                var cases = services.Cases.Where(GuestLabels.IsKnownOpenService).OrderBy(c => c.CreatedAt).ToArray();
                 servicePage = Mathf.Clamp(servicePage, 0, Math.Max(0, (cases.Length - 1) / 6));
                 foreach (var pair in cases.Skip(servicePage * 6).Take(6).Select((item, i) => (item, i)))
                 {
@@ -140,14 +134,10 @@ namespace WorstHotel
             Border(new Rect(23, 58, 754, 804), Brass);
             Label(new Rect(42, 78, 705, 48), wakePhone ? "RECEPTION PHONE" : "GUEST SERVICE BOARD", Title);
             Label(new Rect(42, 136, 705, 43), "DAY " + Session.Day + " · Hotel time " + GuestLabels.HotelTime(Session.Simulation.Elapsed) +
-                (wakePhone ? "\nSelect a due wake-up call." : "\nSmall requests, agreed promises and the next arrivals."), Small, Muted);
+                (wakePhone ? "\nReception conversations and promised wake-up calls." : "\nGuest conversations, agreed promises and the next arrivals."), Small, Muted);
             if (wakePhone)
             {
-                Label(new Rect(42, 190, 705, 39), "WAKE-UP CALLS · agreed times are measured from shift start", Small, Teal);
-                if (!services.Promises.Any(p => p.Status == PromiseStatus.Accepted))
-                    Label(new Rect(42, 246, 705, 100), "No calls are waiting.\nAgree a wake-up time with a guest first.", Body, Muted);
-                Label(new Rect(42, 668, 705, 46), callingPromise != null ? "Calling the room… Stay on the line." :
-                    "A call is complete only when made from this phone. The board is a reminder.", Small, Muted);
+                DrawPhoneContents();
             }
             else if (selectedServiceCase != null) DrawServiceCase();
             else
@@ -155,7 +145,7 @@ namespace WorstHotel
                 Label(new Rect(42, 202, 348, 30), "NOW", Heading, Teal);
                 Label(new Rect(413, 202, 334, 30), "UPCOMING", Heading, Teal);
                 Fill(new Rect(399, 204, 1, 445), Brass);
-                if (!services.Cases.Any(c => c.Active)) Label(new Rect(42, 245, 345, 100), "No outstanding service requests.\nA quiet moment to prepare.", Body, Muted);
+                if (!services.Cases.Any(GuestLabels.IsKnownOpenService)) Label(new Rect(42, 245, 345, 100), "No outstanding conversations.\nA quiet moment to prepare.", Body, Muted);
                 var upcoming = new List<(float time, string text)>();
                 foreach (var promise in services.Promises.Where(p => p.Status == PromiseStatus.Accepted))
                     upcoming.Add((promise.DueTime, "WAKE-UP · room " + promise.RoomId + "\n" + GuestName(promise.GuestId)));
@@ -180,7 +170,7 @@ namespace WorstHotel
                 }
                 if (i == 0) Label(new Rect(413, 245, 334, 60), "Nothing scheduled yet.", Body, Muted);
                 Label(new Rect(42, 684, 705, 49), "ON THE SHELVES · blankets " + services.BlanketsAvailable + " · spare bulbs " + services.BulbsAvailable +
-                    "\nCheck linen, radiator settings and circuit loads before the next arrival.", Small, Muted);
+                    "\n" + (GuestLabels.ContactCue(Session.Simulation) ?? "No one is waiting to speak right now."), Small, Muted);
             }
             if (serviceHasResponse) Label(new Rect(42, 716, 705, 25), Session.LastMessage, Small, Wine);
             foreach (var choice in serviceChoices) ButtonAt(choice.rect, choice.title, choice.action, choice.enabled);
@@ -188,11 +178,11 @@ namespace WorstHotel
 
         void DrawServiceCase()
         {
-            var item = Session.Simulation.Services.Cases.FirstOrDefault(c => c.Id == selectedServiceCase);
+            var item = Session.Simulation.Services.Cases.FirstOrDefault(c => c.Id == selectedServiceCase && GuestLabels.IsKnownToHotel(c));
             if (item == null) return;
             Label(new Rect(42, 201, 705, 38), "ROOM " + item.RoomId + " · " + GuestLabels.Service(item.Kind), Heading);
             Label(new Rect(42, 245, 705, 27), GuestName(item.GuestId) + " · " + GuestLabels.ServiceState(item.Status), Small, Teal);
-            Label(new Rect(42, 283, 705, 91), item.Description, Body, Ink);
+            Label(new Rect(42, 283, 705, 91), GuestLabels.ServiceClue(item), Body, Ink);
             Label(new Rect(42, 385, 705, 72), GuestLabels.ServiceHelp(item.Kind), Small, Muted);
             string timing = item.Kind == ServiceKind.WakeUpCall ? "Requested call at " : item.Kind == ServiceKind.LateCheckout ? "Requested checkout at " : "Reply / help due by ";
             Label(new Rect(42, 653, 705, 37), timing + GuestLabels.HotelTime(item.DueTime) + " hotel time", Small, Muted);

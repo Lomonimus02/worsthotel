@@ -110,6 +110,10 @@ namespace WorstHotel.Editor
             control.summary = Text("Reception service board summary", board.transform, "GUEST SERVICES\nNOW + UPCOMING", new Vector3(0, .47f, .046f), .077f, Mat("Ink").color);
             var phone = Group("Reception wake-up telephone", root, new Vector3(-6.75f, 1.48f, 2.36f));
             var calls = phone.AddComponent<ReceptionPhoneInteraction>(); calls.displayName = "Reception wake-up telephone";
+            var incoming = phone.AddComponent<IncomingServicePhoneCue>();
+            incoming.ringIndicator = Sphere("Incoming service call lamp", phone.transform, new Vector3(.24f, .20f, -.16f),
+                Vector3.one * .07f, "Signal green");
+            incoming.ringIndicator.SetActive(false);
             var hit = phone.AddComponent<BoxCollider>(); hit.center = new Vector3(0, .12f, 0); hit.size = new Vector3(.70f, .38f, .51f);
             // Existing complaint-phone builder supplies the same handset, dial, lamp and audio anchor here.
             calls.phoneLabel = Text("Wake telephone status", phone.transform, "RECEPTION PHONE\nNO CALLS PROMISED", new Vector3(0, .11f, -.235f), .052f, Lettering);
@@ -125,7 +129,21 @@ namespace WorstHotel.Editor
             Cylinder("Knurled valve knob", valve.knob, Vector3.zero, .135f, .105f, "Aged brass", new Vector3(90, 0, 0));
             Box("Valve white pointer", valve.knob, new Vector3(0, .075f, -.06f), new Vector3(.027f, .085f, .02f), "Gauge ivory", false, false);
             valve.settingLabel = Text("Radiator readable setting", valveObject.transform, "RADIATOR 1 / 3\nLOW", new Vector3(0, .30f, -.08f), .060f, Mat("Ink").color);
+            var presentation = Object.FindAnyObjectByType<GuestPresentation>();
+            var markers = presentation.roomMarkers.Single(marker => marker.roomId == roomId);
+            var radiatorPosition = valveObject.transform.position - valveObject.transform.forward * 1.33f;
+            radiatorPosition.y = .01f;
+            markers.radiatorAnchor = Group("RadiatorAnchor" + roomId, root, radiatorPosition).transform;
+            markers.radiatorTarget = valveObject.transform;
             var room = GameObject.Find("Room" + roomId).transform;
+            // Open a genuine walking aisle between the foot of the bed and the armchair.
+            // The old chair left less than a guest-capsule diameter on the valve approach.
+            var chairSeat = room.GetComponentsInChildren<Transform>().FirstOrDefault(part => part.name == "Chair seat");
+            if (chairSeat)
+            {
+                var position = chairSeat.parent.localPosition; position.z = -2.25f;
+                chairSeat.parent.localPosition = position;
+            }
             var lamp = Group("Bedside service lamp " + roomId, room, new Vector3(-side * .85f, .79f, 1.35f));
             var lightControl = lamp.AddComponent<RoomLampInteraction>(); lightControl.roomId = roomId; lightControl.displayName = "Room " + roomId + " bedside lamp";
             var lampCollider = lamp.AddComponent<BoxCollider>(); lampCollider.center = new Vector3(0, .29f, 0); lampCollider.size = new Vector3(.40f, .62f, .37f);

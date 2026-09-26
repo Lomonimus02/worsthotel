@@ -190,6 +190,14 @@ namespace WorstHotel.Tests
             var session = GameSession.Instance; var guest = session.Simulation.Guests.Single(); var actor = bootstrap.Players[0];
             Assert.That(session.Simulation.DebugForceService(guest.GuestId, ServiceKind.LuggageStorage).Success, Is.True);
             var request = session.Simulation.Services.Cases.Single(item => item.GuestId == guest.GuestId && item.Kind == ServiceKind.LuggageStorage);
+            // Explicit model conversation adapter isolates the suitcase carry/placement subject.
+            // The prepared guest is already waiting at reception; use real communication rules
+            // rather than forging a known/accepted flag or disabling natural service globally.
+            Assert.That(request.IsKnownToHotel, Is.False);
+            Assert.That(session.Simulation.DebugBeginGuestContact(guest.GuestId, GuestContactChannel.Reception).Success, Is.True);
+            Assert.That(session.Simulation.TalkToServiceGuest(0, guest.GuestId, request.Response.Id).Success, Is.True);
+            Assert.That(request.IsKnownToHotel, Is.True);
+            Assert.That(request.Status, Is.EqualTo(ServiceStatus.Requested));
             Assert.That(session.Simulation.RespondToService(0, request.Id, true).Success, Is.True);
             var suitcase = PhysicalSupply("luggage:" + guest.GuestId);
             yield return PositionEmptyActorForLinen(0, suitcase.SourceAnchor.position + new Vector3(0, -.35f, -1.3f), suitcase.Body.worldCenterOfMass);

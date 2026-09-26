@@ -38,9 +38,10 @@ namespace WorstHotel
 
     public sealed partial class RequestSystem
     {
-        public IReadOnlyList<HotelRequest> Items => Array.AsReadOnly(requests.Values.OrderBy(request => request.RoomId)
+        public IReadOnlyList<HotelRequest> Items => Array.AsReadOnly(requests.Values.Where(IsKnown).OrderBy(request => request.RoomId)
             .ThenBy(request => request.Reason).ToArray());
-        public int ActiveCount => requests.Values.Count(request => !request.Resolved);
+        public int ActiveCount => requests.Values.Count(request => IsKnown(request) && !request.Resolved);
+        bool IsKnown(HotelRequest request) => !incidents.RequirePhysicalCommunication || request.Source.HasContactedStaff;
         public event Action<HotelRequest> OnRequestCreated;
         public event Action<HotelRequest> OnRequestResolved;
         private readonly Dictionary<string, HotelRequest> requests = new Dictionary<string, HotelRequest>();
@@ -61,6 +62,7 @@ namespace WorstHotel
         private void OnIncidentStarted(HotelIncident incident)
         {
             if (incident.Stage == SituationStage.Observed || incident.Stage == SituationStage.Resolved) return;
+            if (incidents.RequirePhysicalCommunication && !incident.HasContactedStaff) return;
             if (!requests.TryGetValue(incident.Id, out var request))
             {
                 request = new HotelRequest(incident);
@@ -84,6 +86,7 @@ namespace WorstHotel
             if (ReadOnlyMirror) return;
             foreach (var request in requests.Values)
             {
+                if (!IsKnown(request)) { request.Resolved = true; continue; }
                 request.MeasuredCause = request.Source.MeasuredCause;
                 if (incidents.LivingEnabled)
                 {
@@ -100,10 +103,10 @@ namespace WorstHotel
         }
 
         public bool HasExpiredRequest(string guestId) => requests.Values.Any(request =>
-            request.GuestId == guestId && !request.Resolved && request.ResponseReliefRemainingSeconds <= 0 && request.RemainingPatience <= 0);
+            request.GuestId == guestId && IsKnown(request) && !request.Resolved && request.ResponseReliefRemainingSeconds <= 0 && request.RemainingPatience <= 0);
 
         public bool HasExpiredRoomRequest(string guestId) => requests.Values.Any(request =>
-            request.GuestId == guestId && request.Reason != IncidentReason.Service &&
+            request.GuestId == guestId && IsKnown(request) && request.Reason != IncidentReason.Service &&
             !request.Resolved && request.ResponseReliefRemainingSeconds <= 0 && request.RemainingPatience <= 0);
 
         public void SetCompensated(string guestId, bool compensated)

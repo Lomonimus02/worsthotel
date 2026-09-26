@@ -12,7 +12,7 @@ namespace WorstHotel
         void DrawGuestResponseActions(GuestStay guest, HotelIncident[] situations)
         {
             bool inRoom = guest.Agent != null && guest.Agent.InAssignedRoom;
-            bool softNoise = Session.Simulation.Services?.Cases.Any(c => c.GuestId == guest.GuestId && c.Active && c.Kind == ServiceKind.AskNeighborsQuiet) == true;
+            bool softNoise = Session.Simulation.Services?.Cases.Any(c => c.GuestId == guest.GuestId && GuestLabels.IsKnownOpenService(c) && c.Kind == ServiceKind.AskNeighborsQuiet) == true;
             int credit = (int)Math.Round(guest.Price * Session.Economy.CompensationRate, MidpointRounding.AwayFromZero);
             ButtonAt(new Rect(42, 598, 345, 35), guest.Compensated ? "Credit reserved $" + guest.CompensationCredit : "Offer $" + credit + " for patience",
                 () => Session.OfferCompensation(owner, guest.GuestId), inRoom && !guest.Compensated && (situations.Length > 0 || softNoise));

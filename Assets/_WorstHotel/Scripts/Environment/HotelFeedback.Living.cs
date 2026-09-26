@@ -54,6 +54,9 @@ namespace WorstHotel
 
         void RingReceptionComplaint()
         {
+            // Natural contacts ring only after the guest reaches their actual room phone.
+            // Publishing an answered concern must not create a second unrelated bell.
+            if (simulation?.Services?.Settings.NaturalCommunicationEnabled == true) return;
             if (receptionPhoneAnchor == null || receptionPhone == null) return;
             phoneRingSeconds = 1.6f;
             receptionPhone.PlayOneShot(clips[Sound.Complaint], masterVolume * .55f * Audibility(receptionPhoneAnchor.position, 26));

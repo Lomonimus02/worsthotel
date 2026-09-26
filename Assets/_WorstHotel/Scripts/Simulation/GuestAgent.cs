@@ -2,9 +2,11 @@ using System;
 
 namespace WorstHotel
 {
-    public enum GuestAgentState { Scheduled, Arriving, WaitingForCheckIn, GoingToRoom, InRoom, PerformingActivity, Sleeping, CheckingOut, Leaving, Left, LeavingRoom, GuestAway, ReturningToRoom }
+    public enum GuestAgentState { Scheduled, Arriving, WaitingForCheckIn, GoingToRoom, InRoom, PerformingActivity, Sleeping, CheckingOut, Leaving, Left, LeavingRoom, GuestAway, ReturningToRoom,
+        GoingToServiceReception = 13, WaitingAtServiceReception = 14, ReturningFromServiceReception = 15 }
     // Values 0–2 are serialized in existing diagnostics and network snapshots.
-    public enum GuestActivity { QuietRest = 0, Shower = 1, LoudRoom = 2, Unpack = 3, Work = 4, PhoneCall = 5, WatchTV = 6, LeaveHotel = 7, Pack = 8 }
+    public enum GuestActivity { QuietRest = 0, Shower = 1, LoudRoom = 2, Unpack = 3, Work = 4, PhoneCall = 5, WatchTV = 6, LeaveHotel = 7, Pack = 8,
+        AdjustRadiator = 9, CallReception = 10 }
     public enum GuestLocation { OutsideHotel, Lobby, Travelling, AssignedRoom, Away, Departed }
 
     /// <summary>Authoritative guest state. Scene navigation reports completion instead of inventing travel time here.</summary>
@@ -31,6 +33,10 @@ namespace WorstHotel
         public float QuietUntil { get; internal set; }
         public bool RequiresActivityStaging { get; internal set; }
         public bool ActivityStaged { get; internal set; } = true;
+        public string ResponseActionId { get; internal set; }
+        public int ResponseActionVersion { get; internal set; }
+        public bool IsServiceReceptionTrip => State == GuestAgentState.GoingToServiceReception ||
+            State == GuestAgentState.WaitingAtServiceReception || State == GuestAgentState.ReturningFromServiceReception;
         internal float PendingActivityDuration;
         internal bool TemporarySleep;
         internal float AwayReturnTime = float.PositiveInfinity;
@@ -41,11 +47,14 @@ namespace WorstHotel
         public bool InAssignedRoom => IsRoomState;
         public GuestLocation CurrentLocation => State == GuestAgentState.GuestAway ? GuestLocation.Away :
             State == GuestAgentState.Left ? GuestLocation.Departed : State == GuestAgentState.Scheduled ? GuestLocation.OutsideHotel :
-            State == GuestAgentState.WaitingForCheckIn ? GuestLocation.Lobby : InAssignedRoom ? GuestLocation.AssignedRoom : GuestLocation.Travelling;
+            State == GuestAgentState.WaitingForCheckIn || State == GuestAgentState.WaitingAtServiceReception ? GuestLocation.Lobby : InAssignedRoom ? GuestLocation.AssignedRoom : GuestLocation.Travelling;
         public string CurrentActivity => State == GuestAgentState.Sleeping ? "Sleep" : State == GuestAgentState.ReturningToRoom ? "ReturnToHotel" :
+            State == GuestAgentState.GoingToServiceReception ? "GoToReception" : State == GuestAgentState.WaitingAtServiceReception ? "ServiceConversation" :
+            State == GuestAgentState.ReturningFromServiceReception ? "ReturnFromReception" :
             State == GuestAgentState.GuestAway ? "Away" : State == GuestAgentState.LeavingRoom ? "LeaveHotel" :
             State == GuestAgentState.CheckingOut || State == GuestAgentState.Leaving ? "Checkout" : Activity.ToString();
         public string NextActivity => State == GuestAgentState.GuestAway || State == GuestAgentState.LeavingRoom ? "ReturnToHotel" :
+            IsServiceReceptionTrip ? "Return to assigned room" :
             State == GuestAgentState.Sleeping && !TemporarySleep ? "Pack / Checkout" : NextPlannedActivity.ToString();
         internal float WaitingPatience { get; }
         internal int ActivityIndex;

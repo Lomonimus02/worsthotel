@@ -25,6 +25,13 @@ namespace WorstHotel
         public float DeclinedPenalty { get; }
         public float BrokenPromisePenalty { get; }
         public float MaximumScoreAdjustment { get; }
+        public bool NaturalCommunicationEnabled { get; }
+        public float SelfResponseObserveSeconds { get; }
+        public float ToleranceSeconds { get; }
+        public float PhoneRingSeconds { get; }
+        public float ContactRetryDelaySeconds { get; }
+        public float ReceptionWaitSeconds { get; }
+        public int MaxContactAttempts { get; }
 
         public GuestServiceSettings(int maxCasesPerShift = 3, int maxCasesPerGuest = 2, int blanketStock = 3,
             int bulbStock = 3, float eligibility = .55f, float soloFrequencyMultiplier = .8f,
@@ -32,19 +39,25 @@ namespace WorstHotel
             float blanketComfortBonus = 2, float replySeconds = 70, float wakeLeadSeconds = 30,
             float wakeToleranceSeconds = 8, float wakeMissSeconds = 25, float lateCheckoutExtension = 30,
             float lateCheckoutRequestLead = 125, float fulfilledBonus = 1.5f, float declinedPenalty = .25f,
-            float brokenPromisePenalty = 3, float maximumScoreAdjustment = 6)
+            float brokenPromisePenalty = 3, float maximumScoreAdjustment = 6,
+            bool naturalCommunicationEnabled = false, float selfResponseObserveSeconds = 5,
+            float toleranceSeconds = 10, float phoneRingSeconds = 12, float contactRetryDelaySeconds = 25,
+            float receptionWaitSeconds = 35, int maxContactAttempts = 2)
         {
             foreach (float value in new[] { eligibility, soloFrequencyMultiplier, observationSeconds, mildColdMinimum,
                 mildColdMaximum, blanketComfortBonus, replySeconds, wakeLeadSeconds, wakeToleranceSeconds,
                 wakeMissSeconds, lateCheckoutExtension, lateCheckoutRequestLead, fulfilledBonus, declinedPenalty,
-                brokenPromisePenalty, maximumScoreAdjustment })
+                brokenPromisePenalty, maximumScoreAdjustment, selfResponseObserveSeconds, toleranceSeconds,
+                phoneRingSeconds, contactRetryDelaySeconds, receptionWaitSeconds })
                 if (!Number.IsFinite(value) || value < 0) throw new ArgumentException("Service tuning must be finite and nonnegative.");
             if (maxCasesPerShift < 0 || maxCasesPerShift > 32 || maxCasesPerGuest < 1 || maxCasesPerGuest > 8 ||
                 blanketStock < 0 || blanketStock > 6 || bulbStock < 0 || bulbStock > 6 || eligibility > 1 ||
                 soloFrequencyMultiplier > 2 || observationSeconds <= 0 || mildColdMinimum >= mildColdMaximum ||
                 mildColdMaximum > 1 || blanketComfortBonus > 8 || replySeconds <= 0 || wakeLeadSeconds <= wakeMissSeconds ||
                 wakeToleranceSeconds <= 0 || wakeMissSeconds <= wakeToleranceSeconds || lateCheckoutExtension <= 0 ||
-                lateCheckoutRequestLead <= lateCheckoutExtension || maximumScoreAdjustment > 15)
+                lateCheckoutRequestLead <= lateCheckoutExtension || maximumScoreAdjustment > 15 ||
+                selfResponseObserveSeconds <= 0 || toleranceSeconds <= 0 || phoneRingSeconds <= 0 ||
+                contactRetryDelaySeconds <= 0 || receptionWaitSeconds <= 0 || maxContactAttempts < 1 || maxContactAttempts > 2)
                 throw new ArgumentException("Service budgets, time windows or comfort thresholds are invalid.");
             MaxCasesPerShift = maxCasesPerShift; MaxCasesPerGuest = maxCasesPerGuest; BlanketStock = blanketStock; BulbStock = bulbStock;
             Eligibility = eligibility; SoloFrequencyMultiplier = soloFrequencyMultiplier; ObservationSeconds = observationSeconds;
@@ -53,6 +66,10 @@ namespace WorstHotel
             WakeMissSeconds = wakeMissSeconds; LateCheckoutExtension = lateCheckoutExtension; LateCheckoutRequestLead = lateCheckoutRequestLead;
             FulfilledBonus = fulfilledBonus; DeclinedPenalty = declinedPenalty; BrokenPromisePenalty = brokenPromisePenalty;
             MaximumScoreAdjustment = maximumScoreAdjustment;
+            NaturalCommunicationEnabled = naturalCommunicationEnabled; SelfResponseObserveSeconds = selfResponseObserveSeconds;
+            ToleranceSeconds = toleranceSeconds; PhoneRingSeconds = phoneRingSeconds;
+            ContactRetryDelaySeconds = contactRetryDelaySeconds; ReceptionWaitSeconds = receptionWaitSeconds;
+            MaxContactAttempts = maxContactAttempts;
         }
     }
 }

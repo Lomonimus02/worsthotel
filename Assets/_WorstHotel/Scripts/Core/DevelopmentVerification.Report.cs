@@ -21,6 +21,7 @@ namespace WorstHotel
             public readonly Dictionary<string, string> LastGuestStates = new Dictionary<string, string>();
             public float WalkedMetres;
             public bool NaturalBoilerFailure;
+            public int ChargedContacts, PrivateCases, SelfHelpActions, ContactAttempts, HeardConcerns;
         }
 
         DayReport[] completedReports;
@@ -82,6 +83,8 @@ namespace WorstHotel
                     " serviceRequests=" + (day.Stays?.Sum(g => g.Memory.ServicesRequested) ?? 0) +
                     " guestsWithoutRequests=" + (day.Stays?.Count(g => g.Memory.ServicesRequested == 0) ?? 0) +
                     " servicesFulfilled=" + (day.Stays?.Sum(g => g.Memory.ServicesFulfilled) ?? 0) +
+                    " chargedContacts=" + day.ChargedContacts + " privateCases=" + day.PrivateCases +
+                    " selfHelpActions=" + day.SelfHelpActions + " contactAttempts=" + day.ContactAttempts + " heardConcerns=" + day.HeardConcerns +
                     (report == null ? " report=pending" : " paidStays=" + report.Receipts.Count(r => r.Price > 0 && r.Net > 0) + " gross=" + report.Gross + " refunds=" + report.Compensation + " net=" + report.Net));
                 if (outcome != "PASS") foreach (var state in day.LastGuestStates.Values) text.AppendLine("Last observed Day " + day.Day + ": " + state);
             }

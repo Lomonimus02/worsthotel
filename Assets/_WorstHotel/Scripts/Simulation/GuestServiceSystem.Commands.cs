@@ -17,6 +17,8 @@ namespace WorstHotel
             var allowed = CanAct(actor); if (!allowed.Success) return allowed;
             var item = FindCase(caseId);
             if (item == null || item.Status != ServiceStatus.Requested) return CommandResult.Fail("This service is no longer waiting for acknowledgement.");
+            if (!item.IsKnownToHotel) return CommandResult.Fail("First speak with the guest about this concern.");
+            if (item.Response != null) item.Response.AcknowledgedAt = simulation.Elapsed;
             item.Status = ServiceStatus.Acknowledged; Notify(item, "acknowledged");
             return CommandResult.Ok("Request noted. The guest still needs an actual response.");
         }
@@ -26,6 +28,7 @@ namespace WorstHotel
             var allowed = CanAct(actor); if (!allowed.Success) return allowed;
             var item = FindCase(caseId); var guest = item == null ? null : Guest(item.GuestId);
             if (item == null || !item.Active || guest == null || Departed(guest)) return CommandResult.Fail("This service request is no longer active.");
+            if (!item.IsKnownToHotel) return CommandResult.Fail("First speak with the guest about this concern.");
             if (!accept)
             {
                 var promise = FindPromise(item.Id);
@@ -99,6 +102,7 @@ namespace WorstHotel
             if (!Enum.IsDefined(typeof(ServiceKind), kind)) return CommandResult.Fail("Unknown service kind.");
             var guest = Guest(guestId);
             if (guest == null || Departed(guest)) return CommandResult.Fail("Choose a current guest.");
+            if (NaturalCommunicationEnabled && (cases.Count >= 32 || !BudgetAvailable(guest))) return CommandResult.Fail("The finite service contact allowance is already used.");
             if (cases.Any(item => item.GuestId == guestId && item.Active)) return CommandResult.Fail("This guest already has an active service case.");
             if (!TryCause(guest, kind, simulation.Elapsed, out string source, out int sourceRoom, out float due, out string reason, true))
                 return CommandResult.Fail("The factual prerequisite is missing: mild cold, real noise, an unready room, or a suitable remaining schedule.");

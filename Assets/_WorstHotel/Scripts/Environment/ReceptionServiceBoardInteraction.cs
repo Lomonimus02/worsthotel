@@ -14,7 +14,7 @@ namespace WorstHotel
             var simulation = GameSession.Instance ? GameSession.Instance.Simulation : null;
             if (!summary || simulation?.Services == null) return;
             int active = 0, promises = 0;
-            foreach (var item in simulation.Services.Cases) if (item.Active) active++;
+            foreach (var item in simulation.Services.Cases) if (GuestLabels.IsKnownOpenService(item)) active++;
             foreach (var item in simulation.Services.Promises) if (item.Status == PromiseStatus.Accepted) promises++;
             summary.text = "GUEST SERVICES\n" + active + " REQUESTS  /  " + promises + " CALLS\nOPEN FOR NOW + UPCOMING";
         }

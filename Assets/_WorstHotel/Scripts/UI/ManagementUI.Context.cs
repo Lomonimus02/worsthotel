@@ -11,6 +11,7 @@ namespace WorstHotel
         readonly List<(string title, System.Action action)> contextChoices = new List<(string, System.Action)>();
         public bool IsGuestContextOpen => IsOpen && guestContext;
         public string ContextGuestId => IsGuestContextOpen ? selectedServiceGuest : null;
+        public IEnumerable<string> ContextOptionTitles => contextChoices.Select(choice => choice.title);
 
         /// <summary>Called after the authority has accepted a physical knock or conversation.</summary>
         public void OpenGuestContext(int actorId, string guestId, bool throughDoor = false)
@@ -59,7 +60,7 @@ namespace WorstHotel
             if (guest?.Agent == null) { pending = Close; return; }
             var cases = Session.Simulation.Incidents.Items.Where(s => s.GuestId == guest.GuestId && GuestLabels.IsActionable(s))
                 .OrderByDescending(s => s.Stage).ToArray();
-            bool present = guest.Agent.InAssignedRoom || guest.Agent.State == GuestAgentState.WaitingForCheckIn;
+            bool present = ContextGuestAvailable(guest);
             bool privateActivity = guest.Agent.State == GuestAgentState.Sleeping || guest.Agent.Activity == GuestActivity.Shower;
             bool noisy = CanAskForQuiet(Session.Simulation, guest);
             Fill(new Rect(70, 220, 660, 510), Paper);
@@ -67,7 +68,7 @@ namespace WorstHotel
             Label(new Rect(99, 271, 598, 34), "ROOM " + guest.RoomId + "  /  " + guest.Name, Heading);
             var service = CurrentGuestService(guest);
             string line = !present ? "No answer; the guest is out." : privateActivity ? "I need some privacy. Please come back later." :
-                cases.Length > 0 ? GuestLabels.ComplaintClue(cases[0]) : service != null ? service.Description : noisy ?
+                cases.Length > 0 ? GuestLabels.ComplaintClue(cases[0]) : service != null ? GuestLabels.ServiceClue(service) : noisy ?
                     (guest.Memory.PreviousNoiseWarnings > 0 ? "Yes? We have already spoken about the noise." : "Yes? You wanted to speak to me?") : "Yes? What is it?";
             Label(new Rect(99, 310, 598, 66), line, Body, Muted);
             if (contextHasResponse) Label(new Rect(99, 370, 598, 20), Session.LastMessage, Small, Wine);
@@ -80,7 +81,7 @@ namespace WorstHotel
         {
             contextChoices.Clear();
             var cases = Session.Simulation.Incidents.Items.Where(s => s.GuestId == guest.GuestId && GuestLabels.IsActionable(s)).ToArray();
-            bool canTalk = guest.Agent != null && (guest.Agent.InAssignedRoom || guest.Agent.State == GuestAgentState.WaitingForCheckIn) && guest.Agent.State != GuestAgentState.Sleeping &&
+            bool canTalk = ContextGuestAvailable(guest) && guest.Agent.State != GuestAgentState.Sleeping &&
                 guest.Agent.Activity != GuestActivity.Shower;
             bool noisy = CanAskForQuiet(Session.Simulation, guest);
             var service = CurrentGuestService(guest);
@@ -96,7 +97,7 @@ namespace WorstHotel
                         contextChoices.Add(("Acknowledge · decide later", () =>
                         { contextHasResponse = true; Session.AcknowledgeService(owner, service.Id); }));
                 }
-                else contextChoices.Add(("Review help / next step", () =>
+                else contextChoices.Add(("Review our agreement", () =>
                 { Session.CloseGuestConversation(owner, guest.GuestId); guestContext = false; ShowServices(service.Id); }));
                 if (service.Kind == ServiceKind.WakeUpCall && service.Status == ServiceStatus.InProgress)
                     contextChoices.Add((Session.Simulation.Elapsed < service.DueTime ? "Cancel promised call" : "Cancel overdue call · counts as missed", () =>
@@ -137,7 +138,11 @@ namespace WorstHotel
         }
 
         ServiceCase CurrentGuestService(GuestStay guest) => Session.Simulation.Services?.Cases
-            .Where(c => c.GuestId == guest.GuestId && c.Active).OrderBy(c => c.CreatedAt).FirstOrDefault();
+            .Where(c => c.GuestId == guest.GuestId && GuestLabels.IsKnownOpenService(c)).OrderBy(c => c.CreatedAt).FirstOrDefault();
+
+        bool ContextGuestAvailable(GuestStay guest) => guest?.Agent != null && (guest.Agent.InAssignedRoom ||
+            guest.Agent.State == GuestAgentState.WaitingForCheckIn || guest.Agent.State == GuestAgentState.WaitingAtServiceReception ||
+            guestContext && guest.Agent.State == GuestAgentState.ReturningFromServiceReception);
 
         void ContextButton(ref float y, string title, System.Action command)
         {

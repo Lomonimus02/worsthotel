@@ -28,8 +28,9 @@ namespace WorstHotel
                 !PlayerInteractor.TryGetPlayer(actorId, out var player) || !player.CanAct)
                 return CommandResult.Fail("Approach the guest or knock at their room first.");
             var guest = Simulation.Guests.FirstOrDefault(g => g.GuestId == guestId);
-            if (guest?.Agent == null || !(guest.Agent.InAssignedRoom || !throughDoor && guest.Agent.State == GuestAgentState.WaitingForCheckIn &&
-                Simulation.Services?.Cases.Any(c => c.GuestId == guestId && c.Active) == true))
+            if (guest?.Agent == null || !(guest.Agent.InAssignedRoom || !throughDoor &&
+                (guest.Agent.State == GuestAgentState.WaitingAtServiceReception ||
+                 guest.Agent.State == GuestAgentState.WaitingForCheckIn)))
                 return CommandResult.Fail("The guest is not available in the room.");
             RoomNoiseInteraction door = player.Focused as RoomNoiseInteraction;
             if (!door && player.Focused is DoorInteractable roomDoor) door = roomDoor.Conversation;
@@ -40,10 +41,13 @@ namespace WorstHotel
             if (!source || Vector3.Distance(player.transform.position, source.position) > 4)
                 return CommandResult.Fail("Stay near the guest to speak with them.");
             var lan = LanSession.Instance;
-            if (lan && lan.Role == LanRole.Host && actorId == 1) lan.RequestRemoteGuestConversation(guestId, throughDoor);
-            else ManagementUI.Instance?.OpenGuestContext(actorId, guestId, throughDoor);
+            if (!(lan && lan.Role == LanRole.Host && actorId == 1) && ManagementUI.Instance?.IsOpen == true)
+                ManagementUI.Instance.Close();
             conversations[actorId] = new ConversationGrant { model = Simulation, guestId = guestId,
                 roomId = guest.RoomId, throughDoor = throughDoor, source = source, expires = Time.unscaledTime + 30 };
+            DiscloseGuestConcern(actorId, guest);
+            if (lan && lan.Role == LanRole.Host && actorId == 1) lan.RequestRemoteGuestConversation(guestId, throughDoor);
+            else ManagementUI.Instance?.OpenGuestContext(actorId, guestId, throughDoor);
             return CommandResult.Ok("Speaking with " + guest.Name + ".");
         }
 
@@ -64,8 +68,10 @@ namespace WorstHotel
                 !PlayerInteractor.TryGetPlayer(actorId, out var player) ||
                 Vector3.Distance(player.transform.position, grant.source.position) > 4) return false;
             var guest = Simulation.Guests.FirstOrDefault(g => g.GuestId == guestId);
-            return guest?.Agent != null && (guest.Agent.InAssignedRoom || !grant.throughDoor && guest.Agent.State == GuestAgentState.WaitingForCheckIn &&
-                Simulation.Services?.Cases.Any(c => c.GuestId == guestId && c.Active) == true) && guest.RoomId == grant.roomId;
+            return guest?.Agent != null && (guest.Agent.InAssignedRoom || !grant.throughDoor &&
+                (guest.Agent.State == GuestAgentState.WaitingAtServiceReception ||
+                 guest.Agent.State == GuestAgentState.ReturningFromServiceReception ||
+                 guest.Agent.State == GuestAgentState.WaitingForCheckIn)) && guest.RoomId == grant.roomId;
         }
 
         public CommandResult RequestGuestRoomEntry(int actorId, string guestId)

@@ -26,6 +26,8 @@ namespace WorstHotel
             guest.Agent.QuietUntil = until;
             guest.Memory.PreviousNoiseWarnings = Math.Min(NeedsSettings.MemoryCountLimit, previousWarnings + 1);
             Incidents.RecordNoiseWarning(guest.GuestId);
+            foreach (var incident in Incidents.Items.Where(i => i.Active && i.Reason == IncidentReason.Noise && i.Cause?.SourceGuestId == guestId))
+                Services?.RecordStaffAction(incident.GuestId, IncidentReason.Noise, incident.Cause.SourceEntityId);
             RefreshElectrical();
             SignalEvent(guest.Name + (temporary ? " agreed to lower the volume temporarily" : " agreed to lower the volume for the rest of the stay"));
             string reply = previousWarnings == 0 ? "Sorry, I'll keep it down." : temporary ?

@@ -148,6 +148,7 @@ namespace WorstHotel.Tests
             QueueUse(padB, false); yield return null; yield return null;
             Assert.That(guest.Agent.CheckedIn, Is.False, "The correct key cannot sell an unprepared room.");
             Assert.That(bootstrap.Players[1].Interactor.HeldBody, Is.SameAs(PhysicalKey(101).Body));
+            Assert.That(ManagementUI.Instance.IsOpen, Is.False, "An unprepared room rejects the key without opening staff UI.");
             Assert.That(bootstrap.Players[0].Interactor.HeldBody, Is.SameAs(dirty.Body));
 
             yield return CarryLinenTo(0, dirty, new Vector3(-4.18f, 0, 10));

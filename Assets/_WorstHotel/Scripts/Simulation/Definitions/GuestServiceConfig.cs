@@ -25,9 +25,18 @@ namespace WorstHotel
         [Range(0, 2)] public float declinedPenalty = .25f;
         [Range(0, 5)] public float brokenPromisePenalty = 3;
         [Range(0, 15)] public float maximumScoreAdjustment = 6;
+        public bool naturalCommunicationEnabled;
+        [Min(.1f)] public float selfResponseObserveSeconds = 5;
+        [Min(.1f)] public float toleranceSeconds = 10;
+        [Min(.1f)] public float phoneRingSeconds = 12;
+        [Min(.1f)] public float contactRetryDelaySeconds = 25;
+        [Min(.1f)] public float receptionWaitSeconds = 35;
+        [Range(1, 2)] public int maxContactAttempts = 2;
         public GuestServiceSettings ToData() => new GuestServiceSettings(maxCasesPerShift, maxCasesPerGuest,
             blanketStock, bulbStock, eligibility, soloFrequencyMultiplier, observationSeconds, mildColdMinimum,
             mildColdMaximum, blanketComfortBonus, replySeconds, wakeLeadSeconds, wakeToleranceSeconds, wakeMissSeconds,
-            lateCheckoutExtension, lateCheckoutRequestLead, fulfilledBonus, declinedPenalty, brokenPromisePenalty, maximumScoreAdjustment);
+            lateCheckoutExtension, lateCheckoutRequestLead, fulfilledBonus, declinedPenalty, brokenPromisePenalty, maximumScoreAdjustment,
+            naturalCommunicationEnabled, selfResponseObserveSeconds, toleranceSeconds, phoneRingSeconds,
+            contactRetryDelaySeconds, receptionWaitSeconds, maxContactAttempts);
     }
 }

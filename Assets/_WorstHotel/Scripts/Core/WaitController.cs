@@ -92,7 +92,8 @@ namespace WorstHotel
             if (preparing) return null;
             if (session.Simulation.Boiler.Failed && !session.Simulation.BoilerFailureAcknowledged) return "Respond to the failed boiler or accept its consequences in the ledger.";
             foreach (var situation in session.Simulation.Incidents.Items)
-                if (situation.Active && !situation.PausedForTransfer && !situation.AttentionAcknowledged && situation.Stage == SituationStage.Critical)
+                if (situation.Active && situation.HasContactedStaff && !situation.PausedForTransfer &&
+                    !situation.AttentionAcknowledged && situation.Stage == SituationStage.Critical)
                     return "Room " + situation.RoomId + " has a critical situation.";
             foreach (var request in session.Simulation.Requests.Items)
                 if (!request.Resolved && !request.PausedForTransfer && !request.AttentionAcknowledged &&

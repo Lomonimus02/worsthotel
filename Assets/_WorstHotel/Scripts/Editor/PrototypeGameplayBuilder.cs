@@ -105,7 +105,7 @@ namespace WorstHotel.Editor
             }
             if (!session.services)
             {
-                session.services = Asset<GuestServiceConfig>(root + "GuestServices.asset", _ => { });
+                session.services = Asset<GuestServiceConfig>(root + "GuestServices.asset", services => services.naturalCommunicationEnabled = true);
                 EditorUtility.SetDirty(session);
             }
             if (!session.infrastructure)

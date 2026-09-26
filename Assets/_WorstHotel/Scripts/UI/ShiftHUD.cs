@@ -34,7 +34,7 @@ namespace WorstHotel
                 DrawElectricalStatus(session, x);
                 if (session.Simulation.LivingEnabled)
                 {
-                    int reception = session.Simulation.Guests.Count(g => g.Agent.State == GuestAgentState.WaitingForCheckIn);
+                    int reception = session.Simulation.Guests.Count(g => g.Agent.State == GuestAgentState.WaitingForCheckIn || g.Agent.State == GuestAgentState.WaitingAtServiceReception);
                     int arriving = session.Simulation.Guests.Count(g => g.Agent.State == GuestAgentState.Arriving);
                     int staying = session.Simulation.Guests.Count(g => g.Agent.CheckedIn && g.Agent.State != GuestAgentState.Left && g.Agent.State != GuestAgentState.Leaving);
                     Fill(new Rect(x, 152, 758, 25), new Color(.10f, .14f, .12f, .9f));
@@ -61,4 +61,3 @@ namespace WorstHotel
         }
     }
 }
-

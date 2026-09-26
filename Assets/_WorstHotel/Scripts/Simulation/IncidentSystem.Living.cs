@@ -34,6 +34,9 @@ namespace WorstHotel
                 if (agent.State == GuestAgentState.CheckingOut || agent.State == GuestAgentState.Leaving || agent.State == GuestAgentState.Left)
                 { RecordIgnored(guest); EndGuestStay(guest.GuestId); continue; }
                 if (agent.IsRelocating) continue;
+                // A guest going to tell staff retains the last room observation. Transit is
+                // neither fresh room exposure nor evidence that the problem was repaired.
+                if (RequirePhysicalCommunication && agent.IsServiceReceptionTrip) continue;
                 if (!livingRooms.ContainsKey(guest.RoomId)) throw new ArgumentException("Guest references an unknown room.");
                 var seen = new HashSet<string>(StringComparer.Ordinal);
                 var perception = guest.Perception;
@@ -121,6 +124,7 @@ namespace WorstHotel
                 incident.ResponseReliefRemainingSeconds = 0;
                 incident.Stage = SituationStage.Observed;
                 incident.HasContactedStaff = false;
+                incident.ComplaintRecorded = false; incident.Response = null;
                 incident.EpisodeCount = Math.Min(needSettings.MemoryCountLimit, incident.EpisodeCount + 1);
                 incident.EffectivePatienceMultiplier = guest.Memory.PatienceMultiplier(incident.Reason, needSettings);
                 AddHistory(incident, "Exposure started: " + explanation);
@@ -136,7 +140,8 @@ namespace WorstHotel
                     incident.Active = false; incident.Resolved = true; incident.ResponseReliefRemainingSeconds = 0;
                     incident.ReopenCooldown = needSettings.ReopenCooldownSeconds;
                     incident.ResolutionReason = explanation;
-                    if (complained && guest.Agent.InAssignedRoom)
+                    if (complained && guest.Agent.InAssignedRoom && (!RequirePhysicalCommunication ||
+                        incident.HasContactedStaff && incident.Response?.StaffActionAt >= 0))
                         guest.Memory.ProblemsResolvedSuccessfully = Math.Min(needSettings.MemoryCountLimit, guest.Memory.ProblemsResolvedSuccessfully + 1);
                     AddHistory(incident, "Resolved through measured recovery.");
                     ChangeStage(incident, SituationStage.Resolved);
@@ -157,10 +162,9 @@ namespace WorstHotel
             if (incident.Stage == SituationStage.Observed && Reached(incident, needSettings.ComplaintExposureSeconds, needSettings.ComplaintDissatisfaction))
             {
                 incident.Age = 0;
-                incident.HasContactedStaff = true;
-                guest.Memory.RecordComplaint(incident.Reason, needSettings);
+                if (!RequirePhysicalCommunication) incident.HasContactedStaff = true;
                 ChangeStage(incident, SituationStage.Complaint);
-                OnIncidentStarted?.Invoke(incident);
+                PublishComplaintIfKnown(guest, incident);
             }
             if (incident.Stage == SituationStage.Complaint && Reached(incident, needSettings.EscalatedExposureSeconds, needSettings.EscalatedDissatisfaction))
                 ChangeStage(incident, SituationStage.Escalated);
@@ -178,7 +182,7 @@ namespace WorstHotel
         }
         void RecordIgnored(GuestStay guest, HotelIncident incident)
         {
-            if (incident.IgnoreRecorded) return;
+            if (incident.IgnoreRecorded || RequirePhysicalCommunication && !incident.ComplaintRecorded) return;
             incident.IgnoreRecorded = true;
             guest.Memory.ProblemsIgnored = Math.Min(needSettings.MemoryCountLimit, guest.Memory.ProblemsIgnored + 1);
             AddHistory(incident, "Problem left unresolved; guest remembers this.");
@@ -187,6 +191,27 @@ namespace WorstHotel
         {
             foreach (var incident in incidents.Values.Where(i => i.Active && i.Cause?.SourceGuestId == sourceGuestId))
                 AddHistory(incident, "Source guest was asked to keep it down.");
+        }
+        internal CommandResult MarkCommunicated(GuestStay guest, string incidentId, int episode, float now)
+        {
+            if (ReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
+            if (!incidents.TryGetValue(incidentId, out var incident) || incident.GuestId != guest.GuestId ||
+                !incident.Active || incident.EpisodeCount != episode || incident.Response == null ||
+                incident.Response.IncidentId != incidentId || incident.Response.IncidentEpisode != episode ||
+                incident.Response.CommunicatedAt < 0 || !Number.IsFinite(now))
+                return CommandResult.Fail("The communicated concern no longer matches this factual episode.");
+            incident.HasContactedStaff = true;
+            AddHistory(incident, "Guest explained the situation to staff.");
+            PublishComplaintIfKnown(guest, incident);
+            return CommandResult.Ok("Guest concern communicated.");
+        }
+        void PublishComplaintIfKnown(GuestStay guest, HotelIncident incident)
+        {
+            if (!incident.Active || !incident.HasContactedStaff || incident.Stage < SituationStage.Complaint ||
+                incident.Stage == SituationStage.Resolved || incident.ComplaintRecorded) return;
+            incident.ComplaintRecorded = true;
+            guest.Memory.RecordComplaint(incident.Reason, needSettings);
+            OnIncidentStarted?.Invoke(incident);
         }
         void AddHistory(HotelIncident incident, string reason)
         {

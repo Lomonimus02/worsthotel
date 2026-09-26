@@ -101,7 +101,8 @@ namespace WorstHotel
             ResponseReliefRemainingSeconds=i.ResponseReliefRemainingSeconds,ResolutionReason=i.ResolutionReason,HasOccurred=i.HasOccurred,
             ConditionSeconds=i.ConditionSeconds,RecoverySeconds=i.RecoverySeconds,ExposureBaseline=i.ExposureBaseline,LastNeedExposure=i.LastNeedExposure,ReopenCooldown=i.ReopenCooldown,
             Cause=SnapshotData.Capture(i.Cause),EffectivePatienceMultiplier=i.EffectivePatienceMultiplier,EpisodeCount=i.EpisodeCount,
-            IgnoreRecorded=i.IgnoreRecorded,HasContactedStaff=i.HasContactedStaff,
+            IgnoreRecorded=i.IgnoreRecorded,HasContactedStaff=i.HasContactedStaff,ComplaintRecorded=i.ComplaintRecorded,
+            ResponseId=SnapshotData.OptionalId(i.Response?.Id),
             History=i.History.Select(h=>new SituationHistorySnapshot{Time=h.Time,Reason=h.Reason}).ToArray()
         }).ToArray();
         internal HotelIncident SnapshotIncident(string id)=>incidents[id];
@@ -115,7 +116,7 @@ namespace WorstHotel
                 i.PausedForTransfer=s.PausedForTransfer;i.AttentionAcknowledged=s.AttentionAcknowledged;i.ResponseAccepted=s.ResponseAccepted;i.ResponseReliefRemainingSeconds=s.ResponseReliefRemainingSeconds;i.ResolutionReason=s.ResolutionReason;
                 i.HasOccurred=s.HasOccurred;i.ConditionSeconds=s.ConditionSeconds;i.RecoverySeconds=s.RecoverySeconds;i.ExposureBaseline=s.ExposureBaseline;i.LastNeedExposure=s.LastNeedExposure;i.ReopenCooldown=s.ReopenCooldown;incidents.Add(i.Id,i);
                 i.Cause=SnapshotData.Cause(s.Cause);i.EffectivePatienceMultiplier=s.EffectivePatienceMultiplier;i.EpisodeCount=s.EpisodeCount;
-                i.IgnoreRecorded=s.IgnoreRecorded;i.HasContactedStaff=s.HasContactedStaff;i.history.Clear();
+                i.IgnoreRecorded=s.IgnoreRecorded;i.HasContactedStaff=s.HasContactedStaff;i.ComplaintRecorded=s.ComplaintRecorded;i.Response=null;i.history.Clear();
                 i.history.AddRange(s.History.Select(h=>new SituationHistoryEntry(h.Time,h.Reason)));
             }
         }

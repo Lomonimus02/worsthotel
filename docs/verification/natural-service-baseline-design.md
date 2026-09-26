@@ -1,8 +1,8 @@
 # Prototype 0.3.2 — natural service baseline and proposed boundaries
 
-Status: read-only source audit and design proposal, 2026-09-26. **None of the changes proposed here are implemented by this note.** No Unity, player, compile, or runtime verification was launched for this audit. Root owns the baseline and pause-crash investigation. Natural-service source changes remain blocked until that investigation phase permits them.
+Historical baseline audit, 2026-09-26. The user subsequently explicitly deferred the hang investigation and authorized continuing the remaining natural-service work. Implementation now follows the companion contract; the baseline observations below describe the pre-change version. This audit itself does not prove runtime behavior or a hang fix.
 
-The concrete proposed fields, enums, callbacks, identity links, and later file ownership are specified in [natural-service-api-contract.md](natural-service-api-contract.md). That companion remains a design-only contract and refines the alternatives discussed below.
+The concrete fields, enums, callbacks, identity links, and file ownership are specified in [natural-service-api-contract.md](natural-service-api-contract.md). That companion records the contract used by the implementation and refines the original alternatives discussed below.
 
 Authority: the current 0.3.2 user brief in attachment `52196d6c-637f-4650-931e-974c5efee79f/Pasted text.txt`. Read `README.md`, `docs/GAME_VISION.md`, `docs/ARCHITECTURE.md`, `docs/PROTOTYPE_SCOPE.md`, and `docs/CHANGELOG.md` against the implementation. Parts of vision/scope still describe 0.2 (including a starting housekeeper and no online mode); those historical descriptions do not override the current code or this brief.
 

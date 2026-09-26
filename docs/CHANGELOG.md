@@ -1,6 +1,21 @@
 # Changelog
 
-Latest work is Prototype 0.3.1 Guest Service Layer: [requirements](GUEST_SERVICE_REQUEST.txt), [player guide](GUEST_SERVICES.md), [acceptance matrix](SERVICE_ACCEPTANCE.md), [current verification](VERIFICATION.md). Earlier entries retain their historical scope.
+Latest work is Prototype 0.3.2 Natural Service: [requirements](NATURAL_SERVICE_REQUEST.txt), [player guide](GUEST_SERVICES.md), [current verification](VERIFICATION.md). Earlier entries retain their historical scope and test results.
+
+## Prototype 0.3.2 — Natural Service
+
+26 September 2026. Natural Service implemented and packaged as Windows 0.3.2; the pause investigation remains explicitly deferred.
+
+- Added a private guest-response lifecycle tied to existing causal incidents and service cases. Notice, self-help/tolerance, attempts to contact, disclosure, acknowledgement and actual staff action are separate. Normal HUD, board and guest-detail surfaces expose the concern only after a real conversation; F2 can inspect private state.
+- Mild-cold self-help walks the guest to their actual radiator and raises its setting once when useful. The shared room heating and boiler-demand calculation applies. Room calls walk to a physical telephone before starting the reception bell; the personal noisy-call source is not used.
+- Added actual service trips through the room door to reception, finite waiting, conversation and return. Room/key ownership is retained; temporary reporting absence does not by itself resolve the original condition. Cancelled and completed contacts use the real return route.
+- The physical reception phone supports incoming answers alongside existing outgoing wake-up promises. Before answering, it reveals only a generic incoming cue. Answering does not accept or fulfill help. Room-door conversations can reveal an existing concern while preserving separate entry permission and key-handoff priority.
+- Contact attempts have bounded ringing/waiting periods and at most one retry. Soft contacts require factual exposure or a suitable arrival/sleep/departure context and retain finite budgets; no guest or day is guaranteed a request.
+- Changed cold/noise wording to the guest's experienced problem. Blanket delivery improves personal comfort but natural-mode resolution waits for sustained measured recovery; neither acknowledgment nor passive recovery grants a false staff-action reward. Existing heaters, repair, quiet requests, relocation and compensation remain alternatives.
+- Added response identity/action/timing snapshot validation and host-scoped communication commands. LAN protocol is 6, model schema 5; the existing bounded gzip transport remains. Added model, route, UI and snapshot tests; their presence alone is not a PASS claim.
+- Fixed physical key-handoff priority: a held wrong key or an unprepared destination now receives the ordinary refusal without opening a conversation or losing the carried key.
+- Verification: full EditMode **316/316 PASS**; all **49 distinct PlayMode cases** have successful results across the full run and focused repair checks (not a fresh full 49/49 run). Actual SOLO services, natural contacts, three days and reset passed with zero errors. Final Windows EXE passed two-process localhost LAN services and key/disconnect checks; 280 ZIP entries match their build files. Exact binary provenance, the corrected LAN diagnostic timeout, visual coverage and human-playtest limits: [VERIFICATION.md](VERIFICATION.md).
+- The user explicitly deferred the Alt+Tab hang investigation and asked to continue Natural Service. Evidence and opt-in diagnostics remain preserved; no root cause, hang fix or successful long-pause stability result is claimed. [Investigation status](PAUSE_CRASH_INVESTIGATION.md).
 
 ## Prototype 0.3.1 — Guest Service Layer
 

@@ -12,7 +12,7 @@ namespace WorstHotel
         public GuestRoomMarkers[] roomMarkers;
         public int VisibleGuestCount => guests.Count;
 
-        enum RoutePurpose { Reception, Room, Activity, Exit, Transfer, Away, Return }
+        enum RoutePurpose { Reception, Room, Activity, Exit, Transfer, Away, Return, ServiceReception, ServiceReturn }
         sealed class VisualGuest
         {
             public string Id;
@@ -33,6 +33,10 @@ namespace WorstHotel
             public int RecoveryCount;
             public string PathStatus = "Following authored route";
             public bool DoorClosedAfterCrossing;
+            public string ResponseActionId;
+            public int ResponseActionVersion;
+            public bool ResponseArrivalReported;
+            public float ResponseRetryAfter;
         }
 
         readonly Dictionary<string, VisualGuest> guests = new Dictionary<string, VisualGuest>();
@@ -245,6 +249,13 @@ namespace WorstHotel
                 guest.InsideRoom = true;
                 SetRoute(guest, AuthoredGuestRoute.GuestAway(guest.Root.position, room, arrivalSpawn.position), RoutePurpose.Away);
             }
+            else if (stay.Agent.IsServiceReceptionTrip)
+            {
+                // Reconstruct a newly bound presentation at its known semantic location;
+                // normal visits retain their existing body and follow the full physical route.
+                guest.InsideRoom = stay.Agent.State == GuestAgentState.GoingToServiceReception;
+                guest.Root.position = guest.InsideRoom ? room.roomTarget.position : reception.position;
+            }
             else if (stay.Agent.HasReachedRoom)
             {
                 guest.Root.position = new Vector3(room.roomTarget.position.x, .01f, room.roomTarget.position.z);
@@ -254,6 +265,7 @@ namespace WorstHotel
                     AuthoredGuestRoute.Activity(guest.Root.position, room, stay.Agent.Activity, stay.Agent.State == GuestAgentState.Sleeping),
                     stay.Agent.State == GuestAgentState.Leaving ? RoutePurpose.Exit : RoutePurpose.Activity);
             }
+            SynchronizeResponseRoute(guest);
         }
 
         void LateUpdate()
@@ -295,6 +307,7 @@ namespace WorstHotel
                 }
                 ReportVacatedRooms(guest, false);
                 if (guest.RouteComplete) OnRouteComplete(guest);
+                RetryCompletedResponseRoute(guest);
                 bool doingActivity = guest.InsideRoom && guest.RouteComplete && guest.Stay.Agent.IsRoomState;
                 UpdateStaging(guest, doingActivity);
                 if (doingActivity)
@@ -352,6 +365,7 @@ namespace WorstHotel
                 guest.State = agent.State; guest.Activity = agent.Activity;
                 return;
             }
+            if (SynchronizeResponseRoute(guest)) return;
             if (guest.State == agent.State && guest.Activity == agent.Activity) return;
             guest.State = agent.State; guest.Activity = agent.Activity;
             switch (agent.State)
@@ -418,7 +432,8 @@ namespace WorstHotel
                 guest.Root.rotation = Quaternion.RotateTowards(guest.Root.rotation, Quaternion.LookRotation(offset), 280 * delta);
                 guest.Root.position = Vector3.MoveTowards(guest.Root.position, destination, step);
                 if (guest.Purpose == RoutePurpose.Room || guest.Purpose == RoutePurpose.Transfer || guest.Purpose == RoutePurpose.Exit ||
-                    guest.Purpose == RoutePurpose.Away || guest.Purpose == RoutePurpose.Return)
+                    guest.Purpose == RoutePurpose.Away || guest.Purpose == RoutePurpose.Return ||
+                    guest.Purpose == RoutePurpose.ServiceReception || guest.Purpose == RoutePurpose.ServiceReturn)
                     guest.InsideRoom = AuthoredGuestRoute.IsOnRoomSide(guest.Root.position, guest.Room);
                 remaining -= step; moved = true;
                 if (step >= distance) guest.Waypoint++;
@@ -450,6 +465,16 @@ namespace WorstHotel
                     guest.Room.door.CloseAfterGuestPassage(guest.Id);
                     simulation.SignalGuestReturnedRoom(guest.Id); session.RaiseChanged();
                     break;
+                case RoutePurpose.ServiceReception:
+                    guest.InsideRoom = false;
+                    guest.Room.door.CloseAfterGuestPassage(guest.Id);
+                    ReportResponseArrival(guest, GuestResponseAnchor.Reception);
+                    break;
+                case RoutePurpose.ServiceReturn:
+                    guest.InsideRoom = true;
+                    guest.Room.door.CloseAfterGuestPassage(guest.Id);
+                    ReportResponseArrival(guest, GuestResponseAnchor.AssignedRoom);
+                    break;
                 case RoutePurpose.Away:
                     guest.InsideRoom = false;
                     guest.Room.door.CloseAfterGuestPassage(guest.Id);
@@ -479,6 +504,8 @@ namespace WorstHotel
             else if (guest.Activity == GuestActivity.Shower) direction = new Vector3(Mathf.Sign(guest.Room.door.transform.position.x), 0, 0);
             else if (guest.Activity == GuestActivity.LoudRoom || guest.Activity == GuestActivity.WatchTV) direction = new Vector3(Mathf.Sign(guest.Room.door.transform.position.x), 0, .6f);
             else if (guest.Activity == GuestActivity.Work) direction = Vector3.forward;
+            else if (guest.Activity == GuestActivity.AdjustRadiator && guest.Room.radiatorTarget) direction = guest.Room.radiatorTarget.position - guest.Root.position;
+            else if (guest.Activity == GuestActivity.CallReception && guest.Room.roomPhoneTarget) direction = guest.Room.roomPhoneTarget.position - guest.Root.position;
             else if (guest.Activity == GuestActivity.Unpack || guest.Activity == GuestActivity.Pack) direction = Vector3.back;
             else direction = guest.Room.door.transform.position - guest.Root.position;
             direction.y = 0;
@@ -493,14 +520,16 @@ namespace WorstHotel
             guest.LeftLeg.localRotation = Quaternion.Euler(swing * 25, 0, 0);
             guest.RightLeg.localRotation = Quaternion.Euler(-swing * 25, 0, 0);
             float left = -swing * 18, right = swing * 18;
-            if (!walking && guest.State == GuestAgentState.WaitingForCheckIn) { left = -32; right = -55; }
+            if (!walking && (guest.State == GuestAgentState.WaitingForCheckIn || guest.State == GuestAgentState.WaitingAtServiceReception)) { left = -32; right = -55; }
             if (activity && guest.Activity == GuestActivity.Shower) { left = -135 + Mathf.Sin(guest.AnimationTime) * 12; right = -135 - Mathf.Sin(guest.AnimationTime) * 12; }
             if (activity && guest.Activity == GuestActivity.LoudRoom) { left = -35 + Mathf.Sin(guest.AnimationTime * 2) * 22; right = -35 - Mathf.Sin(guest.AnimationTime * 2) * 22; }
-            if (activity && guest.Activity == GuestActivity.PhoneCall) { left = -18; right = -155 + Mathf.Sin(guest.AnimationTime) * 4; }
+            if (activity && (guest.Activity == GuestActivity.PhoneCall || guest.Activity == GuestActivity.CallReception)) { left = -18; right = -155 + Mathf.Sin(guest.AnimationTime) * 4; }
+            if (activity && guest.Activity == GuestActivity.AdjustRadiator) { left = -24; right = -78 + Mathf.Sin(guest.AnimationTime * 4) * 8; }
             if (activity && guest.Activity == GuestActivity.Work) { left = -55 + Mathf.Sin(guest.AnimationTime * 3) * 4; right = -55 - Mathf.Sin(guest.AnimationTime * 3) * 4; }
             if (activity && (guest.Activity == GuestActivity.Unpack || guest.Activity == GuestActivity.Pack))
             { left = -35 + Mathf.Sin(guest.AnimationTime) * 9; right = -35 - Mathf.Sin(guest.AnimationTime) * 9; }
-            if (guest.Phone) guest.Phone.gameObject.SetActive(activity && guest.Stay.Agent.ActivityStaged && guest.Activity == GuestActivity.PhoneCall);
+            if (guest.Phone) guest.Phone.gameObject.SetActive(activity &&
+                (guest.Stay.Agent.ActivityStaged && guest.Activity == GuestActivity.PhoneCall || guest.Activity == GuestActivity.CallReception));
             var needs = guest.Stay.Needs;
             bool resting = !walking && guest.Stay.Agent.InAssignedRoom && guest.Activity == GuestActivity.QuietRest;
             if (resting && needs != null && needs.Temperature.Severity > .3f && guest.ModelRoom != null &&

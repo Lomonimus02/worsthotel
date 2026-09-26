@@ -31,6 +31,7 @@ namespace WorstHotel
                 Apply(() => { Session.AdvanceToNextPromise(); return CommandResult.Ok("Advanced to the agreed call time. Use the physical reception phone."); });
             foreach (var item in services.Cases)
                 GUILayout.Label("SERVICE " + item.Id + " / " + item.Kind + " / " + item.Status + "\nGuest " + item.GuestId + " / room " + item.RoomId +
+                    " / " + item.CommunicationState + " / known " + item.IsKnownToHotel +
                     " / created " + item.CreatedAt.ToString("F1") + "s / due " + item.DueTime.ToString("F1") + "s\nSource " + item.SourceEntityId +
                     " / room " + item.SourceRoomId + " / " + item.Description, body);
             foreach (var promise in services.Promises)
@@ -45,7 +46,8 @@ namespace WorstHotel
                 " / declined " + guest.Memory.ServicesDeclined + "\nPromises kept " + guest.Memory.PromisesKept + " / broken " + guest.Memory.PromisesBroken +
                 "\nBlanket comfort +" + guest.BlanketComfortBonus.ToString("F1") + "°C / perceived " + guest.Perception.PerceivedTemperature.ToString("F1") + "°C", body);
             if (Button("Set mild cold for selected guest", guest.Agent.InAssignedRoom)) Apply(() => Session.DebugSetMildCold(guest.GuestId));
-            GUILayout.Label("Force a service request for this guest (debug only):", body);
+            DrawNaturalResponseDebug(guest);
+            GUILayout.Label("Create service intent (debug; natural mode keeps it private until a conversation):", body);
             foreach (ServiceKind kind in Enum.GetValues(typeof(ServiceKind)))
                 if (Button(GuestLabels.Service(kind), Session.Phase == DayPhase.Service)) Apply(() => Session.DebugForceService(guest.GuestId, kind));
         }

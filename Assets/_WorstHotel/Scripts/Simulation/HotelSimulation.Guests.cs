@@ -103,8 +103,11 @@ namespace WorstHotel
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             if (!Enum.IsDefined(typeof(GuestActivity), activity)) return CommandResult.Fail("Unknown guest activity.");
+            if (activity == GuestActivity.AdjustRadiator || activity == GuestActivity.CallReception)
+                return CommandResult.Fail("Use the guest response controls for physical self-help or contact.");
             var guest = FindLivingGuest(guestId);
             if (guest == null || !guest.Agent.IsRoomState) return CommandResult.Fail("Activities require a guest physically in their assigned room.");
+            if (!string.IsNullOrEmpty(guest.Agent.ResponseActionId)) return CommandResult.Fail("Let the current guest response finish or cancel it first.");
             if (guest.Agent.State == GuestAgentState.Sleeping) guest.Agent.SleepStarted = true;
             SetActivity(guest, activity, Elapsed, activity == GuestActivity.QuietRest ? LivingSettings.QuietDurationMin : LivingSettings.ActivityDurationMin);
             RefreshGuestLoad();
@@ -117,6 +120,7 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             var guest = FindLivingGuest(guestId);
             if (guest == null || !guest.Agent.IsRoomState) return CommandResult.Fail("Guest has no room activity to skip.");
+            if (!string.IsNullOrEmpty(guest.Agent.ResponseActionId)) return CommandResult.Fail("Let the current guest response finish or cancel it first.");
             var entries = guest.Agent.Schedule.Activities;
             var entry = entries[guest.Agent.ActivityIndex % entries.Count];
             guest.Agent.ActivityIndex++;
@@ -173,6 +177,7 @@ namespace WorstHotel
                     continue;
                 }
                 if (!agent.IsRoomState) continue;
+                if (!string.IsNullOrEmpty(agent.ResponseActionId)) continue;
                 if (agent.RequiresActivityStaging && !agent.ActivityStaged) continue;
                 if (now >= agent.CheckoutTime - LivingSettings.ActivityDurationMin && agent.Activity != GuestActivity.Pack)
                 {

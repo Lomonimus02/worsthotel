@@ -56,6 +56,7 @@ if ($Solo -and ($reportText -notmatch 'Mode=Solo SyntheticPads=1' -or $reportTex
 if ($PresenceFixtures -and $reportText -notmatch 'GuestPresenceVerified=True') { throw 'Guest presence fixtures did not complete.' }
 if ($AgencyFixtures -and $reportText -notmatch 'GuestAgencyVerified=True') { throw 'Guest agency fixtures did not complete.' }
 if ($ServiceFixtures -and $reportText -notmatch 'GuestServicesVerified=True') { throw 'Guest service fixtures did not complete.' }
+if ($ServiceFixtures -and $reportText -notmatch 'NaturalContactsVerified=True') { throw 'Natural guest contact fixtures did not complete.' }
 foreach ($day in 1..3) {
     $expectedGuests = if ($day -eq 1) { 4 } else { 6 }
     if ($reportText -notmatch "Day ${day}: booked=$expectedGuests checkedIn=$expectedGuests actualRoomArrivals=$expectedGuests.*paidStays=$expectedGuests") {
@@ -81,7 +82,8 @@ $serviceCapture = if ($Solo) { 'solo-service.png' } else { 'split-screen.png' }
 if ($ServiceFixtures) {
     foreach ($requiredService in @('service-board.png','service-blanket-stock.png','service-blanket-delivered.png','service-radiator.png',
         'service-lamp-off.png','service-lamp-on.png','service-electrical-consumers.png','service-wake-request.png','service-phone.png','service-late-checkout.png',
-        'service-luggage-request.png','service-luggage-stored.png')) {
+        'service-luggage-request.png','service-luggage-stored.png','natural-self-help.png','natural-phone-ringing.png',
+        'natural-phone-heard.png','natural-reception-heard.png')) {
         if ($manifest -notcontains $requiredService) { throw "Service capture is missing: $requiredService" }
     }
 }

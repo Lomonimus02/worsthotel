@@ -38,7 +38,8 @@ namespace WorstHotel.Tests
             foreach (var room in presentation.roomMarkers)
             {
                 foreach (var anchor in new[] { room.bedAnchor, room.bedApproach, room.shower, room.rest,
-                    room.deskAnchor, room.unpackAnchor, room.phoneAnchor, room.doorInsideAnchor, room.doorOutsideAnchor })
+                    room.deskAnchor, room.unpackAnchor, room.phoneAnchor, room.roomPhoneAnchor, room.roomPhoneTarget,
+                    room.radiatorAnchor, room.radiatorTarget, room.doorInsideAnchor, room.doorOutsideAnchor })
                     Assert.That(anchor, Is.Not.Null, "Missing activity anchor in room " + room.roomId);
                 Assert.That(room.bedAnchor.position.y, Is.GreaterThan(1.1f));
                 Assert.That(Mathf.Abs(Vector3.Dot(room.bedAnchor.up, Vector3.up)), Is.LessThan(.01f));
@@ -56,9 +57,11 @@ namespace WorstHotel.Tests
             var presentation = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<GuestPresentation>(true)).Single();
             Physics.SyncTransforms();
             foreach (var room in presentation.roomMarkers)
-            foreach (var start in new[] { room.roomTarget, room.rest, room.shower, room.bedApproach, room.deskAnchor, room.unpackAnchor, room.phoneAnchor })
+            foreach (var start in new[] { room.roomTarget, room.rest, room.shower, room.bedApproach, room.deskAnchor, room.unpackAnchor, room.phoneAnchor,
+                room.radiatorAnchor, room.roomPhoneAnchor })
             foreach (var target in new[] { GuestActivity.QuietRest, GuestActivity.Shower, GuestActivity.Work,
-                GuestActivity.Unpack, GuestActivity.PhoneCall, GuestActivity.Pack, GuestActivity.WatchTV })
+                GuestActivity.Unpack, GuestActivity.PhoneCall, GuestActivity.Pack, GuestActivity.WatchTV,
+                GuestActivity.AdjustRadiator, GuestActivity.CallReception })
             foreach (bool sleeping in new[] { false, true })
             {
                 if (sleeping && target != GuestActivity.QuietRest) continue;
@@ -100,6 +103,25 @@ namespace WorstHotel.Tests
                 var final = returned.Points.Last();
                 Assert.That(Vector2.Distance(new Vector2(final.x, final.z),
                     new Vector2(room.roomTarget.position.x, room.roomTarget.position.z)), Is.LessThan(.001f));
+            }
+        }
+
+        [Test]
+        public void ServiceReceptionRoutesKeepTheirDoorGateAndFinishAtDeskInsteadOfExterior()
+        {
+            var presentation = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<GuestPresentation>(true)).Single();
+            foreach (var room in presentation.roomMarkers)
+            foreach (var reception in presentation.receptionPlaces)
+            {
+                var visit = AuthoredGuestRoute.ToServiceReception(room.radiatorAnchor.position, room, reception.position, true);
+                Assert.That(visit.Door, Is.SameAs(room.door));
+                Assert.That(visit.DoorCrossing, Is.GreaterThanOrEqualTo(0));
+                Assert.That(visit.Points.All(point => point.z >= 0), Is.True, "A service conversation never sends the guest outside.");
+                Assert.That(Vector3.Distance(visit.Points.Last(), reception.position), Is.LessThan(.001f));
+                var returned = AuthoredGuestRoute.ToRoom(visit.Points.Last(), room, false);
+                Assert.That(returned.Door, Is.SameAs(room.door));
+                Assert.That(returned.DoorCrossing, Is.GreaterThanOrEqualTo(0));
+                Assert.That(AuthoredGuestRoute.IsOnRoomSide(returned.Points.Last(), room), Is.True);
             }
         }
 

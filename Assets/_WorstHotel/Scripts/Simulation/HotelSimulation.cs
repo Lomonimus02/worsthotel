@@ -97,7 +97,11 @@ namespace WorstHotel
                 Requests.OnRequestResolved += request => SignalEvent("Room " + request.RoomId + ": request closed");
             }
             Boiler.OnFailureStarted += () => SignalEvent("Boiler overpressure failure");
-            Boiler.OnFailureResolved += () => SignalEvent("Boiler restarted");
+            Boiler.OnFailureResolved += () =>
+            {
+                foreach (var guest in guests) Services?.RecordStaffAction(guest.GuestId, IncidentReason.Temperature);
+                SignalEvent("Boiler restarted");
+            };
             InitializeDecisionResponses();
             roomSystem = new RoomSystem(settings, infrastructure);
             InitializeServices(services);
@@ -197,7 +201,8 @@ namespace WorstHotel
             var guest = guests.FirstOrDefault(stay => stay.GuestId == guestId);
             if (LivingEnabled && (guest == null || !guest.Agent.CheckedIn || !guest.Agent.InAssignedRoom))
                 return CommandResult.Fail("Compensation is available while a checked-in guest is staying in their room.");
-            var currentReasons = LivingEnabled ? Incidents.Items.Where(incident => incident.GuestId == guestId && incident.Active)
+            var currentReasons = LivingEnabled ? Incidents.Items.Where(incident => incident.GuestId == guestId && incident.Active &&
+                    (Services?.Settings.NaturalCommunicationEnabled != true || incident.HasContactedStaff))
                 .Select(incident => incident.Reason).ToArray() : Array.Empty<IncidentReason>();
             if (LivingEnabled && currentReasons.Length == 0)
                 return CommandResult.Fail("This guest has no current situation to compensate.");

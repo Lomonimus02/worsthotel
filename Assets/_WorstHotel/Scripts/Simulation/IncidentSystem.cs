@@ -26,6 +26,8 @@ namespace WorstHotel
         public SituationKey Key => new SituationKey(Reason, GuestId, Cause?.SourceEntityId ?? "legacy");
         public int EpisodeCount { get; internal set; }
         public bool HasContactedStaff { get; internal set; }
+        public bool ComplaintRecorded { get; internal set; }
+        public GuestResponse Response { get; internal set; }
         internal bool IgnoreRecorded;
         internal readonly List<SituationHistoryEntry> history = new List<SituationHistoryEntry>();
         public IReadOnlyList<SituationHistoryEntry> History => history.AsReadOnly();
@@ -62,6 +64,7 @@ namespace WorstHotel
         public event Action<HotelIncident> OnIncidentResolved;
         public event Action<HotelIncident> OnSituationChanged;
         public bool LivingEnabled => needSettings != null;
+        internal bool RequirePhysicalCommunication { get; set; }
         private readonly Dictionary<string, HotelIncident> incidents = new Dictionary<string, HotelIncident>();
         private readonly SessionSettings settings;
         private readonly NeedSettings needSettings;

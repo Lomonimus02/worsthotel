@@ -146,6 +146,7 @@ namespace WorstHotel.Tests
             Assert.That(guest.Agent.CheckedIn, Is.False);
             Assert.That(session.Rooms.Single(room => room.Profile.Id == 101).ReservedGuestId, Is.EqualTo(guest.GuestId));
             Assert.That(bootstrap.Players[0].Interactor.HeldBody, Is.SameAs(wrong.Body));
+            Assert.That(ManagementUI.Instance.IsOpen, Is.False, "A rejected physical key must not open a conversation or block its holder.");
             Assert.That(wrong.State.PlayerId, Is.EqualTo(0));
             Assert.That(target.HoldProgress, Is.Zero);
             Assert.That(session.CheckInGuest(1, guest.GuestId).Success, Is.False, "A different actor cannot hand over a key they do not physically carry.");

@@ -51,6 +51,7 @@ namespace WorstHotel
             CheckedIn=a.CheckedIn,HasReachedRoom=a.HasReachedRoom,IsRelocating=a.IsRelocating,
             PendingMoveRoomId=a.PendingMoveRoomId??0,TransferFromRoomId=a.TransferFromRoomId??0,
             ActivityIndex=a.ActivityIndex,PatienceEventSent=a.PatienceEventSent,SleepStarted=a.SleepStarted,
+            ResponseActionId=OptionalId(a.ResponseActionId),ResponseActionVersion=a.ResponseActionVersion,
             RequiresActivityStaging=a.RequiresActivityStaging,ActivityStaged=a.ActivityStaged,TemporarySleep=a.TemporarySleep,
             HasPendingActivityDuration=Number.IsFinite(a.PendingActivityDuration),PendingActivityDuration=Number.IsFinite(a.PendingActivityDuration)?a.PendingActivityDuration:0,
             HasAwayReturnTime=Number.IsFinite(a.AwayReturnTime),AwayReturnTime=Number.IsFinite(a.AwayReturnTime)?a.AwayReturnTime:0,
@@ -109,6 +110,7 @@ namespace WorstHotel
             target.PendingMoveRoomId=a.PendingMoveRoomId==0?(int?)null:a.PendingMoveRoomId;
             target.TransferFromRoomId=a.TransferFromRoomId==0?(int?)null:a.TransferFromRoomId;
             target.ActivityIndex=a.ActivityIndex;target.PatienceEventSent=a.PatienceEventSent;target.SleepStarted=a.SleepStarted;
+            target.ResponseActionId=OptionalId(a.ResponseActionId);target.ResponseActionVersion=a.ResponseActionVersion;
             target.RequiresActivityStaging=a.RequiresActivityStaging;target.ActivityStaged=a.ActivityStaged;target.TemporarySleep=a.TemporarySleep;
             target.PendingActivityDuration=a.HasPendingActivityDuration?a.PendingActivityDuration:float.PositiveInfinity;
             target.AwayReturnTime=a.HasAwayReturnTime?a.AwayReturnTime:float.PositiveInfinity;

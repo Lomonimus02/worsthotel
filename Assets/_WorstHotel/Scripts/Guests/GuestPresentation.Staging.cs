@@ -28,6 +28,8 @@ namespace WorstHotel
                 destination = agent.State == GuestAgentState.Sleeping ? "BedAnchor" :
                     agent.Activity == GuestActivity.Shower ? "ShowerAnchor" :
                     agent.Activity == GuestActivity.Work ? "DeskAnchor" :
+                    agent.Activity == GuestActivity.AdjustRadiator ? "RadiatorAnchor" :
+                    agent.Activity == GuestActivity.CallReception ? "RoomPhoneAnchor" :
                     agent.Activity == GuestActivity.PhoneCall ? "PhoneAnchor" :
                     agent.Activity == GuestActivity.Unpack || agent.Activity == GuestActivity.Pack ? "UnpackAnchor" :
                     agent.Activity == GuestActivity.LoudRoom || agent.Activity == GuestActivity.WatchTV ? "Radio / RestAnchor" : "RestAnchor";
@@ -52,7 +54,11 @@ namespace WorstHotel
                 if (guest.State == GuestAgentState.Sleeping)
                     guest.PoseBlend = Mathf.MoveTowards(guest.PoseBlend, 1, Time.deltaTime / .95f);
                 float delay = guest.State == GuestAgentState.Sleeping ? .95f : guest.Activity == GuestActivity.Shower ? .65f : .3f;
-                if (!agent.ActivityStaged && guest.SettlingTime >= delay)
+                bool responseActivity = !string.IsNullOrEmpty(guest.ResponseActionId) &&
+                    (guest.Activity == GuestActivity.AdjustRadiator || guest.Activity == GuestActivity.CallReception);
+                if (responseActivity && guest.SettlingTime >= .65f)
+                    ReportResponseArrival(guest, guest.Activity == GuestActivity.AdjustRadiator ? GuestResponseAnchor.Radiator : GuestResponseAnchor.RoomPhone);
+                else if (!responseActivity && !agent.ActivityStaged && guest.SettlingTime >= delay)
                 {
                     var result = simulation.SignalGuestActivityReady(guest.Id, guest.State, guest.Activity);
                     if (result.Success) session.RaiseChanged();
@@ -154,6 +160,10 @@ namespace WorstHotel
                     break;
                 case RoutePurpose.Away:
                     rebuilt = AuthoredGuestRoute.GuestAway(guest.Root.position, guest.Room, arrivalSpawn.position);
+                    break;
+                case RoutePurpose.ServiceReception:
+                    rebuilt = AuthoredGuestRoute.ToServiceReception(guest.Root.position, guest.Room,
+                        receptionPlaces[guest.AppearanceIndex % receptionPlaces.Length].position, guest.InsideRoom);
                     break;
                 case RoutePurpose.Transfer:
                     rebuilt = AuthoredGuestRoute.LeaveRoom(guest.Root.position, guest.Room);

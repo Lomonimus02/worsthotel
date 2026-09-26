@@ -8,11 +8,28 @@ namespace WorstHotel.Tests
 {
     public sealed partial class Phase1PlayModeTests
     {
+        GuestServiceConfig legacyFeedbackServices;
+
+        [UnityTearDown]
+        public IEnumerator DisposeLegacyFeedbackServices()
+        {
+            if (legacyFeedbackServices) Object.Destroy(legacyFeedbackServices);
+            legacyFeedbackServices = null;
+            yield return null;
+        }
+
         [UnityTest]
         public IEnumerator EnvironmentFeedbackFollowsRealDeliveryWarningComplaintPauseAndFreshSession()
         {
             StartQuietWaitTestShift();
             var session = GameSession.Instance;
+            // This existing environmental regression explicitly retains the historical complaint
+            // bell. Natural contacts have their own physical incoming-phone route/input tests;
+            // the production/default and shared WAIT fixture configuration are not changed.
+            legacyFeedbackServices = Object.Instantiate(session.config.services);
+            legacyFeedbackServices.naturalCommunicationEnabled = false;
+            session.config.services = legacyFeedbackServices;
+            session.NewGame(); StartOrdinaryTestShift();
             var simulation = session.Simulation;
             var heater = Object.FindAnyObjectByType<PortableHeater>();
             var heaterAudio = heater.GetComponent<PortableHeaterAudio>();

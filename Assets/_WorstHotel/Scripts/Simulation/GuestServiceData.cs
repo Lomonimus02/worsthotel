@@ -18,6 +18,12 @@ namespace WorstHotel
         public string SourceEntityId { get; }
         public int SourceRoomId { get; internal set; }
         public string Description { get; }
+        public GuestResponse Response { get; internal set; }
+        public bool IsKnownToHotel => Response == null || Response.CommunicatedAt >= 0;
+        public ServiceCommunicationState CommunicationState => Response?.CommunicationState ?? ServiceCommunicationState.Communicated;
+        public bool BudgetCharged { get; internal set; }
+        public float ResolutionAt { get; internal set; } = -1;
+        public string ResolutionReason { get; internal set; }
         public bool Active => Status == ServiceStatus.Requested || Status == ServiceStatus.Acknowledged || Status == ServiceStatus.InProgress;
         internal float RecoverySeconds;
         internal ServiceCase(string id, string guest, int room, ServiceKind kind, float created, float due,

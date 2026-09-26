@@ -3,7 +3,7 @@ namespace WorstHotel
     public static partial class GuestLabels
     {
         // Observed exposure is background life, never a task for the player.
-        public static bool IsActionable(HotelIncident situation) => situation != null && situation.Active &&
+        public static bool IsActionable(HotelIncident situation) => IsKnownToHotel(situation) && situation.Active &&
             situation.Stage >= SituationStage.Complaint && situation.Stage < SituationStage.Resolved &&
             (situation.Reason == IncidentReason.Noise || situation.Reason == IncidentReason.Temperature ||
              situation.Reason == IncidentReason.RoomCondition);

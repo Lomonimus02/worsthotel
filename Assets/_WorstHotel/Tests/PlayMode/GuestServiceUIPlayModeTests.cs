@@ -18,7 +18,7 @@ namespace WorstHotel.Tests
             yield return null;
         }
 
-        IEnumerator PrepareServiceGuestFixture()
+        IEnumerator PrepareServiceGuestFixture(bool naturalCommunication = false)
         {
             var session = GameSession.Instance;
             // Explicit model arrival/key adapters isolate service input. Existing route tests
@@ -31,6 +31,16 @@ namespace WorstHotel.Tests
             waitScenarioSessionConfig.living = waitScenarioLivingConfig;
             serviceUIConfig = Object.Instantiate(session.config.services);
             serviceUIConfig.eligibility = 0; // The tested requests are explicit scenario setup.
+            serviceUIConfig.naturalCommunicationEnabled = naturalCommunication;
+            if (naturalCommunication)
+            {
+                // Isolate communication input from automatic contact pacing and missed-call expiry.
+                serviceUIConfig.selfResponseObserveSeconds = 1000;
+                serviceUIConfig.observationSeconds = .2f;
+                serviceUIConfig.toleranceSeconds = 1000;
+                serviceUIConfig.phoneRingSeconds = 60;
+                serviceUIConfig.receptionWaitSeconds = 90;
+            }
             waitScenarioSessionConfig.services = serviceUIConfig;
             session.config = waitScenarioSessionConfig;
             session.NewGame();

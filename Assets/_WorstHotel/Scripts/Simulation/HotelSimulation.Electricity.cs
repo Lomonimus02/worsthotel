@@ -16,8 +16,16 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             if (Electrical == null) return CommandResult.Fail("The living hotel's electrical system is not active.");
             // Preparation and service both allow the physical breaker to be reset. Settlement never resets it automatically.
+            bool wasTripped = Electrical.Find(circuitId)?.Tripped == true;
             var result = Electrical.ResetCircuit(actorId, circuitId);
-            if (result.Success) RefreshElectrical();
+            if (result.Success)
+            {
+                RefreshElectrical();
+                if (wasTripped && Electrical.Find(circuitId)?.Tripped == false)
+                    foreach (var room in rooms.Values)
+                        if (room.CircuitId == circuitId && room.HasPower && room.GuestId != null)
+                            Services?.RecordStaffAction(room.GuestId, IncidentReason.RoomCondition);
+            }
             return result;
         }
 

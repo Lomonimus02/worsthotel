@@ -1,6 +1,6 @@
 # Prototype 0.3.2 — pause / Alt+Tab investigation
 
-Status: **investigation incomplete; no root cause established and no crash fix applied**. Updated 26 September 2026. This note is written before any proposed final fix.
+Status: **deferred at the user's explicit request; no root cause established and no crash fix applied**. Updated 26 September 2026. The user instructed us to leave the hang investigation and continue the other Natural Service requirements. The previous investigation-first implementation gate is therefore superseded; preserved evidence remains available.
 
 ## Report and preserved evidence
 
@@ -73,4 +73,28 @@ That smoke exposed a diagnostic-tool timing error: PowerShell selected the integ
 
 The corrected launcher/observer also passed an actual Windows PowerShell 5.1 smoke, matching the user's shortcut shell: [20260926T175714Z-69085e56](verification/pause/20260926T175714Z-69085e56/observer-ended.json), owned PID 39300. It recorded 15 samples over 30.020 seconds with a live initialized heartbeat, no observer error or suspected stall, then successfully captured an explicitly healthy 2,846,643-byte dump. Root stopped only this exact owned process afterward. These short startup checks are not the requested 1/5/10-minute pause matrix.
 
-The local shortcut **Запустить диагностику Alt-Tab.lnk** invokes the checked launcher with `-Interactive`. The [Russian instructions](PAUSE_DIAGNOSTICS.ru.md) ask for the reported real SOLO Alt+Tab reproduction and a one-minute wait before closing a hung game. No completed human reproduction, causal stack analysis or crash fix is claimed at this point.
+The local shortcut **Запустить диагностику Alt-Tab.lnk** invokes the checked launcher with `-Interactive`. The [Russian instructions](PAUSE_DIAGNOSTICS.ru.md) ask for the reported real SOLO Alt+Tab reproduction and a one-minute wait before closing a hung game.
+
+## User-reported frozen picture in the diagnostic build
+
+The user reported another freeze and confirmed both that the **whole picture froze** and that this window was opened through the diagnostic shortcut. Run `20260926T182352Z-754c0b8b` is the interactive SOLO diagnostic process PID 28292, created 2026-09-26T18:23:52.3580188Z. These confirmations are symptom evidence; they do not yet identify a faulting subsystem.
+
+The main-loop heartbeat continued advancing during the reported symptom (frame 17,303 at 18:28:46.9016111Z; 25,862 at 18:31:10.1119401Z; 40,606 at 18:35:16.2519677Z), with `focus=true`, `pause=false` and `initialized=true`. Its trace contains only the successfully completed startup focus callback, not a later native focus-loss/return pair. Rich event recording deliberately becomes sparse after startup, so the last recorded Planning state cannot be interpreted as current gameplay state. A live heartbeat does not disprove a frozen displayed picture.
+
+Two manual symptom-time thread-oriented dumps were saved at 18:30:30–31Z and 18:31:12Z, 2,959,728 and 2,951,952 bytes respectively. Their `UserReportedHang` reason distinguishes them from automatic heartbeat-stall captures and healthy dump-tool smokes. Exact hashes/identity are in `user-reported-dump-1-result.json` and `user-reported-dump-2-result.json` in that run. Neither capture terminated the player. The separately running old player PID 32284 was not controlled.
+
+Preserved logs and interpretation: [user-report forensic note](verification/pause/20260926T182352Z-754c0b8b/FORENSIC_USER_REPORT.md). The source audit confirms that `-hotelSolo` alone does not install a verification driver or synthetic focus; those require separate flags absent from this launch. No graphics, input or simulation fix is justified yet.
+
+The offline `tools/Read-NativeDump.cpp` reader was compiled with the already installed MSVC/Windows SDK and opened both dumps using the Windows DbgEng library and local matching Unity PDB. No live-process attachment was used. Both reports resolve the main thread in `UnityPlayer!HighResolutionTimer::Wait` → `ThreadHelper::SleepInSeconds` → `TimeManager::EndSyncFrame/Sync` → `ExecuteTimeUpdate` → `MainMessageLoop`. The D3D12 submission and graphics worker threads are waiting for stream-buffer input in these samples. CPU totals advance between captures. This is consistent with continuing frame pacing and does not establish a native deadlock, Present stall, or the cause of the frozen picture. Two sampled stacks do not exclude intermittent rendering problems. Debugger extension DLLs for `!analyze -hang` are absent, so no automated hang verdict is claimed. The complete `.native-stacks.txt` reports remain beside the dumps.
+
+The scoped Windows-event/WER audit found no new Application hang/crash or Display/nvlddmkm/DxgKrnl/Dwm-Core records during 18:09:43.7358301–18:39:43.7358301Z. Exact filters, preserved results and limitations: [Windows continuation](verification/pause/20260926T182352Z-754c0b8b/FORENSIC_WINDOWS_CONTINUATION.md). Absence of these events does not disprove the reported visual freeze.
+
+Computer Use was retried after the user asked for direct desktop inspection. Kernel reset succeeded, but initialization again failed before executing the import with `failed to write kernel assets: The system cannot find the path specified. (os error 3)`. The registered Node REPL/Node executables and module directory exist. The exact missing output path is not established, and no screenshot or native input has been obtained through this tool. This separate tool failure must not be described as the game's root cause.
+
+## Computer Use recovery
+
+At the next attempt on 26 September 2026, the installed Computer Use runtime had already changed: skill version `26.924.22138`, `cua_node` runtime `b63ee7ee40c23b77`. Fresh `node_repl` processes PID 33648 and 35972 were created at 21:45:57 Moscow / 18:45:57 UTC; the previously observed Node REPL processes were no longer present. The first initialization in this attempt **succeeded**. Native window enumeration, activation and screenshots also succeeded. The diagnostic game window was initially minimized; after activation its reception scene was captured. A harmless Ctrl+L in the already-open project Explorer window visibly selected the address bar, verifying keyboard input without changing files. Escape was sent afterward. Computer Use is operational in this attempt.
+
+An Escape key sent to the diagnostic game did not visibly open its menu in the immediate screenshot. This is not evidence that keyboard control is broken globally: the Explorer check succeeded, and the game's native focus-loss/pause callbacks were recorded at 18:48:05Z during the checks. The window list also contained a separate `process:dwm.exe` window with the game's title; its relationship to the older player is not established and it was not controlled. The game's freeze investigation and full native Alt+Tab matrix remain incomplete.
+
+No manual Codex configuration edits, temporary-directory recreation or whole-application reset were performed as a repair in this investigation. The runtime changed before this attempt; we did not establish why the previous runtime could not write its kernel assets or attribute recovery to a confirmed fix. This recovery concerns the separate inspection tool, not the game's reported frozen picture. The preceding unavailable-tool statements describe earlier attempts.

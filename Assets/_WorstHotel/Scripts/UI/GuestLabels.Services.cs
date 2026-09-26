@@ -8,7 +8,7 @@ namespace WorstHotel
         {
             switch (kind)
             {
-                case ServiceKind.ExtraBlanket: return "Extra blanket";
+                case ServiceKind.ExtraBlanket: return "Room feels cold";
                 case ServiceKind.LuggageStorage: return "Luggage storage";
                 case ServiceKind.LateCheckout: return "Late checkout";
                 case ServiceKind.WakeUpCall: return "Wake-up call";
@@ -40,16 +40,17 @@ namespace WorstHotel
         {
             switch (kind)
             {
-                case ServiceKind.ExtraBlanket: return "Collect a blanket from linen storage. Carry it to the guest's bed. It improves comfort; the room still needs heat.";
-                case ServiceKind.LuggageStorage: return "Carry the guest's suitcase from reception to the marked luggage storage area.";
+                case ServiceKind.ExtraBlanket: return "The guest wants to feel warmer. An agreement alone does not change their comfort.";
+                case ServiceKind.LuggageStorage: return "The guest wants somewhere to leave their suitcase until they need it again.";
                 case ServiceKind.LateCheckout: return "A later departure gives this guest more time, but leaves less time to strip and prepare the room.";
                 case ServiceKind.WakeUpCall: return "Accept the time, then return to the reception phone to make the call when it is due.";
-                default: return "Listen near the room, speak to the noisy neighbour, or arrange a room change. Noise must actually fall.";
+                default: return "The guest wants some quiet. A conversation or credit does not by itself remove the sound they hear.";
             }
         }
 
         public static string ServiceAcceptance(ServiceCase item) => item.Kind == ServiceKind.WakeUpCall ?
             "Promise a call at " + HotelTime(item.DueTime) : item.Kind == ServiceKind.LateCheckout ?
-            "Allow checkout at " + HotelTime(item.DueTime) : "Agree to help · " + Service(item.Kind);
+            "Allow checkout at " + HotelTime(item.DueTime) : item.Kind == ServiceKind.ExtraBlanket ? "I'll look into the temperature" :
+            item.Kind == ServiceKind.AskNeighborsQuiet ? "I'll look into the noise" : "Agree to store the suitcase";
     }
 }

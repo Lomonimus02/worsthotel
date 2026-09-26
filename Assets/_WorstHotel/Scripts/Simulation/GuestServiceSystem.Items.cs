@@ -56,8 +56,9 @@ namespace WorstHotel
             guest.BlanketComfortBonus = Settings.BlanketComfortBonus;
             guest.Memory.BlanketsDelivered = Count(guest.Memory.BlanketsDelivered);
             Deliver(item, guest);
+            RecordStaffAction(guestId, IncidentReason.Temperature);
             var request = cases.FirstOrDefault(request => request.GuestId == guestId && request.Kind == ServiceKind.ExtraBlanket && request.Active);
-            if (request != null) Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true);
+            if (request != null && !NaturalCommunicationEnabled) Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true);
             else simulation.SignalEvent("Extra blanket delivered to room " + guest.RoomId);
             return CommandResult.Ok("Blanket delivered. Personal cold comfort improves; room temperature and electrical load are unchanged.");
         }
@@ -70,6 +71,8 @@ namespace WorstHotel
                 return CommandResult.Fail("Carry this guest's actual suitcase to luggage storage.");
             var request = cases.FirstOrDefault(request => request.GuestId == guestId && request.Kind == ServiceKind.LuggageStorage);
             if (request == null) return CommandResult.Fail("There is no luggage storage agreement for this suitcase.");
+            if (NaturalCommunicationEnabled && (!request.IsKnownToHotel || request.Status != ServiceStatus.InProgress))
+                return CommandResult.Fail("This suitcase needs a current accepted storage agreement.");
             item.Location = ServiceItemLocation.Stored; item.PlayerId = null; item.RoomId = null; ItemChanged?.Invoke(item);
             if (request.Active)
             { guest.Memory.LuggageStored = Count(guest.Memory.LuggageStored); Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true); }
@@ -83,6 +86,7 @@ namespace WorstHotel
             if (!rooms.TryGetValue(roomId, out var room) || !room.LampBroken) return CommandResult.Fail("This room's lamp does not need a bulb.");
             if (item == null || item.Kind != ServiceItemKind.ReplacementBulb) return CommandResult.Fail("Carry a replacement bulb from maintenance storage.");
             room.LampCondition = 100; room.LampBroken = false;
+            if (room.GuestId != null) RecordStaffAction(room.GuestId, IncidentReason.RoomCondition, "room/" + roomId + "/lamp");
             item.Location = ServiceItemLocation.Delivered; item.RoomId = roomId; item.PlayerId = null; ItemChanged?.Invoke(item);
             simulation.SignalEvent("Room " + roomId + ": bedside lamp repaired");
             return CommandResult.Ok("Bulb replaced. The lamp works when the room has power.");

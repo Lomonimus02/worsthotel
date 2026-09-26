@@ -49,7 +49,7 @@ namespace WorstHotel
             try
             {
                 SnapshotValidation.Model(snapshot,rooms.Keys.ToArray(),LivingEnabled,Housekeeping?.Linens.Count??0,Electrical?.Circuits.Select(c=>c.Id)??Enumerable.Empty<string>());
-                SnapshotValidation.Services(snapshot, Services != null, rooms.Keys.ToArray());
+                SnapshotValidation.Services(snapshot, Services != null, rooms.Keys.ToArray(), Services?.NaturalCommunicationEnabled == true);
                 Housekeeping?.ValidateSnapshot(snapshot.Linens);
                 foreach(var room in snapshot.Rooms)
                     SnapshotValidation.Require(SnapshotData.OptionalId(room.CircuitId)==Electrical?.CircuitForRoom(room.Id)?.Id,"Room circuit differs from this hotel.");

@@ -32,3 +32,10 @@ MonoBehaviour:
   declinedPenalty: 0.25
   brokenPromisePenalty: 3
   maximumScoreAdjustment: 6
+  naturalCommunicationEnabled: 1
+  selfResponseObserveSeconds: 5
+  toleranceSeconds: 10
+  phoneRingSeconds: 12
+  contactRetryDelaySeconds: 25
+  receptionWaitSeconds: 35
+  maxContactAttempts: 2

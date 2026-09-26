@@ -43,5 +43,17 @@ namespace WorstHotel.Tests
             Assert.That(typeof(LanInputFrame).GetField("deltaTime"), Is.Null,
                 "The host supplies elapsed work time; input packets cannot complete a bed with an invented time delta.");
         }
+
+        [TestCase(LanCommandKind.AnswerServiceCall)]
+        [TestCase(LanCommandKind.TalkServiceGuest)]
+        [TestCase(LanCommandKind.DiscussRoomConcern)]
+        public void NaturalContactCommandsAcceptBoundedCompositeResponseIds(LanCommandKind kind)
+        {
+            var command = Valid(); command.kind = kind; command.phase = DayPhase.Service;
+            command.subject = new string('r', 512);
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 1, DayPhase.Service), Is.True);
+            command.subject += "r";
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 1, DayPhase.Service), Is.False);
+        }
     }
 }

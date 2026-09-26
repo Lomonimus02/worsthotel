@@ -65,7 +65,8 @@ namespace WorstHotel
             if (!sustainServiceGuest || !session || !session.Simulation.Running ||
                 serviceGuest?.Agent.InAssignedRoom != true || Time.realtimeSinceStartup < nextServiceMaintain) return;
             nextServiceMaintain = Time.realtimeSinceStartup + 2;
-            if (serviceGuest.Agent.Activity != GuestActivity.QuietRest || serviceGuest.Agent.NextActivityTime < session.Simulation.Elapsed + 5)
+            if (serviceGuest.Agent.ResponseActionId == null && (serviceGuest.Agent.Activity != GuestActivity.QuietRest ||
+                serviceGuest.Agent.NextActivityTime < session.Simulation.Elapsed + 5))
                 session.Simulation.ForceActivity(serviceGuest.GuestId, GuestActivity.QuietRest);
             if (serviceGuest.BlanketComfortBonus <= 0) session.Simulation.DebugSetMildCold(serviceGuest.GuestId);
         }
@@ -92,10 +93,13 @@ namespace WorstHotel
             Require(session.Simulation.ForceActivity(serviceGuest.GuestId, GuestActivity.QuietRest).Success, "diagnostic rest preserves service access");
             yield return Until(() => serviceGuest.Agent.ActivityStaged, 10, "guest physically stages the prepared rest activity");
             Require(session.Simulation.DebugSetMildCold(serviceGuest.GuestId).Success, "diagnostic mild cold has an actual temperature cause");
+            yield return Until(() => session.Simulation.Incidents.Items.Any(i => i.GuestId == serviceGuest.GuestId &&
+                i.Active && i.Reason == IncidentReason.Temperature), 3, "actual cold is measured before diagnostic request creation");
             Require(session.Simulation.DebugForceService(serviceGuest.GuestId, ServiceKind.ExtraBlanket).Success, "diagnostic causal blanket request");
             Require(session.Simulation.BreakRoomLamp(105).Success, "diagnostic actual lamp105 fault");
             Require(session.Simulation.SetRadiatorSetting(0, 105, 2).Success, "diagnostic initial valve105 setting");
             var blanketCase = session.Simulation.Services.Cases.Single(item => item.GuestId == serviceGuest.GuestId && item.Kind == ServiceKind.ExtraBlanket);
+            yield return ReceiveNaturalConcernHost(blanketCase, "natural-cold");
             serviceBlanket = FindObjectsByType<ServiceSupplyItem>(FindObjectsSortMode.None).Single(item => item.ItemId == "blanket:0");
             var target = FindObjectsByType<RoomBlanketDeliveryInteraction>(FindObjectsSortMode.None).Single(item => item.roomId == 106);
             int initialStock = session.Simulation.Services.BlanketsAvailable;
@@ -120,8 +124,11 @@ namespace WorstHotel
             WriteStage("services-host-pickup");
             yield return Until(() => serviceBlanket.State.Location == ServiceItemLocation.Delivered, 50, "remote carry and immediate bed use deliver actual blanket");
             Require(serviceGuest.BlanketComfortBonus > 0 && serviceGuest.Memory.BlanketsDelivered == 1, "host receives blanket comfort and memory once");
-            Require(blanketCase.Status == ServiceStatus.Fulfilled && session.Simulation.Services.BlanketsAvailable == initialStock - 1,
-                "one physical delivery fulfills its persistent case and spends one stock slot");
+            Require(session.Simulation.Services.BlanketsAvailable == initialStock - 1 && blanketCase.Response.StaffActionAt >= 0,
+                "physical delivery spends one stock slot and records real help separately from recovery");
+            yield return Until(() => blanketCase.Status == ServiceStatus.Fulfilled || !blanketCase.Active &&
+                !session.Simulation.Incidents.Items.Any(i => i.GuestId == serviceGuest.GuestId && i.Reason == IncidentReason.Temperature && i.Active),
+                25, "sustained perceived recovery closes the same cold situation after delivery");
             yield return Until(() => target.deliveredBlanket.activeSelf && !coop.Players[1].Interactor.HeldBody, 3,
                 "host late-update displays the delivered blanket and releases its physical grab");
             Require(target.deliveredBlanket.activeSelf && !coop.Players[1].Interactor.HeldBody, "delivered bed blanket visible and physical grab released");
@@ -130,17 +137,31 @@ namespace WorstHotel
             var wakeCase = session.Simulation.Services.Cases.SingleOrDefault(item => item.GuestId == serviceGuest.GuestId && item.Kind == ServiceKind.WakeUpCall);
             if (wakeCase == null)
             {
-                // Production eligibility remains active in this fixture. Explicitly respond to
-                // an intervening request instead of deleting it or silently replacing its state.
-                foreach (var incidental in session.Simulation.Services.Cases.Where(item => item.GuestId == serviceGuest.GuestId && item.Active).ToArray())
+                float wakeContextAt = serviceGuest.Agent.Schedule.SleepTime - session.Simulation.Services.Settings.ReplySeconds;
+                float contextWait = Mathf.Clamp(wakeContextAt - session.Simulation.Elapsed + 30, 30, 180);
+                facts.Add("WAKE CONTEXT WAIT: hotelTime=" + session.Simulation.Elapsed.ToString("F1") +
+                    "; contextAt=" + wakeContextAt.ToString("F1") + "; realTimeout=" + contextWait.ToString("F1") +
+                    "; normalHotelClock=True.");
+                yield return Until(() => session.Simulation.Elapsed >= wakeContextAt, contextWait,
+                    "wake request waits for actual pre-sleep context");
+                wakeCase = session.Simulation.Services.Cases.SingleOrDefault(item => item.GuestId == serviceGuest.GuestId && item.Kind == ServiceKind.WakeUpCall);
+                // Production preferences can arise while waiting. Only already heard concerns
+                // may be declined here; an unexpected private concern fails this isolated fixture.
+                foreach (var incidental in session.Simulation.Services.Cases.Where(item => item.GuestId == serviceGuest.GuestId &&
+                    item.Active && item.Kind != ServiceKind.WakeUpCall).ToArray())
                 {
+                    Require(incidental.IsKnownToHotel, "unexpected private incidental preference requires its own communication scenario: " + incidental.Kind);
                     Require(session.Simulation.RespondToService(0, incidental.Id, false).Success, "labelled fixture declines incidental " + incidental.Kind);
                     facts.Add("DIAGNOSTIC: explicitly declined naturally generated " + incidental.Kind + " before the independent wake-phone case; history retained.");
                 }
-                Require(session.Simulation.DebugForceService(serviceGuest.GuestId, ServiceKind.WakeUpCall).Success, "diagnostic within-stay wake request");
-                wakeCase = session.Simulation.Services.Cases.Single(item => item.GuestId == serviceGuest.GuestId && item.Kind == ServiceKind.WakeUpCall);
+                if (wakeCase == null)
+                {
+                    Require(session.Simulation.DebugForceService(serviceGuest.GuestId, ServiceKind.WakeUpCall).Success, "diagnostic within-stay wake request");
+                    wakeCase = session.Simulation.Services.Cases.Single(item => item.GuestId == serviceGuest.GuestId && item.Kind == ServiceKind.WakeUpCall);
+                }
             }
             else facts.Add("WAKE SETUP: reused the naturally generated wake-up case and retained its original identity and due time.");
+            if (!wakeCase.IsKnownToHotel) yield return ReceiveNaturalConcernHost(wakeCase, "natural-wake");
             Require(wakeCase.Active, "wake request remains actionable before management acceptance");
             Require(session.Simulation.RespondToService(0, wakeCase.Id, true).Success, "labelled management acceptance creates one promise");
             var promise = session.Simulation.Services.Promises.Single();
@@ -156,6 +177,8 @@ namespace WorstHotel
             yield return Stage("services-invalid-call-ui-closed", 8);
             yield return Until(() => !coop.Players[1].IsUIBlocked, 5, "remote management UI closes before the physical valve input");
             var valve = FindObjectsByType<RadiatorValveInteraction>(FindObjectsSortMode.None).Single(item => item.roomId == 106);
+            Require(session.Simulation.SetRadiatorSetting(0, 106, 1).Success, "labelled valve-input fixture resets106 after independently verified guest self-help");
+            facts.Add("DIAGNOSTIC: valve106 reset to1 only after the cold contact/delivery/recovery chain, so the independent remote valve-input check has a known initial level.");
             float boilerBefore = session.Simulation.Boiler.Load;
             PositionEmptyServiceActor(new Vector3(8, .08f, valve.transform.position.z), valve.transform.position);
             WriteStage("services-valve-ready");
@@ -202,6 +225,7 @@ namespace WorstHotel
             yield return Until(() => ReferenceEquals(coop.Players[1].Input.Gamepad, pad), 3, "service client binds own pad");
             lastClientSequence = lan.AppliedModelSequence; lastClientClock = session.Simulation.Elapsed; clockTracking = true;
             ManagementUI.Instance?.Close();
+            yield return ReceiveNaturalConcernClient(ServiceKind.ExtraBlanket, "natural-cold");
             yield return Stage("services-world-ready", 100);
             yield return Until(() => session.Simulation.Services?.Cases.Any(item => item.Kind == ServiceKind.ExtraBlanket) == true, 6,
                 "client receives persistent blanket request");
@@ -232,9 +256,10 @@ namespace WorstHotel
                 serviceGuest.BlanketComfortBonus > 0 && serviceGuest.Memory.BlanketsDelivered == 1, 6, "host delivery returns bonus and memory to client");
             yield return Until(() => target.deliveredBlanket.activeSelf, 5, "host delivered blanket becomes visible on replicated bed");
             Require(session.Simulation.Services.BlanketsAvailable == initialStock - 1, "client finite stock agrees with actual consumption");
-            Require(session.Simulation.Services.Cases.Single(item => item.Kind == ServiceKind.ExtraBlanket).Status == ServiceStatus.Fulfilled,
-                "same service case arrives fulfilled rather than replaced");
+            Require(session.Simulation.Services.Cases.Single(item => item.Kind == ServiceKind.ExtraBlanket).Response.StaffActionAt >= 0,
+                "real blanket help returns to the same persistent response before sustained recovery");
             if (capture) yield return Capture("client-service-delivered");
+            yield return ReceiveNaturalConcernClient(ServiceKind.WakeUpCall, "natural-wake");
             yield return Stage("services-host-delivered", 8);
             yield return Until(() => session.Simulation.Services.Promises.Count == 1, 5, "accepted wake promise reaches client snapshot");
             var promise = session.Simulation.Services.Promises.Single();

@@ -1,7 +1,7 @@
 param(
-    [string]$BuildDirectory = 'Builds/Windows-0.3.1',
-    [string]$ArchivePath = 'Builds/TheWorstHotelEver-0.3.1-Windows.zip',
-    [string]$ReportPath = 'docs/verification/services-release-package.txt'
+    [string]$BuildDirectory = 'Builds/Windows-0.3.2',
+    [string]$ArchivePath = 'Builds/TheWorstHotelEver-0.3.2-Windows.zip',
+    [string]$ReportPath = 'docs/verification/natural-service-release-package.txt'
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))

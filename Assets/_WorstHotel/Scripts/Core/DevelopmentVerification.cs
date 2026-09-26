@@ -138,6 +138,16 @@ namespace WorstHotel
                 ObserveGuest(guest);
             }
             currentDay.NaturalBoilerFailure |= simulation.Boiler.Failed;
+            if (simulation.Services != null)
+            {
+                currentDay.ChargedContacts = simulation.Services.Cases.Count(c => c.BudgetCharged);
+                currentDay.PrivateCases = simulation.Services.Cases.Count(c => !c.IsKnownToHotel);
+                currentDay.SelfHelpActions = simulation.Services.Responses.Count(r => r.SelfResponseApplied);
+                currentDay.ContactAttempts = simulation.Services.Responses.Sum(r => r.ContactAttempts);
+                currentDay.HeardConcerns = simulation.Services.Responses.Count(r => r.CommunicatedAt >= 0);
+                Require(currentDay.ChargedContacts <= simulation.Services.Settings.MaxCasesPerShift,
+                    "production natural tour respects its optional service contact budget");
+            }
             if (heaterDemonstration && heater.State != null && heater.State.EffectiveHeatOutput > 0)
                 heaterPeakTemperature = Mathf.Max(heaterPeakTemperature, session.Rooms.First(r => r.Profile.Id == 106).Temperature);
         }

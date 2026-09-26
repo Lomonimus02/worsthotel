@@ -1,6 +1,6 @@
 # Prototype 0.3.2 — proposed API and data contract
 
-**Design only, 2026-09-26. No Assets implementation or runtime launch.** This refines `natural-service-baseline-design.md` for a later split implementation. Root's baseline and crash-investigation gate still applies. Names below are the proposed shared contract, not APIs that already exist.
+Implementation contract, 2026-09-26. Originally drafted before implementation; the user subsequently explicitly deferred the hang investigation and authorized the remaining natural-service work. These fields and APIs now guide the integrated implementation. Verification results are recorded separately; this contract does not establish a hang fix.
 
 ## One response record; existing outcomes remain authoritative
 

@@ -21,9 +21,10 @@ namespace WorstHotel
             var fixture = Instantiate(production);
             var services = Instantiate(production.services);
             services.eligibility = 0;
+            services.naturalCommunicationEnabled = false;
             fixture.services = services;
             session.config = fixture;
-            facts.Add("SERVICE FIXTURES: two disposable hotels. Service eligibility=0 only in cloned fixture config; explicit DebugForceService, mild cold, burnt bulb and dirty-room setup select the scenarios. All service stock, thermal/electrical tuning, due windows and consequences remain production values. Initial empty-handed staff viewpoints and model key pickup/handoff are labelled adapters; actual owned controller, colliders, physics carrying, service choices and production guest routes execute the chains. No synthetic guest route callbacks or carried-item repositioning.");
+            facts.Add("SERVICE REGRESSION FIXTURES: two disposable hotels use explicitly cloned legacy communication and eligibility=0 to isolate the existing stock, carrying and promise chains. DebugForceService, mild cold, burnt bulb and dirty-room setup select the scenarios. Service stock, thermal/electrical tuning, due windows and consequences remain production values. Empty-handed staff viewpoints and model key pickup/handoff are labelled adapters; actual owned controller, colliders, physics carrying, service choices and production guest routes execute the chains. No synthetic guest route callbacks or carried-item repositioning. Separate natural-contact hotels follow before the production three-day tour.");
             yield return ResetAgencyHotel();
             yield return StartServiceFixture(GuestKind.Business, false);
             var guest = session.Simulation.Guests.Single();
@@ -34,14 +35,18 @@ namespace WorstHotel
             yield return ResetAgencyHotel();
             yield return StartServiceFixture(GuestKind.Budget, true);
             yield return VerifyPhysicalLuggage(session.Simulation.Guests.Single());
+            services.naturalCommunicationEnabled = true;
+            yield return VerifyNaturalServiceContacts();
             serviceVerified = true;
             facts.Add("GuestServicesVerified=True PhysicalServiceCarryMetres=" + serviceCarriedMetres.ToString("F2") +
-                " Blanket=True Radiator=True Lamp=True Luggage=True PhoneCancelAndComplete=True LateCheckoutDelay=True NoSyntheticGuestRouteCallbacks=True");
+                " Blanket=True Radiator=True Lamp=True Luggage=True PhoneCancelAndComplete=True LateCheckoutDelay=True NaturalContactsVerified=True NoSyntheticGuestRouteCallbacks=True");
             session.config = production;
             yield return ResetAgencyHotel();
             Destroy(fixture); Destroy(services);
             Require(session.Simulation.Services.Settings.Eligibility == production.services.eligibility,
                 "production service generation restored before natural three-day tour");
+            Require(session.Simulation.Services.Settings.NaturalCommunicationEnabled == production.services.naturalCommunicationEnabled,
+                "production communication mode restored before natural three-day tour");
         }
 
         IEnumerator StartServiceFixture(GuestKind kind, bool waitingForRoom)
@@ -71,7 +76,7 @@ namespace WorstHotel
             var request = agencyModel.Services.Cases.Single(c => c.Active);
             int stock = agencyModel.Services.BlanketsAvailable;
             yield return OpenServiceBoardCase(request.Id, "service-board");
-            yield return ChooseServiceAction("Agree to help");
+            yield return ChooseServiceAction(GuestLabels.ServiceAcceptance(request));
             Require(request.Status == ServiceStatus.InProgress && agencyModel.Services.BlanketsAvailable == stock && guest.BlanketComfortBonus == 0,
                 "board agreement does not create or deliver a blanket");
             yield return PressMenu(GamepadButton.East); yield return PressMenu(GamepadButton.East);
@@ -202,7 +207,7 @@ namespace WorstHotel
             Require(session.DebugForceService(guest.GuestId, ServiceKind.LuggageStorage).Success, "explicit waiting-for-unready-room luggage request");
             var request = agencyModel.Services.Cases.Single(c => c.Active);
             yield return OpenServiceBoardCase(request.Id, "service-luggage-request");
-            yield return ChooseServiceAction("Agree to help");
+            yield return ChooseServiceAction(GuestLabels.ServiceAcceptance(request));
             ManagementUI.Instance.Close();
             var suitcase = FindObjectsByType<ServiceSupplyItem>(FindObjectsSortMode.None).Single(s => s.State?.Kind == ServiceItemKind.Luggage && s.State.GuestId == guest.GuestId);
             // The waiting guest faces -Z and docks their case on their local right (-X).
