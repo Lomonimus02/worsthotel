@@ -13,9 +13,11 @@ namespace WorstHotel
                 guest.Agent.State == GuestAgentState.CheckingOut || guest.Agent.State == GuestAgentState.Leaving ||
                 guest.Agent.State == GuestAgentState.Left || !Number.IsFinite(requestedTime))
                 return CommandResult.Fail("Late checkout needs a current checked-in stay.");
-            float checkout = Math.Min(settings.ServiceSeconds - 3, requestedTime);
+            float limit = ContinuousOperations ? LatestCheckoutForRoom(guest.RoomId, guest.GuestId) : settings.ServiceSeconds - 3;
+            float checkout = Math.Min(limit, requestedTime);
             if (checkout <= guest.Agent.CheckoutTime || checkout <= Elapsed)
-                return CommandResult.Fail("There is no further checkout window before this shift closes.");
+                return CommandResult.Fail(ContinuousOperations ? "There is no further checkout window before the next arrival needs this room." :
+                    "There is no further checkout window before this shift closes.");
             guest.Agent.Schedule.CheckoutTime = checkout;
             return CommandResult.Ok("Late checkout agreed. The room remains occupied until " + checkout.ToString("F0") + " hotel seconds; prepare its used linen after the guest leaves.");
         }

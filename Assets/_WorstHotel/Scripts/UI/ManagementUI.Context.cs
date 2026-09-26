@@ -68,7 +68,7 @@ namespace WorstHotel
             Label(new Rect(99, 271, 598, 34), "ROOM " + guest.RoomId + "  /  " + guest.Name, Heading);
             var service = CurrentGuestService(guest);
             string line = !present ? "No answer; the guest is out." : privateActivity ? "I need some privacy. Please come back later." :
-                cases.Length > 0 ? GuestLabels.ComplaintClue(cases[0]) : service != null ? GuestLabels.ServiceClue(service) : noisy ?
+                cases.Length > 0 ? GuestLabels.ComplaintClue(cases[0]) : service != null ? GuestLabels.ServiceClue(service, Session.Simulation) : noisy ?
                     (guest.Memory.PreviousNoiseWarnings > 0 ? "Yes? We have already spoken about the noise." : "Yes? You wanted to speak to me?") : "Yes? What is it?";
             Label(new Rect(99, 310, 598, 66), line, Body, Muted);
             if (contextHasResponse) Label(new Rect(99, 370, 598, 20), Session.LastMessage, Small, Wine);
@@ -89,7 +89,7 @@ namespace WorstHotel
             {
                 if (service.Status != ServiceStatus.InProgress)
                 {
-                    contextChoices.Add((GuestLabels.ServiceAcceptance(service), () =>
+                    contextChoices.Add((GuestLabels.ServiceAcceptance(service, Session.Simulation), () =>
                     { contextHasResponse = true; Session.RespondToService(owner, service.Id, true); }));
                     contextChoices.Add(("Decline politely", () =>
                     { contextHasResponse = true; Session.RespondToService(owner, service.Id, false); }));

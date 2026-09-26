@@ -24,7 +24,7 @@ namespace WorstHotel
             if (promise != null)
             {
                 float remaining = promise.DueTime - session.Simulation.Elapsed;
-                Label(new Rect(x + 14, y + 90, 572, 22), "PHONE · Room " + promise.RoomId + (remaining > 0 ? " at " + GuestLabels.HotelTime(promise.DueTime) : " · wake-up call due"),
+                Label(new Rect(x + 14, y + 90, 572, 22), "PHONE · Room " + promise.RoomId + (remaining > 0 ? " at " + GuestLabels.HotelMoment(session.Simulation, promise.DueTime) : " · wake-up call due"),
                     Small, remaining > 0 ? Paper : new Color(1, .87f, .58f));
             }
         }

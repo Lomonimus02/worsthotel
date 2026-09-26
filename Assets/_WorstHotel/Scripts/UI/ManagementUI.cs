@@ -34,6 +34,8 @@ namespace WorstHotel
             showingHousekeeping = false;
             guestContext = false;
             showingServiceBoard = false; wakePhone = false; selectedServiceCase = null; callingPromise = null;
+            showingOperations = Session.Simulation.ContinuousOperations;
+            operationsPage = OperationsPage.Overview; operationsOfferId = null; operationsListPage = 0;
             var coop = LocalCoopBootstrap.Instance;
             if (coop) foreach (var p in coop.Players) if (p && coop.IsLocalActor(p.ActorId)) p.SetUIBlocked(Session.Phase != DayPhase.Service || p.ActorId == owner);
             selectedBooking = Session.Plan.Applications.FirstOrDefault()?.Id;
@@ -48,6 +50,7 @@ namespace WorstHotel
             if (wakePhone && Session && owner >= 0) Session.CloseWakePhone(owner);
             owner = -1; pending = null; selectedServiceGuest = null; choosingMoveRoom = false; showingHousekeeping = false; guestContext = false;
             showingServiceBoard = false; wakePhone = false; selectedServiceCase = null; callingPromise = null;
+            showingOperations = false;
             var coop = LocalCoopBootstrap.Instance;
             if (coop) foreach (var p in coop.Players) if (p && coop.IsLocalActor(p.ActorId)) p.SetUIBlocked(false);
         }
@@ -62,9 +65,11 @@ namespace WorstHotel
             if (owner >= coop.Players.Length || !coop.Players[owner] || !coop.IsLocalActor(owner)) { Close(); return; }
             UpdateGuestContext();
             UpdateServicePanel();
+            UpdateOperationsPanel();
             if (!IsOpen) return;
             var input = coop.Players[owner].Input;
             if (pending != null) { var execute = pending; pending = null; HotelFeedback.PlayUIClick(); execute(); return; }
+            if (input.MenuCancelPressed && IsOperationsOpen) { OperationsBack(); return; }
             if (input.MenuCancelPressed) { if (guestContext || wakePhone) Close(); else if (showingServiceBoard && selectedServiceCase != null) { selectedServiceCase = null; serviceHasResponse = false; focus = 0; } else if (showingServiceBoard) Close(); else if (selectedReview != null) selectedReview = null; else if (showingHousekeeping) { showingHousekeeping = false; focus = 0; } else if (choosingMoveRoom) { choosingMoveRoom = false; focus = 0; } else if (selectedServiceGuest != null) { selectedServiceGuest = null; focus = 0; } else Close(); return; }
             float navigation = Mathf.Abs(input.Navigate.y) > .5f ? -input.Navigate.y : input.Navigate.x;
             if (Mathf.Abs(navigation) < .5f) nextNavigation = 0;
@@ -118,7 +123,8 @@ namespace WorstHotel
             {
                 bool singleView = LocalCoopBootstrap.Instance && (LocalCoopBootstrap.Instance.IsSolo || LocalCoopBootstrap.Instance.LanRole != LanRole.Offline);
                 GUI.matrix = Matrix4x4.TRS(new Vector3(singleView ? Screen.width * .25f : owner * Screen.width / 2f, 0, 0), Quaternion.identity, new Vector3(Screen.width / 1600f, Screen.height / 900f, 1));
-                if (guestContext) DrawGuestContext(); else if (showingServiceBoard || wakePhone) DrawServicePanel(); else DrawServiceLedger();
+                if (guestContext) DrawGuestContext(); else if (showingServiceBoard || wakePhone) DrawServicePanel();
+                else if (IsOperationsOpen) DrawOperations(); else DrawServiceLedger();
             }
             else
             {

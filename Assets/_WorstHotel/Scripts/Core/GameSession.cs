@@ -69,11 +69,17 @@ namespace WorstHotel
         }
 
         public void Assign(int actorId, string bookingId, int roomId, int price)
-        { if (!ForwardLan(LanCommandKind.Assign, bookingId, roomId, price)) ReportCommand(Plan.Assign(actorId, bookingId, roomId, price)); }
+        { if (RejectLegacyPlanning()) return; if (!ForwardLan(LanCommandKind.Assign, bookingId, roomId, price)) ReportCommand(Plan.Assign(actorId, bookingId, roomId, price)); }
         public void Remove(int actorId, int roomId)
-        { if (!ForwardLan(LanCommandKind.Remove, room: roomId)) ReportCommand(Plan.Remove(actorId, roomId)); }
+        { if (RejectLegacyPlanning()) return; if (!ForwardLan(LanCommandKind.Remove, room: roomId)) ReportCommand(Plan.Remove(actorId, roomId)); }
         public void SetPrice(int actorId, int roomId, int price)
-        { if (!ForwardLan(LanCommandKind.SetPrice, room: roomId, amount: price)) ReportCommand(Plan.SetPrice(actorId, roomId, price)); }
+        { if (RejectLegacyPlanning()) return; if (!ForwardLan(LanCommandKind.SetPrice, room: roomId, amount: price)) ReportCommand(Plan.SetPrice(actorId, roomId, price)); }
+        bool RejectLegacyPlanning()
+        {
+            if (!Simulation.ContinuousOperations) return false;
+            ReportCommand(CommandResult.Fail("Use dated bookings during continuous hotel operations."));
+            return true;
+        }
         void ReportCommand(CommandResult result) { LastMessage = result.Message; RaiseChanged(); }
         public void CommitPlan(int actorId)
         {

@@ -8,11 +8,11 @@ namespace WorstHotel
         bool buildingReplica;
         long replicaEpoch;
         public bool IsLanReplica => Simulation != null && Simulation.IsReadOnlyMirror;
-        bool ForwardLan(LanCommandKind kind, string subject = null, int room = 0, int amount = 0)
+        bool ForwardLan(LanCommandKind kind, string subject = null, int room = 0, int amount = 0, int reservationRevision = -1)
         {
             var lan = LanSession.Instance;
             if (!lan || !lan.IsClientReplica) return false;
-            LastMessage = lan.SubmitCommand(kind, subject, room, amount) ? "Sent to the host…" : "Waiting for the host connection.";
+            LastMessage = lan.SubmitCommand(kind, subject, room, amount, reservationRevision) ? "Sent to the host…" : "Waiting for the host connection.";
             return true;
         }
 
@@ -40,7 +40,7 @@ namespace WorstHotel
         public CommandResult ApplyLanFrame(LanHotelFrame frame)
         {
             if (frame == null || frame.version != LanProtocol.Version || frame.epoch <= 0 || frame.sequence <= 0 ||
-                frame.day < 1 || frame.day > config.totalDays || !Enum.IsDefined(typeof(DayPhase), frame.phase) ||
+                frame.day < 1 || (frame.model == null || !frame.model.HasOperations) && frame.day > config.totalDays || !Enum.IsDefined(typeof(DayPhase), frame.phase) ||
                 frame.planning == null || frame.model == null || frame.model.Epoch != frame.epoch || frame.model.Sequence != frame.sequence ||
                 frame.epoch < replicaEpoch || frame.planCommitted != frame.planning.IsCommitted ||
                 frame.waitVotes == null || frame.waitVotes.Length != 2 || frame.waitProgress == null || frame.waitProgress.Length != 2 ||
@@ -51,13 +51,20 @@ namespace WorstHotel
                 frame.openGuestRevision > 0 && string.IsNullOrWhiteSpace(frame.conversationGuestId))
                 return CommandResult.Fail("Invalid host frame.");
             if (!IsLanReplica) return CommandResult.Fail("Only a read-only replica accepts host state.");
+            if (frame.model.HasOperations && (frame.model.Operations == null || frame.day != frame.model.Day || frame.phase != DayPhase.Service || frame.planCommitted))
+                return CommandResult.Fail("Invalid continuous host frame.");
             bool fresh = replicaEpoch != frame.epoch;
             var previousPhase = Phase;
             var targetRooms = fresh ? config.rooms.Select(item => new RoomState(item.ToData())).ToArray() : Rooms;
-            var targetSimulation = fresh ? CreateSimulationForRooms(targetRooms) : Simulation;
-            if (fresh) targetSimulation.EnableReadOnlyMirror();
+            HotelSimulation targetSimulation;
             PlanningSystem targetPlan;
-            try { targetPlan = PlanningSystem.FromSnapshot(targetRooms, Economy, BoilerSettings, frame.planning); }
+            try
+            {
+                // The host's explicit null selects a legacy fixture even if this build's asset is continuous.
+                targetSimulation = fresh ? CreateSimulationForRooms(targetRooms, frame.model.HasOperations ? frame.model.Operations.ToSettings() : null) : Simulation;
+                if (fresh) targetSimulation.EnableReadOnlyMirror();
+                targetPlan = PlanningSystem.FromSnapshot(targetRooms, Economy, BoilerSettings, frame.planning);
+            }
             catch (ArgumentException error) { return CommandResult.Fail("Invalid host planning: " + error.Message); }
             var result = targetSimulation.ApplySnapshot(frame.model);
             if (!result.Success) return result;
@@ -66,7 +73,8 @@ namespace WorstHotel
             CommittedBookings = PlanCommitted ? Plan.Assignments.ToArray() : Array.Empty<BookingAssignment>();
             Cash = Simulation.Economy.Cash; LastMessage = frame.lastMessage ?? "";
             reports.Clear(); reports.AddRange(Simulation.DayReports);
-            Report = Phase == DayPhase.Planning || Phase == DayPhase.Service ? null : Simulation.LastReport;
+            Report = Simulation.ContinuousOperations ? Simulation.LastReport :
+                Phase == DayPhase.Planning || Phase == DayPhase.Service ? null : Simulation.LastReport;
             replicaEpoch = frame.epoch; accumulator = 0;
             if (Wait) Wait.ApplyLanView(frame.waitReason, frame.waitVotes, frame.waitProgress);
             RaiseChanged();
@@ -109,6 +117,9 @@ namespace WorstHotel
                     TalkToServiceGuest(playerId, Simulation.Services?.FindResponse(command.subject)?.GuestId, command.subject); break;
                 case LanCommandKind.DiscussRoomConcern:
                     DiscussRoomConcern(playerId, Simulation.Services?.FindResponse(command.subject)?.GuestId, command.subject); break;
+                case LanCommandKind.AcceptBooking: AcceptBooking(playerId, command.subject, command.roomId, command.amount); break;
+                case LanCommandKind.CancelBooking: CancelBooking(playerId, command.subject, command.expectedReservationRevision); break;
+                case LanCommandKind.SetBookingPrice: SetBookingPrice(playerId, command.subject, command.amount, command.expectedReservationRevision); break;
             }
         }
     }

@@ -47,6 +47,19 @@ namespace WorstHotel
             foreach (var guest in simulation.Guests) EnsureLuggage(guest);
         }
 
+        /// <summary>Advance the service allowance calendar without ending a stay or an agreement.</summary>
+        public void BeginOperatingDay(int dayNumber, float end)
+        {
+            if (simulation.IsReadOnlyMirror) return;
+            if (dayNumber < 1 || dayNumber < day || !Number.IsFinite(end) || end < 0)
+                throw new ArgumentException("Operating services need a nondecreasing calendar date and a finite horizon.");
+            day = dayNumber;
+            serviceEnd = Math.Max(serviceEnd, end);
+            RefillForDay(dayNumber);
+            foreach (var guest in simulation.Guests)
+                if (!Departed(guest)) EnsureLuggage(guest);
+        }
+
         internal void RefillForDay(int dayNumber)
         {
             if (simulation.IsReadOnlyMirror) return;
@@ -66,12 +79,23 @@ namespace WorstHotel
                 var item = FindItem(prefix + index);
                 if (item == null && index < count) { items.Add(new ServiceItemState(prefix + index, kind, day)); continue; }
                 if (item == null || item.Location == ServiceItemLocation.HeldByPlayer || item.Location == ServiceItemLocation.Dropped) continue;
+                // A dated stay can cross a replenishment boundary. Its delivered blanket
+                // remains the same physical item until that stay actually ends.
+                if (simulation.ContinuousOperations && item.GuestId != null &&
+                    Guest(item.GuestId) is GuestStay owner && !Departed(owner)) continue;
+                bool stocked = index < count;
+                if (simulation.ContinuousOperations && item.Location == (stocked ? ServiceItemLocation.OnShelf : ServiceItemLocation.Delivered) &&
+                    item.GuestId == null && item.RoomId == null && item.PlayerId == null) continue;
                 item.Location = index < count ? ServiceItemLocation.OnShelf : ServiceItemLocation.Delivered;
                 item.GuestId = null; item.RoomId = null; item.PlayerId = null; item.LastPlayerId = null; item.Generation++;
             }
         }
         void EnsureLuggage(GuestStay guest)
-        { if (FindItem("luggage:" + guest.GuestId) == null) items.Add(new ServiceItemState("luggage:" + guest.GuestId, ServiceItemKind.Luggage, day, guest.GuestId)); }
+        {
+            if (simulation.ContinuousOperations && Departed(guest)) return;
+            if (FindItem("luggage:" + guest.GuestId) == null)
+                items.Add(new ServiceItemState("luggage:" + guest.GuestId, ServiceItemKind.Luggage, day, guest.GuestId));
+        }
         GuestStay Guest(string id) => simulation.Guests.FirstOrDefault(guest => guest.GuestId == id);
         bool Departed(GuestStay guest) => guest.Agent == null || guest.Agent.State == GuestAgentState.CheckingOut ||
             guest.Agent.State == GuestAgentState.Leaving || guest.Agent.State == GuestAgentState.Left;
@@ -106,7 +130,7 @@ namespace WorstHotel
                 if (Departed(guest)) { EndGuestStay(guest); continue; }
                 foreach (var item in cases.Where(item => item.GuestId == guest.GuestId && item.Active).ToArray())
                     UpdateCase(item, guest, now, dt);
-                if (cases.Count >= Settings.MaxCasesPerShift || cases.Count(item => item.GuestId == guest.GuestId) >= Settings.MaxCasesPerGuest ||
+                if (!BudgetAvailable(guest) ||
                     cases.Any(item => item.GuestId == guest.GuestId && item.Active)) continue;
                 // Environmental needs take priority over a discretionary schedule preference.
                 foreach (ServiceKind kind in new[] { ServiceKind.ExtraBlanket, ServiceKind.AskNeighborsQuiet,
@@ -129,7 +153,9 @@ namespace WorstHotel
             uint hash = 2166136261;
             unchecked
             {
-                string identity = simulation.LivingSettings.Seed + "/" + day + "/" + guest.GuestId + "/" + kind;
+                // A live guest does not get another eligibility roll when midnight passes.
+                string identity = simulation.LivingSettings.Seed + "/" +
+                    (simulation.ContinuousOperations ? "stay" : day.ToString()) + "/" + guest.GuestId + "/" + kind;
                 foreach (char c in identity) hash = (hash ^ c) * 16777619;
                 hash ^= hash >> 16; hash *= 0x7feb352d; hash ^= hash >> 15;
             }
@@ -179,7 +205,8 @@ namespace WorstHotel
                     if (!agent.InAssignedRoom || (!debug && now < agent.CheckoutTime - Settings.LateCheckoutRequestLead) ||
                         now >= agent.CheckoutTime - Settings.ObservationSeconds || agent.State == GuestAgentState.Sleeping ||
                         (!debug && guest.Application.Archetype.Kind != GuestKind.Business && (guest.Application.Archetype.Traits & GuestTraits.Patient) == 0)) return false;
-                    due = Math.Min(serviceEnd - 3, agent.CheckoutTime + Settings.LateCheckoutExtension);
+                    float limit = simulation.ContinuousOperations ? simulation.LatestCheckoutForRoom(guest.RoomId, guest.GuestId) : serviceEnd - 3;
+                    due = Math.Min(limit, agent.CheckoutTime + Settings.LateCheckoutExtension);
                     if (due <= agent.CheckoutTime + 1) return false;
                     source = "schedule/" + guest.GuestId + "/checkout";
                     reason = "Could I check out later? I would appreciate the extra time; the room will need preparing later."; return true;
@@ -199,7 +226,7 @@ namespace WorstHotel
             var result = new ServiceCase(id, guest.GuestId, guest.RoomId, kind, now, due, source, sourceRoom, reason);
             cases.Add(result);
             if (NaturalCommunicationEnabled) BindCaseResponse(result, guest, now);
-            else { result.BudgetCharged = true; guest.Memory.ServicesRequested = Count(guest.Memory.ServicesRequested); }
+            else { ChargeBudget(result); guest.Memory.ServicesRequested = Count(guest.Memory.ServicesRequested); }
             Notify(result, "requested"); return result;
         }
 

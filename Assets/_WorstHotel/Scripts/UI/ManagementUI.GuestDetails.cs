@@ -59,7 +59,7 @@ namespace WorstHotel
                 c.GuestId == guest.GuestId && c.Kind == kind.Value && GuestLabels.IsKnownOpenService(c)) : null;
             bool known = concern != null || service != null;
             DrawNeed(y, title, known ? "Guest spoke to staff" : "No concern reported",
-                concern != null ? GuestLabels.ComplaintClue(concern) : service != null ? GuestLabels.ServiceClue(service) : fallback, known);
+                concern != null ? GuestLabels.ComplaintClue(concern) : service != null ? GuestLabels.ServiceClue(service, Session.Simulation) : fallback, known);
         }
 
         void DrawNeed(float y, string title, string state, string cause, bool uncomfortable)

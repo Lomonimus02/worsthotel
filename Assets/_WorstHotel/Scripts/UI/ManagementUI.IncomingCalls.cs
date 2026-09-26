@@ -39,7 +39,7 @@ namespace WorstHotel
                 var selected = promise;
                 bool due = Session.Simulation.Elapsed >= promise.DueTime - services.Settings.WakeToleranceSeconds;
                 AddServiceChoice(new Rect(42, y, 705, 53), "Room " + promise.RoomId + " · " +
-                    (due ? "Call now" : "Call at " + GuestLabels.HotelTime(promise.DueTime)) + "\n" + GuestName(promise.GuestId),
+                    (due ? "Call now" : "Call at " + GuestLabels.HotelMoment(Session.Simulation, promise.DueTime)) + "\n" + GuestName(promise.GuestId),
                     () => { callingPromise = selected.Id; callCompletesAt = Time.unscaledTime + 1.2f; serviceHasResponse = false; }, due && callingPromise == null);
                 y += 60;
             }
@@ -52,7 +52,7 @@ namespace WorstHotel
             float y = 414;
             if (item != null && item.Status != ServiceStatus.InProgress)
             {
-                PhoneChoice(ref y, GuestLabels.ServiceAcceptance(item), () => ServiceResponse(item.Id, true));
+                PhoneChoice(ref y, GuestLabels.ServiceAcceptance(item, simulation), () => ServiceResponse(item.Id, true));
                 PhoneChoice(ref y, "Decline politely", () => ServiceResponse(item.Id, false));
                 if (item.Status == ServiceStatus.Requested)
                     PhoneChoice(ref y, "Acknowledge · decide later", () => { serviceHasResponse = true; Session.AcknowledgeService(owner, item.Id); });

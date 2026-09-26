@@ -31,11 +31,12 @@ namespace WorstHotel
         internal static void Model(HotelModelSnapshot s, IReadOnlyCollection<int> roomIds, bool living, int linenCount, IEnumerable<string> circuitIds)
         {
             Require(s!=null && s.Version==HotelModelSnapshot.ProtocolVersion,"Unsupported snapshot protocol.");
-            Require(s.Epoch>=0 && s.Sequence>=0 && s.Day>=0 && s.Day<=3 && s.LastMaintenanceDay>=0 && s.LastMaintenanceDay<=s.Day && s.DebugGuestCounter>=0 && s.EventRevision>=0 && s.LastRefillDay>=0 && s.LastRefillDay<=3,"Invalid snapshot header.");
+            bool continuous = s.HasOperations;
+            Require(s.Epoch>=0 && s.Sequence>=0 && s.Day>=0 && s.Day<=(continuous?1000000:3) && s.LastMaintenanceDay>=0 && s.LastMaintenanceDay<=s.Day && s.DebugGuestCounter>=0 && s.EventRevision>=0 && s.LastRefillDay>=0 && s.LastRefillDay<=(continuous?Math.Max(1,s.Day):3),"Invalid snapshot header.");
             Nonnegative(s.Time,s.SituationTime);Require(s.Speed==1 || s.Speed==4 || s.Speed==8,"Invalid clock speed.");Range(s.Reputation,0,100);Text(s.LastEvent,2048,true);
             var rs=Array(s.Rooms,6);Unique(rs.Select(x=>x.Id));Require(rs.Length==roomIds.Count && rs.All(x=>roomIds.Contains(x.Id)),"Room set differs from this hotel.");
             bool Room(int id,bool optional=false)=> (optional&&id==0)||roomIds.Contains(id);
-            var gs=Array(s.Guests,6);foreach(var g in gs)
+            var gs=Array(s.Guests,continuous?128:6);foreach(var g in gs)
             {
                 Booking(g.Application);Require(Room(g.RoomId) && g.Price>=0 && g.CompensationCredit>=0 && g.CompensationCredit<=g.Price,"Invalid guest room or credit.");
                 Nonnegative(g.CheckInWaitingSeconds,g.CheckInDelayPenaltySeconds,g.Elapsed,g.QualityIntegral,g.ExpiredComplaintSeconds,g.ColdExposureSeconds,g.HotExposureSeconds,g.NoiseExposureSeconds,g.DirtyExposureSeconds,g.FixtureExposureSeconds,g.PowerLossExposureSeconds,g.ServiceIntegral);
@@ -45,6 +46,8 @@ namespace WorstHotel
                 if(g.Agent==null)continue;
                 var a=g.Agent;EnumValue(a.State);EnumValue(a.Activity);Nonnegative(a.ArrivalTime,a.SleepTime,a.CheckoutTime,a.StateChangedAt,a.WaitingSeconds,a.WaitingPatience,a.HeatingDemandMultiplier,a.QuietUntil,a.NextActivityTime,a.ActivityEndsAt);Unit(a.NoiseOutput);
                 Nonnegative(a.PendingActivityDuration,a.AwayReturnTime);
+                Range(a.WakeTime);Require(!a.HasWakeTime || a.WakeTime>a.SleepTime && a.WakeTime<a.CheckoutTime,"Invalid morning wake time.");
+                Require(continuous || !g.ReceiptPosted,"A legacy stay cannot have an operating checkout receipt.");
                 Require(a.CheckoutTime>=a.ArrivalTime && a.WaitingPatience>0 && a.ActivityIndex>=0 && Room(a.PendingMoveRoomId,true) && Room(a.TransferFromRoomId,true),"Invalid guest schedule.");
                 foreach(var entry in Array(a.Schedule,24))
                 {
@@ -96,8 +99,8 @@ namespace WorstHotel
                 Unit(i.Severity,i.Dissatisfaction);Nonnegative(i.Age,i.ExposureSeconds,i.StageAge,i.ResponseReliefRemainingSeconds,i.ConditionSeconds,i.RecoverySeconds,i.ExposureBaseline,i.LastNeedExposure,i.ReopenCooldown);
             }
             var requests=Array(s.Requests,256);Unique(requests.Select(r=>r.Id));foreach(var r in requests){Text(r.Id,512);Text(r.MeasuredCause,2048,true);Range(r.Age);Require(incidents.Any(i=>i.Id==r.Id),"Missing request source.");}
-            var reports=Array(s.Reports,3);Unique(reports.Select(r=>r.Day));foreach(var r in reports)
-            {Require(r.Day>=1 && r.Day<=s.Day && r.OperatingCost>=0,"Invalid report.");Range(r.Reputation,0,100);Range(r.ServiceSeconds);var receipts=Array(r.Receipts,6);Unique(receipts.Select(x=>x.GuestId));foreach(var x in receipts){Text(x.GuestId);Text(x.Name);Text(x.Review,4096,true);Require(Room(x.RoomId) && x.Price>=0 && x.Compensation>=0 && x.Compensation<=x.Price,"Invalid receipt.");Range(x.Satisfaction,0,100);}}
+            var reports=Array(s.Reports,continuous?128:3);Unique(reports.Select(r=>r.Day));foreach(var r in reports)
+            {Require(r.Day>=1 && r.Day<=s.Day && r.OperatingCost>=0,"Invalid report.");Range(r.Reputation,0,100);Range(r.ServiceSeconds);var receipts=Array(r.Receipts,continuous?128:6);Unique(receipts.Select(x=>x.GuestId));foreach(var x in receipts){Text(x.GuestId);Text(x.Name);Text(x.Review,4096,true);Require(Room(x.RoomId) && x.Price>=0 && x.Compensation>=0 && x.Compensation<=x.Price,"Invalid receipt.");Range(x.Satisfaction,0,100);}}
             foreach(var r in reports)Require(r.Receipts.Sum(x=>(long)x.Price)<=int.MaxValue && r.Receipts.Sum(x=>(long)x.Compensation)<=int.MaxValue,"Report totals overflow.");
             Require(s.LastReportDay==0 || reports.Any(r=>r.Day==s.LastReportDay),"Missing last report.");
             var maintenance=Array(s.Maintenance,2);Unique(maintenance.Select(m=>m.Day));foreach(var m in maintenance){EnumValue(m.Choice);Require(m.Day>=1 && m.Day<=2 && m.Day<=s.LastMaintenanceDay && m.ActorId>=0 && m.Cost>=0,"Invalid maintenance.");Range(m.ConditionBefore,0,100);Range(m.ConditionAfter,0,100);}

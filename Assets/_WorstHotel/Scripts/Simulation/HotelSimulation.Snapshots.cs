@@ -36,6 +36,7 @@ namespace WorstHotel
                 NoiseSources=Noise?.Sources.Select(SnapshotData.Capture).ToArray()??Array.Empty<NoiseSourceSnapshot>(),
                 SituationTime=Incidents.SituationTime,Reports=reports.Select(SnapshotData.Capture).ToArray(),
                 HasServices=Services!=null,ServiceLayer=Services?.CaptureSnapshot(),
+                HasOperations=ContinuousOperations,Operations=CaptureOperations(),
                 Maintenance=maintenance.Select(m=>new MaintenanceSnapshot{Day=m.DayNumber,ActorId=m.ActorId,Choice=m.Choice,Cost=m.Cost,ConditionBefore=m.ConditionBefore,ConditionAfter=m.ConditionAfter,CashAfter=m.CashAfter}).ToArray()
             };
         }
@@ -49,6 +50,7 @@ namespace WorstHotel
             try
             {
                 SnapshotValidation.Model(snapshot,rooms.Keys.ToArray(),LivingEnabled,Housekeeping?.Linens.Count??0,Electrical?.Circuits.Select(c=>c.Id)??Enumerable.Empty<string>());
+                SnapshotValidation.OperationsModel(snapshot, Operations, settings.Economy, rooms.Keys.ToArray());
                 SnapshotValidation.Services(snapshot, Services != null, rooms.Keys.ToArray(), Services?.NaturalCommunicationEnabled == true);
                 Housekeeping?.ValidateSnapshot(snapshot.Linens);
                 foreach(var room in snapshot.Rooms)
@@ -59,7 +61,7 @@ namespace WorstHotel
             }
             catch(ArgumentException error){return CommandResult.Fail("Rejected hotel snapshot: "+error.Message);}
             // No gameplay callback is emitted while installing a packet. Observers refresh once at the GameSession boundary.
-            bool sameRoster=snapshot.Epoch==AppliedSnapshotEpoch && snapshot.Day==dayNumber;
+            bool sameRoster=snapshot.Epoch==AppliedSnapshotEpoch && (ContinuousOperations || snapshot.Day==dayNumber);
             var old=guests.ToDictionary(g=>g.GuestId);guests.Clear();
             for(int index=0;index<incomingGuests.Length;index++)
             {
@@ -79,6 +81,7 @@ namespace WorstHotel
             Services?.RestoreSnapshot(snapshot.ServiceLayer);
             reports.Clear();reports.AddRange(incomingReports);maintenance.Clear();maintenance.AddRange(incomingMaintenance);
             Economy.RestoreSnapshot(snapshot.Cash,snapshot.Reputation,reports);LastReport=reports.FirstOrDefault(r=>r.DayNumber==snapshot.LastReportDay);
+            RestoreOperations(snapshot.HasOperations?snapshot.Operations:null);
             dayNumber=snapshot.Day;lastMaintenanceDay=snapshot.LastMaintenanceDay;debugGuestCounter=snapshot.DebugGuestCounter;Running=snapshot.Running;
             EventRevision=snapshot.EventRevision;LastEvent=snapshot.LastEvent;BoilerFailureAcknowledged=snapshot.BoilerFailureAcknowledged;
             AppliedSnapshotEpoch=snapshot.Epoch;AppliedSnapshotSequence=snapshot.Sequence;

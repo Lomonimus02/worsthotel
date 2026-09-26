@@ -48,9 +48,9 @@ namespace WorstHotel
             }
         }
 
-        public static string ServiceAcceptance(ServiceCase item) => item.Kind == ServiceKind.WakeUpCall ?
-            "Promise a call at " + HotelTime(item.DueTime) : item.Kind == ServiceKind.LateCheckout ?
-            "Allow checkout at " + HotelTime(item.DueTime) : item.Kind == ServiceKind.ExtraBlanket ? "I'll look into the temperature" :
+        public static string ServiceAcceptance(ServiceCase item, HotelSimulation simulation = null) => item.Kind == ServiceKind.WakeUpCall ?
+            "Promise a call at " + HotelMoment(simulation, item.DueTime) : item.Kind == ServiceKind.LateCheckout ?
+            "Allow checkout at " + HotelMoment(simulation, item.DueTime) : item.Kind == ServiceKind.ExtraBlanket ? "I'll look into the temperature" :
             item.Kind == ServiceKind.AskNeighborsQuiet ? "I'll look into the noise" : "Agree to store the suitcase";
     }
 }

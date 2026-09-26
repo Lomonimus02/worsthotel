@@ -57,7 +57,9 @@ namespace WorstHotel
         static void GuestResponses(HotelModelSnapshot snapshot, bool enabled)
         {
             var layer = snapshot.ServiceLayer;
-            var responses = Array(layer.Responses, 288);
+            // Continuous operations retain agreements and their linked incident episodes across
+            // calendar dates. The legacy single-shift wire bound stays unchanged.
+            var responses = Array(layer.Responses, snapshot.HasOperations ? 512 : 288);
             Unique(responses.Select(r => r.Id));
             if (!enabled)
             {

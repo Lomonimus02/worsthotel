@@ -24,7 +24,7 @@ namespace WorstHotel
             {
                 case GuestAgentState.GoingToServiceReception:
                     SetRoute(guest, AuthoredGuestRoute.ToServiceReception(guest.Root.position, guest.Room,
-                        receptionPlaces[guest.AppearanceIndex % receptionPlaces.Length].position, guest.InsideRoom), RoutePurpose.ServiceReception);
+                        receptionPlaces[guest.ReceptionSlot].position, guest.InsideRoom), RoutePurpose.ServiceReception);
                     break;
                 case GuestAgentState.WaitingAtServiceReception:
                     guest.Route = null; guest.RouteComplete = true; guest.InsideRoom = false;

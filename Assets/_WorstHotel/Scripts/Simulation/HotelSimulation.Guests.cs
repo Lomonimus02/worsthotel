@@ -5,7 +5,7 @@ namespace WorstHotel
 {
     public sealed partial class HotelSimulation
     {
-        private void RefreshGuestLoad() => Boiler.SetLoad(Math.Max(0, guests.Sum(guest => guest.Application.Archetype.HeatingDemand *
+        private void RefreshGuestLoad() => Boiler.SetLoad(Math.Max(0, guests.Where(guest => !guest.ReceiptPosted).Sum(guest => guest.Application.Archetype.HeatingDemand *
             (LivingEnabled ? guest.Agent.HeatingDemandMultiplier : 1)) + (LivingEnabled ? roomSystem.ExtraBoilerDemand(rooms.Values) : 0)));
 
         private void ReleaseRoom(GuestStay guest)
@@ -190,11 +190,19 @@ namespace WorstHotel
                     SetActivity(guest, GuestActivity.QuietRest, now, LivingSettings.QuietDurationMin);
                     continue;
                 }
+                if (agent.State == GuestAgentState.Sleeping && !agent.TemporarySleep && now >= agent.Schedule.WakeTime)
+                {
+                    // Morning resumes ordinary life. SleepStarted remains true, so the past
+                    // bedtime cannot immediately send this one-night guest back to sleep.
+                    SetActivity(guest, GuestActivity.QuietRest, now, LivingSettings.QuietDurationMin);
+                    continue;
+                }
                 if (now >= agent.Schedule.SleepTime && !agent.SleepStarted)
                 {
                     agent.SleepStarted = true;
-                    SetActivity(guest, GuestActivity.QuietRest, now, float.PositiveInfinity);
-                    Transition(guest, GuestAgentState.Sleeping, now, null);
+                    bool alreadyMorning = now >= agent.Schedule.WakeTime;
+                    SetActivity(guest, GuestActivity.QuietRest, now, alreadyMorning ? LivingSettings.QuietDurationMin : float.PositiveInfinity);
+                    if (!alreadyMorning) Transition(guest, GuestAgentState.Sleeping, now, null);
                     continue;
                 }
                 if (agent.State == GuestAgentState.Sleeping || now < agent.NextActivityTime) continue;

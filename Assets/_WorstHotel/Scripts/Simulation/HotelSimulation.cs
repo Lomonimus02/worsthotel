@@ -34,7 +34,7 @@ namespace WorstHotel
         public NoiseSystem Noise { get; }
         public bool LivingEnabled => LivingSettings != null;
         public GuestScheduleSystem Schedules { get; }
-        public int OutstandingCompensation => Running ? guests.Sum(guest => guest.CompensationCredit) : 0;
+        public int OutstandingCompensation => Running ? guests.Where(guest => !guest.ReceiptPosted).Sum(guest => guest.CompensationCredit) : 0;
         public DayReport LastReport { get; private set; }
         public IReadOnlyList<DayReport> DayReports => reports.AsReadOnly();
         public IReadOnlyList<MaintenanceDecision> MaintenanceDecisions => maintenance.AsReadOnly();
@@ -293,6 +293,7 @@ namespace WorstHotel
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             if (!Running) return CommandResult.Fail("Developer check-in requires an active service.");
+            if (ContinuousOperations) return DebugSpawnContinuousGuest(kind, roomId);
             if (!rooms.TryGetValue(roomId, out var room) || room.Occupied || room.Reserved) return CommandResult.Fail("Choose a real unreserved vacant room.");
             if (LivingEnabled && room.Cleanliness != Cleanliness.Clean) return CommandResult.Fail("A walk-in needs a clean room.");
             if (LivingEnabled && RoomTurnoverProtected(room)) return CommandResult.Fail("The previous guest must leave and any bed-making interaction must finish before a walk-in is assigned.");

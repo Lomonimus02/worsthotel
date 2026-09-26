@@ -25,6 +25,7 @@ namespace WorstHotel
         public float ExpiredComplaintSeconds { get; internal set; }
         public int CompensationCredit { get; internal set; }
         public bool Compensated { get; internal set; }
+        public bool ReceiptPosted { get; internal set; }
         public float ColdExposureSeconds { get; internal set; }
         public float HotExposureSeconds { get; internal set; }
         public float NoiseExposureSeconds { get; internal set; }

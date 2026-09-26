@@ -71,7 +71,7 @@ namespace WorstHotel
         private string BlockingReason(LocalCoopBootstrap coop)
         {
             if (!session || session.Simulation == null) return "Hotel is not ready.";
-            bool preparing = session.Phase == DayPhase.Planning;
+            bool preparing = !session.Simulation.ContinuousOperations && session.Phase == DayPhase.Planning;
             if (preparing && !System.Array.Exists(session.Rooms, room => !string.IsNullOrEmpty(room.DepartingGuestId)))
                 return session.Simulation.Housekeeping != null && session.Simulation.Housekeeping.HasPendingWork ?
                     "Prepare the rooms yourselves: dirty linen to hamper, clean linen from the shelf, then make the bed." :

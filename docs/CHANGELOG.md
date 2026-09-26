@@ -10,6 +10,10 @@ Latest development is Prototype 0.4 Continuous Operations: [requirements](CORE04
 
 Added an opt-in continuous calendar derived from the existing hotel clock, separate midnight/report boundaries, automatic nonmodal accounting and bounded report history. A report preserves world state and never invokes shift settlement/reset. GameSession uses its ordinary fixed-tick, pause and WAIT pipeline; legacy lifecycle commands cannot close a continuous hotel. Diagnostic advances are bounded. Capacity tuning is unchanged and production activation waits for phase 2 bookings. Compile passed, full EditMode **338/338**, relevant actual-session PlayMode **5/5**. [Evidence and exact scope](verification/core04-phase1.md).
 
+## Prototype 0.4 — phase 2 dated bookings
+
+Enabled continuous operations in the production asset and scene builder. Added today/tomorrow one-night reservations, controller booking/report pages, absolute arrival/sleep/wake/checkout schedules and once-only checkout revenue. Future bookings preserve current guests/keys; relocation and late checkout recheck future room intervals. Guest bodies, reception slots and luggage remain stable across cohorts; service allowances renew without discarding active agreements or carried/delivered items. LAN protocol 7/model schema 6 carries dated state and expected booking revisions; historical fixtures explicitly opt out. Compile passed, full EditMode **379/379**, ten continuous PlayMode cases and three legacy physical cases passed across focused runs. [Evidence, corrected metadata omission and scope](verification/core04-phase2.md).
+
 ## Prototype 0.3.2 — Natural Service
 
 26 September 2026. Natural Service implemented and packaged as Windows 0.3.2; the pause investigation remains explicitly deferred.

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace WorstHotel
@@ -27,6 +28,7 @@ namespace WorstHotel
         int shownGeneration = -1;
         bool shownVisible;
         GuestPresentation presentation;
+        static readonly List<ServiceSupplyItem> luggageBodies = new List<ServiceSupplyItem>();
         bool HasAuthority => !LocalCoopBootstrap.Instance || LocalCoopBootstrap.Instance.HasWorldAuthority;
 
         void Awake()
@@ -34,6 +36,7 @@ namespace WorstHotel
             Body = GetComponent<Rigidbody>(); PlacementCollider = GetComponent<Collider>();
             visuals = GetComponentsInChildren<Renderer>(true); shapes = GetComponentsInChildren<Collider>(true);
             presentation = FindAnyObjectByType<GuestPresentation>();
+            if (luggageSlot >= 0) luggageBodies.Add(this);
         }
 
         void LateUpdate()
@@ -43,10 +46,12 @@ namespace WorstHotel
             {
                 if (carrier && carrier.HeldBody == Body) carrier.ReleaseGrab();
                 carrier = null; simulation = current; shownLocation = null; shownGeneration = -1; LastCarrierId = null;
+                if (luggageSlot >= 0 && simulation?.ContinuousOperations == true) itemId = null;
             }
             if (luggageSlot >= 0)
             {
-                string nextId = simulation != null && luggageSlot < simulation.Guests.Count ? "luggage:" + simulation.Guests[luggageSlot].GuestId : null;
+                string nextId = simulation?.ContinuousOperations == true ? ContinuousLuggageId() :
+                    simulation != null && luggageSlot < simulation.Guests.Count ? "luggage:" + simulation.Guests[luggageSlot].GuestId : null;
                 if (itemId != nextId) { itemId = nextId; shownLocation = null; shownGeneration = -1; }
             }
             // Replicas get physical visibility and pose from the host; local model must not move a replica body.
@@ -82,6 +87,33 @@ namespace WorstHotel
                 Body.linearVelocity = Body.angularVelocity = Vector3.zero;
                 Body.position = sourceAnchor.position; Body.rotation = sourceAnchor.rotation;
             }
+        }
+
+        string ContinuousLuggageId()
+        {
+            var current = State;
+            if (current != null)
+            {
+                // A roster prune or new arrival must never rebind a physical suitcase held
+                // or put down by staff. Its stable item identity outlives the guest body.
+                if (current.Location == ServiceItemLocation.HeldByPlayer || current.Location == ServiceItemLocation.Dropped)
+                    return itemId;
+                foreach (var guest in simulation.Guests)
+                    if (guest.GuestId == current.GuestId && guest.Agent?.State != GuestAgentState.Left) return itemId;
+            }
+            foreach (var guest in simulation.Guests)
+            {
+                if (guest.Agent == null || guest.Agent.State != GuestAgentState.Arriving && guest.Agent.State != GuestAgentState.WaitingForCheckIn)
+                    continue;
+                string candidate = "luggage:" + guest.GuestId;
+                if (simulation.Services?.FindItem(candidate) == null) continue;
+                bool assigned = false;
+                foreach (var body in luggageBodies)
+                    if (body && body != this && body.gameObject.scene == gameObject.scene && body.simulation == simulation && body.itemId == candidate)
+                    { assigned = true; break; }
+                if (!assigned) return candidate;
+            }
+            return null;
         }
 
         void PlaceAtDock(ServiceItemState state, GuestStay guest)
@@ -129,5 +161,6 @@ namespace WorstHotel
             if (carrier && carrier.HeldBody == Body) carrier.ReleaseGrab();
             carrier = null;
         }
+        void OnDestroy() => luggageBodies.Remove(this);
     }
 }

@@ -7,6 +7,16 @@ namespace WorstHotel
     public sealed partial class EconomySystem
     {
         int lastOperatingReport;
+        internal void RestoreOperatingSequence(int number) => lastOperatingReport = number;
+
+        internal void PostCheckout(GuestReceipt receipt)
+        {
+            if (ReadOnlyMirror) throw new InvalidOperationException(HotelSimulation.MirrorMessage);
+            if (receipt == null) throw new ArgumentNullException(nameof(receipt));
+            long next = (long)Cash + receipt.Net;
+            if (next > int.MaxValue || next < int.MinValue) throw new InvalidOperationException("Checkout exceeds the supported cash range.");
+            Cash = (int)next;
+        }
 
         // Receipts have already been paid at checkout. Closing a period never posts revenue again.
         internal DayReport CloseOperatingDay(int number, IEnumerable<GuestReceipt> receipts, int openingCash, float seconds)

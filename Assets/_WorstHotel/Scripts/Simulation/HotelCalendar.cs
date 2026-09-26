@@ -38,6 +38,11 @@ namespace WorstHotel
         public OperationsSettings Settings { get; }
         double TotalHours => Settings.StartHour + (double)clock.SimulationTime * 24 / Settings.SecondsPerDay;
         public int Day => checked((int)Math.Floor(TotalHours / 24) + 1);
+        public int DayAt(float time)
+        {
+            if (!Number.IsFinite(time) || time < 0) throw new ArgumentOutOfRangeException(nameof(time));
+            return checked((int)Math.Floor((Settings.StartHour + (double)time * 24 / Settings.SecondsPerDay) / 24) + 1);
+        }
         public float Hour => (float)(TotalHours % 24);
         public string DisplayTime
         {

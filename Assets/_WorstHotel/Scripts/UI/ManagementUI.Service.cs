@@ -6,6 +6,7 @@ namespace WorstHotel
 {
     public sealed partial class ManagementUI
     {
+        int guestLedgerPage;
         void DrawServiceLedger()
         {
             if (showingHousekeeping) { DrawHousekeeping(); return; }
@@ -18,7 +19,10 @@ namespace WorstHotel
                 ButtonAt(new Rect(502, 139, 245, 48), Session.Simulation.BoilerFailureAcknowledged ? "Boiler loss accepted" : "Leave boiler failed",
                     () => Session.AcceptBoilerConsequences(owner), !Session.Simulation.BoilerFailureAcknowledged);
             int i = 0;
-            foreach (var guest in Session.Simulation.Guests)
+            var currentGuests = Session.Simulation.Guests.Where(guest => !Session.Simulation.ContinuousOperations ||
+                guest.Agent == null || guest.Agent.State != GuestAgentState.Left && guest.Agent.State != GuestAgentState.Leaving).ToArray();
+            guestLedgerPage = Mathf.Clamp(guestLedgerPage, 0, Mathf.Max(0, (currentGuests.Length - 1) / 6));
+            foreach (var guest in currentGuests.Skip(guestLedgerPage * 6).Take(6))
             {
                 float y = 204 + i * 78;
                 var room = Session.Rooms.First(x => x.Profile.Id == guest.RoomId);
@@ -37,7 +41,11 @@ namespace WorstHotel
             }
             ButtonAt(new Rect(42, 692, 342, 36), "Room preparation / linen", OpenHousekeeping);
             ButtonAt(new Rect(405, 692, 342, 36), "Service board / promises", () => ShowServices(), Session.Simulation.Services != null);
-            Label(new Rect(42, 733, 700, 54), "Cash $" + Session.Cash.ToString("F0") + "  /  Credits $" + Session.Simulation.OutstandingCompensation + "\n" + Session.LastMessage, Small, Muted);
+            if (Session.Simulation.ContinuousOperations)
+                ButtonAt(new Rect(405, 746, 342, 38), "Hotel operations / bookings", ShowOperations);
+            if (currentGuests.Length > 6)
+                ButtonAt(new Rect(502, 80, 245, 38), "More guests ›", () => { guestLedgerPage = (guestLedgerPage + 1) % ((currentGuests.Length + 5) / 6); focus = 0; });
+            Label(new Rect(42, 733, Session.Simulation.ContinuousOperations ? 342 : 700, 54), "Cash $" + Session.Cash.ToString("F0") + "  /  Credits $" + Session.Simulation.OutstandingCompensation + "\n" + Session.LastMessage, Small, Muted);
             ButtonAt(new Rect(42, 799, 705, 42), "Close ledger / keep working", Close);
         }
 

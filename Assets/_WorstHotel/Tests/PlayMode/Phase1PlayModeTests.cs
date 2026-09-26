@@ -15,6 +15,7 @@ namespace WorstHotel.Tests
         private Gamepad padB;
         private Scene loadedScene;
         private LocalCoopBootstrap bootstrap;
+        private SessionConfig legacySceneConfig;
 
         [UnitySetUp]
         public IEnumerator LoadFreshHotelWithTwoVirtualPads()
@@ -33,6 +34,15 @@ namespace WorstHotel.Tests
             yield return null;
             bootstrap = LocalCoopBootstrap.Instance;
             Assert.That(bootstrap, Is.Not.Null);
+            // Historical scene tests exercise the original shift contract explicitly.
+            // Continuous acceptance tests keep the real production asset and opt out of this adapter.
+            if (!TestContext.CurrentContext.Test.Properties["Category"].Contains("ContinuousOperations"))
+            {
+                legacySceneConfig = Object.Instantiate(GameSession.Instance.config);
+                legacySceneConfig.continuousOperations = false;
+                GameSession.Instance.config = legacySceneConfig;
+                GameSession.Instance.NewGame();
+            }
             Assert.That(bootstrap.Players, Has.Length.EqualTo(2));
             Assert.That(bootstrap.Players[0], Is.Not.Null);
             Assert.That(bootstrap.Players[1], Is.Not.Null);
@@ -59,6 +69,8 @@ namespace WorstHotel.Tests
             if (padA != null && padA.added) InputSystem.RemoveDevice(padA);
             if (padB != null && padB.added) InputSystem.RemoveDevice(padB);
             padA = padB = null;
+            if (legacySceneConfig) Object.Destroy(legacySceneConfig);
+            legacySceneConfig = null;
             Time.timeScale = 1;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;

@@ -150,7 +150,7 @@ namespace WorstHotel
             switch (purpose)
             {
                 case RoutePurpose.Reception:
-                    rebuilt = AuthoredGuestRoute.Arrival(receptionPlaces[guest.AppearanceIndex % receptionPlaces.Length].position);
+                    rebuilt = AuthoredGuestRoute.Arrival(receptionPlaces[guest.ReceptionSlot].position);
                     break;
                 case RoutePurpose.Activity:
                     rebuilt = AuthoredGuestRoute.Activity(guest.Root.position, guest.Room, guest.Activity, guest.State == GuestAgentState.Sleeping);
@@ -163,7 +163,7 @@ namespace WorstHotel
                     break;
                 case RoutePurpose.ServiceReception:
                     rebuilt = AuthoredGuestRoute.ToServiceReception(guest.Root.position, guest.Room,
-                        receptionPlaces[guest.AppearanceIndex % receptionPlaces.Length].position, guest.InsideRoom);
+                        receptionPlaces[guest.ReceptionSlot].position, guest.InsideRoom);
                     break;
                 case RoutePurpose.Transfer:
                     rebuilt = AuthoredGuestRoute.LeaveRoom(guest.Root.position, guest.Room);

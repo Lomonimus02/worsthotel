@@ -27,6 +27,9 @@ namespace WorstHotel
         }
 
         HotelSimulation CreateSimulationForRooms(RoomState[] roomStates) =>
+            CreateSimulationForRooms(roomStates, config.OperationsData());
+
+        HotelSimulation CreateSimulationForRooms(RoomState[] roomStates, OperationsSettings operations) =>
             new HotelSimulation(Settings, roomStates, config.living ? config.living.ToData() : new LivingHotelSettings(),
                 config.needs ? config.needs.ToData() : new NeedSettings(),
                 config.noise ? config.noise.ToData() : new NoiseSettings(),
@@ -35,7 +38,7 @@ namespace WorstHotel
                 config.housekeeping ? config.housekeeping.ToData() : new HousekeepingSettings(),
                 config.services ? config.services.ToData() : null,
                 config.infrastructure ? config.infrastructure.ToData() : null,
-                config.OperationsData());
+                operations);
 
         void Update()
         {

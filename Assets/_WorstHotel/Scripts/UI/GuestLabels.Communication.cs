@@ -9,7 +9,7 @@ namespace WorstHotel
         public static bool IsKnownToHotel(HotelIncident item) => item != null && item.HasContactedStaff;
         public static bool IsKnownOpenService(ServiceCase item) => IsKnownToHotel(item) && item.Active;
 
-        public static string ServiceClue(ServiceCase item)
+        public static string ServiceClue(ServiceCase item, HotelSimulation simulation = null)
         {
             if (!IsKnownToHotel(item)) return "The guest has not spoken to staff about this.";
             switch (item.Kind)
@@ -17,8 +17,8 @@ namespace WorstHotel
                 case ServiceKind.ExtraBlanket: return "“It's still quite cold in my room.”";
                 case ServiceKind.AskNeighborsQuiet: return "“I can hear someone nearby. It's difficult to rest.”";
                 case ServiceKind.LuggageStorage: return "“Could I leave my suitcase here for a while?”";
-                case ServiceKind.LateCheckout: return "“Could I stay until " + HotelTime(item.DueTime) + "?”";
-                default: return "“Could you give me a wake-up call at " + HotelTime(item.DueTime) + "?”";
+                case ServiceKind.LateCheckout: return "“Could I stay until " + HotelMoment(simulation, item.DueTime) + "?”";
+                default: return "“Could you give me a wake-up call at " + HotelMoment(simulation, item.DueTime) + "?”";
             }
         }
 
@@ -41,7 +41,7 @@ namespace WorstHotel
             var incident = simulation.Incidents.Items.FirstOrDefault(i => i.Id == response.IncidentId &&
                 i.EpisodeCount == response.IncidentEpisode && IsKnownToHotel(i));
             if (incident != null) return ComplaintClue(incident);
-            return ServiceClue(simulation.Services.Cases.FirstOrDefault(c => c.Id == response.ServiceCaseId));
+            return ServiceClue(simulation.Services.Cases.FirstOrDefault(c => c.Id == response.ServiceCaseId), simulation);
         }
     }
 }

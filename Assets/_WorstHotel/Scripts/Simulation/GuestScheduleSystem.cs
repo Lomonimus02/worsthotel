@@ -16,10 +16,12 @@ namespace WorstHotel
         public string GuestId { get; }
         public float ArrivalTime { get; }
         public float SleepTime { get; }
+        public float WakeTime { get; }
         public float CheckoutTime { get; internal set; }
         public IReadOnlyList<GuestScheduleEntry> Activities { get; }
-        internal GuestSchedule(string id, float arrival, float sleep, float checkout, GuestScheduleEntry[] activities)
-        { GuestId = id; ArrivalTime = arrival; SleepTime = sleep; CheckoutTime = checkout; Activities = Array.AsReadOnly(activities); }
+        internal GuestSchedule(string id, float arrival, float sleep, float checkout, GuestScheduleEntry[] activities,
+            float wake = float.PositiveInfinity)
+        { GuestId = id; ArrivalTime = arrival; SleepTime = sleep; WakeTime = wake; CheckoutTime = checkout; Activities = Array.AsReadOnly(activities); }
     }
 
     public sealed partial class GuestScheduleSystem
@@ -51,12 +53,42 @@ namespace WorstHotel
             return agent;
         }
 
+        /// <summary>Attach one dated stay without changing any other guest or the hotel clock.</summary>
+        public GuestAgent AttachStay(GuestStay guest, int arrivalDay, float arrivalAt, float sleepAt,
+            float checkoutAt, float wakeAt = float.PositiveInfinity)
+        {
+            if (ReadOnlyMirror) throw new InvalidOperationException(HotelSimulation.MirrorMessage);
+            if (guest == null || arrivalDay < 1 || !Number.IsFinite(arrivalAt) || arrivalAt < 0 ||
+                !Number.IsFinite(sleepAt) || !Number.IsFinite(checkoutAt) || sleepAt < arrivalAt || checkoutAt <= sleepAt ||
+                (!float.IsPositiveInfinity(wakeAt) && (!Number.IsFinite(wakeAt) || wakeAt <= sleepAt || wakeAt >= checkoutAt)))
+                throw new ArgumentException("A dated stay needs ordered absolute arrival, sleep, optional wake and checkout times.");
+            if (guest.Agent != null || schedules.Any(item => item.GuestId == guest.GuestId))
+                throw new InvalidOperationException("This stay already owns a schedule.");
+            uint random = Seed(Settings.Seed, arrivalDay, guest.GuestId);
+            var schedule = new GuestSchedule(guest.GuestId, arrivalAt, sleepAt, checkoutAt,
+                BuildActivities(guest, ref random), wakeAt);
+            schedules.Add(schedule);
+            return guest.Agent = new GuestAgent(guest.GuestId, schedule,
+                guest.Application.Archetype.Needs.PatienceSeconds * Settings.WaitingPatienceMultiplier);
+        }
+
         private GuestAgent Attach(GuestStay guest, int day, float arrival, float jitter, float serviceSeconds)
         {
             uint random = Seed(Settings.Seed, day, guest.GuestId);
             arrival += Next(ref random) * jitter;
             float checkout = serviceSeconds * Settings.CheckoutFraction;
             checkout += Next(ref random) * serviceSeconds * (1 - Settings.CheckoutFraction) * 0.3f;
+            var entries = BuildActivities(guest, ref random);
+            var archetype = guest.Application.Archetype;
+            float sleepFraction = Settings.SleepStartFraction - (archetype.Kind == GuestKind.Business ? Settings.BusinessSleepAdvanceFraction : 0);
+            float sleep = serviceSeconds * sleepFraction + (Next(ref random) - .5f) * Settings.QuietDurationMin;
+            var schedule = new GuestSchedule(guest.GuestId, arrival, Math.Min(checkout - Settings.ActivityDurationMin, Math.Max(arrival, sleep)), checkout, entries);
+            schedules.Add(schedule);
+            return guest.Agent = new GuestAgent(guest.GuestId, schedule, guest.Application.Archetype.Needs.PatienceSeconds * Settings.WaitingPatienceMultiplier);
+        }
+
+        GuestScheduleEntry[] BuildActivities(GuestStay guest, ref uint random)
+        {
             var entries = new GuestScheduleEntry[24];
             var archetype = guest.Application.Archetype;
             bool noisy = (archetype.Traits & GuestTraits.Noisy) != 0;
@@ -75,11 +107,7 @@ namespace WorstHotel
                     duration *= Settings.ColdShowerDurationMultiplier;
                 entries[i] = new GuestScheduleEntry(activity, duration);
             }
-            float sleepFraction = Settings.SleepStartFraction - (archetype.Kind == GuestKind.Business ? Settings.BusinessSleepAdvanceFraction : 0);
-            float sleep = serviceSeconds * sleepFraction + (Next(ref random) - .5f) * Settings.QuietDurationMin;
-            var schedule = new GuestSchedule(guest.GuestId, arrival, Math.Min(checkout - Settings.ActivityDurationMin, Math.Max(arrival, sleep)), checkout, entries);
-            schedules.Add(schedule);
-            return guest.Agent = new GuestAgent(guest.GuestId, schedule, guest.Application.Archetype.Needs.PatienceSeconds * Settings.WaitingPatienceMultiplier);
+            return entries;
         }
 
         GuestActivity PickActivity(GuestKind kind, bool noisy, ref uint random)

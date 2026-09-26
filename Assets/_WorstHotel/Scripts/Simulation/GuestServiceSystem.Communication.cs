@@ -67,7 +67,7 @@ namespace WorstHotel
             var request = FindCase(response.ServiceCaseId);
             if (request == null || request.BudgetCharged) return true;
             if (request.Active && BudgetAvailable(guest))
-            { if (charge) request.BudgetCharged = true; return true; }
+            { if (charge) ChargeBudget(request); return true; }
             // A serious factual complaint is independent of the optional service allowance.
             // Keep its response identity, but never grant an uncharged soft agreement.
             if (IsSerious(response))

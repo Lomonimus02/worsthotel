@@ -66,7 +66,8 @@ namespace WorstHotel.Editor
             var boiler = Asset<BoilerConfig>(root + "Boiler.asset", _ => { });
             var economy = Asset<EconomyConfig>(root + "Economy.asset", _ => { });
             var session = Asset<SessionConfig>(root + "PrototypeSession.asset", x =>
-            { x.guestArchetypes = new[] { budget, cold, business }; x.rooms = rooms; x.boiler = boiler; x.economy = economy; x.tickRate = 5; x.serviceSeconds = 300; x.totalDays = 3; x.day3BusinessReferencePrice = 525; });
+            { x.guestArchetypes = new[] { budget, cold, business }; x.rooms = rooms; x.boiler = boiler; x.economy = economy; x.tickRate = 5; x.serviceSeconds = 300; x.totalDays = 3; x.day3BusinessReferencePrice = 525;
+                x.continuousOperations = true; x.hotelDaySeconds = 720; x.openingHour = 8; x.reportHour = 6; });
             // Extend older scene definitions without replacing any designer-tuned 0.1 field.
             if (!session.living)
             {

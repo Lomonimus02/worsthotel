@@ -31,10 +31,15 @@ namespace WorstHotel
                 string status = PreparationStatus(room, task);
                 var booking = Session.Plan.Assignments.FirstOrDefault(a => a.RoomId == roomId);
                 var upcoming = booking != null ? Session.Plan.Applications.FirstOrDefault(a => a.Id == booking.BookingId) : null;
+                var reservation = Session.Simulation.Reservations.Where(r => r.RoomId == roomId && r.Status == ReservationStatus.Reserved)
+                    .OrderBy(r => r.Offer.ArrivalAt).FirstOrDefault();
+                string nextBooking = Session.Simulation.ContinuousOperations ? (reservation != null ?
+                    reservation.Offer.Application.GuestName + " · " + GuestLabels.HotelMoment(Session.Simulation, reservation.Offer.ArrivalAt) : "No upcoming arrival") :
+                    upcoming != null ? upcoming.GuestName + " booked" : "No booking for this room";
                 float y = 212 + index++ * 68;
                 Fill(new Rect(42, y, 705, 61), LightPaper);
                 Label(new Rect(55, y + 4, 455, 29), roomId + "  /  " + status, Body, room.Cleanliness == Cleanliness.Clean && room.DepartingGuestId == null ? Teal : Wine);
-                Label(new Rect(55, y + 32, 455, 24), upcoming != null ? upcoming.GuestName + " booked" : "No booking for this room", Small, Muted);
+                Label(new Rect(55, y + 32, 455, 24), nextBooking, Small, Muted);
                 Label(new Rect(530, y + 10, 204, 39), task?.WorkingPlayerId != null ?
                     "Staff " + (task.WorkingPlayerId.Value + 1) : room.Cleanliness == Cleanliness.Dirty ? "Player preparation" : "", Small, Muted);
             }

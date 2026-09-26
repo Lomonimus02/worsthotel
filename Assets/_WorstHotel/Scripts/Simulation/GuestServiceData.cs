@@ -22,6 +22,7 @@ namespace WorstHotel
         public bool IsKnownToHotel => Response == null || Response.CommunicatedAt >= 0;
         public ServiceCommunicationState CommunicationState => Response?.CommunicationState ?? ServiceCommunicationState.Communicated;
         public bool BudgetCharged { get; internal set; }
+        public int BudgetDay { get; internal set; }
         public float ResolutionAt { get; internal set; } = -1;
         public string ResolutionReason { get; internal set; }
         public bool Active => Status == ServiceStatus.Requested || Status == ServiceStatus.Acknowledged || Status == ServiceStatus.InProgress;

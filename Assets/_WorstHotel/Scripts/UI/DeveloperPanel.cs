@@ -165,7 +165,7 @@ namespace WorstHotel
                         }
                     Session.CommitPlan(0); return Session.Phase == DayPhase.Service ? CommandResult.Ok("Shift started with the current plan.") : CommandResult.Fail(Session.LastMessage);
                 });
-            if (Button("End shift / settle", Session.Phase == DayPhase.Service))
+            if (Button("End shift / settle", !simulation.ContinuousOperations && Session.Phase == DayPhase.Service))
                 Apply(() => { Session.EndShift(); return CommandResult.Ok("Early checkout settled once."); });
             GUILayout.EndHorizontal();
             GUILayout.Label("Requests — developer resolution does not repair the room:", body);

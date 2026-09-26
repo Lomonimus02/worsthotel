@@ -28,7 +28,7 @@ namespace WorstHotel
             public GuestAgentState State;
             public GuestActivity Activity;
             public bool InsideRoom, RouteComplete;
-            public int AppearanceIndex;
+            public int AppearanceIndex, ReceptionSlot;
             public float PoseBlend, SettlingTime, BlockedSeconds;
             public int RecoveryCount;
             public string PathStatus = "Following authored route";
@@ -56,6 +56,34 @@ namespace WorstHotel
         {
             if (guests.TryGetValue(id, out var guest)) { result = guest.Root; return result != null; }
             return lanReplicaRoots.TryGetValue(id, out result) && result != null;
+        }
+
+        public bool TryGetGuestReceptionSlot(string id, out int slot)
+        {
+            if (guests.TryGetValue(id, out var guest)) { slot = guest.ReceptionSlot; return true; }
+            slot = -1; return false;
+        }
+
+        static bool NeedsReceptionSlot(GuestAgent agent) => agent != null &&
+            agent.State != GuestAgentState.CheckingOut && agent.State != GuestAgentState.Leaving && agent.State != GuestAgentState.Left;
+
+        int FreeReceptionSlot()
+        {
+            for (int slot = 0; slot < receptionPlaces.Length; slot++)
+            {
+                bool used = false;
+                foreach (var guest in guests.Values)
+                    if (guest.ReceptionSlot == slot && NeedsReceptionSlot(guest.Stay.Agent)) { used = true; break; }
+                if (!used) return slot;
+            }
+            return -1;
+        }
+
+        static int StableAppearanceIndex(string id)
+        {
+            uint value = 2166136261;
+            unchecked { foreach (char character in id) value = (value ^ character) * 16777619; }
+            return (int)(value % 1024);
         }
 
         // LAN views share the authored original kit, but never create interaction colliders,
@@ -190,21 +218,26 @@ namespace WorstHotel
                 Debug.LogError("Living guests require authored reception and room markers. Rebuild the prototype scene.");
                 return;
             }
+            int receptionSlot = simulation.ContinuousOperations ? FreeReceptionSlot() : index % receptionPlaces.Length;
+            // An overlap may briefly retain departing bodies. Their slots are reusable;
+            // if all actual stays still need a slot, keep the next arrival outside until one frees.
+            if (receptionSlot < 0) return;
+            int appearance = simulation.ContinuousOperations ? StableAppearanceIndex(stay.GuestId) : index;
             var guest = new VisualGuest
             {
                 Id = stay.GuestId, Stay = stay, Room = room,
                 ModelRoom = System.Array.Find(session.Rooms, state => state.Profile.Id == stay.RoomId),
                 Root = new GameObject(stay.Name + " — room " + stay.RoomId).transform,
-                AnimationTime = index * .79f, State = stay.Agent.State, Activity = stay.Agent.Activity,
-                AppearanceIndex = index
+                AnimationTime = appearance * .79f, State = stay.Agent.State, Activity = stay.Agent.Activity,
+                AppearanceIndex = appearance, ReceptionSlot = receptionSlot
             };
             guest.Root.SetParent(visualRoot, false);
             guest.Root.position = new Vector3(arrivalSpawn.position.x, .01f, arrivalSpawn.position.z);
-            BuildAppearance(guest, stay.Application.Archetype.Kind, index);
+            BuildAppearance(guest, stay.Application.Archetype.Kind, appearance);
             guest.Root.gameObject.AddComponent<GuestReceptionInteraction>().Initialize(session, stay);
             guests.Add(stay.GuestId, guest);
             simulation.RegisterGuestPhysicalStaging(stay.GuestId);
-            var reception = receptionPlaces[index % receptionPlaces.Length];
+            var reception = receptionPlaces[receptionSlot];
             SetRoute(guest, AuthoredGuestRoute.Arrival(reception.position), RoutePurpose.Reception);
             if (stay.Agent.State == GuestAgentState.GoingToRoom)
             {

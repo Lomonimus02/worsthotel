@@ -76,7 +76,11 @@ namespace WorstHotel
             return TryCause(guest, item.Kind, now, out string source, out _, out _, out _, true) && source == item.SourceEntityId;
         }
 
-        bool BudgetAvailable(GuestStay guest) => cases.Count(item => item.BudgetCharged) < Settings.MaxCasesPerShift &&
+        void ChargeBudget(ServiceCase item)
+        { if (!item.BudgetCharged) { item.BudgetCharged = true; item.BudgetDay = day; } }
+
+        bool BudgetAvailable(GuestStay guest) => cases.Count(item => item.BudgetCharged &&
+                (!simulation.ContinuousOperations || item.BudgetDay == day)) < Settings.MaxCasesPerShift &&
             cases.Count(item => item.GuestId == guest.GuestId && item.BudgetCharged) < Settings.MaxCasesPerGuest;
         bool IsSerious(GuestResponse response) => Incident(response)?.Stage >= SituationStage.Complaint && Incident(response)?.Active == true;
 

@@ -17,7 +17,7 @@ namespace WorstHotel
     [Serializable] public sealed class ServiceCaseSnapshot
     {
         public string Id, GuestId, SourceEntityId, Description, ResponseId, ResolutionReason;
-        public int RoomId, SourceRoomId;
+        public int RoomId, SourceRoomId, BudgetDay;
         public ServiceKind Kind;
         public ServiceStatus Status;
         public float CreatedAt, DueTime, RecoverySeconds;
@@ -50,7 +50,7 @@ namespace WorstHotel
                 RoomId = c.RoomId, SourceRoomId = c.SourceRoomId, Kind = c.Kind, Status = c.Status,
                 CreatedAt = c.CreatedAt, DueTime = c.DueTime, RecoverySeconds = c.RecoverySeconds,
                 SourceEntityId = c.SourceEntityId, Description = c.Description,
-                ResponseId = SnapshotData.OptionalId(c.Response?.Id), BudgetCharged = c.BudgetCharged,
+                ResponseId = SnapshotData.OptionalId(c.Response?.Id), BudgetCharged = c.BudgetCharged, BudgetDay = c.BudgetDay,
                 ResolutionAt = c.ResolutionAt, ResolutionReason = c.ResolutionReason }).ToArray(),
             Promises = promises.Select(p => new WakePromiseSnapshot { Id = p.Id, GuestId = p.GuestId,
                 RoomId = p.RoomId, DueTime = p.DueTime, CompletedAt = p.CompletedAt,
@@ -66,7 +66,7 @@ namespace WorstHotel
             cases.Clear(); promises.Clear(); items.Clear();
             foreach (var c in data.Cases) cases.Add(new ServiceCase(c.Id, c.GuestId, c.RoomId, c.Kind,
                 c.CreatedAt, c.DueTime, c.SourceEntityId, c.SourceRoomId, c.Description)
-                { Status = c.Status, RecoverySeconds = c.RecoverySeconds, BudgetCharged = c.BudgetCharged,
+                { Status = c.Status, RecoverySeconds = c.RecoverySeconds, BudgetCharged = c.BudgetCharged, BudgetDay = c.BudgetDay,
                     ResolutionAt = c.ResolutionAt, ResolutionReason = c.ResolutionReason });
             foreach (var p in data.Promises) promises.Add(new PromiseWakeUp(p.Id, p.GuestId, p.RoomId, p.DueTime)
                 { Status = p.Status, DueNotified = p.DueNotified, CompletedAt = p.CompletedAt });
@@ -79,7 +79,8 @@ namespace WorstHotel
 
     internal static partial class SnapshotValidation
     {
-        internal static void Services(HotelModelSnapshot snapshot, bool enabled, IReadOnlyCollection<int> roomIds, bool naturalCommunicationEnabled = false)
+        internal static void Services(HotelModelSnapshot snapshot, bool enabled, IReadOnlyCollection<int> roomIds,
+            bool naturalCommunicationEnabled = false)
         {
             Require(snapshot.HasServices == enabled, "Service configuration differs from this hotel.");
             // JsonUtility may materialize an empty nested class for an absent optional subsystem.
@@ -87,12 +88,18 @@ namespace WorstHotel
             var s = snapshot.ServiceLayer;
             Require(s != null, "Missing guest services.");
             Require(s.NaturalCommunicationEnabled == naturalCommunicationEnabled, "Guest communication configuration differs.");
-            Require(s.Day >= 0 && s.Day <= 3 && s.LastRefillDay >= 1 && s.LastRefillDay <= 4 &&
+            bool continuous = snapshot.HasOperations;
+            int maximumDay = continuous ? snapshot.Day : 3;
+            int maximumRefillDay = continuous ? Math.Max(1, snapshot.Day) : 4;
+            Require(s.Day >= 0 && s.Day <= maximumDay && s.LastRefillDay >= 1 && s.LastRefillDay <= maximumRefillDay &&
                 s.StaffCount >= 1 && s.StaffCount <= 2, "Invalid service day or staff count.");
             Range(s.ServiceEnd);
             var guests = new HashSet<string>(snapshot.Guests.Select(g => g.Application.Id));
             bool Room(int id, bool optional = false) => optional && id == 0 || roomIds.Contains(id);
-            var cases = Array(s.Cases, 32); var promises = Array(s.Promises, 6); var items = Array(s.Items, 18);
+            var cases = Array(s.Cases, continuous ? 256 : 32);
+            var promises = Array(s.Promises, continuous ? 128 : 6);
+            // One luggage identity per retained guest and at most six slots of each stock kind.
+            var items = Array(s.Items, continuous ? 140 : 18);
             Unique(cases.Select(c => c.Id)); Unique(cases.Select(c => c.GuestId + "/" + c.Kind));
             Unique(cases.Where(c => c.Status == ServiceStatus.Requested || c.Status == ServiceStatus.Acknowledged ||
                 c.Status == ServiceStatus.InProgress).Select(c => c.GuestId));
@@ -105,6 +112,8 @@ namespace WorstHotel
                 Require(guests.Contains(c.GuestId) && Room(c.RoomId) && Room(c.SourceRoomId), "Invalid service guest or room.");
                 Require(c.Id == c.GuestId + "/service/" + c.Kind + "/" + c.SourceEntityId, "Invalid service identity.");
                 Require(c.DueTime >= c.CreatedAt, "Service deadline precedes its request.");
+                Require(c.BudgetCharged ? c.BudgetDay >= 1 && c.BudgetDay <= s.Day : c.BudgetDay == 0,
+                    "Service allowance day differs from its charged state.");
                 OptionalId(c.ResponseId, 512); Text(c.ResolutionReason, 2048, true); OptionalHotelTime(c.ResolutionAt);
                 if (c.Kind == ServiceKind.AskNeighborsQuiet)
                     Require(snapshot.Incidents.Any(i => i.GuestId == c.GuestId && i.Reason == IncidentReason.Noise &&

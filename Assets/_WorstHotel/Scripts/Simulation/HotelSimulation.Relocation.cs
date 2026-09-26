@@ -43,6 +43,7 @@ namespace WorstHotel
             ReleaseOwnedRoom(guest, source);
             destination.ReservedGuestId = guestId;
             guest.RoomId = targetRoomId;
+            SyncReservationRoom(guest);
             Services?.SyncGuestRoom(guest);
             guest.Agent.PendingMoveRoomId = null;
             guest.Agent.IsRelocating = true;
@@ -75,6 +76,11 @@ namespace WorstHotel
                 return CommandResult.Fail("The destination must be a real free, unreserved room.");
             if (destination.Cleanliness != Cleanliness.Clean) return CommandResult.Fail("The destination room must be clean.");
             if (RoomTurnoverProtected(destination)) return CommandResult.Fail("The destination must be clear of the previous guest and current cleaning task.");
+            if (ContinuousOperations)
+            {
+                var datedAvailability = CanReserveInterval(targetRoomId, Elapsed, guest.Agent.CheckoutTime, guest.GuestId);
+                if (!datedAvailability.Success) return datedAvailability;
+            }
             source = rooms[guest.RoomId];
             if (source.GuestId != guestId) return CommandResult.Fail("The source room no longer belongs to this guest.");
             return CommandResult.Ok();

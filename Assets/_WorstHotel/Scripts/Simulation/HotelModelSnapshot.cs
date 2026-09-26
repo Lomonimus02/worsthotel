@@ -5,7 +5,7 @@ namespace WorstHotel
     // Explicit wire data only: arrays, strings, enums and finite scalar values. No Unity or transport API.
     [Serializable] public sealed class HotelModelSnapshot
     {
-        public const int ProtocolVersion = 5;
+        public const int ProtocolVersion = 6;
         public int Version = ProtocolVersion;
         public long Epoch, Sequence;
         public int Day, LastMaintenanceDay, DebugGuestCounter, EventRevision, LastReportDay, Cash, LastRefillDay;
@@ -30,6 +30,8 @@ namespace WorstHotel
         public float SituationTime;
         public bool HasServices;
         public ServiceLayerSnapshot ServiceLayer;
+        public bool HasOperations;
+        public OperationsSnapshot Operations;
     }
     [Serializable] public sealed class PlanningSnapshot
     { public BookingSnapshot[] Applications; public AssignmentSnapshot[] Assignments; public bool IsCommitted; }
@@ -59,7 +61,7 @@ namespace WorstHotel
     [Serializable] public sealed class GuestSnapshot
     {
         public BookingSnapshot Application; public int RoomId, Price, CompensationCredit;
-        public bool Compensated, HasNeeds, ExpiredRoomComplaint;
+        public bool Compensated, HasNeeds, ExpiredRoomComplaint, ReceiptPosted;
         public float CheckInWaitingSeconds, CheckInDelayPenaltySeconds, Elapsed, QualityIntegral, ExpiredComplaintSeconds;
         public float ColdExposureSeconds, HotExposureSeconds, NoiseExposureSeconds, DirtyExposureSeconds, FixtureExposureSeconds, PowerLossExposureSeconds;
         public float CombinedRoomDeficit, ServiceIntegral;
@@ -75,6 +77,8 @@ namespace WorstHotel
     {
         public GuestAgentState State; public GuestActivity Activity;
         public float ArrivalTime, SleepTime, CheckoutTime, StateChangedAt, WaitingSeconds, WaitingPatience;
+        public bool HasWakeTime;
+        public float WakeTime;
         public float HeatingDemandMultiplier, NoiseOutput, QuietUntil, NextActivityTime, ActivityEndsAt;
         public bool CheckedIn, HasReachedRoom, IsRelocating, HasNextActivityTime, HasActivityEnd, PatienceEventSent, SleepStarted;
         public bool RequiresActivityStaging, ActivityStaged, TemporarySleep, HasPendingActivityDuration, HasAwayReturnTime;

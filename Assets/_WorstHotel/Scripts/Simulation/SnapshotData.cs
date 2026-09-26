@@ -17,7 +17,7 @@ namespace WorstHotel
             if(!new[]{x.HeatingDemand,x.ColdThreshold,x.ColdPenaltyWeight,x.PriceSensitivity,x.Patience,x.NoiseTolerance,xn.PreferredTemperatureMin,xn.PreferredTemperatureMax,xn.ToleranceTemperatureMin,xn.ToleranceTemperatureMax,xn.PreferredNoise,xn.NoiseTolerance,xn.PatienceSeconds}
                 .SequenceEqual(new[]{y.HeatingDemand,y.ColdThreshold,y.ColdPenaltyWeight,y.PriceSensitivity,y.Patience,y.NoiseTolerance,yn.PreferredTemperatureMin,yn.PreferredTemperatureMax,yn.ToleranceTemperatureMin,yn.ToleranceTemperatureMax,yn.PreferredNoise,yn.NoiseTolerance,yn.PatienceSeconds}))return false;
             if(a.Agent==null)return true;
-            return a.Agent.WaitingPatience==b.Agent.WaitingPatience && a.Agent.ArrivalTime==b.Agent.ArrivalTime && a.Agent.Schedule.SleepTime==b.Agent.Schedule.SleepTime && a.Agent.Schedule.Activities.SequenceEqual(b.Agent.Schedule.Activities);
+            return a.Agent.WaitingPatience==b.Agent.WaitingPatience && a.Agent.ArrivalTime==b.Agent.ArrivalTime && a.Agent.Schedule.SleepTime==b.Agent.Schedule.SleepTime && a.Agent.Schedule.WakeTime==b.Agent.Schedule.WakeTime && a.Agent.Schedule.Activities.SequenceEqual(b.Agent.Schedule.Activities);
         }
         internal static ProfileSnapshot Capture(GuestProfile p) => new ProfileSnapshot
         {
@@ -44,6 +44,7 @@ namespace WorstHotel
         internal static AgentSnapshot Capture(GuestAgent a) => a == null ? null : new AgentSnapshot
         {
             State=a.State,Activity=a.Activity,ArrivalTime=a.ArrivalTime,SleepTime=a.Schedule.SleepTime,CheckoutTime=a.CheckoutTime,
+            HasWakeTime=Number.IsFinite(a.Schedule.WakeTime),WakeTime=Number.IsFinite(a.Schedule.WakeTime)?a.Schedule.WakeTime:0,
             StateChangedAt=a.StateChangedAt,WaitingSeconds=a.WaitingSeconds,WaitingPatience=a.WaitingPatience,
             HeatingDemandMultiplier=a.HeatingDemandMultiplier,NoiseOutput=a.NoiseOutput,QuietUntil=a.QuietUntil,
             HasNextActivityTime=Number.IsFinite(a.NextActivityTime),NextActivityTime=Number.IsFinite(a.NextActivityTime)?a.NextActivityTime:0,
@@ -60,6 +61,7 @@ namespace WorstHotel
         internal static GuestSnapshot Capture(GuestStay g) => new GuestSnapshot
         {
             Application=Capture(g.Application),RoomId=g.RoomId,Price=g.Price,CompensationCredit=g.CompensationCredit,Compensated=g.Compensated,
+            ReceiptPosted=g.ReceiptPosted,
             CheckInWaitingSeconds=g.CheckInWaitingSeconds,CheckInDelayPenaltySeconds=g.CheckInDelayPenaltySeconds,
             Elapsed=g.Elapsed,QualityIntegral=g.QualityIntegral,ExpiredComplaintSeconds=g.ExpiredComplaintSeconds,
             ColdExposureSeconds=g.ColdExposureSeconds,HotExposureSeconds=g.HotExposureSeconds,NoiseExposureSeconds=g.NoiseExposureSeconds,
@@ -78,7 +80,7 @@ namespace WorstHotel
             {
                 var a=s.Agent;
                 g.Agent=new GuestAgent(g.GuestId,new GuestSchedule(g.GuestId,a.ArrivalTime,a.SleepTime,a.CheckoutTime,
-                    a.Schedule.Select(x=>new GuestScheduleEntry(x.Activity,x.Duration)).ToArray()),a.WaitingPatience);
+                    a.Schedule.Select(x=>new GuestScheduleEntry(x.Activity,x.Duration)).ToArray(),a.HasWakeTime?a.WakeTime:float.PositiveInfinity),a.WaitingPatience);
             }
             Restore(g,s);
             return g;
@@ -87,6 +89,7 @@ namespace WorstHotel
         {
             Restore(g.Memory,s.Memory);Restore(g.Perception,s.Perception);
             g.RoomId=s.RoomId;g.CompensationCredit=s.CompensationCredit;g.Compensated=s.Compensated;
+            g.ReceiptPosted=s.ReceiptPosted;
             g.BlanketComfortBonus=s.BlanketComfortBonus;g.ServiceSatisfactionAdjustment=s.ServiceSatisfactionAdjustment;
             g.CheckInWaitingSeconds=s.CheckInWaitingSeconds;g.CheckInDelayPenaltySeconds=s.CheckInDelayPenaltySeconds;
             g.Elapsed=s.Elapsed;g.QualityIntegral=s.QualityIntegral;g.ExpiredComplaintSeconds=s.ExpiredComplaintSeconds;

@@ -12,7 +12,7 @@ namespace WorstHotel.Tests
             var session = GameSession.Instance;
             // LABELLED CALENDAR FIXTURE: a short calendar only. No guests, capacity overrides,
             // synthetic arrival callbacks or altered infrastructure assets are needed here.
-            // The reusable fixture's teardown destroys this clone; production stays opt-in/off.
+            // The reusable fixture's teardown destroys this clone; the shared production configuration remains unchanged.
             waitScenarioSessionConfig = Object.Instantiate(session.config);
             waitScenarioSessionConfig.continuousOperations = true;
             waitScenarioSessionConfig.hotelDaySeconds = 24;
@@ -28,15 +28,15 @@ namespace WorstHotel.Tests
             Assert.That(session.PlanCommitted, Is.False);
         }
 
-        [UnityTest]
+        [UnityTest, Category("ContinuousOperations")]
         public IEnumerator ContinuousSessionUpdatesThroughReportWithoutClosingHotelOrOpeningLedger()
         {
             var session = GameSession.Instance;
             var productionConfig = session.config;
-            Assert.That(productionConfig.continuousOperations, Is.False,
-                "Production activation belongs to phase 2, after dated bookings exist.");
-            Assert.That(productionConfig.OperationsData(), Is.Null);
-            Assert.That(session.Phase, Is.EqualTo(DayPhase.Planning));
+            Assert.That(productionConfig.continuousOperations, Is.True,
+                "Production uses continuous operations once dated bookings are available.");
+            Assert.That(productionConfig.OperationsData(), Is.Not.Null);
+            Assert.That(session.Phase, Is.EqualTo(DayPhase.Service));
             StartContinuousCalendarFixture();
             var simulation = session.Simulation;
             var rooms = session.Rooms;
@@ -80,7 +80,7 @@ namespace WorstHotel.Tests
             Assert.That(session.Plan.IsCommitted || session.PlanCommitted, Is.False,
                 "Reject a legacy commit before it mutates the compatibility plan.");
             Assert.That(ManagementUI.Instance.IsOpen, Is.False);
-            Assert.That(productionConfig.continuousOperations, Is.False, "The fixture must not activate the shared production asset.");
+            Assert.That(productionConfig.continuousOperations, Is.True, "The fixture must not change the shared production asset.");
 
             waitScenarioSessionConfig.continuousOperations = false;
             session.NewGame();
@@ -90,7 +90,7 @@ namespace WorstHotel.Tests
             LogAssert.NoUnexpectedReceived();
         }
 
-        [UnityTest]
+        [UnityTest, Category("ContinuousOperations")]
         public IEnumerator ContinuousReportLeavesExistingLedgerOwnerAndPartnerAccessUnchanged()
         {
             StartContinuousCalendarFixture();
@@ -115,7 +115,7 @@ namespace WorstHotel.Tests
             LogAssert.NoUnexpectedReceived();
         }
 
-        [UnityTest]
+        [UnityTest, Category("ContinuousOperations")]
         public IEnumerator ContinuousSessionPauseFreezesCalendarAndResumesWithoutWallClockCatchUp()
         {
             StartContinuousCalendarFixture();
@@ -150,7 +150,7 @@ namespace WorstHotel.Tests
             LogAssert.NoUnexpectedReceived();
         }
 
-        [UnityTest]
+        [UnityTest, Category("ContinuousOperations")]
         public IEnumerator ContinuousSessionRealWaitStopsAtReportWithoutAcceleratingPhysicsOrReusingHeldVotes()
         {
             StartContinuousCalendarFixture(8, 20); // Twelve quiet hotel seconds before the first report.
@@ -193,7 +193,7 @@ namespace WorstHotel.Tests
             LogAssert.NoUnexpectedReceived();
         }
 
-        [UnityTest]
+        [UnityTest, Category("ContinuousOperations")]
         public IEnumerator ContinuousSessionDeveloperAdvancesRemainBoundedAndSynchronizeReports()
         {
             StartContinuousCalendarFixture(8, 6);

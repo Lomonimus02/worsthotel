@@ -7,6 +7,7 @@ using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem.LowLevel;
 
 namespace WorstHotel
@@ -27,6 +28,7 @@ namespace WorstHotel
         GameSession session;
         RoomKeyItem key;
         readonly List<string> facts = new List<string>();
+        SessionConfig legacyVerificationConfig;
 
         [Serializable] sealed class PoseMeasurement
         {
@@ -59,7 +61,21 @@ namespace WorstHotel
                 runner.layoutRegistered = true;
                 runner.pad = (Gamepad)InputSystem.AddDevice(PadLayout, "LANVerificationOwnedClientPad");
             }
+            SceneManager.sceneLoaded += runner.PrepareLegacyVerification;
             Application.logMessageReceived += runner.OnLog;
+        }
+
+        // This opt-in historical driver verifies the original three-shift regression flow.
+        // Configure before scene Start/transport startup; ordinary production sessions never use it.
+        void PrepareLegacyVerification(Scene scene, LoadSceneMode mode)
+        {
+            var current = GameSession.Instance;
+            if (legacyVerificationConfig || !current || current.gameObject.scene != scene) return;
+            legacyVerificationConfig = Instantiate(current.config);
+            legacyVerificationConfig.continuousOperations = false;
+            current.config = legacyVerificationConfig;
+            current.NewGame();
+            facts.Add("LEGACY SHIFT FIXTURE: cloned configuration; this driver does not verify continuous 0.4 bookings.");
         }
 
         void OnLog(string message, string trace, LogType type)
@@ -434,6 +450,8 @@ namespace WorstHotel
         }
         void OnDestroy()
         {
+            SceneManager.sceneLoaded -= PrepareLegacyVerification;
+            if (legacyVerificationConfig) Destroy(legacyVerificationConfig);
             Application.logMessageReceived -= OnLog;
             if (pad != null && pad.added) InputSystem.RemoveDevice(pad);
             if (layoutRegistered) InputSystem.RemoveLayout(PadLayout);

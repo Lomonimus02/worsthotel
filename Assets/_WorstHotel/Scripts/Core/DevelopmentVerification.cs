@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 namespace WorstHotel
 {
@@ -34,6 +35,7 @@ namespace WorstHotel
         readonly Gamepad[] verificationPads = new Gamepad[2];
         readonly List<DaySample> days = new List<DaySample>();
         readonly List<string> facts = new List<string>();
+        SessionConfig legacyVerificationConfig;
         readonly HashSet<HousekeepingTask> reachedCleaning = new HashSet<HousekeepingTask>();
         readonly HashSet<HousekeepingTask> finishedCleaning = new HashSet<HousekeepingTask>();
 
@@ -60,8 +62,22 @@ namespace WorstHotel
             runner.verificationLayoutRegistered = true;
             runner.verificationPads[0] = (Gamepad)InputSystem.AddDevice(VerificationPadLayout, "VerificationStaffA");
             if (!runner.soloTour) runner.verificationPads[1] = (Gamepad)InputSystem.AddDevice(VerificationPadLayout, "VerificationStaffB");
+            SceneManager.sceneLoaded += runner.PrepareLegacyVerification;
             Application.logMessageReceived += runner.OnLog;
             runner.began = Time.realtimeSinceStartup;
+        }
+
+        // This opt-in historical driver verifies the original three-shift regression flow.
+        // Configure before scene Start/transport startup; ordinary production sessions never use it.
+        void PrepareLegacyVerification(Scene scene, LoadSceneMode mode)
+        {
+            var current = GameSession.Instance;
+            if (legacyVerificationConfig || !current || current.gameObject.scene != scene) return;
+            legacyVerificationConfig = Instantiate(current.config);
+            legacyVerificationConfig.continuousOperations = false;
+            current.config = legacyVerificationConfig;
+            current.NewGame();
+            facts.Add("LEGACY SHIFT FIXTURE: cloned configuration; this driver does not verify continuous 0.4 bookings.");
         }
 
         void OnLog(string message, string trace, LogType type)
@@ -384,6 +400,8 @@ namespace WorstHotel
 
         void OnDestroy()
         {
+            SceneManager.sceneLoaded -= PrepareLegacyVerification;
+            if (legacyVerificationConfig) Destroy(legacyVerificationConfig);
             Application.logMessageReceived -= OnLog;
             if (observedSimulation?.Housekeeping != null) observedSimulation.Housekeeping.Changed -= ObserveCleaning;
             foreach (var pad in verificationPads)

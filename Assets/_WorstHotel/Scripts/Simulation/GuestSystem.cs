@@ -9,6 +9,17 @@ namespace WorstHotel
         private static readonly string[] Names =
         { "Mara Bell", "Owen Finch", "Nina Moss", "Theo Vale", "Iris Reed", "Felix Dawn", "Ada Brook", "Luca Hart" };
 
+        public static BookingApplication[] GenerateContinuousApplications(int day, IEnumerable<GuestProfile> profiles)
+        {
+            if (day < 1) throw new ArgumentOutOfRangeException(nameof(day));
+            if (profiles == null) throw new ArgumentNullException(nameof(profiles));
+            var byKind = profiles.ToDictionary(profile => profile.Kind);
+            var kinds = new[] { GuestKind.Budget, GuestKind.ColdSensitive, GuestKind.Business, GuestKind.Budget,
+                GuestKind.ColdSensitive, GuestKind.Business, GuestKind.Business, GuestKind.Budget };
+            return kinds.Select((kind, index) => new BookingApplication("stay-" + day + "-" + (index + 1),
+                Names[(index + (day - 1) % Names.Length * 3) % Names.Length], byKind[kind], byKind[kind].ReferencePrice)).ToArray();
+        }
+
         public static BookingApplication[] GenerateApplications(int day, IEnumerable<GuestProfile> profiles, int day3BusinessReferencePrice = 525)
         {
             if (day < 1 || day > 3) throw new ArgumentOutOfRangeException(nameof(day));

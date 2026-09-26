@@ -31,6 +31,36 @@ namespace WorstHotel.Tests
         }
 
         [Test]
+        public void ContinuousCommandCanCrossMidnightButNotEpochPhaseOrFutureDate()
+        {
+            var command = Valid(); command.phase = DayPhase.Service; command.kind = LanCommandKind.AcceptBooking;
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 2, DayPhase.Service, true), Is.True,
+                "A valid enquiry does not become stale just because midnight passed in transit.");
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 2, DayPhase.Service), Is.False,
+                "Historical shifts retain their exact-day gate.");
+            Assert.That(LanProtocol.ValidCommand(command, 42, 2, 2, DayPhase.Service, true), Is.False);
+            Assert.That(LanProtocol.ValidCommand(command, 41, 3, 2, DayPhase.Service, true), Is.False);
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 2, DayPhase.Planning, true), Is.False);
+            command.day = 3;
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 2, DayPhase.Service, true), Is.False);
+        }
+
+        [TestCase(LanCommandKind.CancelBooking)]
+        [TestCase(LanCommandKind.SetBookingPrice)]
+        public void ReservationEditsCarryAnExplicitRevisionThroughJson(LanCommandKind kind)
+        {
+            var command = Valid(); command.kind = kind; command.phase = DayPhase.Service;
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 1, DayPhase.Service, true), Is.False);
+            command.expectedReservationRevision = 4;
+            var decoded = JsonUtility.FromJson<LanCommand>(JsonUtility.ToJson(command));
+            Assert.That(decoded.expectedReservationRevision, Is.EqualTo(4));
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.True);
+            decoded.kind = LanCommandKind.RequestQuiet;
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False,
+                "Unrelated commands cannot smuggle booking revision fields.");
+        }
+
+        [Test]
         public void DirectIpAndInputRejectInvalidBoundaryValuesWithoutRequiringNetworkingRuntime()
         {
             foreach (var address in new[] { "127.0.0.1", "192.168.1.10" }) Assert.That(LanProtocol.ValidAddress(address), Is.True);

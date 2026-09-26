@@ -28,7 +28,9 @@ namespace WorstHotel
                 float x = 20 + (staff && (staff.IsSolo || staff.LanRole != LanRole.Offline) ? 0 : p * 800);
                 Fill(new Rect(x, 58, 758, 91), new Color(.10f, .14f, .12f, .9f));
                 int remaining = Mathf.CeilToInt(session.Simulation.Remaining);
-                Label(new Rect(x + 14, 66, 730, 27), "DAY " + session.Day + "   •   " + remaining / 60 + ":" + (remaining % 60).ToString("D2") + " left   •   Cash $" + session.Cash.ToString("F0") + "   •   Complaints " + session.Simulation.Requests.ActiveCount, Body, LightPaper);
+                string clock = session.Simulation.ContinuousOperations ? GuestLabels.HotelMoment(session.Simulation, session.Simulation.Elapsed) :
+                    "DAY " + session.Day + "   •   " + remaining / 60 + ":" + (remaining % 60).ToString("D2") + " left";
+                Label(new Rect(x + 14, 66, 730, 27), clock + "   •   Cash $" + session.Cash.ToString("F0") + "   •   Complaints " + session.Simulation.Requests.ActiveCount, Body, LightPaper);
                 var boiler = session.Simulation.Boiler;
                 Label(new Rect(x + 14, 94, 730, 25), "Boiler " + boiler.Condition.ToString("F0") + "%   /   load " + boiler.Load.ToString("F2") + "   /   pressure " + boiler.Pressure.ToString("F0") + "   /   heat " + (boiler.HeatingOutput * 100).ToString("F0") + "%", Small, boiler.Failed ? new Color(1, .56f, .28f) : Paper);
                 DrawElectricalStatus(session, x);

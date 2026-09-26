@@ -21,7 +21,7 @@ namespace WorstHotel
             foreach (var promise in simulation.Services.Promises)
                 if (promise.Status == PromiseStatus.Accepted && (next == null || promise.DueTime < next.DueTime)) next = promise;
             phoneLabel.text = next == null ? "RECEPTION PHONE\nNO CALLS PROMISED" : "WAKE ROOM " + next.RoomId + "\n" +
-                (next.DueTime <= simulation.Elapsed ? "DUE NOW" : "DUE IN " + Mathf.CeilToInt(next.DueTime - simulation.Elapsed) + "s");
+                (next.DueTime <= simulation.Elapsed ? "DUE NOW" : "DUE IN " + GuestLabels.HotelDuration(simulation, next.DueTime - simulation.Elapsed));
         }
     }
 }
