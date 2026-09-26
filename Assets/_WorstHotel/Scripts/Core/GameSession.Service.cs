@@ -53,6 +53,7 @@ namespace WorstHotel
 
         void Tick(float step)
         {
+            PauseDiagnostics.TickEnter(step);
             int previousEvent = Simulation.EventRevision;
             if (Phase == DayPhase.Planning) Simulation.AdvancePreparation(step);
             else Simulation.Tick(step);
@@ -62,6 +63,7 @@ namespace WorstHotel
             Cash = Simulation.Economy.Cash;
             if (Phase == DayPhase.Service && Simulation.IsServiceComplete) EndShift();
             else RaiseChanged();
+            PauseDiagnostics.TickExit();
         }
 
         public void EndShift()

@@ -70,9 +70,23 @@ namespace WorstHotel.Tests
             QueueUse(pad, false);
             yield return null;
             yield return null;
+            string focusEvidence = string.Empty;
+            if (player.Interactor.Focused != fixture)
+            {
+                var camera = player.PlayerCamera.transform;
+                var surfaces = Physics.RaycastAll(camera.position, camera.forward, player.Interactor.reach,
+                    ~0, QueryTriggerInteraction.Ignore).Where(hit => !hit.collider.transform.IsChildOf(player.transform))
+                    .OrderBy(hit => hit.distance).Select(hit => hit.collider.name + "@" + hit.distance.ToString("F3"));
+                focusEvidence = " / aim=" + aimPoint.ToString("F3") + " camera=" + camera.position.ToString("F3") +
+                    " forward=" + camera.forward.ToString("F3") + " target=" + fixture.transform.position.ToString("F3") +
+                    " bounds=" + string.Join(";", fixture.GetComponentsInChildren<Collider>().Select(shape =>
+                        shape.name + ":" + shape.bounds.center.ToString("F3") + ":" + shape.bounds.size.ToString("F3"))) +
+                    " ray=" + string.Join(";", surfaces) + " canAct=" + player.Interactor.CanAct +
+                    " paused=" + bootstrap.IsPaused + " scale=" + Time.timeScale;
+            }
             Assert.That(player.Interactor.Focused, Is.SameAs(fixture),
                 "Station approach must hit its real collider: " + fixture.name + "; actual focus: " +
-                (player.Interactor.Focused ? player.Interactor.Focused.name : "none"));
+                (player.Interactor.Focused ? player.Interactor.Focused.name : "none") + focusEvidence);
         }
 
         private IEnumerator FaceRepair(FirstPersonController player, Gamepad pad, RepairControlKind kind)

@@ -1,0 +1,1618 @@
+You are continuing development of the EXISTING Unity project:
+
+THE WORST HOTEL EVER
+
+Do NOT create a new project.
+Do NOT rebuild existing working systems.
+
+Current development stage:
+
+PROTOTYPE 0.3.2 — NATURAL SERVICE & PAUSE STABILITY
+
+This is a correction / refinement milestone.
+
+There are TWO primary goals:
+
+A. Make guest service feel more natural and less like a task generator.
+
+B. Investigate and fix a crash that occurs after the game has been paused for a long time.
+
+IMPORTANT:
+
+For the crash:
+
+DO NOT GUESS THE CAUSE.
+
+Do not immediately rewrite SimulationClock, networking, pause handling,
+or timers based on assumptions.
+
+FIRST reproduce and investigate the actual failure.
+
+ONLY apply a fix after collecting evidence.
+
+==================================================
+0. BEFORE MAKING CHANGES
+==================================================
+
+Inspect the current project first.
+
+Read:
+
+README.md
+docs/GAME_VISION.md
+docs/ARCHITECTURE.md
+docs/PROTOTYPE_SCOPE.md
+docs/CHANGELOG.md
+
+Inspect the current implementation of:
+
+Guest simulation
+Guest activities
+Guest perception
+Guest memory
+ServiceCase
+Promises
+Situations
+HotelGameClock
+Pause system
+Fast-forward / Wait system
+Solo mode
+LAN multiplayer
+Networking transport
+Physics
+Guest navigation
+UI notifications
+
+Compile the current project.
+
+Run existing tests.
+
+Make a safe git checkpoint if git is available.
+
+Do not assume the code still matches previous specifications exactly.
+
+Work with the actual implementation.
+
+==================================================
+PART A
+NATURAL GUEST SERVICE
+==================================================
+
+1. CURRENT DESIGN PROBLEM
+==================================================
+
+Guest behavior is now more varied and believable.
+
+This is good.
+
+However, hotel service still feels artificial.
+
+The current experience can sometimes feel like:
+
+Guest state changes
+
+→ service case appears
+
+→ player solves service case.
+
+This exposes the game system too directly.
+
+We want guests to feel like people first.
+
+The target experience:
+
+Guest lives normally.
+
+↓
+
+Guest experiences something imperfect.
+
+↓
+
+Guest may initially tolerate it
+or try a simple response themselves.
+
+↓
+
+If the issue remains relevant,
+guest contacts hotel staff naturally.
+
+↓
+
+Player receives information about the problem.
+
+↓
+
+Player chooses what to do.
+
+The service system should feel like:
+
+HOTEL COMMUNICATION
+
+not:
+
+QUEST GENERATION.
+
+==================================================
+2. NEW GUEST RESPONSE PIPELINE
+==================================================
+
+Guest needs should generally move through:
+
+NORMAL
+
+↓
+
+NOTICE
+
+↓
+
+SELF RESPONSE / TOLERATE
+
+↓
+
+SERVICE REQUEST
+
+↓
+
+COMPLAINT
+
+↓
+
+ESCALATION
+
+Not every need must reach every stage.
+
+Example:
+
+Room becomes slightly cold.
+
+Guest notices.
+
+Guest increases radiator setting.
+
+Room improves.
+
+END.
+
+No service request.
+
+Alternative:
+
+Guest increases radiator.
+
+Room remains cold.
+
+Guest waits.
+
+Then calls reception:
+
+"Sorry, it's still quite cold in here."
+
+Now the hotel becomes involved.
+
+==================================================
+3. SELF-HELP
+==================================================
+
+Guests should sometimes attempt reasonable self-help before contacting staff.
+
+Keep this lightweight.
+
+Examples:
+
+Mild cold:
+guest may raise room radiator setting.
+
+Minor noise:
+guest initially tolerates it.
+
+Lamp problem:
+guest may temporarily use another available light if room supports it.
+
+Do NOT make guests capable of solving serious infrastructure problems.
+
+They cannot:
+
+repair boiler;
+reset electrical circuit;
+replace broken equipment;
+access maintenance areas.
+
+Self-help exists only to make behavior believable.
+
+==================================================
+4. SELF-HELP MUST USE REAL SYSTEMS
+==================================================
+
+Do not fake self-help.
+
+Example:
+
+Guest turns radiator higher.
+
+Actual radiator setting changes.
+
+Actual boiler demand changes.
+
+This can create downstream consequences.
+
+Guest self-help therefore participates in the same simulation
+as player actions.
+
+==================================================
+5. NATURAL TIMING OF REQUESTS
+==================================================
+
+Requests should happen at plausible moments.
+
+WAKE-UP CALL:
+
+Preferably requested:
+- at check-in;
+- during an evening interaction;
+- shortly before sleep.
+
+Do NOT randomly generate wake-up call while guest is showering.
+
+------------------------------
+
+LATE CHECKOUT:
+
+Preferably requested:
+- during check-in;
+- in evening;
+- in morning before checkout.
+
+------------------------------
+
+LUGGAGE STORAGE:
+
+Only when:
+- arriving before room availability;
+- leaving after checkout;
+- otherwise contextually relevant.
+
+------------------------------
+
+EXTRA BLANKET:
+
+Only after guest has actually experienced mild cold
+for enough simulation time.
+
+------------------------------
+
+NOISE SERVICE REQUEST:
+
+Only after real noise exposure
+for a meaningful period.
+
+==================================================
+6. COMMUNICATION CHANNELS
+==================================================
+
+Do not make every guest need instantly appear as omniscient HUD information.
+
+A guest must communicate with the hotel.
+
+Supported communication methods for this milestone:
+
+A. RECEPTION PHONE
+
+Guest calls reception from room.
+
+B. FRONT DESK
+
+Guest physically approaches reception.
+
+C. KNOCK / ROOM INTERACTION
+
+Player contacts guest at room.
+
+Do not add:
+mobile phone app;
+text messages;
+complex dialogue system.
+
+==================================================
+7. RECEPTION PHONE
+==================================================
+
+Make the reception phone an important service interface.
+
+When a guest calls:
+
+the physical reception phone rings.
+
+Player can answer.
+
+Only after answering should full request information become known.
+
+Example:
+
+Phone rings.
+
+Player answers.
+
+Guest:
+
+"Hi, sorry. It's still a little cold in here.
+Do you have an extra blanket?"
+
+Then:
+
+ServiceCase becomes visible.
+
+This should feel different from:
+
+notification suddenly appearing in HUD.
+
+==================================================
+8. MISSED PHONE CALLS
+==================================================
+
+Do not make phone calls infinitely annoying.
+
+If player cannot answer immediately:
+
+guest waits.
+
+After configurable duration:
+
+call may stop.
+
+The ServiceCase may remain as:
+
+MISSED CALL / REQUEST WAITING
+
+or guest may try once more later.
+
+Do NOT repeatedly ring every few seconds.
+
+No notification spam.
+
+==================================================
+9. FRONT DESK REQUESTS
+==================================================
+
+Some guests may physically approach reception.
+
+Examples:
+
+Late checkout.
+Luggage storage.
+Room change.
+Minor service question.
+
+They should:
+
+walk to reception;
+wait briefly;
+interact with available player.
+
+Do not make every guest request use the same channel.
+
+This variety should help the hotel feel natural.
+
+==================================================
+10. REQUEST CONTENT SHOULD BE A PROBLEM, NOT A SOLUTION
+==================================================
+
+After communication:
+
+the system should describe what the guest wants / experiences.
+
+Examples:
+
+"It's still cold in my room."
+
+"I can hear someone next door."
+
+"Could I leave my suitcase here?"
+
+"Could I check out later?"
+
+Avoid:
+
+"Bring blanket to Room 104."
+
+"Go silence Guest 103."
+
+"Use heater."
+
+The player determines the solution.
+
+==================================================
+11. SERVICE CASES
+==================================================
+
+Keep existing persistent ServiceCase system.
+
+One underlying issue = one case.
+
+ServiceCase stores:
+
+Guest
+Room
+Reason
+Severity
+Communication state
+Time created
+Time acknowledged
+Resolution state
+
+Do NOT generate duplicate cases for the same issue.
+
+==================================================
+12. SERVICE CASE LIFECYCLE
+==================================================
+
+Recommended states:
+
+Uncommunicated
+
+Guest notices problem,
+but hotel does not know yet.
+
+ContactingHotel
+
+Phone ringing / guest walking to reception.
+
+Communicated
+
+Player now knows.
+
+Acknowledged
+
+Player explicitly acknowledged request.
+
+Resolved
+
+Underlying condition fixed.
+
+Declined
+
+Player declined a service request.
+
+Escalated
+
+Problem became serious.
+
+This separates:
+
+GUEST KNOWS
+
+from:
+
+HOTEL KNOWS.
+
+That distinction is important.
+
+==================================================
+13. UI INFORMATION
+==================================================
+
+Before guest contacts hotel:
+
+do NOT show full ServiceCase to normal player UI.
+
+The guest may visibly behave differently,
+but exact need remains hidden.
+
+After communication:
+
+show concise information.
+
+Example:
+
+ROOM 104
+
+Guest says:
+"It's still cold."
+
+Do NOT show:
+
+Cause = BoilerOutput 0.73
+Solution = Extra Blanket.
+
+Debug UI may show this information.
+
+==================================================
+14. GUEST BEHAVIORAL FEEDBACK
+==================================================
+
+Guests should subtly communicate discomfort before formally complaining.
+
+Examples:
+
+Cold:
+guest interacts with radiator;
+puts on coat if suitable animation exists;
+returns to room activity.
+
+Noise:
+guest pauses activity;
+looks toward source direction;
+waits.
+
+Do not spend large production time on animation.
+
+Simple readable staging is enough.
+
+==================================================
+15. DO NOT OVER-ANIMATE
+==================================================
+
+Do not build a full animation system.
+
+The goal is:
+
+believable transitions.
+
+Not cinematic realism.
+
+Prioritize:
+
+correct location;
+correct timing;
+correct world state.
+
+==================================================
+16. SERVICE FREQUENCY
+==================================================
+
+Do not increase total number of requests.
+
+Potentially REDUCE it slightly.
+
+Target:
+
+a few meaningful guest contacts per day
+
+rather than:
+
+many shallow contacts.
+
+A guest may complete a full stay without contacting staff.
+
+This is desirable.
+
+==================================================
+17. RHYTHM OF A HOTEL DAY
+==================================================
+
+Different periods should naturally favor different types of interactions.
+
+ARRIVAL WINDOW:
+
+keys;
+luggage;
+room readiness;
+initial requests.
+
+EVENING:
+
+temperature;
+noise;
+wake-up requests;
+room problems.
+
+NIGHT:
+
+fewer soft service requests;
+serious noise;
+infrastructure incidents.
+
+MORNING:
+
+wake-up calls;
+checkout;
+late checkout;
+room turnover.
+
+Do not hardcode scripted event sequences.
+
+Use schedule / context weighting.
+
+==================================================
+18. EXTRA BLANKET
+==================================================
+
+Preserve the existing blanket system.
+
+Change when it becomes relevant.
+
+Preferred flow:
+
+Guest becomes mildly cold.
+
+↓
+
+Guest may increase radiator.
+
+↓
+
+Wait.
+
+↓
+
+If still mildly cold:
+possible blanket request.
+
+↓
+
+If condition becomes severe:
+temperature complaint.
+
+Do not instantly request blanket when threshold changes.
+
+==================================================
+19. NOISE
+==================================================
+
+Preserve real-source requirement.
+
+New preferred flow:
+
+Noise begins.
+
+↓
+
+Guest notices.
+
+↓
+
+Guest tolerates for a while.
+
+↓
+
+If noise continues:
+guest contacts hotel.
+
+↓
+
+Player investigates.
+
+↓
+
+Possible solutions remain:
+
+ask source guest to quiet down;
+move affected guest;
+move noisy guest;
+compensation;
+ignore.
+
+Do not create abstract noise requests.
+
+==================================================
+20. SELF-ADJUSTMENT CAN CREATE CONSEQUENCES
+==================================================
+
+This is desirable.
+
+Example:
+
+Several cold guests independently turn radiators higher.
+
+↓
+
+Boiler demand rises.
+
+↓
+
+Boiler efficiency begins dropping.
+
+↓
+
+Some rooms become colder.
+
+This is emergent gameplay.
+
+Do not script it as an event.
+
+==================================================
+21. PLAYER SHOULD SOMETIMES NOTICE FIRST
+==================================================
+
+Hotel management should not be entirely request-driven.
+
+Examples:
+
+Player hears loud TV in corridor
+before complaint.
+
+Player notices:
+Circuit B load is high.
+
+Player notices:
+several radiators are set to maximum.
+
+Player sees:
+Room 104 needs preparation before arrival.
+
+Player may intervene before anyone asks.
+
+This should be rewarded naturally.
+
+==================================================
+22. SERVICE RESOLUTION
+==================================================
+
+Never resolve cases merely because player pressed a response button.
+
+Underlying simulation must change.
+
+Example:
+
+Guest cold.
+
+Player promises blanket.
+
+Case NOT resolved yet.
+
+Player actually delivers blanket.
+
+Guest perception improves.
+
+Now ServiceCase resolves.
+
+==================================================
+23. SERVICE COMMUNICATION DOES NOT EQUAL QUEST
+==================================================
+
+A phone call should give INFORMATION.
+
+Not an objective arrow.
+
+Example:
+
+GOOD:
+
+Room 104:
+"It's quite cold."
+
+BAD:
+
+OBJECTIVE:
+Go to Linen Storage.
+Pick up blanket.
+Deliver to Room 104.
+
+==================================================
+24. DEBUG TOOLS FOR NATURAL SERVICE
+==================================================
+
+For selected guest show:
+
+CurrentActivity
+CurrentLocation
+CurrentComfort
+CurrentNoticeState
+
+Current self-help action
+Time uncomfortable
+Contact threshold
+Communication method
+
+ServiceCase state:
+Uncommunicated
+ContactingHotel
+Communicated
+Acknowledged
+Resolved
+Escalated
+
+Developer actions:
+
+Force mild cold.
+Force severe cold.
+Force noise exposure.
+Force self-help.
+Force phone call.
+Force front-desk request.
+Cancel contact.
+Force escalation.
+
+==================================================
+25. TESTS — NATURAL SERVICE
+==================================================
+
+Add / update tests for:
+
+Mild cold does not instantly generate service request.
+
+Guest may self-adjust radiator.
+
+Radiator self-adjustment changes actual radiator state.
+
+Guest only contacts hotel after configured exposure / conditions.
+
+ServiceCase is hidden from normal hotel UI before communication.
+
+ServiceCase becomes visible after communication.
+
+Same issue does not create duplicate ServiceCases.
+
+Noise service requires real source.
+
+Wake-up call request happens only in reasonable schedule context.
+
+Luggage request requires arrival/checkout context.
+
+==================================================
+PART B
+PAUSE CRASH INVESTIGATION
+==================================================
+
+26. CRITICAL RULE
+==================================================
+
+There is a reported crash:
+
+"The game crashes if left paused for a long time."
+
+DO NOT GUESS THE cause.
+
+Do not immediately change:
+
+SimulationClock;
+unscaledDeltaTime;
+network timeouts;
+physics;
+guest timers.
+
+FIRST investigate.
+
+The task is:
+
+REPRODUCE
+→ COLLECT EVIDENCE
+→ IDENTIFY ROOT CAUSE
+→ FIX ROOT CAUSE
+→ VERIFY.
+
+==================================================
+27. CREATE A REPRODUCTION MATRIX
+==================================================
+
+Test the crash systematically.
+
+At minimum test:
+
+SOLO MODE
+
+Pause for:
+- 1 minute
+- 5 minutes
+- 10 minutes
+- 20+ minutes if practical
+
+Test during:
+
+Planning phase.
+Active shift.
+Guest activity.
+Active ServiceCase.
+Infrastructure warning.
+Normal idle state.
+
+------------------------------
+
+LAN HOST
+
+Repeat at least representative long pause test.
+
+------------------------------
+
+LAN CLIENT
+
+If practical:
+test client paused / application inactive behavior separately.
+
+Do not assume Solo and LAN share the same failure.
+
+==================================================
+28. DEFINE WHAT "PAUSE" CURRENTLY MEANS
+==================================================
+
+Inspect current pause implementation.
+
+Document exactly what pause changes.
+
+Examples to inspect:
+
+Time.timeScale
+
+HotelGameClock state
+
+Input
+
+Physics
+
+Audio
+
+Guest AI
+
+NavMesh agents
+
+Coroutines
+
+Promises
+
+ServiceCases
+
+Networking
+
+UI
+
+Do not change anything yet.
+
+Document behavior.
+
+==================================================
+29. COLLECT ACTUAL CRASH DATA
+==================================================
+
+When reproducing:
+
+collect the actual Unity logs.
+
+Depending on run mode:
+
+Editor.log
+
+Player.log
+
+Crash dump / crash report if produced
+
+Native crash stack if available
+
+Managed stack trace
+
+Exception logs
+
+Memory usage around failure if available
+
+Do not rely only on:
+
+"it crashed after pause."
+
+Find the last meaningful errors / stack frames.
+
+==================================================
+30. ADD TEMPORARY DIAGNOSTIC LOGGING
+==================================================
+
+If logs are insufficient:
+
+add targeted diagnostic logging.
+
+DO NOT spam every frame.
+
+Log:
+
+Pause entered timestamp.
+
+Pause exited timestamp.
+
+Hotel simulation time.
+
+Real elapsed time.
+
+Simulation accumulator if one exists.
+
+Pending scheduled events count.
+
+Pending ServiceCases count.
+
+Promises count.
+
+Guest scheduled-action queue size.
+
+Coroutine / timer state where relevant.
+
+Network connection status.
+
+Memory usage at low frequency if useful.
+
+Log at:
+
+Pause Enter
+
+Every ~30–60 real seconds while paused
+
+Pause Exit
+
+First few frames after resume.
+
+==================================================
+31. DETERMINE WHEN FAILURE OCCURS
+==================================================
+
+Important distinction:
+
+Does game crash:
+
+A. WHILE PAUSED
+
+or
+
+B. IMMEDIATELY AFTER RESUME
+
+or
+
+C. SOME TIME AFTER RESUME?
+
+Do not treat these as the same bug.
+
+Document exact behavior.
+
+==================================================
+32. CHECK FOR MANAGED EXCEPTIONS
+==================================================
+
+Look for:
+
+NullReferenceException
+InvalidOperationException
+ArgumentOutOfRangeException
+StackOverflowException
+OutOfMemoryException
+MissingReferenceException
+
+or recurring exception loops.
+
+If one exists:
+
+trace first source,
+not only final repeated symptom.
+
+==================================================
+33. CHECK FOR QUEUE / EVENT GROWTH
+==================================================
+
+Based on actual measurements only:
+
+inspect whether any collection grows continuously during pause.
+
+Examples to measure:
+
+scheduled guest activities;
+notifications;
+service events;
+promise callbacks;
+incident events;
+UI event queue;
+network packets / callbacks;
+audio events.
+
+Do not assume growth exists.
+
+Measure it.
+
+If a collection grows:
+
+identify exact producer.
+
+==================================================
+34. CHECK MEMORY BASED ON EVIDENCE
+==================================================
+
+If logs or profiling indicate memory growth:
+
+use Unity Profiler / Memory Profiler if available.
+
+Compare:
+
+immediately after pause
+
+vs
+
+after long pause.
+
+Find:
+
+which object types or allocations increase.
+
+Do not perform broad "memory optimization".
+
+Fix the leaking / accumulating source.
+
+==================================================
+35. CHECK RESUME BURST BASED ON EVIDENCE
+==================================================
+
+If failure occurs on Resume:
+
+instrument:
+
+number of simulation ticks processed in first resumed frame;
+
+number of scheduled callbacks;
+
+guest transitions;
+
+ServiceCase transitions;
+
+Promise evaluations;
+
+UI notifications;
+
+NavMesh updates;
+
+physics actions.
+
+If a burst exists:
+
+identify WHY.
+
+Do not simply add arbitrary caps before understanding the producer.
+
+==================================================
+36. CHECK NETWORKING SEPARATELY
+==================================================
+
+If crash only occurs in LAN mode:
+
+inspect transport logs.
+
+Check:
+
+disconnect;
+timeout;
+reconnect;
+host state;
+transport exceptions.
+
+Important:
+
+Game simulation pause
+and
+network connection lifecycle
+
+are separate concepts.
+
+But only change networking if evidence points there.
+
+Do not change networking just because it is a plausible cause.
+
+==================================================
+37. CHECK UNITY / NATIVE CRASH
+==================================================
+
+If this is a native crash with no managed exception:
+
+inspect crash stack.
+
+Identify subsystem:
+
+Physics
+Graphics
+Audio
+NavMesh
+Networking
+Unity engine native code
+plugin/native dependency
+
+Try to produce minimal repro.
+
+Do not hide native crash by wrapping unrelated code in try/catch.
+
+==================================================
+38. MINIMAL REPRODUCTION
+==================================================
+
+Once evidence suggests a subsystem:
+
+disable or isolate ONLY that subsystem temporarily.
+
+Examples:
+
+guest simulation disabled;
+networking disabled;
+physics interaction disabled;
+service scheduler disabled.
+
+Then repeat long pause.
+
+Use this to confirm or reject hypothesis.
+
+Do not ship these disables.
+
+They are diagnostic.
+
+==================================================
+39. ROOT CAUSE DOCUMENTATION
+==================================================
+
+Before implementing the final fix,
+write a short developer note:
+
+docs/PAUSE_CRASH_INVESTIGATION.md
+
+Include:
+
+Reproduction steps.
+
+Observed behavior.
+
+Relevant logs / stack trace summary.
+
+Root cause.
+
+Why the failure occurs.
+
+Chosen fix.
+
+Why this fix addresses root cause.
+
+Verification performed.
+
+Do NOT write:
+
+"Probably caused by X."
+
+If root cause is not proven,
+state that investigation is incomplete.
+
+==================================================
+40. IMPLEMENT THE FIX
+==================================================
+
+Only after root cause is identified.
+
+Make the SMALLEST robust fix possible.
+
+Avoid unrelated refactors.
+
+If root cause requires architectural change:
+
+document why.
+
+Preserve:
+
+Solo
+LAN
+Fast Forward
+HotelGameClock
+Guest simulation
+
+unless evidence specifically requires modification.
+
+==================================================
+41. ADD A REGRESSION TEST
+==================================================
+
+Where practical,
+add an automated regression test.
+
+If long real-time waiting cannot reasonably be tested:
+
+create a deterministic equivalent.
+
+Examples:
+
+simulate pause lifecycle.
+
+simulate large elapsed real-time gap if relevant.
+
+simulate relevant queue state.
+
+But make regression test represent the ACTUAL root cause found.
+
+Do not write a generic speculative pause test.
+
+==================================================
+42. LONG PAUSE VERIFICATION
+==================================================
+
+After fix:
+
+repeat actual long-pause test.
+
+Minimum:
+
+Solo:
+10+ minutes.
+
+If bug previously required longer:
+match or exceed known crash duration.
+
+Test:
+
+pause
+→ wait
+→ resume
+→ continue playing.
+
+Verify:
+
+no crash;
+no simulation corruption;
+no massive event burst;
+no guest schedule corruption;
+no duplicate ServiceCases;
+no economy jump;
+no broken physics.
+
+==================================================
+43. PAUSE GAMEPLAY EXPECTATION
+==================================================
+
+After the bug is fixed,
+the intended behavior is:
+
+Pause freezes hotel gameplay progression.
+
+When player resumes:
+
+hotel continues normally.
+
+There must be no gameplay penalty simply because
+the real-world pause lasted a long time.
+
+BUT:
+
+Do not rewrite pause behavior to meet this expectation
+until the crash root cause has been investigated.
+
+==================================================
+PART C
+IMPLEMENTATION ORDER
+==================================================
+
+44. DEVELOPMENT ORDER
+==================================================
+
+PHASE 0 — BASELINE
+
+Compile.
+Run tests.
+Document current behavior.
+Create checkpoint.
+
+------------------------------
+
+PHASE 1 — CRASH REPRODUCTION
+
+Before speculative fixes:
+
+reproduce pause crash;
+collect logs;
+classify:
+during pause / resume / after resume.
+
+------------------------------
+
+PHASE 2 — CRASH ROOT CAUSE
+
+Instrument.
+Profile if necessary.
+Create minimal repro.
+Identify root cause.
+
+Do NOT start a major pause rewrite.
+
+------------------------------
+
+PHASE 3 — CRASH FIX
+
+Implement root-cause fix.
+
+Regression test.
+
+Repeat long-pause verification.
+
+------------------------------
+
+PHASE 4 — NATURAL SERVICE FOUNDATION
+
+Add:
+
+Notice
+SelfResponse
+ContactingHotel
+Communicated
+
+to guest/service flow.
+
+------------------------------
+
+PHASE 5 — RECEPTION PHONE
+
+Guest calls.
+Phone rings.
+Player answers.
+ServiceCase becomes known.
+
+------------------------------
+
+PHASE 6 — NATURAL CONTEXT
+
+Adjust:
+
+blanket timing;
+noise timing;
+wake-up request timing;
+late checkout timing;
+luggage timing.
+
+------------------------------
+
+PHASE 7 — GUEST SELF-HELP
+
+Radiator self-adjustment.
+Minor tolerance behavior.
+
+Make sure actions affect real simulation.
+
+------------------------------
+
+PHASE 8 — UI CLEANUP
+
+Hide uncommunicated service state.
+
+Reduce omniscient notifications.
+
+------------------------------
+
+PHASE 9 — THREE-DAY BALANCE
+
+Full solo playthrough.
+
+Then LAN playtest if practical.
+
+Tune request frequency downward if necessary.
+
+==================================================
+45. ACCEPTANCE CRITERIA — PAUSE
+==================================================
+
+Pause bug is considered fixed only when:
+
+1. Root cause was identified from actual evidence.
+
+2. Investigation is documented.
+
+3. Fix specifically addresses the identified root cause.
+
+4. Long pause can be reproduced safely after fix.
+
+5. Resume does not cause a major simulation burst.
+
+6. Gameplay state remains valid.
+
+7. Solo still works.
+
+8. LAN still works.
+
+9. Fast-forward still works.
+
+10. No speculative broad rewrite was performed without evidence.
+
+==================================================
+46. ACCEPTANCE CRITERIA — NATURAL SERVICE
+==================================================
+
+Natural Service pass is successful when:
+
+1. Guests do not instantly contact hotel for every discomfort.
+
+2. Guests can tolerate minor issues.
+
+3. At least some guest self-help exists.
+
+4. Self-help modifies actual world state.
+
+5. Guests contact hotel through a physical/contextual channel.
+
+6. Reception phone is functional.
+
+7. Full request details are not revealed before communication.
+
+8. ServiceCases are not duplicate-spammed.
+
+9. Wake-up call requests occur at plausible moments.
+
+10. Luggage requests occur only in relevant contexts.
+
+11. Noise requests still require actual noise sources.
+
+12. Extra blanket requests follow believable cold exposure.
+
+13. Player is given the problem, not a prescribed solution.
+
+14. Players can still proactively notice and solve problems.
+
+15. A normal guest may complete a stay without making any request.
+
+16. Three-day pacing remains active but feels less mechanical.
+
+17. No new large gameplay subsystem was added.
+
+==================================================
+47. PLAYTEST TARGET
+==================================================
+
+A good example should now feel like:
+
+Guest checks into Room 104.
+
+↓
+
+Guest spends evening normally.
+
+↓
+
+Room gradually becomes a little cold.
+
+↓
+
+Guest turns radiator higher themselves.
+
+↓
+
+Heating demand rises.
+
+↓
+
+Room improves slightly but not enough.
+
+↓
+
+After some time,
+reception phone rings.
+
+↓
+
+Player answers.
+
+Guest:
+"Sorry, it's still quite cold in here."
+
+↓
+
+Player now decides:
+
+blanket?
+heater?
+room move?
+boiler?
+compensation?
+ignore?
+
+The game did NOT spawn:
+
+QUEST:
+BRING BLANKET.
+
+This is the target.
+
+==================================================
+48. NORTH STAR
+==================================================
+
+The player should increasingly feel:
+
+"I work in and manage this hotel."
+
+Not:
+
+"The simulation is feeding me tasks."
+
+Guests should live first.
+
+Ask for help second.
+
+Complain only when appropriate.
+
+Infrastructure should create consequences.
+
+Player intervention should remain a choice.
+
+For the crash:
+
+observe first,
+prove the cause,
+then fix it.

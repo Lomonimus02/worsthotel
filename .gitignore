@@ -12,3 +12,7 @@
 *.user
 *.log
 /.DS_Store
+# Local process evidence may contain memory and machine-specific data.
+*.dmp
+/docs/verification/pause/
+/docs/verification/pause-baseline-evidence/*/

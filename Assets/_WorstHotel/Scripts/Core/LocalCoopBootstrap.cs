@@ -168,6 +168,7 @@ namespace WorstHotel
         private void OnDeviceChange(InputDevice device, InputDeviceChange change)
         {
             if (device is Gamepad || device is Keyboard || device is Mouse) devicesDirty = true;
+            PauseDiagnostics.DeviceChanged(device?.deviceId ?? -1, device?.layout ?? "null", change.ToString());
         }
 
         private void AssignDevices()
@@ -257,12 +258,14 @@ namespace WorstHotel
             bool next = LanRole == LanRole.Offline ? manuallyPaused || WaitingForDevices || !hasFocus :
                 manuallyPaused || (lan && lan.MenuOpen) ||
                 (LanRole == LanRole.Client && (remoteHostPaused || lan && !lan.HasSnapshot));
+            bool changed = next != IsPaused;
             if (next != IsPaused)
             {
                 IsPaused = next;
                 if (next) foreach (var player in Players) if (player) player.Interactor.CancelInteraction();
             }
             Time.timeScale = IsPaused ? 0 : 1;
+            if (changed) PauseDiagnostics.PauseChanged(IsPaused);
         }
 
         public void SetPaused(bool paused)
@@ -273,11 +276,13 @@ namespace WorstHotel
 
         private void OnApplicationFocus(bool focus)
         {
+            PauseDiagnostics.FocusCallback(focus, true);
             hasFocus = focus;
             if (!focus && LanRole != LanRole.Offline)
                 foreach (var player in Players)
                     if (player && IsLocalActor(player.ActorId)) player.Interactor.CancelInteraction();
             if (Players[0] != null) RefreshPause();
+            PauseDiagnostics.FocusCallback(focus, false);
         }
 
         private void OnDestroy()
