@@ -90,7 +90,7 @@ namespace WorstHotel
                 if (player.Input.PrimaryHeld || player.Interactor.IsInteracting) return "Finish the physical interaction before waiting.";
             }
             if (preparing) return null;
-            if (session.Simulation.Boiler.Failed && !session.Simulation.BoilerFailureAcknowledged) return "Respond to the failed boiler or accept its consequences in the ledger.";
+            if (session.Simulation.Boiler.Failed && !session.Simulation.Boiler.MaintenanceInProgress && !session.Simulation.BoilerFailureAcknowledged) return "Respond to the failed boiler or accept its consequences in the ledger.";
             foreach (var situation in session.Simulation.Incidents.Items)
                 if (situation.Active && situation.HasContactedStaff && !situation.PausedForTransfer &&
                     !situation.AttentionAcknowledged && situation.Stage == SituationStage.Critical)

@@ -10,7 +10,7 @@ namespace WorstHotel
         public static string BoilerReadout(BoilerSystem boiler) =>
             (boiler.LoadOverride.HasValue ? "OVERRIDE " : "DEMAND ") + boiler.Load.ToString("F2") + " / " + boiler.EffectiveCapacity.ToString("F2") + " u EFFECTIVE\n" +
             "RATED " + boiler.RatedCapacity.ToString("F2") + " u · RES " + Reserve(boiler.Reserve) + " u\n" +
-            (boiler.Failed ? "FAILED" : Band(boiler.CapacityBand)) + " · " + Percent(boiler.LoadRatio) + " LOAD · " + Percent(boiler.Stress01) + " STRESS";
+            (boiler.MaintenanceInProgress ? "MAINTENANCE · HEAT OFF" : boiler.Failed ? "FAILED" : boiler.EmergencyPatchActive ? "PATCHED / " + Band(boiler.CapacityBand) : Band(boiler.CapacityBand)) + " · " + Percent(boiler.LoadRatio) + " LOAD · " + Percent(boiler.Stress01) + " STRESS";
         public static string CircuitReadout(ElectricalCircuit circuit) =>
             (circuit.LoadOverride.HasValue ? "OVERRIDE " : "REQUESTED ") + circuit.RequestedLoad.ToString("F2") + " / " + circuit.Capacity.ToString("F2") + " u\n" +
             (circuit.LoadOverride.HasValue ? "ACTUAL REQUEST " + circuit.ActualRequestedLoad.ToString("F2") + " u\n" : "") +

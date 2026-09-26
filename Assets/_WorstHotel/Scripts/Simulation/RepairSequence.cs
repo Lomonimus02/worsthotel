@@ -17,12 +17,16 @@ namespace WorstHotel
         public string Status { get; private set; } = "Heating is running.";
         private readonly BoilerSystem boiler;
         private readonly BoilerSettings settings;
+        private readonly Func<int, CommandResult> restartCommand;
+        private readonly bool customRestart;
         private RepairControlKind? heldLatch;
 
-        public RepairSequence(BoilerSystem boiler, BoilerSettings settings)
+        public RepairSequence(BoilerSystem boiler, BoilerSettings settings, Func<int, CommandResult> restartCommand = null)
         {
             this.boiler = boiler ?? throw new ArgumentNullException(nameof(boiler));
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.restartCommand = restartCommand ?? boiler.Restart;
+            customRestart = restartCommand != null;
             Refresh();
         }
 
@@ -32,6 +36,13 @@ namespace WorstHotel
 
         public void Refresh()
         {
+            if (boiler.MaintenanceInProgress)
+            {
+                Step = RepairStep.Idle; OperatorActorId = -1;
+                LatchAProgress = LatchBProgress = 0; heldLatch = null;
+                Status = "Proper maintenance in progress. Heating is temporarily off.";
+                return;
+            }
             if (!boiler.Failed)
             {
                 if (Step != RepairStep.Complete)
@@ -74,10 +85,10 @@ namespace WorstHotel
                     heldLatch = control;
                     return Success(control == RepairControlKind.LatchA ? "Turn latch A until it seats." : "Turn latch B until it seats.");
                 case RepairControlKind.Restart:
-                    var restart = boiler.Restart(actorId);
+                    var restart = restartCommand(actorId);
                     if (!restart.Success) return Fail(restart.Message);
                     Step = RepairStep.Complete; heldLatch = null;
-                    return Success("Heating restarted. Mechanical wear remains; guests' rooms still need time to warm.");
+                    return Success(customRestart ? restart.Message : "Heating restarted. Mechanical wear remains; guests' rooms still need time to warm.");
                 default:
                     return Fail("Unknown mechanical control.");
             }
@@ -124,6 +135,7 @@ namespace WorstHotel
         private CommandResult ValidateOperator(int actorId)
         {
             if (actorId < 0 || actorId > 1) return Fail("Unknown staff actor.");
+            if (boiler.MaintenanceInProgress) return Fail("Proper maintenance is in progress; emergency controls are isolated.");
             if (!boiler.Failed) return Fail("The boiler is already running.");
             bool soloSupport = boiler.SoloValveLatched && actorId == 0;
             if (!soloSupport && boiler.ReliefActorId < 0) return Fail(boiler.SoloAssistEnabled ?

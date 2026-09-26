@@ -96,6 +96,7 @@ namespace WorstHotel
         public void ForceFailure()
         {
             if (ReadOnlyMirror) return;
+            if (MaintenanceInProgress) return;
             if (Failed) return;
             Failed = true; ReliefActorId = -1;
             CancelSoloLatch();
@@ -113,20 +114,29 @@ namespace WorstHotel
                 if (ReliefActorId == actorId) { ReliefActorId = -1; ReleaseSoloValveCharge(); }
                 return CommandResult.Ok("Relief valve released.");
             }
+            if (MaintenanceInProgress) return CommandResult.Fail("The boiler is offline for maintenance.");
             if (!Failed) return CommandResult.Fail("The boiler is running; emergency relief is not required.");
             if (ReliefActorId >= 0 && ReliefActorId != actorId) return CommandResult.Fail("The other staff member is operating this valve.");
             ReliefActorId = actorId;
             return CommandResult.Ok("Holding pressure relief. Keep watching the gauge.");
         }
 
-        public CommandResult Restart(int operatorActorId)
+        public CommandResult CanRestart(int operatorActorId)
         {
             if (ReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
             if (operatorActorId < 0 || operatorActorId > 1) return CommandResult.Fail("Unknown staff actor.");
+            if (MaintenanceInProgress) return CommandResult.Fail("The boiler is offline for maintenance.");
             if (!Failed) return CommandResult.Fail("The boiler is already running.");
             if (!(SoloValveLatched && operatorActorId == 0) && (ReliefActorId < 0 || ReliefActorId == operatorActorId))
                 return CommandResult.Fail("A different staff member must hold the relief valve, or the solo catch must be secured.");
             if (!InRepairBand) return CommandResult.Fail("Pressure must stay inside the marked repair band.");
+            return CommandResult.Ok();
+        }
+
+        public CommandResult Restart(int operatorActorId)
+        {
+            var allowed = CanRestart(operatorActorId);
+            if (!allowed.Success) return allowed;
             Failed = false; FailureExposure = 0; ReliefActorId = -1;
             Stress01 = 0;
             CancelSoloLatch();
@@ -140,7 +150,9 @@ namespace WorstHotel
         {
             if (ReadOnlyMirror) return;
             if (!Number.IsFinite(restoredCondition)) throw new ArgumentOutOfRangeException(nameof(restoredCondition));
+            if (MaintenanceInProgress) return;
             bool wasFailed = Failed;
+            EmergencyPatchActive = false;
             Failed = false; FailureExposure = 0; ReliefActorId = -1;
             Stress01 = 0;
             CancelSoloLatch();
@@ -158,7 +170,7 @@ namespace WorstHotel
 
         private void UpdateOutput()
         {
-            float next = Failed ? settings.FailedHeatOutput : CapacityModelEnabled ? CapacityHeatOutput : Number.Clamp(1 - settings.HeatOverloadLoss * Overload
+            float next = MaintenanceInProgress ? 0 : Failed ? settings.FailedHeatOutput : CapacityModelEnabled ? CapacityHeatOutput : Number.Clamp(1 - settings.HeatOverloadLoss * Overload
                 - settings.HeatConditionLoss * Math.Max(0, settings.HeatConditionThreshold - Condition), settings.MinimumHeatOutput, 1);
             if (HeatingOutput != next) { HeatingOutput = next; OnHeatingOutputChanged?.Invoke(HeatingOutput); }
         }

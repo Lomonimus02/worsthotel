@@ -19,9 +19,10 @@ namespace WorstHotel
         public float SoloLatchSecondsRemaining => boiler != null ? boiler.SoloLatchSecondsRemaining : 0;
         public float SoloValveHoldProgress => boiler != null ? boiler.SoloValveHoldProgress : 0;
         public float SoloValveRequiredHoldSeconds => boiler != null ? boiler.SoloValveRequiredHoldSeconds : 0;
-        public bool CanUseControls => isActiveAndEnabled && boiler != null && boiler.Failed &&
+        public bool CanUseControls => isActiveAndEnabled && boiler != null && boiler.Failed && !boiler.MaintenanceInProgress &&
             GameSession.Instance != null && GameSession.Instance.Phase == DayPhase.Service;
-        public string Status => (SoloLatchSecondsRemaining > 0 ? "SOLO CATCH " + Mathf.CeilToInt(SoloLatchSecondsRemaining) + "s · " : "") +
+        public string Status => boiler != null && boiler.MaintenanceInProgress ?
+            "MAINTENANCE · heating off · " + BoilerMaintenanceLabels.Remaining(boundSimulation) + " remaining" : (SoloLatchSecondsRemaining > 0 ? "SOLO CATCH " + Mathf.CeilToInt(SoloLatchSecondsRemaining) + "s · " : "") +
             (Time.unscaledTime < feedbackUntil ? feedback : sequence != null ? sequence.Status : "Emergency controls await a running service.");
 
         private HotelSimulation boundSimulation;
@@ -39,6 +40,7 @@ namespace WorstHotel
             {
                 CancelPhysicalHolds();
                 if (boiler != null) boiler.CancelSoloLatch();
+                if (sequence != null && (boiler.MaintenanceInProgress || !boiler.Failed)) sequence.Refresh();
                 if (sequence != null && boiler.Failed && coop && coop.IsPaused) sequence.CancelAttempt();
                 return;
             }
@@ -67,7 +69,8 @@ namespace WorstHotel
             boundSimulation = simulation;
             if (simulation == null) return;
             boiler = simulation.Boiler;
-            sequence = new RepairSequence(boiler, session.BoilerSettings);
+            sequence = new RepairSequence(boiler, session.BoilerSettings, simulation.ContinuousOperations ?
+                new Func<int, CommandResult>(simulation.EmergencyPatchBoiler) : null);
             boiler.OnFailureStarted += OnFailureStarted;
             boiler.OnFailureResolved += OnFailureResolved;
             boiler.OnPressureChanged += OnPressureChanged;

@@ -101,6 +101,7 @@ namespace WorstHotel
                 case LanCommandKind.Maintenance:
                     if (Enum.IsDefined(typeof(MaintenanceChoice), command.amount)) ChooseMaintenance(playerId, (MaintenanceChoice)command.amount);
                     break;
+                case LanCommandKind.BeginBoilerMaintenance: BeginBoilerMaintenance(playerId); break;
                 case LanCommandKind.RestartSession: RestartSession(playerId); break;
                 case LanCommandKind.MoveGuest: MoveGuest(playerId, command.subject, command.roomId); break;
                 case LanCommandKind.CancelMove: CancelGuestMove(playerId, command.subject, command.expectedDirectIntentId, command.expectedDirectIntentRevision); break;

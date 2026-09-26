@@ -8,7 +8,7 @@ namespace WorstHotel
 {
     public sealed partial class ManagementUI
     {
-        enum OperationsPage { Overview, Bookings, Offer, Reports, Report }
+        enum OperationsPage { Overview, Bookings, Offer, Reports, Report, Maintenance }
         bool showingOperations;
         OperationsPage operationsPage;
         int operationsDay, operationsListPage, operationsReportNumber, operationsPrice, operationsReceiptPage;
@@ -60,6 +60,7 @@ namespace WorstHotel
                 AddOperationsChoice(405, 633, 342, 43, "Service board / promises", () => { showingOperations = false; ShowServices(); }, simulation.Services != null);
                 AddOperationsChoice(42, 689, 342, 43, "Room preparation", () => { showingOperations = false; OpenHousekeeping(); });
                 AddOperationsChoice(405, 689, 342, 43, "Daily reports", () => { operationsPage = OperationsPage.Reports; operationsListPage = 0; focus = 0; });
+                AddOperationsChoice(42, 745, 705, 42, "Boiler maintenance", () => { operationsPage = OperationsPage.Maintenance; focus = 0; });
             }
             else if (operationsPage == OperationsPage.Bookings)
             {
@@ -140,6 +141,7 @@ namespace WorstHotel
                         { operationsReceiptPage = (operationsReceiptPage + 1) % ((report.Receipts.Count + 5) / 6); focus = 0; });
                 }
             }
+            if (operationsPage == OperationsPage.Maintenance) UpdateOperationsMaintenance();
             if (operationsPage != OperationsPage.Overview)
                 AddOperationsChoice(42, 746, 705, 42, operationsPage == OperationsPage.Offer ? "Back to bookings" :
                     selectedReview != null ? "Back to report" : operationsPage == OperationsPage.Report ? "Back to reports" : "Back to operations", OperationsBack);
@@ -166,7 +168,8 @@ namespace WorstHotel
             var simulation = Session.Simulation;
             Fill(new Rect(15, 50, 770, 820), Paper); Border(new Rect(23, 58, 754, 804), Brass);
             Label(new Rect(42, 78, 705, 48), operationsPage == OperationsPage.Overview ? "HOTEL OPERATIONS" :
-                operationsPage == OperationsPage.Bookings ? "DATED BOOKINGS" : operationsPage == OperationsPage.Offer ? "ONE-NIGHT BOOKING" : "OPERATING REPORTS", Title);
+                operationsPage == OperationsPage.Bookings ? "DATED BOOKINGS" : operationsPage == OperationsPage.Offer ? "ONE-NIGHT BOOKING" :
+                operationsPage == OperationsPage.Maintenance ? "BOILER MAINTENANCE" : "OPERATING REPORTS", Title);
             Label(new Rect(42, 135, 705, 49), GuestLabels.HotelMoment(simulation, simulation.Elapsed) + " · Cash $" + Session.Cash.ToString("F0") +
                 "\nThe hotel keeps running while you read and decide.", Small, Muted);
             if (operationsPage == OperationsPage.Overview) DrawOperationsOverview();
@@ -177,6 +180,7 @@ namespace WorstHotel
                 Label(new Rect(42, 196, 705, 46), "Next report: " + GuestLabels.HotelMoment(simulation, simulation.NextReportAt) +
                     (Session.Reports.Count == 0 ? "\nNo completed accounting periods yet." : ""), Small, Muted);
             else if (operationsPage == OperationsPage.Report) DrawOperatingReport();
+            else if (operationsPage == OperationsPage.Maintenance) DrawOperationsMaintenance();
             if (operationsPage != OperationsPage.Overview)
                 Label(new Rect(42, 699, 705, 41), Session.LastMessage, Small, Wine);
             foreach (var choice in operationsChoices) ButtonAt(choice.rect, choice.title, choice.action, choice.enabled);
@@ -203,7 +207,7 @@ namespace WorstHotel
                 Label(new Rect(405, 296 + row++ * 52, 342, 49), item.label + "\n" + GuestLabels.HotelMoment(simulation, item.time), Small);
             if (row == 0) Label(new Rect(405, 300, 342, 66), "No arrivals booked yet.\nReview today's or tomorrow's applications.", Small, Muted);
             var boiler = simulation.Boiler;
-            Label(new Rect(42, 564, 705, 56), "HEATING · " + (boiler.Failed ? "FAILED" : "running") + " · condition " + boiler.Condition.ToString("F0") + "%\n" +
+            Label(new Rect(42, 564, 705, 56), "HEATING · " + BoilerMaintenanceLabels.State(simulation) + " · condition " + boiler.Condition.ToString("F0") + "%\n" +
                 "Next report " + GuestLabels.HotelMoment(simulation, simulation.NextReportAt) + " · " + Session.Reports.Count + " available", Small, boiler.Failed ? Red : Muted);
         }
 

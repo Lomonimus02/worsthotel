@@ -202,6 +202,8 @@ namespace WorstHotel
                 foreach (var guest in guests) Satisfaction.Accumulate(guest, rooms[guest.RoomId], step, Requests.HasExpiredRequest(guest.GuestId));
             }
             Clock.Advance(step);
+            if (ContinuousOperations && Boiler.CompleteMaintenance(Elapsed))
+                SignalEvent("Boiler maintenance complete — condition restored and patch penalty removed.");
             if (IsServiceComplete) SignalEvent("Shift complete");
         }
 

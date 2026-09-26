@@ -51,6 +51,10 @@ namespace WorstHotel
             {
                 SnapshotValidation.Model(snapshot,rooms.Keys.ToArray(),LivingEnabled,Housekeeping?.Linens.Count??0,Electrical?.Circuits.Select(c=>c.Id)??Enumerable.Empty<string>());
                 SnapshotValidation.OperationsModel(snapshot, Operations, settings.Economy, rooms.Keys.ToArray());
+                if (ContinuousOperations && snapshot.Boiler.MaintenanceEndsAt > 0)
+                    SnapshotValidation.Require(snapshot.Boiler.MaintenanceEndsAt <= (float)Math.Min(float.MaxValue,
+                        (double)snapshot.Time + (double)Operations.SecondsPerDay * settings.Boiler.Capacity.MaintenanceHours / 24),
+                        "Maintenance deadline exceeds its configured duration.");
                 SnapshotValidation.Services(snapshot, Services != null, rooms.Keys.ToArray(), Services?.NaturalCommunicationEnabled == true);
                 Housekeeping?.ValidateSnapshot(snapshot.Linens);
                 foreach(var room in snapshot.Rooms)

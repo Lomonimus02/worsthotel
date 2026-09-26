@@ -32,9 +32,11 @@ namespace WorstHotel
                     "DAY " + session.Day + "   •   " + remaining / 60 + ":" + (remaining % 60).ToString("D2") + " left";
                 Label(new Rect(x + 14, 66, 730, 27), clock + "   •   Cash $" + session.Cash.ToString("F0") + "   •   Complaints " + session.Simulation.Requests.ActiveCount, Body, LightPaper);
                 var boiler = session.Simulation.Boiler;
-                Label(new Rect(x + 14, 94, 730, 25), "Boiler " + boiler.Condition.ToString("F0") + "%   /   " + (boiler.CapacityModelEnabled ?
+                string boilerLine = boiler.MaintenanceInProgress ? "BOILER MAINTENANCE · " + BoilerMaintenanceLabels.Remaining(session.Simulation) + " left · heat off" :
+                    (boiler.EmergencyPatchActive ? "Patched boiler " : "Boiler ") + boiler.Condition.ToString("F0") + "%   /   " + (boiler.CapacityModelEnabled ?
                     "load " + CapacityLabels.Percent(boiler.LoadRatio) + " · " + CapacityLabels.Band(boiler.CapacityBand) : "load " + boiler.Load.ToString("F2")) +
-                    "   /   pressure " + boiler.Pressure.ToString("F0") + "   /   heat " + (boiler.HeatingOutput * 100).ToString("F0") + "%", Small, boiler.Failed ? new Color(1, .56f, .28f) : Paper);
+                    "   /   pressure " + boiler.Pressure.ToString("F0") + "   /   heat " + (boiler.HeatingOutput * 100).ToString("F0") + "%";
+                Label(new Rect(x + 14, 94, 730, 25), boilerLine, Small, boiler.Failed ? new Color(1, .56f, .28f) : Paper);
                 DrawElectricalStatus(session, x);
                 if (session.Simulation.LivingEnabled)
                 {
@@ -44,9 +46,9 @@ namespace WorstHotel
                     Fill(new Rect(x, 152, 758, 25), new Color(.10f, .14f, .12f, .9f));
                     Label(new Rect(x + 14, 152, 730, 24), "ARRIVING " + arriving + "   /   AT RECEPTION " + reception + "   /   CHECKED IN " + staying, Small, reception > 0 ? new Color(1, .8f, .4f) : Paper);
                 }
-                DrawSituations(session, x, boiler.Failed ? 254 : 185);
+                DrawSituations(session, x, boiler.Failed && !boiler.MaintenanceInProgress ? 254 : 185);
                 DrawServices(session, x);
-                if (boiler.Failed)
+                if (boiler.Failed && !boiler.MaintenanceInProgress)
                 {
                     Fill(new Rect(x + 88, 183, 578, 63), Wine);
                     Label(new Rect(x + 101, 191, 552, 48), "BOILER FAILED  •  CENTRAL HEAT LOST\n" +

@@ -5,7 +5,7 @@ namespace WorstHotel
     // Explicit wire data only: arrays, strings, enums and finite scalar values. No Unity or transport API.
     [Serializable] public sealed class HotelModelSnapshot
     {
-        public const int ProtocolVersion = 8;
+        public const int ProtocolVersion = 9;
         public int Version = ProtocolVersion;
         public long Epoch, Sequence;
         public int Day, LastMaintenanceDay, DebugGuestCounter, EventRevision, LastReportDay, Cash, LastRefillDay;
@@ -91,8 +91,8 @@ namespace WorstHotel
     }
     [Serializable] public sealed class BoilerSnapshot
     {
-        public float Condition, Load, HeatingOutput, Pressure, FailureExposure, OccupancyLoad, LoadOverride, Stress01;
-        public bool Failed, HasLoadOverride; public int ReliefActorId;
+        public float Condition, Load, HeatingOutput, Pressure, FailureExposure, OccupancyLoad, LoadOverride, Stress01, MaintenanceEndsAt;
+        public bool Failed, HasLoadOverride, EmergencyPatchActive; public int ReliefActorId;
     }
     [Serializable] public sealed class CircuitSnapshot
     { public string Id; public float ActualRequestedLoad, LoadOverride, OverloadSeconds; public bool HasLoadOverride, Warning, Tripped; public int TripCount; }
@@ -129,7 +129,7 @@ namespace WorstHotel
     [Serializable] public sealed class ReceiptSnapshot
     { public string GuestId, Name, Review; public int RoomId, Price, Compensation; public float Satisfaction; }
     [Serializable] public sealed class ReportSnapshot
-    { public int Day, OpeningCash, OperatingCost, Cash; public float Reputation, ServiceSeconds; public ReceiptSnapshot[] Receipts; }
+    { public int Day, OpeningCash, OperatingCost, Cash, MaintenanceSpend; public float Reputation, ServiceSeconds; public ReceiptSnapshot[] Receipts; }
     [Serializable] public sealed class MaintenanceSnapshot
     { public int Day, ActorId, Cost, CashAfter; public MaintenanceChoice Choice; public float ConditionBefore, ConditionAfter; }
     [Serializable] public sealed class NoiseOverrideSnapshot

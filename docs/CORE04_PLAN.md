@@ -12,7 +12,7 @@ Each phase requires a successful compile, relevant tests and gameplay checks, an
 | 3 | Boundary persistence, bounded history, atomic validated LAN snapshots | Passed: compile/build, full Edit 398/398, four selected Play cases across runs, actual continuous LAN host45/client121; verification/core04-phase3.md |
 | 4 | Remote / DropOff / Direct integrated with guest life and finite availability | Passed: compile/scene, full Edit 441/441, seven selected gameplay cases across runs; verification/core04-phase4.md |
 | 5 | Measured capacity, causal stress, load feedback | Passed: compile/scene, full Edit 484/485 plus corrected focused 1/1, four physical Play cases; verification/core04-phase5.md |
-| 6 | Emergency patch versus proper maintenance and downtime | Pending |
+| 6 | Emergency patch versus proper maintenance and downtime | Passed: compile, relevant Edit 64/64, physical SOLO repair and reception maintenance/WAIT Play 2/2; verification/core04-phase6.md |
 | 7 | One persistent boiler upgrade and one electrical upgrade | Pending |
 | 8 | Income, expenses, load forecasts and tradeoffs | Pending |
 | 9 | Operations board, physical feedback, player instructions | Pending |

@@ -26,6 +26,10 @@ Integrated finite Direct decisions with guest schedules, exterior physical blank
 
 Continuous demand now comes from each real room radiator and physically staged shower. Boiler capacity, condition, gradual stress and pressure remain separate; safe load recovers stress and sustained excess causes failure. Circuits retain requested consumers after tripping and recover exposure gradually. Physical displays and F2 show actual demand, reserve and bands. Production settings measure mixed 3/4/5/6 guests at roughly 67/83/103/123 percent utilization; closing valves or changing guest profiles changes the result. Compile/scene passed; full Edit **484/485** plus corrected legacy expectation **1/1**, all 44 new cases passed; physical Play **4/4**. [Evidence and limits](verification/core04-phase5.md). Model schema 8 / LAN protocol 9.
 
+## Prototype 0.4 — phase 6 maintenance
+
+The continuous physical repair sequence now charges one emergency patch, restores working heat at 40 percent condition and retains a visible stress penalty. Proper maintenance costs more, shuts heat off for two hotel hours and restores condition/removes the penalty at the actual clock deadline. Reports show payments without charging again; jobs, costs and patch state survive calendar boundaries and validated snapshots. Reception/controller UI and planned-downtime WAIT work through the ordinary session. Compile passed; relevant Edit **64/64**, actual physical SOLO repair and reception maintenance/WAIT Play **2/2**. [Evidence and limits](verification/core04-phase6.md). Model schema 9 / LAN protocol 10.
+
 ## Prototype 0.3.2 — Natural Service
 
 26 September 2026. Natural Service implemented and packaged as Windows 0.3.2; the pause investigation remains explicitly deferred.

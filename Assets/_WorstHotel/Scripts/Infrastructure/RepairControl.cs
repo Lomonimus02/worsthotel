@@ -29,6 +29,10 @@ namespace WorstHotel
 
         public override string GetPrompt(PlayerInteractor actor)
         {
+            var session = GameSession.Instance;
+            if (session && session.Simulation.ContinuousOperations && controller && !controller.CanUseControls)
+                return session.Simulation.Boiler.MaintenanceInProgress ? controller.Status :
+                    BoilerMaintenanceLabels.State(session.Simulation) + " · Proper maintenance is available in Hotel operations";
             if (!controller || !controller.CanUseControls) return "No active service fault. Restore wear with between-day maintenance.";
             if (controller.SoloAssistEnabled && kind == RepairControlKind.ReliefValve)
                 return controller.SoloLatchSecondsRemaining > 0 ?
@@ -43,7 +47,12 @@ namespace WorstHotel
                 case RepairControlKind.Breaker: return "Isolate red breaker (after panel)";
                 case RepairControlKind.LatchA: return "Turn latch A fully (hold); an unseated latch springs back";
                 case RepairControlKind.LatchB: return "Turn latch B fully (hold); keep relief supported";
-                case RepairControlKind.Restart: return controller.SoloAssistEnabled ? "Restart after both latches while the solo catch is secured" : "Press restart after both latches, while partner holds relief";
+                case RepairControlKind.Restart:
+                    if (session && session.Simulation.ContinuousOperations)
+                        return "Emergency patch · $" + session.Economy.CheapPatchCost + " · " +
+                            session.BoilerSettings.Capacity.EmergencyPatchCondition.ToString("F0") + "% condition\n" +
+                            (controller.SoloAssistEnabled ? "Both latches seated · solo catch secured" : "Both latches seated · partner holds relief");
+                    return controller.SoloAssistEnabled ? "Restart after both latches while the solo catch is secured" : "Press restart after both latches, while partner holds relief";
                 default: return instruction;
             }
         }

@@ -109,22 +109,23 @@ namespace WorstHotel
             var session = GameSession.Instance;
             bool active = session != null && session.Phase == DayPhase.Service && simulation != null;
             float pressure = active ? Mathf.Clamp01(simulation.Boiler.Pressure / session.BoilerSettings.MaxPressure) : 0;
-            bool failed = active && simulation.Boiler.Failed;
+            bool maintaining = active && simulation.Boiler.MaintenanceInProgress;
+            bool failed = active && simulation.Boiler.Failed && !maintaining;
             bool relief = active && simulation.Boiler.ReliefActorId >= 0;
-            bool strained = active && simulation.Boiler.CapacityModelEnabled && simulation.Boiler.CapacityBand >= CapacityBand.Strained;
-            bool overloaded = active && simulation.Boiler.CapacityModelEnabled && simulation.Boiler.CapacityBand >= CapacityBand.Overloaded;
+            bool strained = active && !maintaining && simulation.Boiler.CapacityModelEnabled && simulation.Boiler.CapacityBand >= CapacityBand.Strained;
+            bool overloaded = active && !maintaining && simulation.Boiler.CapacityModelEnabled && simulation.Boiler.CapacityBand >= CapacityBand.Overloaded;
             float audibility = Audibility(steamAnchor ? steamAnchor.position : new Vector3(0, 1.5f, 37), 31);
             float output = active ? simulation.Boiler.HeatingOutput : 0;
-            SetLoop(hum, active ? (.13f + output * .16f) * audibility * masterVolume : 0, .87f + pressure * .22f);
+            SetLoop(hum, active && !maintaining ? (.13f + output * .16f) * audibility * masterVolume : 0, .87f + pressure * .22f);
             SetLoop(hiss, failed || relief ? (.11f + pressure * .25f) * audibility * masterVolume : 0, relief ? 1.12f : .93f);
             SetEmission(steam, active && (failed || relief) ? (relief ? 19 : 8 + pressure * 12) : 0);
             SetEmission(drops, failed ? 3.5f : 0);
             if (vibratingPipe != null)
             {
-                float amount = failed ? .013f : active && (pressure > .65f || strained) ? .004f : 0;
+                float amount = failed ? .013f : active && !maintaining && (pressure > .65f || strained) ? .004f : 0;
                 vibratingPipe.localPosition = pipeRest + new Vector3(Mathf.Sin(Time.time * 24), 0, Mathf.Sin(Time.time * 19)) * amount;
             }
-            if (active && (failed || overloaded || simulation.Boiler.Pressure >= session.BoilerSettings.WarningPressure))
+            if (active && !maintaining && (failed || overloaded || simulation.Boiler.Pressure >= session.BoilerSettings.WarningPressure))
             {
                 knockTimer -= Time.deltaTime;
                 if (knockTimer <= 0)

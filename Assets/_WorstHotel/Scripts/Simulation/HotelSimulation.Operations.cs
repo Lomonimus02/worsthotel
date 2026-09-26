@@ -48,6 +48,7 @@ namespace WorstHotel
             {
                 CloseDueOperatingReports();
                 float step = Math.Min(1f, Math.Min(target - Elapsed, Math.Min(NextReportAt, Calendar.At(Calendar.Day + 1, 0)) - Elapsed));
+                if (Boiler.MaintenanceInProgress) step = Math.Min(step, Boiler.MaintenanceEndsAt - Elapsed);
                 if (step <= 0 || Elapsed + step == Elapsed)
                     throw new InvalidOperationException("The hotel clock cannot represent another simulation step.");
                 RefreshBookingSchedule(Elapsed + step);
@@ -64,11 +65,12 @@ namespace WorstHotel
             {
                 float boundary = NextReportAt;
                 LastReport = Economy.CloseOperatingDay(ReportSequence + 1, periodReceipts,
-                    periodOpeningCash, boundary - periodStartedAt);
+                    periodOpeningCash, boundary - periodStartedAt, PeriodMaintenanceSpend);
                 reports.Add(LastReport);
                 if (reports.Count > Operations.ReportHistoryLimit) reports.RemoveAt(0);
                 ReportSequence++;
                 periodReceipts.Clear();
+                PeriodMaintenanceSpend = 0;
                 periodOpeningCash = Economy.Cash;
                 periodStartedAt = boundary;
                 PruneCompletedOperatingHistory();

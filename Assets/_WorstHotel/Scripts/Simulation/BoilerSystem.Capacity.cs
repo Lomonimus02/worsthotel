@@ -21,6 +21,7 @@ namespace WorstHotel
 
         private void TickCapacity(float dt)
         {
+            if (MaintenanceInProgress) return;
             if (Failed)
             {
                 // Relief and the solo catch deliberately retain their physical, seconds-based behavior.
@@ -38,7 +39,8 @@ namespace WorstHotel
             double ratio = (double)Load / EffectiveCapacity;
             double overload = Math.Max(0, ratio - 1);
             double poorCondition = (1 - Condition / 100d) * tuning.PoorConditionStressPenalty;
-            double stressChange = overload > 0 ? overload * tuning.StressGainPerHotelHour * (1 + poorCondition) :
+            double stressChange = overload > 0 ? overload * tuning.StressGainPerHotelHour * (1 + poorCondition) *
+                (EmergencyPatchActive ? tuning.EmergencyPatchStressMultiplier : 1) :
                 -Math.Max(0, 1 - ratio) * tuning.StressRecoveryPerHotelHour;
             Stress01 = (float)Math.Max(0, Math.Min(1, Stress01 + stressChange * days * 24));
             double wear = (tuning.RunningWearPerHotelDay * Math.Min(1, ratio) + tuning.OverloadWearPerHotelDay * overload) * days;

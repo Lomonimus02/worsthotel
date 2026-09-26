@@ -24,17 +24,18 @@ namespace WorstHotel
             if (capacityDisplay && capacityDisplay.activeSelf != boiler.CapacityModelEnabled) capacityDisplay.SetActive(boiler.CapacityModelEnabled);
             if (capacityReadout && boiler.CapacityModelEnabled)
             {
-                capacityReadout.text = CapacityLabels.BoilerReadout(boiler);
+                capacityReadout.text = boiler.MaintenanceInProgress ?
+                    "MAINTENANCE · HEATING OFF\n" + BoilerMaintenanceLabels.Remaining(session.Simulation) + " LEFT\nREADY " + GuestLabels.HotelMoment(session.Simulation, boiler.MaintenanceEndsAt) : CapacityLabels.BoilerReadout(boiler);
                 capacityReadout.color = boiler.Failed || boiler.CapacityModelEnabled && boiler.CapacityBand >= CapacityBand.Overloaded ?
                     new Color(.65f, .12f, .06f) : new Color(.18f, .21f, .19f);
             }
             bool pressureWarning = boiler.Pressure >= session.BoilerSettings.WarningPressure;
-            bool strained = boiler.CapacityModelEnabled && boiler.CapacityBand >= CapacityBand.Strained;
-            bool alarm = boiler.Failed || pressureWarning || boiler.CapacityModelEnabled && boiler.CapacityBand >= CapacityBand.Overloaded;
-            bool critical = boiler.Failed || boiler.CapacityModelEnabled && boiler.CapacityBand == CapacityBand.Critical;
+            bool strained = !boiler.MaintenanceInProgress && boiler.CapacityModelEnabled && boiler.CapacityBand >= CapacityBand.Strained;
+            bool alarm = !boiler.MaintenanceInProgress && (boiler.Failed || pressureWarning || boiler.CapacityModelEnabled && boiler.CapacityBand >= CapacityBand.Overloaded);
+            bool critical = !boiler.MaintenanceInProgress && (boiler.Failed || boiler.CapacityModelEnabled && boiler.CapacityBand == CapacityBand.Critical);
             float pulse = alarm ? .65f + .35f * Mathf.Sin(Time.time * 8) : .15f;
             if (warningLight) warningLight.intensity = alarm ? pulse * 2 : strained ? .25f : 0;
-            Color signal = critical || !boiler.CapacityModelEnabled && alarm ? new Color(.95f, .16f, .045f) :
+            Color signal = boiler.MaintenanceInProgress ? new Color(.18f, .45f, .78f) : critical || !boiler.CapacityModelEnabled && alarm ? new Color(.95f, .16f, .045f) :
                 alarm || strained ? new Color(.95f, .57f, .08f) : new Color(.20f, .35f, .18f);
             if (warningLight) warningLight.color = signal;
             if (lensMaterial)

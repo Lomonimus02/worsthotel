@@ -42,6 +42,12 @@ namespace WorstHotel
         [Min(0)] public float runningWearPerHotelDay = 3;
         [Min(0)] public float overloadWearPerHotelDay = 12;
         [Min(0)] public float pressureStressFactor = 30;
+        [Header("Emergency patch and timed maintenance")]
+        [Range(0, 100)] public float emergencyPatchCondition = 40;
+        [Range(0, .99f)] public float emergencyPatchStress = .2f;
+        [Min(1)] public float emergencyPatchStressMultiplier = 1.25f;
+        [Range(0, 100)] public float properMaintenanceCondition = 95;
+        [Min(.01f)] public float maintenanceHours = 2;
 
         public BoilerSettings ToData() => new BoilerSettings(initialCondition, safeLoad, baseWearPerMinute,
             overloadWearPerMinute, pressureBase, pressureOverloadFactor, pressureConditionThreshold, pressureConditionFactor,
@@ -49,6 +55,7 @@ namespace WorstHotel
             heatConditionThreshold, heatConditionLoss, minimumHeatOutput, failedHeatOutput, startPressure,
             repairSafeMin, repairSafeMax, reliefTarget, reliefRate, failedPressureRise, latchTravelSeconds, restartPressure, maxPressure,
             new BoilerCapacitySettings(conditionCapacityFloor, strainedLoadRatio, criticalStress, stressGainPerHotelHour,
-                stressRecoveryPerHotelHour, poorConditionStressPenalty, runningWearPerHotelDay, overloadWearPerHotelDay, pressureStressFactor));
+                stressRecoveryPerHotelHour, poorConditionStressPenalty, runningWearPerHotelDay, overloadWearPerHotelDay, pressureStressFactor,
+                emergencyPatchCondition, emergencyPatchStress, emergencyPatchStressMultiplier, properMaintenanceCondition, maintenanceHours));
     }
 }

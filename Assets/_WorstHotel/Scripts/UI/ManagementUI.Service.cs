@@ -15,7 +15,7 @@ namespace WorstHotel
             Border(new Rect(23, 58, 754, 804), Brass);
             Label(new Rect(42, 78, 700, 48), "GUEST RELATIONS", Title);
             Label(new Rect(42, 132, 448, 61), "Conversations and agreements with your guests. They may also call or come to reception.", Small, Muted);
-            if (Session.Simulation.Boiler.Failed)
+            if (Session.Simulation.Boiler.Failed && !Session.Simulation.Boiler.MaintenanceInProgress)
                 ButtonAt(new Rect(502, 139, 245, 48), Session.Simulation.BoilerFailureAcknowledged ? "Boiler loss accepted" : "Leave boiler failed",
                     () => Session.AcceptBoilerConsequences(owner), !Session.Simulation.BoilerFailureAcknowledged);
             int i = 0;

@@ -9,7 +9,7 @@ namespace WorstHotel
         public bool SoloAssistEnabled => soloAssist != null;
         public float SoloValveHoldProgress { get; private set; }
         public float SoloLatchSecondsRemaining { get; private set; }
-        public bool SoloValveLatched => SoloAssistEnabled && Failed && SoloLatchSecondsRemaining > 0;
+        public bool SoloValveLatched => SoloAssistEnabled && Failed && !MaintenanceInProgress && SoloLatchSecondsRemaining > 0;
         public float SoloValveRequiredHoldSeconds => soloAssist != null ? soloAssist.SafeValveHoldSeconds : 0;
 
         public void ConfigureSoloAssist(SoloAssistSettings settings)
@@ -23,7 +23,7 @@ namespace WorstHotel
         {
             if (!Number.IsFinite(realSeconds) || realSeconds < 0) throw new ArgumentOutOfRangeException(nameof(realSeconds));
             if (ReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
-            if (!SoloAssistEnabled || actorId != 0 || !Failed || ReliefActorId != actorId)
+            if (!SoloAssistEnabled || actorId != 0 || !Failed || MaintenanceInProgress || ReliefActorId != actorId)
                 return CommandResult.Fail("The mechanical valve catch is available only to the solo valve operator.");
             if (SoloValveLatched || soloLatchNeedsRelease) return CommandResult.Ok();
             if (!InRepairBand) { SoloValveHoldProgress = 0; return CommandResult.Fail("Hold pressure inside the green band to engage the catch."); }
@@ -43,7 +43,7 @@ namespace WorstHotel
             if (!Number.IsFinite(realSeconds) || realSeconds < 0) throw new ArgumentOutOfRangeException(nameof(realSeconds));
             if (ReadOnlyMirror || SoloLatchSecondsRemaining <= 0) return;
             SoloLatchSecondsRemaining = Math.Max(0, SoloLatchSecondsRemaining - realSeconds);
-            if (!Failed || !InRepairBand) SoloLatchSecondsRemaining = 0;
+            if (!Failed || !InRepairBand || MaintenanceInProgress) SoloLatchSecondsRemaining = 0;
             if (SoloLatchSecondsRemaining <= 0) SoloValveHoldProgress = 0;
         }
 
