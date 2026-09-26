@@ -121,6 +121,21 @@ namespace WorstHotel.Editor
 
         static void BuildRoomServiceControls(Transform root, int roomId, int side, float z)
         {
+            // The knocker is on door-local +X. Mirror the whole shelf onto the other jamb;
+            // using the same world -Z side put right-room shelves behind their knockers.
+            // The shelf also stays outside the solid leaf's full +/-105-degree sweep.
+            // WallPanel's doubled collider depth puts its corridor face at |x|=1.83;
+            // the whole shelf, use box and parcel must sit in front of that real surface.
+            var parcelPoint = Group("Room blanket drop-off " + roomId, root, new Vector3(side * 1.74f, .48f, z + side * 1.65f));
+            parcelPoint.transform.localRotation = Quaternion.Euler(0, side * 90, 0);
+            var drop = parcelPoint.AddComponent<RoomBlanketDropOffInteraction>();
+            drop.roomId = roomId; drop.displayName = "Room " + roomId + " delivery shelf";
+            drop.deliveryAnchor = Group("Blanket parcel anchor " + roomId, parcelPoint.transform, new Vector3(0, .17f, -.21f)).transform;
+            var dropHit = parcelPoint.AddComponent<BoxCollider>(); dropHit.center = new Vector3(0, .49f, -.065f);
+            dropHit.size = new Vector3(.68f, .25f, .14f);
+            Box("Delivery shelf tray", parcelPoint.transform, new Vector3(0, -.04f, -.15f), new Vector3(.76f, .10f, .43f), "Mahogany", true);
+            Box("Delivery shelf back", parcelPoint.transform, new Vector3(0, .33f, 0), new Vector3(.70f, .60f, .06f), "Walnut panels", true, false);
+            Text("Room delivery shelf label", parcelPoint.transform, "ROOM " + roomId + "\nDELIVERY", new Vector3(0, .45f, -.145f), .058f, Lettering);
             var radiator = GameObject.Find("Radiator" + roomId);
             var valveObject = Group("Radiator control " + roomId, radiator.transform, new Vector3(-1, 1.03f, -.27f));
             var valve = valveObject.AddComponent<RadiatorValveInteraction>(); valve.roomId = roomId; valve.displayName = "Room " + roomId + " radiator valve";

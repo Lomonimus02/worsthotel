@@ -53,6 +53,18 @@ namespace WorstHotel
             if (result.Success) player.ReleaseGrab();
             return GuestCommand(result);
         }
+        public CommandResult DropOffBlanket(int actor, RoomBlanketDropOffInteraction target)
+        {
+            if (!ServiceTarget(actor, target, out var player) || HeldServiceItem(player)?.State.Kind != ServiceItemKind.Blanket)
+                return CommandResult.Fail("Carry the requested blanket to the room's delivery shelf.");
+            var intent = target.Intent;
+            var item = HeldServiceItem(player);
+            if (intent == null || !target.deliveryAnchor || intent.RoomId != target.roomId || intent.DeliveryPointId != target.DeliveryPointId)
+                return GuestCommand(CommandResult.Fail("There is no current blanket delivery for this room."));
+            var result = Simulation.DropOffBlanket(actor, intent.GuestId, target.roomId, intent.Revision, item.State.Generation);
+            if (result.Success) player.ReleaseGrab();
+            return GuestCommand(result);
+        }
         public CommandResult ReplaceRoomBulb(int actor, RoomLampInteraction target)
         {
             if (!ServiceTarget(actor, target, out var player) || HeldServiceItem(player)?.State.Kind != ServiceItemKind.ReplacementBulb)

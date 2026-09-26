@@ -55,6 +55,7 @@ namespace WorstHotel
             Keys.CommitHandToGuest(guest.RoomId, guestId);
             room.ReservedGuestId = null; room.GuestId = guestId;
             guest.Agent.CheckedIn = true;
+            Services?.CompleteCheckInContext(guest);
             NeedEvaluator.ClearInstantaneous(guest);
             Transition(guest, GuestAgentState.GoingToRoom, Elapsed, guest.Name + " checked in to room " + guest.RoomId);
             Keys.NotifyHandToGuest(guest.RoomId);
@@ -107,6 +108,7 @@ namespace WorstHotel
                 return CommandResult.Fail("Use the guest response controls for physical self-help or contact.");
             var guest = FindLivingGuest(guestId);
             if (guest == null || !guest.Agent.IsRoomState) return CommandResult.Fail("Activities require a guest physically in their assigned room.");
+            if (Services?.DirectIntent(guestId) != null) return CommandResult.Fail("Finish or cancel the direct service before changing the guest's activity.");
             if (!string.IsNullOrEmpty(guest.Agent.ResponseActionId)) return CommandResult.Fail("Let the current guest response finish or cancel it first.");
             if (guest.Agent.State == GuestAgentState.Sleeping) guest.Agent.SleepStarted = true;
             SetActivity(guest, activity, Elapsed, activity == GuestActivity.QuietRest ? LivingSettings.QuietDurationMin : LivingSettings.ActivityDurationMin);
@@ -120,6 +122,7 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             var guest = FindLivingGuest(guestId);
             if (guest == null || !guest.Agent.IsRoomState) return CommandResult.Fail("Guest has no room activity to skip.");
+            if (Services?.DirectIntent(guestId) != null) return CommandResult.Fail("Finish or cancel the direct service before changing the guest's activity.");
             if (!string.IsNullOrEmpty(guest.Agent.ResponseActionId)) return CommandResult.Fail("Let the current guest response finish or cancel it first.");
             var entries = guest.Agent.Schedule.Activities;
             var entry = entries[guest.Agent.ActivityIndex % entries.Count];
@@ -177,6 +180,7 @@ namespace WorstHotel
                     continue;
                 }
                 if (!agent.IsRoomState) continue;
+                if (Services?.DirectIntent(guest.GuestId) != null) continue;
                 if (!string.IsNullOrEmpty(agent.ResponseActionId)) continue;
                 if (agent.RequiresActivityStaging && !agent.ActivityStaged) continue;
                 if (now >= agent.CheckoutTime - LivingSettings.ActivityDurationMin && agent.Activity != GuestActivity.Pack)

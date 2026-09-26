@@ -42,8 +42,8 @@ namespace WorstHotel
                         " / " + GuestLabels.Situation(situations[i].Stage)), Small, situations[i].Stage >= SituationStage.Escalated ? Red : Ink);
             DrawGuestResponseActions(guest, situations);
             Label(new Rect(42, 680, 700, 53), "Room rate $" + guest.Price + (guest.Compensated ? " / credit reserved $" + guest.CompensationCredit : "") + "\n" +
-                (guest.Agent?.PendingMoveRoomId.HasValue == true ? "Bring key " + guest.Agent.PendingMoveRoomId + " to this guest to exchange rooms." :
-                 situations.Length > 0 ? "The guest has described a problem. How you help is your decision." : "Talk to guests at reception or by their room."), Small, Muted);
+                (GuestLabels.GuestIntentStatus(guest, Session.Simulation) ?? (guest.Agent?.PendingMoveRoomId.HasValue == true ? "Bring key " + guest.Agent.PendingMoveRoomId + " to this guest to exchange rooms." :
+                 situations.Length > 0 ? "The guest has described a problem. How you help is your decision." : "Talk to guests at reception or by their room.")), Small, Muted);
             ButtonAt(new Rect(42, 746, 342, 42), "Back to all guests", () => { selectedServiceGuest = null; focus = 0; });
             var service = Session.Simulation.Services?.Cases.Where(c => c.GuestId == guest.GuestId && GuestLabels.IsKnownToHotel(c)).OrderByDescending(c => c.Active).ThenByDescending(c => c.CreatedAt).FirstOrDefault();
             ButtonAt(new Rect(405, 746, 342, 42), "Service requests / promises", () => ShowServices(service?.Id), Session.Simulation.Services != null);

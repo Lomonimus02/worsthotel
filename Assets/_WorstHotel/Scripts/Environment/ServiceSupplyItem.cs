@@ -73,7 +73,8 @@ namespace WorstHotel
             {
                 if (state.Location != ServiceItemLocation.HeldByPlayer && carrier && carrier.HeldBody == Body) carrier.ReleaseGrab();
                 SetVisible(visible);
-                bool docked = state.Location == ServiceItemLocation.OnShelf || state.Location == ServiceItemLocation.Stored;
+                bool docked = state.Location == ServiceItemLocation.OnShelf || state.Location == ServiceItemLocation.Stored ||
+                    state.Location == ServiceItemLocation.AwaitingReceipt;
                 Body.isKinematic = !visible;
                 Body.useGravity = visible && !docked;
                 Body.constraints = docked ? RigidbodyConstraints.FreezeAll : RigidbodyConstraints.None;
@@ -121,6 +122,17 @@ namespace WorstHotel
         void PlaceAtDock(ServiceItemState state, GuestStay guest)
         {
             Transform dock = state.Location == ServiceItemLocation.Stored && storageZone ? storageZone.StorageAnchor(luggageSlot) : sourceAnchor;
+            if (state.Location == ServiceItemLocation.AwaitingReceipt)
+            {
+                // Pending delivery belongs to this precise parcel/point. It cannot refill a shelf,
+                // follow a relocated guest, or receive comfort through presentation alone.
+                dock = null;
+                var intent = simulation?.Services?.PendingDeliveryForItem(itemId);
+                if (intent != null && intent.ItemGeneration == state.Generation)
+                    foreach (var point in FindObjectsByType<RoomBlanketDropOffInteraction>(FindObjectsSortMode.None))
+                        if (point.gameObject.scene == gameObject.scene && point.DeliveryPointId == intent.DeliveryPointId)
+                        { dock = point.deliveryAnchor; break; }
+            }
             if (state.Kind == ServiceItemKind.Luggage && state.Location == ServiceItemLocation.OnShelf && guest != null &&
                 presentation && presentation.TryGetGuestTransform(guest.GuestId, out var guestTransform))
             {
@@ -153,7 +165,7 @@ namespace WorstHotel
             if (carrier != player) return;
             carrier = null;
             var session = GameSession.Instance;
-            if (HasAuthority && session && session.Simulation == simulation && State?.Location == ServiceItemLocation.Stored)
+            if (HasAuthority && session && session.Simulation == simulation && (State?.Location == ServiceItemLocation.Stored || State?.Location == ServiceItemLocation.AwaitingReceipt))
             {
                 // The short placement uses the actual body after its physics joint is released.
                 // Do it before a later calendar prune or arrival can recycle the authored slot.

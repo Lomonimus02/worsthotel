@@ -18,6 +18,9 @@ namespace WorstHotel
                 foreach (var candidate in session.Simulation.Guests) if (candidate.GuestId == room.GuestId) { guest = candidate; break; }
             return base.CanInteract(actor) && actor && session && room != null && room.Occupied &&
                 guest?.Agent?.InAssignedRoom == true && guest.BlanketComfortBonus <= 0 &&
+                (!session.Simulation.ContinuousOperations || guest.Agent.ActivityStaged &&
+                    guest.Agent.State != GuestAgentState.Sleeping && guest.Agent.Activity != GuestActivity.Shower &&
+                    !guest.Agent.IsRelocating && session.Simulation.Services?.DropOffIntent(guest.GuestId)?.Status != ServiceIntentStatus.AwaitingReceipt) &&
                 item && item.State?.Kind == ServiceItemKind.Blanket && item.State.PlayerId == actor.ActorId;
         }
         public override string GetPrompt(PlayerInteractor actor)
@@ -25,6 +28,8 @@ namespace WorstHotel
             var session = GameSession.Instance;
             var room = session ? Array.Find(session.Rooms, candidate => candidate.Profile.Id == roomId) : null;
             if (room == null || !room.Occupied) return "Extra blanket · room " + roomId + "\nNo checked-in guest";
+            if (session.Simulation?.Services?.DropOffIntent(room.GuestId)?.Status == ServiceIntentStatus.AwaitingReceipt)
+                return "Blanket already left outside room " + roomId + "\nWaiting for the guest to receive it";
             if (session.Simulation != null)
                 foreach (var guest in session.Simulation.Guests)
                     if (guest.GuestId == room.GuestId && (guest.BlanketComfortBonus > 0 || guest.Memory.BlanketsDelivered > 0))

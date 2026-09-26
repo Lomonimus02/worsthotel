@@ -19,8 +19,8 @@ namespace WorstHotel
             Label(new Rect(x + 14, y + 5, 572, 23), contact ?? "RECEPTION NOTES · " + cases.Length + " open", Small, new Color(.72f, .87f, .77f));
             int i = 0;
             foreach (var item in cases.Take(2))
-                Label(new Rect(x + 14, y + 30 + i++ * 22, 572, 23), item.RoomId + " · " + GuestLabels.Service(item.Kind) +
-                    " · " + GuestLabels.ServiceState(item.Status), Small, Paper);
+                Label(new Rect(x + 14, y + 30 + i++ * 22, 572, 23), item.RoomId + " · " + GuestLabels.Service(item.Kind, session.Simulation) +
+                    " · " + GuestLabels.ServiceBrief(item, session.Simulation), Small, Paper);
             if (promise != null)
             {
                 float remaining = promise.DueTime - session.Simulation.Elapsed;

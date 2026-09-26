@@ -266,13 +266,15 @@ namespace WorstHotel
             servicePhone = phone; openServiceRevision++; nextModel = 0;
         }
 
-        public bool SubmitCommand(LanCommandKind kind, string subject = null, int roomId = 0, int amount = 0, int reservationRevision = -1)
+        public bool SubmitCommand(LanCommandKind kind, string subject = null, int roomId = 0, int amount = 0, int reservationRevision = -1,
+            string directIntentId = null, int directIntentRevision = -1)
         {
             if (!IsClientReplica || !HasSnapshot || !PeerConnected || MenuOpen) return false;
             var session = GameSession.Instance;
             var command = new LanCommand { epoch = Epoch, sequence = ++commandSequence, day = session.Day,
                 phase = session.Phase, kind = kind, subject = subject, roomId = roomId, amount = amount,
-                expectedReservationRevision = reservationRevision };
+                expectedReservationRevision = reservationRevision, expectedDirectIntentId = directIntentId,
+                expectedDirectIntentRevision = directIntentRevision };
             Send(CommandMessage, NetworkManager.ServerClientId, command, LanProtocol.MaxCommandBytes);
             return true;
         }

@@ -61,6 +61,34 @@ namespace WorstHotel.Tests
         }
 
         [Test]
+        public void ContinuousMoveCancellationRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope()
+        {
+            var ordinary = JsonUtility.FromJson<LanCommand>(JsonUtility.ToJson(Valid()));
+            Assert.That(LanProtocol.ValidCommand(ordinary, 41, 2, 1, DayPhase.Planning), Is.True,
+                "An ordinary command must survive Unity JSON's null-to-empty string normalization.");
+            ordinary.expectedDirectIntentId = "";
+            Assert.That(LanProtocol.ValidCommand(ordinary, 41, 2, 1, DayPhase.Planning), Is.True);
+            var command = Valid(); command.kind = LanCommandKind.CancelMove; command.phase = DayPhase.Service;
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 1, DayPhase.Service), Is.True);
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 1, DayPhase.Service, true), Is.False);
+            command.expectedDirectIntentId = "guest/move/7/103"; command.expectedDirectIntentRevision = 1;
+            var decoded = JsonUtility.FromJson<LanCommand>(JsonUtility.ToJson(command));
+            Assert.That(decoded.expectedDirectIntentId, Is.EqualTo(command.expectedDirectIntentId));
+            Assert.That(decoded.expectedDirectIntentRevision, Is.EqualTo(1));
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.True);
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 1, DayPhase.Service), Is.False);
+            decoded.expectedDirectIntentRevision = 0;
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False);
+            decoded.expectedDirectIntentRevision = 1; decoded.expectedDirectIntentId = new string('x', 513);
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False);
+            decoded.expectedDirectIntentId = " ";
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False);
+            decoded.expectedDirectIntentId = command.expectedDirectIntentId; decoded.kind = LanCommandKind.RequestQuiet;
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False,
+                "Unrelated commands cannot carry another service's expectation.");
+        }
+
+        [Test]
         public void DirectIpAndInputRejectInvalidBoundaryValuesWithoutRequiringNetworkingRuntime()
         {
             foreach (var address in new[] { "127.0.0.1", "192.168.1.10" }) Assert.That(LanProtocol.ValidAddress(address), Is.True);

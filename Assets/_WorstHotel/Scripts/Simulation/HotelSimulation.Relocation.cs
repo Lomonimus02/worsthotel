@@ -9,8 +9,11 @@ namespace WorstHotel
             if (!valid.Success) return valid;
             if (guest.Agent.PendingMoveRoomId == targetRoomId)
                 return CommandResult.Ok("This destination is already reserved. Bring its key to the guest.");
+            var intentPermission = Services?.CanBeginRoomMoveIntent(guest) ?? CommandResult.Ok();
+            if (!intentPermission.Success) return intentPermission;
             destination.ReservedGuestId = guestId;
             guest.Agent.PendingMoveRoomId = targetRoomId;
+            Services?.BeginRoomMoveIntent(guest, targetRoomId);
             SignalEvent(guest.Name + ": room " + targetRoomId + " reserved pending physical key exchange");
             return CommandResult.Ok("Bring the room " + targetRoomId + " key to " + guest.Name + ". The guest stays in the current room until handoff.");
         }
@@ -24,6 +27,7 @@ namespace WorstHotel
                 return CommandResult.Fail("This guest has no pending room-key exchange.");
             int target = guest.Agent.PendingMoveRoomId.Value;
             ReleasePendingMove(guest);
+            Services?.FinishRoomMoveIntent(guest, false);
             SignalEvent(guest.Name + ": proposed move to room " + target + " cancelled");
             return CommandResult.Ok("Move cancelled. Current room, key and stay conditions are unchanged.");
         }
@@ -40,6 +44,7 @@ namespace WorstHotel
             // another player holds it, or a pending destination has become unavailable.
             int previousRoom = guest.RoomId;
             Keys.CommitHandToGuest(targetRoomId, guestId, previousRoom);
+            Services?.FinishRoomMoveIntent(guest, true);
             ReleaseOwnedRoom(guest, source);
             destination.ReservedGuestId = guestId;
             guest.RoomId = targetRoomId;
@@ -68,6 +73,8 @@ namespace WorstHotel
             guest = FindLivingGuest(guestId);
             if (guest == null || !guest.Agent.InAssignedRoom || guest.Agent.IsRelocating)
                 return CommandResult.Fail("Choose a checked-in guest who is currently in their room.");
+            var intentPermission = Services?.CanBeginRoomMoveIntent(guest) ?? CommandResult.Ok();
+            if (!intentPermission.Success) return intentPermission;
             if (targetRoomId == guest.RoomId) return CommandResult.Fail("The guest is already assigned to that room.");
             if (guest.Agent.PendingMoveRoomId.HasValue && guest.Agent.PendingMoveRoomId != targetRoomId)
                 return CommandResult.Fail("Cancel the existing proposed move before choosing a different room.");

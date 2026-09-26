@@ -88,6 +88,7 @@ namespace WorstHotel
             Boiler = new BoilerSystem(settings.Boiler);
             NeedEvaluator?.ConfigureEnvironment(Noise, Boiler);
             Incidents = new IncidentSystem(settings, NeedsSettings);
+            Incidents.ShouldDeferRemoteEvaluation = _ => ContinuousOperations;
             Incidents.OnSituationChanged += incident =>
             {
                 if (incident.HasContactedStaff && incident.Stage != SituationStage.Observed)

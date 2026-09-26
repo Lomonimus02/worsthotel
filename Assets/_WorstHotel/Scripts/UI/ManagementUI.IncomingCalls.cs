@@ -92,7 +92,7 @@ namespace WorstHotel
                     Label(new Rect(42, 206, 705, 35), "ROOM " + response.RoomId + " · " + GuestName(response.GuestId), Heading);
                     Label(new Rect(42, 264, 705, 98), GuestLabels.ResponseClue(Session.Simulation, response), Body);
                     var item = services.Cases.FirstOrDefault(c => c.Id == response.ServiceCaseId && GuestLabels.IsKnownToHotel(c));
-                    Label(new Rect(42, 365, 705, 33), item != null ? GuestLabels.ServiceState(item.Status) : "Guest concern · heard by reception", Small, Teal);
+                    Label(new Rect(42, 365, 705, 33), item != null ? GuestLabels.ServiceProgress(item, Session.Simulation) : "Guest concern · heard by reception", Small, Teal);
                 }
                 return;
             }

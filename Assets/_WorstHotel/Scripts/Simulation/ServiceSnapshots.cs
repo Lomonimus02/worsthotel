@@ -13,6 +13,7 @@ namespace WorstHotel
         public ServiceCaseSnapshot[] Cases;
         public WakePromiseSnapshot[] Promises;
         public ServiceItemSnapshot[] Items;
+        public ServiceIntentSnapshot[] Intents;
     }
     [Serializable] public sealed class ServiceCaseSnapshot
     {
@@ -46,6 +47,7 @@ namespace WorstHotel
         {
             Day = day, ServiceEnd = serviceEnd, LastRefillDay = LastRefillDay, StaffCount = StaffCount,
             NaturalCommunicationEnabled = NaturalCommunicationEnabled, Responses = CaptureResponses(),
+            Intents = CaptureIntents(),
             Cases = cases.Select(c => new ServiceCaseSnapshot { Id = c.Id, GuestId = c.GuestId,
                 RoomId = c.RoomId, SourceRoomId = c.SourceRoomId, Kind = c.Kind, Status = c.Status,
                 CreatedAt = c.CreatedAt, DueTime = c.DueTime, RecoverySeconds = c.RecoverySeconds,
@@ -74,6 +76,7 @@ namespace WorstHotel
                 { Location = i.Location, PlayerId = i.PlayerId < 0 ? (int?)null : i.PlayerId,
                   LastPlayerId = i.LastPlayerId < 0 ? (int?)null : i.LastPlayerId, RoomId = i.RoomId == 0 ? (int?)null : i.RoomId });
             RestoreResponses(data);
+            RestoreIntents(data);
         }
     }
 
@@ -84,7 +87,12 @@ namespace WorstHotel
         {
             Require(snapshot.HasServices == enabled, "Service configuration differs from this hotel.");
             // JsonUtility may materialize an empty nested class for an absent optional subsystem.
-            if (!enabled) return;
+            if (!enabled)
+            {
+                Require(snapshot.Guests.All(guest => string.IsNullOrEmpty(guest.Agent?.DirectServiceIntentId)),
+                    "A direct guest wait needs the service system.");
+                return;
+            }
             var s = snapshot.ServiceLayer;
             Require(s != null, "Missing guest services.");
             Require(s.NaturalCommunicationEnabled == naturalCommunicationEnabled, "Guest communication configuration differs.");
@@ -156,6 +164,7 @@ namespace WorstHotel
                 }
             }
             GuestResponses(snapshot, naturalCommunicationEnabled);
+            ServiceIntents(snapshot, roomIds);
         }
     }
 }

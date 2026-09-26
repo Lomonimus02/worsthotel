@@ -37,7 +37,7 @@ namespace WorstHotel
         bool BeginContact(GuestResponse response, GuestStay guest, GuestContactChannel channel, float now)
         {
             if (response.ContactAttempts >= Settings.MaxContactAttempts || !CausePresent(response, guest, now) ||
-                !CanInterrupt(guest) || guest.Agent.ResponseActionId != null || !PrepareContact(response, guest, now)) return false;
+                !CanInterrupt(guest) || !ContactWindowAvailable(guest, now) || guest.Agent.ResponseActionId != null || !PrepareContact(response, guest, now)) return false;
             if (channel == GuestContactChannel.Phone && (IncomingCall != null || !guest.Agent.InAssignedRoom)) return false;
             response.Channel = channel; response.AttemptStartedAt = response.AttemptDeadline = -1;
             SetPhase(response, GuestResponsePhase.Contacting, now);
@@ -145,6 +145,8 @@ namespace WorstHotel
             }
             else if (channel != GuestContactChannel.Phone && channel != GuestContactChannel.Reception)
                 return CommandResult.Fail("Choose an actual conversation channel.");
+            if (!CanCommunicateIntent(guest, FindCase(response.ServiceCaseId)))
+                return CommandResult.Fail("Finish the current direct service decision before starting another.");
             response.Channel = channel; response.CommunicatedAt = simulation.Elapsed;
             response.AttemptStartedAt = response.AttemptDeadline = response.RetryAt = -1;
             SetPhase(response, GuestResponsePhase.Communicated, simulation.Elapsed);
@@ -152,7 +154,8 @@ namespace WorstHotel
             if (item != null)
             { if (item.BudgetCharged) guest.Memory.ServicesRequested = Count(guest.Memory.ServicesRequested); Changed?.Invoke(item); }
             if (response.IncidentId != null) simulation.Incidents.MarkCommunicated(guest, response.IncidentId, response.IncidentEpisode, simulation.Elapsed);
-            simulation.ClearGuestResponseAction(guest, true);
+            BeginCaseIntent(guest, item);
+            if (DirectIntent(guest.GuestId) == null) simulation.ClearGuestResponseAction(guest, true);
             var reason = Incident(response)?.Reason;
             string concern = reason == IncidentReason.Temperature ? "The room temperature is uncomfortable." :
                 reason == IncidentReason.Noise ? "Noise from nearby is disturbing the guest." : "The guest reported a problem with the room.";

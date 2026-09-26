@@ -32,6 +32,8 @@ namespace WorstHotel
         public float ContactRetryDelaySeconds { get; }
         public float ReceptionWaitSeconds { get; }
         public int MaxContactAttempts { get; }
+        public float DirectWaitSeconds { get; }
+        public float ContactLeadSeconds { get; }
 
         public GuestServiceSettings(int maxCasesPerShift = 3, int maxCasesPerGuest = 2, int blanketStock = 3,
             int bulbStock = 3, float eligibility = .55f, float soloFrequencyMultiplier = .8f,
@@ -42,13 +44,14 @@ namespace WorstHotel
             float brokenPromisePenalty = 3, float maximumScoreAdjustment = 6,
             bool naturalCommunicationEnabled = false, float selfResponseObserveSeconds = 5,
             float toleranceSeconds = 10, float phoneRingSeconds = 12, float contactRetryDelaySeconds = 25,
-            float receptionWaitSeconds = 35, int maxContactAttempts = 2)
+            float receptionWaitSeconds = 35, int maxContactAttempts = 2,
+            float directWaitSeconds = 40, float contactLeadSeconds = 12)
         {
             foreach (float value in new[] { eligibility, soloFrequencyMultiplier, observationSeconds, mildColdMinimum,
                 mildColdMaximum, blanketComfortBonus, replySeconds, wakeLeadSeconds, wakeToleranceSeconds,
                 wakeMissSeconds, lateCheckoutExtension, lateCheckoutRequestLead, fulfilledBonus, declinedPenalty,
                 brokenPromisePenalty, maximumScoreAdjustment, selfResponseObserveSeconds, toleranceSeconds,
-                phoneRingSeconds, contactRetryDelaySeconds, receptionWaitSeconds })
+                phoneRingSeconds, contactRetryDelaySeconds, receptionWaitSeconds, directWaitSeconds, contactLeadSeconds })
                 if (!Number.IsFinite(value) || value < 0) throw new ArgumentException("Service tuning must be finite and nonnegative.");
             if (maxCasesPerShift < 0 || maxCasesPerShift > 32 || maxCasesPerGuest < 1 || maxCasesPerGuest > 8 ||
                 blanketStock < 0 || blanketStock > 6 || bulbStock < 0 || bulbStock > 6 || eligibility > 1 ||
@@ -57,7 +60,8 @@ namespace WorstHotel
                 wakeToleranceSeconds <= 0 || wakeMissSeconds <= wakeToleranceSeconds || lateCheckoutExtension <= 0 ||
                 lateCheckoutRequestLead <= lateCheckoutExtension || maximumScoreAdjustment > 15 ||
                 selfResponseObserveSeconds <= 0 || toleranceSeconds <= 0 || phoneRingSeconds <= 0 ||
-                contactRetryDelaySeconds <= 0 || receptionWaitSeconds <= 0 || maxContactAttempts < 1 || maxContactAttempts > 2)
+                contactRetryDelaySeconds <= 0 || receptionWaitSeconds <= 0 || maxContactAttempts < 1 || maxContactAttempts > 2 ||
+                directWaitSeconds <= 0 || contactLeadSeconds <= 0)
                 throw new ArgumentException("Service budgets, time windows or comfort thresholds are invalid.");
             MaxCasesPerShift = maxCasesPerShift; MaxCasesPerGuest = maxCasesPerGuest; BlanketStock = blanketStock; BulbStock = bulbStock;
             Eligibility = eligibility; SoloFrequencyMultiplier = soloFrequencyMultiplier; ObservationSeconds = observationSeconds;
@@ -70,6 +74,7 @@ namespace WorstHotel
             ToleranceSeconds = toleranceSeconds; PhoneRingSeconds = phoneRingSeconds;
             ContactRetryDelaySeconds = contactRetryDelaySeconds; ReceptionWaitSeconds = receptionWaitSeconds;
             MaxContactAttempts = maxContactAttempts;
+            DirectWaitSeconds = directWaitSeconds; ContactLeadSeconds = contactLeadSeconds;
         }
     }
 }

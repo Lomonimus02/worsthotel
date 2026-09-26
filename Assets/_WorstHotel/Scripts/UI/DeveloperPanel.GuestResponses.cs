@@ -35,6 +35,12 @@ namespace WorstHotel
                     "s / real staff action " + response.StaffActionAt.ToString("F1") + "s\nSource " + response.SourceEntityId +
                     " / episode " + response.IncidentEpisode + " / physical action version " + response.ActionVersion, body);
             }
+            foreach (var intent in services.Intents.Where(item => item.GuestId == guest.GuestId))
+                GUILayout.Label("INTENT " + intent.Id + " / revision " + intent.Revision + "\n" + intent.Kind + " / " + intent.Purpose + " / " + intent.Status +
+                    " / known " + GuestLabels.IsKnownToHotel(intent, Session.Simulation) + "\nDeadline " + (intent.Deadline < 0 ? "none" :
+                    GuestLabels.HotelMoment(Session.Simulation, intent.Deadline)) + " / point " + (intent.DeliveryPointId ?? "none") +
+                    "\nItem " + (intent.ItemId ?? "none") + " generation " + intent.ItemGeneration + " / left " + intent.DeliveredAt.ToString("F1") +
+                    " / received " + intent.ReceivedAt.ToString("F1") + "\nResolution " + (intent.ResolutionReason ?? "pending"), body);
             bool active = Session.Phase == DayPhase.Service && settings.NaturalCommunicationEnabled;
             GUILayout.BeginHorizontal();
             if (Button("Force severe cold", active && guest.Agent.InAssignedRoom)) Apply(() => Session.DebugForceSevereCold(guest.GuestId));

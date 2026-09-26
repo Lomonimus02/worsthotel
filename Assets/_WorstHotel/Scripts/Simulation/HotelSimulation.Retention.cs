@@ -28,13 +28,16 @@ namespace WorstHotel
             {
                 foreach (var item in Services.Cases.Where(item => item.Active)) Pin(item.GuestId);
                 foreach (var promise in Services.Promises.Where(item => item.Status == PromiseStatus.Accepted)) Pin(promise.GuestId);
+                foreach (var intent in Services.Intents.Where(item => item.Active)) Pin(intent.GuestId);
                 foreach (var item in Services.Items.Where(item => item.Location == ServiceItemLocation.HeldByPlayer ||
-                    item.Location == ServiceItemLocation.Dropped)) Pin(item.GuestId);
+                    item.Location == ServiceItemLocation.Dropped || item.Location == ServiceItemLocation.AwaitingReceipt)) Pin(item.GuestId);
             }
             var retainedIncidents = new HashSet<string>(Incidents.AllIncidents.Where(item =>
                 historyOwners.Contains(item.GuestId)).Select(item => item.Id));
             if (Services != null)
             {
+                foreach (var intent in Services.Intents.Where(item => historyOwners.Contains(item.GuestId)))
+                    if (!string.IsNullOrEmpty(intent.IncidentId)) retainedIncidents.Add(intent.IncidentId);
                 foreach (var item in Services.Cases.Where(item => historyOwners.Contains(item.GuestId)))
                     if (item.Response?.IncidentId != null) retainedIncidents.Add(item.Response.IncidentId);
                 foreach (var guest in guests)

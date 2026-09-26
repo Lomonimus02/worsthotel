@@ -89,6 +89,8 @@ namespace WorstHotel
                     else if (item.Kind == ServiceKind.WakeUpCall && services.Promises.Any(p => p.Id == item.Id && p.Status == PromiseStatus.Accepted))
                         AddServiceChoice(new Rect(42, 483, 705, 43), Session.Simulation.Elapsed < item.DueTime ?
                             "Cancel promised call" : "Cancel overdue call · counts as missed", () => ServiceResponse(item.Id, false));
+                    else if (item.Kind == ServiceKind.ExtraBlanket && Session.Simulation.ContinuousOperations)
+                        AddServiceChoice(new Rect(42, 483, 705, 43), "Cancel blanket delivery / collect unreceived parcel", () => ServiceResponse(item.Id, false));
                     if (item.Kind == ServiceKind.AskNeighborsQuiet)
                         AddServiceChoice(new Rect(42, 594, 705, 43), "Compare rooms / guest options", () =>
                         { showingServiceBoard = false; selectedServiceCase = null; selectedServiceGuest = item.GuestId; focus = 0; });
@@ -104,8 +106,8 @@ namespace WorstHotel
                 foreach (var pair in cases.Skip(servicePage * 6).Take(6).Select((item, i) => (item, i)))
                 {
                     var item = pair.item;
-                    AddServiceChoice(new Rect(42, 242 + pair.i * 65, 348, 57), item.RoomId + " · " + GuestLabels.Service(item.Kind) +
-                        "\n" + GuestLabels.ServiceState(item.Status), () => { selectedServiceCase = item.Id; focus = 0; serviceHasResponse = false; });
+                    AddServiceChoice(new Rect(42, 242 + pair.i * 65, 348, 57), item.RoomId + " · " + GuestLabels.Service(item.Kind, Session.Simulation) +
+                        "\n" + GuestLabels.ServiceBrief(item, Session.Simulation), () => { selectedServiceCase = item.Id; focus = 0; serviceHasResponse = false; });
                 }
                 if (cases.Length > 6)
                     AddServiceChoice(new Rect(42, 640, 348, 34), "More requests ›", () => { servicePage = (servicePage + 1) % ((cases.Length + 5) / 6); focus = 0; });
@@ -183,10 +185,10 @@ namespace WorstHotel
         {
             var item = Session.Simulation.Services.Cases.FirstOrDefault(c => c.Id == selectedServiceCase && GuestLabels.IsKnownToHotel(c));
             if (item == null) return;
-            Label(new Rect(42, 201, 705, 38), "ROOM " + item.RoomId + " · " + GuestLabels.Service(item.Kind), Heading);
+            Label(new Rect(42, 201, 705, 38), "ROOM " + item.RoomId + " · " + GuestLabels.Service(item.Kind, Session.Simulation), Heading);
             Label(new Rect(42, 245, 705, 27), GuestName(item.GuestId) + " · " + GuestLabels.ServiceState(item.Status), Small, Teal);
             Label(new Rect(42, 283, 705, 91), GuestLabels.ServiceClue(item, Session.Simulation), Body, Ink);
-            Label(new Rect(42, 385, 705, 72), GuestLabels.ServiceHelp(item.Kind), Small, Muted);
+            Label(new Rect(42, 385, 705, 72), GuestLabels.ServiceHelp(item.Kind, Session.Simulation) + "\n" + GuestLabels.ServiceProgress(item, Session.Simulation), Small, Muted);
             string timing = item.Kind == ServiceKind.WakeUpCall ? "Requested call at " : item.Kind == ServiceKind.LateCheckout ? "Requested checkout at " : "Reply / help due by ";
             Label(new Rect(42, 653, 705, 37), timing + GuestLabels.HotelMoment(Session.Simulation, item.DueTime), Small, Muted);
         }

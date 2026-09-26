@@ -35,6 +35,7 @@ namespace WorstHotel
         public bool ActivityStaged { get; internal set; } = true;
         public string ResponseActionId { get; internal set; }
         public int ResponseActionVersion { get; internal set; }
+        public string DirectServiceIntentId { get; internal set; }
         public bool IsServiceReceptionTrip => State == GuestAgentState.GoingToServiceReception ||
             State == GuestAgentState.WaitingAtServiceReception || State == GuestAgentState.ReturningFromServiceReception;
         internal float PendingActivityDuration;

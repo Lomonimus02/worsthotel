@@ -43,6 +43,7 @@ namespace WorstHotel
             if (item == null || item.Location != ServiceItemLocation.HeldByPlayer || item.PlayerId != actor || item.Kind == ServiceItemKind.Luggage)
                 return CommandResult.Fail("Carry an unused hotel supply back to its shelf.");
             item.Location = ServiceItemLocation.OnShelf; item.PlayerId = null; item.LastPlayerId = actor;
+            item.GuestId = null; item.RoomId = null;
             ItemChanged?.Invoke(item); return CommandResult.Ok("Supply returned to its physical shelf.");
         }
 
@@ -51,14 +52,19 @@ namespace WorstHotel
             var allowed = CanAct(actor); if (!allowed.Success) return allowed;
             var guest = Guest(guestId); var item = HeldBy(actor);
             if (guest == null || !guest.Agent.InAssignedRoom || Departed(guest)) return CommandResult.Fail("Deliver the blanket to a guest in their room.");
+            if (IntentBehaviorEnabled && !CanReceiveBlanket(guest))
+                return CommandResult.Fail("The guest is unavailable. An agreed blanket can be left at the room's exterior delivery point.");
+            if (DropOffIntent(guestId)?.Status == ServiceIntentStatus.AwaitingReceipt)
+                return CommandResult.Fail("An actual blanket is already awaiting this guest at their delivery point.");
             if (guest.Memory.BlanketsDelivered > 0) return CommandResult.Fail("This guest already has an extra blanket.");
             if (item == null || item.Kind != ServiceItemKind.Blanket) return CommandResult.Fail("Carry an actual blanket from linen storage.");
             guest.BlanketComfortBonus = Settings.BlanketComfortBonus;
             guest.Memory.BlanketsDelivered = Count(guest.Memory.BlanketsDelivered);
             Deliver(item, guest);
+            RecordInteriorBlanketReceipt(guest, item);
             RecordStaffAction(guestId, IncidentReason.Temperature);
             var request = cases.FirstOrDefault(request => request.GuestId == guestId && request.Kind == ServiceKind.ExtraBlanket && request.Active);
-            if (request != null && !NaturalCommunicationEnabled) Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true);
+            if (request != null && (!NaturalCommunicationEnabled || IntentBehaviorEnabled)) Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true);
             else simulation.SignalEvent("Extra blanket delivered to room " + guest.RoomId);
             return CommandResult.Ok("Blanket delivered. Personal cold comfort improves; room temperature and electrical load are unchanged.");
         }

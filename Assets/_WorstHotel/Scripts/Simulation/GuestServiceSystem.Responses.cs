@@ -49,6 +49,7 @@ namespace WorstHotel
             if (!agent.InAssignedRoom || agent.State == GuestAgentState.Sleeping || agent.Activity == GuestActivity.Shower ||
                 agent.Activity == GuestActivity.LoudRoom || agent.Activity == GuestActivity.PhoneCall || agent.Activity == GuestActivity.AdjustRadiator)
                 return false;
+            if (!ContactWindowAvailable(guest, now)) return false;
             if (agent.ResponseActionId != null)
                 return FindResponse(agent.ResponseActionId)?.ServiceCaseId is string id && FindCase(id)?.Kind == kind;
             if (kind == ServiceKind.WakeUpCall)
@@ -109,6 +110,8 @@ namespace WorstHotel
             responses.RemoveAll(item => !cases.Any(request => request.Response == item) &&
                 !simulation.Incidents.Items.Any(incident => incident.Response == item) &&
                 !simulation.Guests.Any(guest => guest.Agent.ResponseActionId == item.Id));
+            foreach (var intent in intents)
+                if (intent.ResponseId != null && FindResponse(intent.ResponseId) == null) intent.ResponseId = null;
         }
 
         void TickResponse(GuestResponse response, GuestStay guest, float now, float dt)
@@ -163,10 +166,11 @@ namespace WorstHotel
                 BeginContact(response, guest, response.ContactAttempts > 0 ? response.Channel : ChooseChannel(response, guest), now);
         }
 
-        bool CanInterrupt(GuestStay guest) => guest.Agent.State == GuestAgentState.WaitingForCheckIn ||
+        bool CanInterrupt(GuestStay guest) => ContactWindowAvailable(guest, simulation.Elapsed) &&
+            (guest.Agent.State == GuestAgentState.WaitingForCheckIn ||
             guest.Agent.InAssignedRoom && guest.Agent.State != GuestAgentState.Sleeping && !guest.Agent.IsRelocating &&
             guest.Agent.Activity != GuestActivity.Shower && guest.Agent.Activity != GuestActivity.Pack &&
-            guest.Agent.Activity != GuestActivity.PhoneCall && guest.Agent.Activity != GuestActivity.LoudRoom;
+            guest.Agent.Activity != GuestActivity.PhoneCall && guest.Agent.Activity != GuestActivity.LoudRoom);
 
         bool CanSelfRespond(GuestResponse response, GuestStay guest) => !response.SelfResponseAttempted &&
             Incident(response)?.Reason == IncidentReason.Temperature && guest.Agent.InAssignedRoom &&

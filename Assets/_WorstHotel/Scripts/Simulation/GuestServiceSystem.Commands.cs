@@ -53,7 +53,10 @@ namespace WorstHotel
                 if (simulation.Elapsed >= item.DueTime || FindPromise(item.Id) != null) return CommandResult.Fail("There is no longer time to accept that wake-up call.");
                 promises.Add(new PromiseWakeUp(item.Id, guest.GuestId, guest.RoomId, item.DueTime));
             }
+            ReleaseDecisionIntent(item);
             item.Status = ServiceStatus.InProgress; Notify(item, "accepted");
+            if (IntentBehaviorEnabled && item.Kind == ServiceKind.ExtraBlanket)
+                return CommandResult.Ok("Extra blanket promised. Carry one to this room's delivery point; the guest will receive it when available.");
             return CommandResult.Ok(item.Kind == ServiceKind.WakeUpCall ? "Wake-up promised. Use the reception telephone near the due time." :
                 "Service accepted. Complete it using the actual hotel and its supplies.");
         }

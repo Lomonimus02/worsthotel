@@ -33,7 +33,7 @@ namespace WorstHotel
                 var situation = Session.Simulation.Incidents.Items.Where(s => s.GuestId == id && GuestLabels.IsActionable(s)).OrderByDescending(s => s.Stage).FirstOrDefault();
                 var service = Session.Simulation.Services?.Cases.FirstOrDefault(c => c.GuestId == id && GuestLabels.IsKnownOpenService(c));
                 string complaint = situation != null ? GuestLabels.Problem(situation.Reason) + " / " + GuestLabels.Situation(situation.Stage) :
-                    service != null ? "Request: " + GuestLabels.Service(service.Kind) : "No reported problem";
+                    service != null ? "Request: " + GuestLabels.Service(service.Kind, Session.Simulation) : "No reported problem";
                 Label(new Rect(42, y + 48, 438, 25), complaint, Small, situation?.Stage >= SituationStage.Escalated ? Red : Muted);
                 ButtonAt(new Rect(502, y + 2, 245, 48), situation != null ? "Read concern / choices" : "Room / stay details",
                     () => { selectedServiceGuest = id; focus = 0; });

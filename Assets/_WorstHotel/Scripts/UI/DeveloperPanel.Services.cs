@@ -49,7 +49,7 @@ namespace WorstHotel
             DrawNaturalResponseDebug(guest);
             GUILayout.Label("Create service intent (debug; natural mode keeps it private until a conversation):", body);
             foreach (ServiceKind kind in Enum.GetValues(typeof(ServiceKind)))
-                if (Button(GuestLabels.Service(kind), Session.Phase == DayPhase.Service)) Apply(() => Session.DebugForceService(guest.GuestId, kind));
+                if (Button(GuestLabels.Service(kind, Session.Simulation), Session.Phase == DayPhase.Service)) Apply(() => Session.DebugForceService(guest.GuestId, kind));
         }
     }
 }

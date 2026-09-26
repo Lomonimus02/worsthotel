@@ -75,6 +75,10 @@ namespace WorstHotel
                             incident.Dissatisfaction = Math.Max(0, incident.Dissatisfaction - needSettings.RecoveryPerSecond * dt);
                         continue;
                     }
+                    // Absence supplies no new evidence about a Remote room problem. Keep
+                    // its episode, last factual cause and timers until actual room perception
+                    // resumes. Inactive cooldowns above still age normally while guests are away.
+                    if (SuspendRemoteIncident(guest, incident)) continue;
                     string reason = !agent.InAssignedRoom ? "Guest is outside the assigned room; exposure ended." :
                         "The source no longer reaches the guest in room " + guest.RoomId + ".";
                     EvaluateLiving(guest, incident, new GuestNeedSnapshot(0, incident.LastNeedExposure, incident.Dissatisfaction), null, reason, dt);

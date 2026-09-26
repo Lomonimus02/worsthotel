@@ -18,6 +18,10 @@ Enabled continuous operations in the production asset and scene builder. Added t
 
 Added coherent bounded retirement of completed stays, schedules, service history and causal incidents while preserving live references, unfinished physical departures and carried/dropped items. Reports retain independent receipts. Continuous service admission respects its validated storage bounds; a protected full ledger refuses new bookings safely. Actual departed-owner suitcases can be placed in lost-property storage without fulfillment credit. Atomic session rejection tests and a production-mode two-process LAN driver verify booking edits/cancellation, date/report persistence and once-only accounting. Compile/build passed, full EditMode **398/398**, four selected PlayMode cases passed across runs, actual continuous localhost LAN **host45/client121, zero errors**. [Exact evidence, fixture corrections, binary and limits](verification/core04-phase3.md). Product metadata is 0.4.0 for gate builds; the release milestone remains unfinished.
 
+## Prototype 0.4 — phase 4 service intent
+
+Integrated finite Direct decisions with guest schedules, exterior physical blanket DropOff with deferred actual receipt, and Remote factual incidents that do not recover merely because their guest is away. Closing UI preserves waits; decision, timeout, actual key handoff and checkout release them coherently. Cancelled/unreceived parcels remain physically reclaimable. Added atomic intent/item snapshot validation and exact Direct revision checks for delayed LAN move cancellation. Corrected shelf placement against real knocker and wall colliders. Compile/scene passed, full EditMode **441/441**, all seven selected gameplay cases passed across runs, including physical pickup/carry/drop/receipt/reclaim/return and pause/WAIT. [Evidence, fixture corrections and limits](verification/core04-phase4.md). Model schema 7 / LAN protocol 8.
+
 ## Prototype 0.3.2 — Natural Service
 
 26 September 2026. Natural Service implemented and packaged as Windows 0.3.2; the pause investigation remains explicitly deferred.

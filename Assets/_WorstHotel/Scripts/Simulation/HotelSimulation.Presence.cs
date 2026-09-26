@@ -46,6 +46,7 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             var guest = FindLivingGuest(guestId);
             if (guest?.Agent == null || !guest.Agent.IsRoomState) return CommandResult.Fail("Sleep requires a guest inside their assigned room.");
+            if (Services?.DirectIntent(guestId) != null) return CommandResult.Fail("The guest is waiting for a direct service decision.");
             if (!string.IsNullOrEmpty(guest.Agent.ResponseActionId)) return CommandResult.Fail("Let the current guest response finish or cancel it first.");
             SetActivity(guest, GuestActivity.QuietRest, Elapsed, LivingSettings.ActivityDurationMin);
             guest.Agent.TemporarySleep = true;
@@ -60,6 +61,7 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             var guest = FindLivingGuest(guestId);
             if (guest?.Agent == null || !guest.Agent.IsRoomState) return CommandResult.Fail("Only a guest in their assigned room can leave it.");
+            if (Services?.DirectIntent(guestId) != null) return CommandResult.Fail("The guest is waiting for a direct service decision.");
             if (!string.IsNullOrEmpty(guest.Agent.ResponseActionId)) return CommandResult.Fail("Let the current guest response finish or cancel it first.");
             StartGuestHotelTrip(guest, LivingSettings.AwayDurationMin);
             return CommandResult.Ok("Guest will leave through the lobby, keeping their room and key until returning.");

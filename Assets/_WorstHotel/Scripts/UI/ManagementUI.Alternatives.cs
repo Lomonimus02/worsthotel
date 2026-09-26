@@ -19,8 +19,11 @@ namespace WorstHotel
             ButtonAt(new Rect(401, 598, 346, 35), "Accept loss / leave unresolved",
                 () => Session.AcceptConsequences(owner, guest.GuestId), inRoom && situations.Any(s => !s.AttentionAcknowledged));
             bool pendingMove = guest.Agent != null && guest.Agent.PendingMoveRoomId.HasValue;
+            var moveIntent = Session.Simulation.ContinuousOperations ? Session.Simulation.Services?.DirectIntent(guest.GuestId) : null;
+            string expectedIntentId = moveIntent?.Id;
+            int expectedIntentRevision = moveIntent?.Revision ?? -1;
             ButtonAt(new Rect(42, 641, 705, 35), pendingMove ? "Cancel move to " + guest.Agent.PendingMoveRoomId : "Compare rooms / relocate guest",
-                () => { if (pendingMove) Session.CancelGuestMove(owner, guest.GuestId); else { choosingMoveRoom = true; focus = 0; } }, inRoom);
+                () => { if (pendingMove) Session.CancelGuestMove(owner, guest.GuestId, expectedIntentId, expectedIntentRevision); else { choosingMoveRoom = true; focus = 0; } }, inRoom);
         }
 
         void DrawRelocationOptions(GuestStay guest)

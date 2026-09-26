@@ -20,6 +20,8 @@ namespace WorstHotel
         public long epoch, sequence;
         public int day, roomId, amount;
         public int expectedReservationRevision = -1;
+        public string expectedDirectIntentId;
+        public int expectedDirectIntentRevision = -1;
         public DayPhase phase;
         public LanCommandKind kind;
         public string subject;
@@ -45,9 +47,9 @@ namespace WorstHotel
     /// <summary>Small, versioned LAN boundary. A network connection, never a payload, selects its staff identity.</summary>
     public static class LanProtocol
     {
-        public const int Version = 7, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
+        public const int Version = 8, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
         public const ushort DefaultPort = 7777;
-        public const string BuildCompatibility = "worst-hotel-0.4-continuous7-gzip";
+        public const string BuildCompatibility = "worst-hotel-0.4-intents8-gzip";
 
         public static bool ValidAddress(string value) => IPAddress.TryParse(value, out var address) &&
             address.AddressFamily == AddressFamily.InterNetwork && !address.Equals(IPAddress.Any) &&
@@ -63,6 +65,9 @@ namespace WorstHotel
             command.amount >= 0 && command.amount <= 100000 &&
             (command.kind == LanCommandKind.CancelBooking || command.kind == LanCommandKind.SetBookingPrice ?
                 command.expectedReservationRevision >= 0 : command.expectedReservationRevision == -1) &&
+            (command.kind == LanCommandKind.CancelMove && continuousOperations ?
+                !string.IsNullOrWhiteSpace(command.expectedDirectIntentId) && command.expectedDirectIntentId.Length <= 512 &&
+                command.expectedDirectIntentRevision > 0 : string.IsNullOrEmpty(command.expectedDirectIntentId) && command.expectedDirectIntentRevision == -1) &&
             (command.roomId == 0 || command.roomId >= 101 && command.roomId <= 106);
 
         static bool UsesResponseIdentity(LanCommandKind kind) => kind == LanCommandKind.AnswerServiceCall ||

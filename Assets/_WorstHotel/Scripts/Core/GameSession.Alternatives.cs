@@ -4,8 +4,24 @@ namespace WorstHotel
     {
         public CommandResult MoveGuest(int actorId, string guestId, int roomId) => ForwardLan(LanCommandKind.MoveGuest, guestId, roomId) ?
             CommandResult.Ok(LastMessage) : GuestCommand(Simulation.RequestGuestMove(actorId, guestId, roomId));
-        public CommandResult CancelGuestMove(int actorId, string guestId) => ForwardLan(LanCommandKind.CancelMove, guestId) ?
-            CommandResult.Ok(LastMessage) : GuestCommand(Simulation.CancelGuestMove(actorId, guestId));
+        public CommandResult CancelGuestMove(int actorId, string guestId)
+        {
+            var intent = Simulation?.ContinuousOperations == true ? Simulation.Services?.DirectIntent(guestId) : null;
+            return CancelGuestMove(actorId, guestId, intent?.Id, intent?.Revision ?? -1);
+        }
+        public CommandResult CancelGuestMove(int actorId, string guestId, string expectedIntentId, int expectedIntentRevision)
+        {
+            if (ForwardLan(LanCommandKind.CancelMove, guestId, directIntentId: expectedIntentId, directIntentRevision: expectedIntentRevision))
+                return CommandResult.Ok(LastMessage);
+            if (Simulation.ContinuousOperations)
+            {
+                var current = Simulation.Services?.DirectIntent(guestId);
+                if (current == null || current.Purpose != ServiceIntentPurpose.RoomMove || current.Id != expectedIntentId ||
+                    current.Revision != expectedIntentRevision)
+                    return GuestCommand(CommandResult.Fail("That room-change proposal has changed. Review the guest's current agreement."));
+            }
+            return GuestCommand(Simulation.CancelGuestMove(actorId, guestId));
+        }
         public CommandResult AcceptConsequences(int actorId, string guestId) => ForwardLan(LanCommandKind.AcceptConsequences, guestId) ?
             CommandResult.Ok(LastMessage) : GuestCommand(Simulation.AcceptConsequences(actorId, guestId));
         public CommandResult AcceptBoilerConsequences(int actorId) => ForwardLan(LanCommandKind.AcceptBoilerConsequences) ?

@@ -14,7 +14,7 @@ namespace WorstHotel
             if (!IsKnownToHotel(item)) return "The guest has not spoken to staff about this.";
             switch (item.Kind)
             {
-                case ServiceKind.ExtraBlanket: return "“It's still quite cold in my room.”";
+                case ServiceKind.ExtraBlanket: return simulation?.ContinuousOperations == true ? "“Could you leave an extra blanket outside my room? I will collect it when I am back.”" : "“It's still quite cold in my room.”";
                 case ServiceKind.AskNeighborsQuiet: return "“I can hear someone nearby. It's difficult to rest.”";
                 case ServiceKind.LuggageStorage: return "“Could I leave my suitcase here for a while?”";
                 case ServiceKind.LateCheckout: return "“Could I stay until " + HotelMoment(simulation, item.DueTime) + "?”";
@@ -38,6 +38,9 @@ namespace WorstHotel
         public static string ResponseClue(HotelSimulation simulation, GuestResponse response)
         {
             if (response == null || response.CommunicatedAt < 0) return "Reception telephone";
+            var request = simulation.Services.Cases.FirstOrDefault(c => c.Id == response.ServiceCaseId);
+            if (simulation.ContinuousOperations && request?.Kind == ServiceKind.ExtraBlanket && IsKnownToHotel(request))
+                return ServiceClue(request, simulation);
             var incident = simulation.Incidents.Items.FirstOrDefault(i => i.Id == response.IncidentId &&
                 i.EpisodeCount == response.IncidentEpisode && IsKnownToHotel(i));
             if (incident != null) return ComplaintClue(incident);

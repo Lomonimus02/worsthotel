@@ -43,7 +43,7 @@ namespace WorstHotel
         internal void StartDay(int dayNumber, float end)
         {
             if (simulation.IsReadOnlyMirror) return;
-            day = dayNumber; serviceEnd = end; cases.Clear(); promises.Clear(); responses.Clear();
+            day = dayNumber; serviceEnd = end; cases.Clear(); promises.Clear(); responses.Clear(); intents.Clear();
             items.RemoveAll(item => item.Kind == ServiceItemKind.Luggage);
             RefillForDay(dayNumber);
             foreach (var guest in simulation.Guests) EnsureLuggage(guest);
@@ -80,7 +80,8 @@ namespace WorstHotel
             {
                 var item = FindItem(prefix + index);
                 if (item == null && index < count) { items.Add(new ServiceItemState(prefix + index, kind, day)); continue; }
-                if (item == null || item.Location == ServiceItemLocation.HeldByPlayer || item.Location == ServiceItemLocation.Dropped) continue;
+                if (item == null || item.Location == ServiceItemLocation.HeldByPlayer || item.Location == ServiceItemLocation.Dropped ||
+                    item.Location == ServiceItemLocation.AwaitingReceipt) continue;
                 // A dated stay can cross a replenishment boundary. Its delivered blanket
                 // remains the same physical item until that stay actually ends.
                 if (simulation.ContinuousOperations && item.GuestId != null &&
@@ -105,6 +106,13 @@ namespace WorstHotel
         internal void SyncGuestRoom(GuestStay guest)
         {
             if (simulation.IsReadOnlyMirror) return;
+            foreach (var intent in intents.Where(item => item.GuestId == guest.GuestId && item.Active && item.RoomId != guest.RoomId).ToArray())
+                if (intent.Kind == ServiceIntentKind.DropOff)
+                {
+                    CloseIntent(intent, ServiceIntentStatus.Cancelled, "Guest changed rooms");
+                    Finish(FindCase(intent.CaseId), guest, ServiceStatus.Expired, 0);
+                }
+                else { intent.RoomId = guest.RoomId; intent.Revision++; }
             SyncResponseRoom(guest);
             foreach (var request in cases.Where(item => item.GuestId == guest.GuestId))
             {
@@ -123,6 +131,7 @@ namespace WorstHotel
         internal void Tick(float now, float dt)
         {
             if (simulation.IsReadOnlyMirror) return;
+            TickIntents(now);
             if (NaturalCommunicationEnabled) { TickNaturalResponses(now, dt); return; }
             TickPromises(now);
             foreach (var guest in simulation.Guests.OrderBy(guest => guest.GuestId, StringComparer.Ordinal))
@@ -167,6 +176,7 @@ namespace WorstHotel
         bool TryCause(GuestStay guest, ServiceKind kind, float now, out string source, out int sourceRoom, out float due, out string reason, bool debug = false)
         {
             source = null; sourceRoom = guest.RoomId; due = Math.Min(guest.Agent.CheckoutTime, now + Settings.ReplySeconds); reason = null;
+            if (!ContactWindowAvailable(guest, now)) return false;
             var room = rooms[guest.RoomId]; var agent = guest.Agent;
             bool seriousTemperature = HasComplaint(guest, IncidentReason.Temperature);
             switch (kind)
@@ -177,7 +187,8 @@ namespace WorstHotel
                         guest.Needs.Temperature.Severity < Settings.MildColdMinimum || guest.Needs.Temperature.Severity > Settings.MildColdMaximum ||
                         (!NaturalCommunicationEnabled && !debug && guest.Needs.Temperature.ExposureSeconds < Settings.ObservationSeconds)) return false;
                     source = "room/" + room.Profile.Id + "/temperature";
-                    reason = "It is still a little cold in my room."; return true;
+                    reason = IntentBehaviorEnabled ? "My room feels cold. Could you leave an extra blanket at my room's delivery point?" :
+                        "It is still a little cold in my room."; return true;
                 case ServiceKind.AskNeighborsQuiet:
                     if (!agent.InAssignedRoom || HasComplaint(guest, IncidentReason.Noise)) return false;
                     var noise = simulation.Incidents.Items.Where(item => item.GuestId == guest.GuestId && item.Active &&
@@ -236,6 +247,18 @@ namespace WorstHotel
         void UpdateCase(ServiceCase item, GuestStay guest, float now, float dt)
         {
             item.RoomId = guest.RoomId;
+            if (IntentBehaviorEnabled && item.Kind == ServiceKind.ExtraBlanket)
+            {
+                // An explicit blanket promise is fulfilled by receipt of that item. A warmer
+                // room can make the request unnecessary, but cannot manufacture a delivery reward.
+                if (!guest.Agent.InAssignedRoom || guest.Agent.State == GuestAgentState.Sleeping || guest.Agent.Activity == GuestActivity.Shower) return;
+                bool noLongerCold = guest.Needs.Temperature.Severity <= simulation.NeedsSettings.RecoverySeverityThreshold;
+                item.RecoverySeconds = noLongerCold ? item.RecoverySeconds + dt : 0;
+                if (item.RecoverySeconds >= simulation.NeedsSettings.RecoverySeconds)
+                { Finish(item, guest, ServiceStatus.Expired, 0); item.ResolutionReason = "Blanket no longer needed"; return; }
+                if (now >= item.DueTime && item.Status != ServiceStatus.InProgress) Finish(item, guest, ServiceStatus.Expired, 0);
+                return;
+            }
             if (item.Kind == ServiceKind.AskNeighborsQuiet)
             {
                 var source = guest.Perception.NoiseSources.FirstOrDefault(sound => sound.SourceEntityId == item.SourceEntityId);
@@ -277,6 +300,7 @@ namespace WorstHotel
         {
             if (item == null || !item.Active) return;
             item.Status = status; item.ResolutionAt = simulation.Elapsed; item.ResolutionReason = status.ToString();
+            FinishCaseIntent(item, status);
             if (fulfilled) guest.Memory.ServicesFulfilled = Count(guest.Memory.ServicesFulfilled);
             if (status == ServiceStatus.Declined) guest.Memory.ServicesDeclined = Count(guest.Memory.ServicesDeclined);
             Score(guest, score); Notify(item, status.ToString().ToLowerInvariant());
@@ -288,6 +312,7 @@ namespace WorstHotel
         internal void EndGuestStay(GuestStay guest)
         {
             if (simulation.IsReadOnlyMirror) return;
+            EndGuestIntents(guest);
             EndGuestResponses(guest);
             foreach (var promise in promises.Where(item => item.GuestId == guest.GuestId && item.Status == PromiseStatus.Accepted).ToArray())
                 MissPromise(promise, guest);

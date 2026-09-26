@@ -4,11 +4,11 @@ namespace WorstHotel
 {
     public static partial class GuestLabels
     {
-        public static string Service(ServiceKind kind)
+        public static string Service(ServiceKind kind, HotelSimulation simulation = null)
         {
             switch (kind)
             {
-                case ServiceKind.ExtraBlanket: return "Room feels cold";
+                case ServiceKind.ExtraBlanket: return simulation?.ContinuousOperations == true ? "Extra blanket delivery" : "Room feels cold";
                 case ServiceKind.LuggageStorage: return "Luggage storage";
                 case ServiceKind.LateCheckout: return "Late checkout";
                 case ServiceKind.WakeUpCall: return "Wake-up call";
@@ -36,11 +36,11 @@ namespace WorstHotel
             return value / 60 + ":" + (value % 60).ToString("D2");
         }
 
-        public static string ServiceHelp(ServiceKind kind)
+        public static string ServiceHelp(ServiceKind kind, HotelSimulation simulation = null)
         {
             switch (kind)
             {
-                case ServiceKind.ExtraBlanket: return "The guest wants to feel warmer. An agreement alone does not change their comfort.";
+                case ServiceKind.ExtraBlanket: return simulation?.ContinuousOperations == true ? "Carry a clean blanket to the delivery shelf outside this room. Comfort changes only after the guest receives it." : "The guest wants to feel warmer. An agreement alone does not change their comfort.";
                 case ServiceKind.LuggageStorage: return "The guest wants somewhere to leave their suitcase until they need it again.";
                 case ServiceKind.LateCheckout: return "A later departure gives this guest more time, but leaves less time to strip and prepare the room.";
                 case ServiceKind.WakeUpCall: return "Accept the time, then return to the reception phone to make the call when it is due.";
@@ -50,7 +50,7 @@ namespace WorstHotel
 
         public static string ServiceAcceptance(ServiceCase item, HotelSimulation simulation = null) => item.Kind == ServiceKind.WakeUpCall ?
             "Promise a call at " + HotelMoment(simulation, item.DueTime) : item.Kind == ServiceKind.LateCheckout ?
-            "Allow checkout at " + HotelMoment(simulation, item.DueTime) : item.Kind == ServiceKind.ExtraBlanket ? "I'll look into the temperature" :
+            "Allow checkout at " + HotelMoment(simulation, item.DueTime) : item.Kind == ServiceKind.ExtraBlanket ? (simulation?.ContinuousOperations == true ? "Agree to leave a blanket outside the room" : "I'll look into the temperature") :
             item.Kind == ServiceKind.AskNeighborsQuiet ? "I'll look into the noise" : "Agree to store the suitcase";
     }
 }

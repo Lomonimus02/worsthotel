@@ -32,11 +32,13 @@ namespace WorstHotel
         [Min(.1f)] public float contactRetryDelaySeconds = 25;
         [Min(.1f)] public float receptionWaitSeconds = 35;
         [Range(1, 2)] public int maxContactAttempts = 2;
+        [Min(.1f)] public float directWaitSeconds = 40;
+        [Min(.1f)] public float contactLeadSeconds = 12;
         public GuestServiceSettings ToData() => new GuestServiceSettings(maxCasesPerShift, maxCasesPerGuest,
             blanketStock, bulbStock, eligibility, soloFrequencyMultiplier, observationSeconds, mildColdMinimum,
             mildColdMaximum, blanketComfortBonus, replySeconds, wakeLeadSeconds, wakeToleranceSeconds, wakeMissSeconds,
             lateCheckoutExtension, lateCheckoutRequestLead, fulfilledBonus, declinedPenalty, brokenPromisePenalty, maximumScoreAdjustment,
             naturalCommunicationEnabled, selfResponseObserveSeconds, toleranceSeconds, phoneRingSeconds,
-            contactRetryDelaySeconds, receptionWaitSeconds, maxContactAttempts);
+            contactRetryDelaySeconds, receptionWaitSeconds, maxContactAttempts, directWaitSeconds, contactLeadSeconds);
     }
 }

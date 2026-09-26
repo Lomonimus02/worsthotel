@@ -68,9 +68,11 @@ namespace WorstHotel
             Label(new Rect(99, 271, 598, 34), "ROOM " + guest.RoomId + "  /  " + guest.Name, Heading);
             var service = CurrentGuestService(guest);
             string line = !present ? "No answer; the guest is out." : privateActivity ? "I need some privacy. Please come back later." :
+                service?.Kind == ServiceKind.ExtraBlanket && Session.Simulation.ContinuousOperations ? GuestLabels.ServiceClue(service, Session.Simulation) :
                 cases.Length > 0 ? GuestLabels.ComplaintClue(cases[0]) : service != null ? GuestLabels.ServiceClue(service, Session.Simulation) : noisy ?
                     (guest.Memory.PreviousNoiseWarnings > 0 ? "Yes? We have already spoken about the noise." : "Yes? You wanted to speak to me?") : "Yes? What is it?";
             Label(new Rect(99, 310, 598, 66), line, Body, Muted);
+            if (!contextHasResponse) Label(new Rect(99, 370, 598, 20), GuestLabels.GuestIntentStatus(guest, Session.Simulation) ?? "", Small, Teal);
             if (contextHasResponse) Label(new Rect(99, 370, 598, 20), Session.LastMessage, Small, Wine);
             float y = 390;
             foreach (var choice in contextChoices) ContextButton(ref y, choice.title, choice.action);
@@ -85,7 +87,7 @@ namespace WorstHotel
                 guest.Agent.Activity != GuestActivity.Shower;
             bool noisy = CanAskForQuiet(Session.Simulation, guest);
             var service = CurrentGuestService(guest);
-            if (canTalk && service != null && cases.Length == 0 && !noisy)
+            if (canTalk && service != null && (cases.Length == 0 || Session.Simulation.ContinuousOperations && service.Kind == ServiceKind.ExtraBlanket) && !noisy)
             {
                 if (service.Status != ServiceStatus.InProgress)
                 {

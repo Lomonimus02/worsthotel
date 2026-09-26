@@ -8,11 +8,12 @@ namespace WorstHotel
         bool buildingReplica;
         long replicaEpoch;
         public bool IsLanReplica => Simulation != null && Simulation.IsReadOnlyMirror;
-        bool ForwardLan(LanCommandKind kind, string subject = null, int room = 0, int amount = 0, int reservationRevision = -1)
+        bool ForwardLan(LanCommandKind kind, string subject = null, int room = 0, int amount = 0, int reservationRevision = -1,
+            string directIntentId = null, int directIntentRevision = -1)
         {
             var lan = LanSession.Instance;
             if (!lan || !lan.IsClientReplica) return false;
-            LastMessage = lan.SubmitCommand(kind, subject, room, amount, reservationRevision) ? "Sent to the host…" : "Waiting for the host connection.";
+            LastMessage = lan.SubmitCommand(kind, subject, room, amount, reservationRevision, directIntentId, directIntentRevision) ? "Sent to the host…" : "Waiting for the host connection.";
             return true;
         }
 
@@ -102,7 +103,7 @@ namespace WorstHotel
                     break;
                 case LanCommandKind.RestartSession: RestartSession(playerId); break;
                 case LanCommandKind.MoveGuest: MoveGuest(playerId, command.subject, command.roomId); break;
-                case LanCommandKind.CancelMove: CancelGuestMove(playerId, command.subject); break;
+                case LanCommandKind.CancelMove: CancelGuestMove(playerId, command.subject, command.expectedDirectIntentId, command.expectedDirectIntentRevision); break;
                 case LanCommandKind.AcceptConsequences: AcceptConsequences(playerId, command.subject); break;
                 case LanCommandKind.AcceptBoilerConsequences: AcceptBoilerConsequences(playerId); break;
                 case LanCommandKind.RequestQuiet: RequestQuiet(playerId, command.subject); break;
