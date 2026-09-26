@@ -69,10 +69,13 @@ namespace WorstHotel
 
         // This opt-in historical driver verifies the original three-shift regression flow.
         // Configure before scene Start/transport startup; ordinary production sessions never use it.
+        public static bool ShouldUseLegacyFixture(string[] arguments) => arguments != null &&
+            Array.IndexOf(arguments, "-verifyLanContinuous") < 0;
+
         void PrepareLegacyVerification(Scene scene, LoadSceneMode mode)
         {
             var current = GameSession.Instance;
-            if (legacyVerificationConfig || !current || current.gameObject.scene != scene) return;
+            if (!ShouldUseLegacyFixture(Environment.GetCommandLineArgs()) || legacyVerificationConfig || !current || current.gameObject.scene != scene) return;
             legacyVerificationConfig = Instantiate(current.config);
             legacyVerificationConfig.continuousOperations = false;
             current.config = legacyVerificationConfig;

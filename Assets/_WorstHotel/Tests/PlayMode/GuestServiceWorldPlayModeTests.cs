@@ -27,13 +27,25 @@ namespace WorstHotel.Tests
         IEnumerator CarryServiceSupply(ServiceSupplyItem item, Vector3 destination)
         {
             var actor = bootstrap.Players[0];
+            string CarryState() => "destination=" + destination.ToString("F3") +
+                "; actor=" + actor.transform.position.ToString("F3") +
+                "; body=" + item.Body.position.ToString("F3") +
+                "; camera=" + actor.PlayerCamera.transform.position.ToString("F3") +
+                "; body distance=" + Vector3.Distance(item.Body.worldCenterOfMass, actor.PlayerCamera.transform.position).ToString("F3") +
+                "; velocity=" + item.Body.linearVelocity.ToString("F3") +
+                "; item=" + item.ItemId + "; state=" + item.State?.Location +
+                "; kinematic=" + item.Body.isKinematic + "; joint=" + (item.Body.GetComponent<ConfigurableJoint>() != null) +
+                "; UI=" + actor.IsUIBlocked + "; elapsed=" + GameSession.Instance.Simulation.Elapsed;
+            TestContext.Progress.WriteLine("Service carry segment begins: " + CarryState());
             Vector3 direction = destination - actor.transform.position; direction.y = 0;
             if (direction.sqrMagnitude > .01f)
                 yield return AimAtKeyScenarioPoint(actor, padA, () => actor.PlayerCamera.transform.position + direction.normalized * 5);
+            Assert.That(actor.Interactor.HeldBody, Is.SameAs(item.Body),
+                "The actual suitcase must remain held during the route-heading turn. " + CarryState());
             float deadline = Time.realtimeSinceStartup + 20;
             while (HorizontalDistance(actor.transform.position, destination) > .13f && Time.realtimeSinceStartup < deadline)
             {
-                Assert.That(actor.Interactor.HeldBody, Is.SameAs(item.Body), "No teleport or dropped body can complete a service route.");
+                Assert.That(actor.Interactor.HeldBody, Is.SameAs(item.Body), "No teleport or dropped body can complete a service route. " + CarryState());
                 Vector3 delta = destination - actor.transform.position; delta.y = 0;
                 Vector3 local = actor.transform.InverseTransformDirection(delta.normalized);
                 InputSystem.QueueStateEvent(padA, new GamepadState { leftStick = new Vector2(local.x, local.z) * Mathf.Clamp(delta.magnitude, .25f, .8f) });

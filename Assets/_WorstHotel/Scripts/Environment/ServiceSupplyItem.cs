@@ -65,7 +65,9 @@ namespace WorstHotel
                 foreach (var candidate in simulation.Guests) if (candidate.GuestId == state.GuestId) { guest = candidate; break; }
                 if (state.Location == ServiceItemLocation.OnShelf)
                     visible = guest?.Agent != null && (guest.Agent.State == GuestAgentState.Arriving || guest.Agent.State == GuestAgentState.WaitingForCheckIn);
-                if (guest?.Agent?.State == GuestAgentState.Left) visible = false;
+                // A departed owner cannot erase the suitcase staff are still carrying or
+                // have put down. A stored suitcase is safe to recycle for a later arrival.
+                if (guest?.Agent?.State == GuestAgentState.Left && state.Location == ServiceItemLocation.OnShelf) visible = false;
             }
             if (shownLocation != state.Location || shownGeneration != state.Generation || shownVisible != visible)
             {
@@ -113,7 +115,7 @@ namespace WorstHotel
                     { assigned = true; break; }
                 if (!assigned) return candidate;
             }
-            return null;
+            return current?.Location == ServiceItemLocation.Stored ? itemId : null;
         }
 
         void PlaceAtDock(ServiceItemState state, GuestStay guest)
@@ -151,6 +153,13 @@ namespace WorstHotel
             if (carrier != player) return;
             carrier = null;
             var session = GameSession.Instance;
+            if (HasAuthority && session && session.Simulation == simulation && State?.Location == ServiceItemLocation.Stored)
+            {
+                // The short placement uses the actual body after its physics joint is released.
+                // Do it before a later calendar prune or arrival can recycle the authored slot.
+                Body.useGravity = false; Body.constraints = RigidbodyConstraints.FreezeAll;
+                PlaceAtDock(State, null);
+            }
             if (HasAuthority && session && session.Simulation == simulation &&
                 State?.Location == ServiceItemLocation.HeldByPlayer && State.PlayerId == player.ActorId)
                 session.DropServiceItem(player.ActorId, this);

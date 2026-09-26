@@ -24,6 +24,8 @@ namespace WorstHotel
         readonly Dictionary<int, RoomState> rooms;
         int day;
         float serviceEnd;
+        int CaseCapacity => simulation.ContinuousOperations ? 256 : 32;
+        int ResponseCapacity => simulation.ContinuousOperations ? 512 : 288;
 
         internal GuestServiceSystem(GuestServiceSettings settings, HotelSimulation simulation, IEnumerable<RoomState> rooms)
         { Settings = settings ?? throw new ArgumentNullException(nameof(settings)); this.simulation = simulation;
@@ -219,14 +221,15 @@ namespace WorstHotel
 
         ServiceCase TryCreate(GuestStay guest, ServiceKind kind, float now, float due, string source, int sourceRoom, string reason)
         {
+            if (cases.Count >= CaseCapacity) return null;
             string id = guest.GuestId + "/service/" + kind + "/" + source;
             if (cases.Any(item => item.Id == id || item.GuestId == guest.GuestId && item.Kind == kind)) return null;
             if (NaturalCommunicationEnabled && (kind == ServiceKind.ExtraBlanket || kind == ServiceKind.AskNeighborsQuiet) &&
                 !simulation.Incidents.Items.Any(item => item.GuestId == guest.GuestId && item.Active && item.Cause?.SourceEntityId == source)) return null;
             var result = new ServiceCase(id, guest.GuestId, guest.RoomId, kind, now, due, source, sourceRoom, reason);
+            if (NaturalCommunicationEnabled && !BindCaseResponse(result, guest, now)) return null;
             cases.Add(result);
-            if (NaturalCommunicationEnabled) BindCaseResponse(result, guest, now);
-            else { ChargeBudget(result); guest.Memory.ServicesRequested = Count(guest.Memory.ServicesRequested); }
+            if (!NaturalCommunicationEnabled) { ChargeBudget(result); guest.Memory.ServicesRequested = Count(guest.Memory.ServicesRequested); }
             Notify(result, "requested"); return result;
         }
 

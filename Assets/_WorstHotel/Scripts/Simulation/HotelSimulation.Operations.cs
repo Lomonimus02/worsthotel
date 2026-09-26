@@ -71,6 +71,7 @@ namespace WorstHotel
                 periodReceipts.Clear();
                 periodOpeningCash = Economy.Cash;
                 periodStartedAt = boundary;
+                PruneCompletedOperatingHistory();
                 SignalEvent("Operating report " + ReportSequence + " available — hotel remains open");
             }
         }

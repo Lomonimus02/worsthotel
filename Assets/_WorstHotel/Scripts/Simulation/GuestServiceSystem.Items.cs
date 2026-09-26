@@ -63,17 +63,34 @@ namespace WorstHotel
             return CommandResult.Ok("Blanket delivered. Personal cold comfort improves; room temperature and electrical load are unchanged.");
         }
 
-        public CommandResult StoreLuggage(int actor, string guestId)
+        public bool IsDepartedLuggage(string itemId)
+        {
+            var item = FindItem(itemId);
+            var guest = item?.Kind == ServiceItemKind.Luggage ? Guest(item.GuestId) : null;
+            return guest != null && Departed(guest);
+        }
+
+        public CommandResult CanStoreLuggage(int actor, string guestId)
         {
             var allowed = CanAct(actor); if (!allowed.Success) return allowed;
             var guest = Guest(guestId); var item = HeldBy(actor);
             if (guest == null || item == null || item.Kind != ServiceItemKind.Luggage || item.GuestId != guestId)
                 return CommandResult.Fail("Carry this guest's actual suitcase to luggage storage.");
+            if (Departed(guest)) return CommandResult.Ok("Place the departed guest's suitcase in lost-property storage.");
             var request = cases.FirstOrDefault(request => request.GuestId == guestId && request.Kind == ServiceKind.LuggageStorage);
             if (request == null) return CommandResult.Fail("There is no luggage storage agreement for this suitcase.");
             if (NaturalCommunicationEnabled && (!request.IsKnownToHotel || request.Status != ServiceStatus.InProgress))
                 return CommandResult.Fail("This suitcase needs a current accepted storage agreement.");
+            return CommandResult.Ok();
+        }
+
+        public CommandResult StoreLuggage(int actor, string guestId)
+        {
+            var allowed = CanStoreLuggage(actor, guestId); if (!allowed.Success) return allowed;
+            var guest = Guest(guestId); var item = HeldBy(actor);
             item.Location = ServiceItemLocation.Stored; item.PlayerId = null; item.RoomId = null; ItemChanged?.Invoke(item);
+            if (Departed(guest)) return CommandResult.Ok("The departed guest's suitcase is in lost-property storage.");
+            var request = cases.First(request => request.GuestId == guestId && request.Kind == ServiceKind.LuggageStorage);
             if (request.Active)
             { guest.Memory.LuggageStored = Count(guest.Memory.LuggageStored); Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true); }
             return CommandResult.Ok("The suitcase is stored beside reception.");

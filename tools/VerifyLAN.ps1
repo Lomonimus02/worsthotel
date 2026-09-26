@@ -5,11 +5,13 @@ param(
     [ValidateRange(1024, 65535)][int]$Port = 17777,
     [switch]$Capture,
     [switch]$AgencyFixtures,
-    [switch]$ServiceFixtures
+    [switch]$ServiceFixtures,
+    [switch]$ContinuousFixtures
 )
 $ErrorActionPreference = 'Stop'
-if ($AgencyFixtures -and $ServiceFixtures) { throw 'Choose AgencyFixtures or ServiceFixtures in separate LAN runs.' }
+if ((@($AgencyFixtures, $ServiceFixtures, $ContinuousFixtures) | Where-Object { $_ }).Count -gt 1) { throw 'Choose only one fixture mode per LAN run.' }
 if ($ServiceFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 345 }
+if ($ContinuousFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 255 }
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $playerPath = Join-Path (Join-Path $projectRoot $BuildDirectory) 'TheWorstHotelEver.exe'
 if (-not (Test-Path -LiteralPath $playerPath)) { throw 'Build the Windows development player with the LAN verification driver first.' }
@@ -33,6 +35,7 @@ function Start-OwnedHotel([string]$Side) {
     if ($Capture -and $Side -eq 'client') { $arguments += '-verifyLanCapture' }
     if ($AgencyFixtures) { $arguments += '-verifyLanAgency' }
     if ($ServiceFixtures) { $arguments += '-verifyLanServices' }
+    if ($ContinuousFixtures) { $arguments += '-verifyLanContinuous' }
     $process = Start-Process -FilePath $playerPath -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru
     $ownedPlayers.Add($process)
     return $process
@@ -66,7 +69,17 @@ try {
         if ($report -notmatch "Outcome=PASS Errors=0 Role=$side" -or $report -notmatch "Run=$runId") {
             throw "$side did not pass with a fresh zero-error report. Inspect $runPath"
         }
-        if ($ServiceFixtures) {
+        if ($ContinuousFixtures) {
+            foreach ($evidence in @('Mode=ContinuousFixtures', 'PhysicalLedgerAccess=True', 'BookingRoundtrip=True',
+                'PriceEdit=True', 'StaleRevisionRejected=True', 'Cancellation=True', 'MidnightPersistence=True',
+                'ReportOnce=True', 'PostBoundaryBooking=True')) {
+                if ($report -notmatch [regex]::Escape($evidence)) { throw "$side lacks continuous evidence $evidence. Inspect $runPath" }
+            }
+            if ($side -eq 'client' -and $report -notmatch 'ReadOnlyMirror=True SnapshotOnlyClockChecks=') {
+                throw 'Client continuous report lacks snapshot-only authority evidence.'
+            }
+        }
+        elseif ($ServiceFixtures) {
             foreach ($evidence in @('Mode=ServiceFixtures', 'PhysicalBlanketPickup=True', 'PhysicalBlanketDelivery=True',
                 'ServiceStateReplicated=True', 'CrossActorOwnershipRejected=True', 'UngrantedCallRejected=True',
                 'RemoteRadiator=True', 'RemotePhonePromise=True')) {
@@ -85,11 +98,12 @@ try {
         elseif ($side -eq 'host' -and ($report -notmatch 'PhysicalPickup=True' -or $report -notmatch 'DisconnectRelease=True')) {
             throw 'Host report lacks real remote physical pickup or disconnect-release evidence.'
         }
-        if (-not $AgencyFixtures -and -not $ServiceFixtures -and $side -eq 'client' -and ($report -notmatch 'WorldPoseAgreement=True' -or $report -notmatch 'AssignRoundtrip=True CommitRoundtrip=True' -or
+        if (-not $ContinuousFixtures -and -not $AgencyFixtures -and -not $ServiceFixtures -and $side -eq 'client' -and ($report -notmatch 'WorldPoseAgreement=True' -or $report -notmatch 'AssignRoundtrip=True CommitRoundtrip=True' -or
             $report -notmatch 'DisconnectedReadOnly=True')) { throw 'Client report lacks model roundtrip, pose agreement or read-only disconnect evidence.' }
     }
     if ($Capture) {
-        $captureNames = if ($ServiceFixtures) { @('client-service-stock.png', 'client-service-delivered.png', 'client-service-phone.png',
+        $captureNames = if ($ContinuousFixtures) { @('client-continuous-bookings.png', 'client-continuous-boundary.png', 'client-continuous-report.png') }
+            elseif ($ServiceFixtures) { @('client-service-stock.png', 'client-service-delivered.png', 'client-service-phone.png',
             'client-natural-cold-ringing.png', 'client-natural-cold-heard.png', 'client-natural-wake-heard.png') }
             elseif ($AgencyFixtures) { @('client-agency-context.png', 'client-agency-quiet.png') }
             else { @('client-connection-menu.png', 'client-one-camera-play.png', 'client-host-join-menu.png') }
@@ -101,7 +115,7 @@ try {
         }
         Write-Output 'Fresh GPU candidates captured with native IMGUI. Inspect pixels and layout separately.'
     }
-    $scenario = if ($ServiceFixtures) { 'physical guest services' } elseif ($AgencyFixtures) { 'guest-agency interaction' } else { 'physical-key smoke' }
+    $scenario = if ($ContinuousFixtures) { 'continuous bookings and reporting' } elseif ($ServiceFixtures) { 'physical guest services' } elseif ($AgencyFixtures) { 'guest-agency interaction' } else { 'physical-key smoke' }
     Write-Output "LAN localhost $scenario passed in two actual EXE processes. Reports: $runPath"
     Write-Output 'This verifies the local transport path, not a second computer, firewall configuration, human controls, graphics or performance.'
 } finally {

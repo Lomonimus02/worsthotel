@@ -1,0 +1,13 @@
+Outcome=PASS Errors=0 Role=host Mode=ContinuousFixtures Checks=45
+Utc=2026-09-26T22:33:10.2080528Z
+Run=20260926-223159-54f2b182
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+DIAGNOSTIC: empty remote employee placed before the authored reception terminal; actual client look/use and the normal physical ledger grant perform all access.
+PRODUCTION CONTINUOUS: 720-second day, opens08:00, report06:00; no legacy clone, synthetic guest arrival or fabricated transport state.
+DIAGNOSTIC: ForceFailure + DebugTripCircuit(B) + DebugMarkRoomDirty(106) create persistence conditions. Rack key stays on rack; no physical carry is claimed.
+DIAGNOSTIC CLOCK: 25.00 -> 660.40; normal fixed-tick AdvanceTime crosses midnight/report; not a human-duration or arrival-route test.
+PhysicalLedgerAccess=True BookingRoundtrip=True PriceEdit=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryBooking=True
+HostEpoch=639260587561581580 Day=2 Cash=-100 Report=1 RemoteCommands=6 ModelBytes=22620 WorldBytes=13946
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

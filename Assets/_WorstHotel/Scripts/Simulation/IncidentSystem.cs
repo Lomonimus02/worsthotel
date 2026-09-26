@@ -59,6 +59,8 @@ namespace WorstHotel
     {
         public IReadOnlyList<HotelIncident> Items => Array.AsReadOnly(incidents.Values.Where(incident => incident.HasOccurred)
             .OrderBy(incident => incident.RoomId).ThenBy(incident => incident.Reason).ToArray());
+        // Retention must also see private observations and legacy records which never occurred.
+        internal IEnumerable<HotelIncident> AllIncidents => incidents.Values;
         public int ActiveCount => incidents.Values.Count(incident => incident.Active);
         public event Action<HotelIncident> OnIncidentStarted;
         public event Action<HotelIncident> OnIncidentResolved;
@@ -76,6 +78,18 @@ namespace WorstHotel
         }
         public void Clear() {
             if (ReadOnlyMirror) return; incidents.Clear(); livingRooms.Clear(); SituationTime = 0; }
+
+        internal void PruneCompletedStays(ISet<string> historyOwnerIds, ISet<string> retainedIncidentIds)
+        {
+            if (ReadOnlyMirror) return;
+            if (historyOwnerIds == null) throw new ArgumentNullException(nameof(historyOwnerIds));
+            if (retainedIncidentIds == null) throw new ArgumentNullException(nameof(retainedIncidentIds));
+            // Retirement is storage maintenance, never a new resolution or a guest outcome.
+            var obsolete = incidents.Values.Where(incident => !incident.Active &&
+                !historyOwnerIds.Contains(incident.GuestId) && !retainedIncidentIds.Contains(incident.Id))
+                .Select(incident => incident.Id).ToArray();
+            foreach (var id in obsolete) incidents.Remove(id);
+        }
 
         public void EndGuestStay(string guestId)
         {

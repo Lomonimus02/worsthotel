@@ -24,7 +24,7 @@ namespace WorstHotel
                 if (incident?.Reason == IncidentReason.Temperature) kind = ServiceKind.ExtraBlanket;
                 else if (incident?.Reason == IncidentReason.Noise) kind = ServiceKind.AskNeighborsQuiet;
                 else return false;
-                if (!Eligible(guest, kind) || !BudgetAvailable(guest) || cases.Count >= 32 ||
+                if (!Eligible(guest, kind) || !BudgetAvailable(guest) || cases.Count >= CaseCapacity ||
                     cases.Any(item => item.GuestId == guest.GuestId && item.Active) ||
                     !TryCause(guest, kind, now, out string source, out int room, out float due, out string text, true) || source != response.SourceEntityId)
                     return false;

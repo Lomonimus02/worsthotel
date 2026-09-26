@@ -64,7 +64,7 @@ namespace WorstHotel
         public CommandResult StoreLuggage(int actor, LuggageStorageZone target)
         {
             if (!ServiceTarget(actor, target, out var player) || HeldServiceItem(player)?.State.Kind != ServiceItemKind.Luggage)
-                return CommandResult.Fail("Carry the accepted suitcase to luggage storage.");
+                return CommandResult.Fail("Carry the suitcase to luggage storage.");
             var item = HeldServiceItem(player);
             var result = Simulation.StoreLuggage(actor, item.State.GuestId);
             if (result.Success) player.ReleaseGrab();

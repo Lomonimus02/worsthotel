@@ -18,7 +18,7 @@ namespace WorstHotel
     {
         const string PadLayout = "WorstHotelLanVerificationGamepad";
         string output, side;
-        bool host, finished, layoutRegistered, clockTracking, capture, agency, services;
+        bool host, finished, layoutRegistered, clockTracking, capture, agency, services, continuous;
         int errors, checks, stableClockChecks;
         float began, serviceClockStart, lastClientClock;
         long lastClientSequence;
@@ -51,6 +51,7 @@ namespace WorstHotel
             runner.capture = Array.IndexOf(args, "-verifyLanCapture") >= 0;
             runner.agency = Array.IndexOf(args, "-verifyLanAgency") >= 0;
             runner.services = Array.IndexOf(args, "-verifyLanServices") >= 0;
+            runner.continuous = Array.IndexOf(args, "-verifyLanContinuous") >= 0;
             runner.side = isHost ? "host" : "client"; runner.began = Time.realtimeSinceStartup;
             Directory.CreateDirectory(runner.output);
             DontDestroyOnLoad(runner.gameObject);
@@ -70,7 +71,7 @@ namespace WorstHotel
         void PrepareLegacyVerification(Scene scene, LoadSceneMode mode)
         {
             var current = GameSession.Instance;
-            if (legacyVerificationConfig || !current || current.gameObject.scene != scene) return;
+            if (!DevelopmentVerification.ShouldUseLegacyFixture(Environment.GetCommandLineArgs()) || legacyVerificationConfig || !current || current.gameObject.scene != scene) return;
             legacyVerificationConfig = Instantiate(current.config);
             legacyVerificationConfig.continuousOperations = false;
             current.config = legacyVerificationConfig;
@@ -88,7 +89,7 @@ namespace WorstHotel
         void Update()
         {
             if (finished) return;
-            float watchdog = services ? 330 : 140;
+            float watchdog = continuous ? 240 : services ? 330 : 140;
             if (Time.realtimeSinceStartup - began > watchdog) { Fail(watchdog + "-second internal watchdog"); return; }
             if (agency && host) MaintainAgencyFixture();
             if (services && host) MaintainServicesFixture();
@@ -147,7 +148,8 @@ namespace WorstHotel
             Require(key && key.rackAnchor, "real authored room101 key exists");
             facts.Add("Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.");
             facts.Add("Stage files coordinate waits and compare measured poses; they never apply hotel state or input.");
-            if (services) { if (host) yield return RunServicesHost(); else yield return RunServicesClient(); }
+            if (continuous) { if (host) yield return RunContinuousHost(); else yield return RunContinuousClient(); }
+            else if (services) { if (host) yield return RunServicesHost(); else yield return RunServicesClient(); }
             else if (agency) { if (host) yield return RunAgencyHost(); else yield return RunAgencyClient(); }
             else { if (host) yield return RunHost(); else yield return RunClient(); }
             Require(errors == 0, "no logged Unity errors");
@@ -443,7 +445,7 @@ namespace WorstHotel
         void WriteReport(string outcome)
         {
             WriteText(side + "-report.txt", "Outcome=" + outcome + " Errors=" + errors + " Role=" + side +
-                " Mode=" + (services ? "ServiceFixtures" : agency ? "AgencyFixtures" : "PhysicalKeys") +
+                " Mode=" + (continuous ? "ContinuousFixtures" : services ? "ServiceFixtures" : agency ? "AgencyFixtures" : "PhysicalKeys") +
                 " Checks=" + checks + "\nUtc=" + DateTime.UtcNow.ToString("O") + "\nRun=" + Path.GetFileName(output) +
                 "\n" + string.Join("\n", facts) +
                 "\nScope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.\n");

@@ -31,6 +31,13 @@ namespace WorstHotel
         private readonly List<GuestSchedule> schedules = new List<GuestSchedule>();
         public GuestScheduleSystem(LivingHotelSettings settings) => Settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
+        internal void PruneCompletedStays(ISet<string> retainedGuestIds)
+        {
+            if (ReadOnlyMirror) return;
+            if (retainedGuestIds == null) throw new ArgumentNullException(nameof(retainedGuestIds));
+            schedules.RemoveAll(schedule => !retainedGuestIds.Contains(schedule.GuestId));
+        }
+
         public void StartDay(int day, IEnumerable<GuestStay> guests, float serviceSeconds)
         {
             if (ReadOnlyMirror) return;

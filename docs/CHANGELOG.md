@@ -14,6 +14,10 @@ Added an opt-in continuous calendar derived from the existing hotel clock, separ
 
 Enabled continuous operations in the production asset and scene builder. Added today/tomorrow one-night reservations, controller booking/report pages, absolute arrival/sleep/wake/checkout schedules and once-only checkout revenue. Future bookings preserve current guests/keys; relocation and late checkout recheck future room intervals. Guest bodies, reception slots and luggage remain stable across cohorts; service allowances renew without discarding active agreements or carried/delivered items. LAN protocol 7/model schema 6 carries dated state and expected booking revisions; historical fixtures explicitly opt out. Compile passed, full EditMode **379/379**, ten continuous PlayMode cases and three legacy physical cases passed across focused runs. [Evidence, corrected metadata omission and scope](verification/core04-phase2.md).
 
+## Prototype 0.4 — phase 3 persistence
+
+Added coherent bounded retirement of completed stays, schedules, service history and causal incidents while preserving live references, unfinished physical departures and carried/dropped items. Reports retain independent receipts. Continuous service admission respects its validated storage bounds; a protected full ledger refuses new bookings safely. Actual departed-owner suitcases can be placed in lost-property storage without fulfillment credit. Atomic session rejection tests and a production-mode two-process LAN driver verify booking edits/cancellation, date/report persistence and once-only accounting. Compile/build passed, full EditMode **398/398**, four selected PlayMode cases passed across runs, actual continuous localhost LAN **host45/client121, zero errors**. [Exact evidence, fixture corrections, binary and limits](verification/core04-phase3.md). Product metadata is 0.4.0 for gate builds; the release milestone remains unfinished.
+
 ## Prototype 0.3.2 — Natural Service
 
 26 September 2026. Natural Service implemented and packaged as Windows 0.3.2; the pause investigation remains explicitly deferred.

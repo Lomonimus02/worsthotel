@@ -102,7 +102,8 @@ namespace WorstHotel
             if (!Enum.IsDefined(typeof(ServiceKind), kind)) return CommandResult.Fail("Unknown service kind.");
             var guest = Guest(guestId);
             if (guest == null || Departed(guest)) return CommandResult.Fail("Choose a current guest.");
-            if (NaturalCommunicationEnabled && (cases.Count >= 32 || !BudgetAvailable(guest))) return CommandResult.Fail("The finite service contact allowance is already used.");
+            if (cases.Count >= CaseCapacity || NaturalCommunicationEnabled && !BudgetAvailable(guest))
+                return CommandResult.Fail("The finite service contact allowance is already used.");
             if (cases.Any(item => item.GuestId == guestId && item.Active)) return CommandResult.Fail("This guest already has an active service case.");
             if (!TryCause(guest, kind, simulation.Elapsed, out string source, out int sourceRoom, out float due, out string reason, true))
                 return CommandResult.Fail("The factual prerequisite is missing: mild cold, real noise, an unready room, or a suitable remaining schedule.");

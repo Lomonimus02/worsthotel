@@ -9,7 +9,7 @@ Each phase requires a successful compile, relevant tests and gameplay checks, an
 | 0 | Inspect, compile, all tests, SOLO/LAN/pause/WAIT, checkpoint | Passed: compile, Edit 316/316, full Play 48/49 + focused corrected 1/1, fresh SOLO/LAN; see verification/core04-phase0.md |
 | 1 | One calendar, nonmodal daily accounts, no hard simulation end | Passed: compile, full Edit 338/338, actual-session Play 5/5; verification/core04-phase1.md |
 | 2 | Dated one-night reservations, live booking decisions, absolute guest schedules, production activation | Passed: compile, full Edit 379/379, continuous Play 10/10 across two runs, legacy Play 3/3; verification/core04-phase2.md |
-| 3 | Boundary persistence, bounded history, atomic validated LAN snapshots | Pending |
+| 3 | Boundary persistence, bounded history, atomic validated LAN snapshots | Passed: compile/build, full Edit 398/398, four selected Play cases across runs, actual continuous LAN host45/client121; verification/core04-phase3.md |
 | 4 | Remote / DropOff / Direct integrated with guest life and finite availability | Pending |
 | 5 | Measured capacity, causal stress, load feedback | Pending |
 | 6 | Emergency patch versus proper maintenance and downtime | Pending |

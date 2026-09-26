@@ -59,6 +59,22 @@ namespace WorstHotel
         public void Clear() {
             if (ReadOnlyMirror) return; requests.Clear(); compensatedGuests.Clear(); }
 
+        internal void PruneCompletedStays(ISet<string> historyOwnerIds, ISet<string> retainedIncidentIds)
+        {
+            if (ReadOnlyMirror) return;
+            if (historyOwnerIds == null) throw new ArgumentNullException(nameof(historyOwnerIds));
+            if (retainedIncidentIds == null) throw new ArgumentNullException(nameof(retainedIncidentIds));
+            // Use the same pins as incidents, so either subsystem may be pruned first.
+            var retained = incidents.AllIncidents.Where(incident => incident.Active ||
+                historyOwnerIds.Contains(incident.GuestId) || retainedIncidentIds.Contains(incident.Id))
+                .ToDictionary(incident => incident.Id);
+            var obsolete = requests.Values.Where(request => !retained.TryGetValue(request.Id, out var source) ||
+                !ReferenceEquals(request.Source, source)).Select(request => request.Id).ToArray();
+            foreach (var id in obsolete) requests.Remove(id);
+            var retainedOwners = new HashSet<string>(retained.Values.Select(incident => incident.GuestId));
+            compensatedGuests.RemoveWhere(guestId => !historyOwnerIds.Contains(guestId) && !retainedOwners.Contains(guestId));
+        }
+
         private void OnIncidentStarted(HotelIncident incident)
         {
             if (incident.Stage == SituationStage.Observed || incident.Stage == SituationStage.Resolved) return;

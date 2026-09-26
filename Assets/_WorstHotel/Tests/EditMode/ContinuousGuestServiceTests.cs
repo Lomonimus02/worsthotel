@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace WorstHotel.Tests
 {
     /// <summary>Continuous model fixtures; all route/key callbacks below are explicit headless adapters.</summary>
-    public sealed class ContinuousGuestServiceTests
+    public sealed partial class ContinuousGuestServiceTests
     {
         sealed class Fixture
         {

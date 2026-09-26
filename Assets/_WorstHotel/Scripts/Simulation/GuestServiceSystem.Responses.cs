@@ -18,7 +18,7 @@ namespace WorstHotel
         {
             string id = incident.Id + "/contact/" + incident.EpisodeCount;
             var response = FindResponse(id);
-            if (response == null && responses.Count < 288)
+            if (response == null && responses.Count < ResponseCapacity)
             {
                 response = new GuestResponse(id, guest.GuestId, guest.RoomId, incident.Cause.SourceEntityId,
                     incident.Id, incident.EpisodeCount, null, now);
@@ -28,16 +28,19 @@ namespace WorstHotel
             return response;
         }
 
-        void BindCaseResponse(ServiceCase item, GuestStay guest, float now)
+        bool BindCaseResponse(ServiceCase item, GuestStay guest, float now)
         {
             var incident = simulation.Incidents.Items.FirstOrDefault(candidate => candidate.GuestId == guest.GuestId && candidate.Active &&
                 candidate.Cause?.SourceEntityId == item.SourceEntityId &&
                 (item.Kind == ServiceKind.ExtraBlanket && candidate.Reason == IncidentReason.Temperature ||
                  item.Kind == ServiceKind.AskNeighborsQuiet && candidate.Reason == IncidentReason.Noise));
+            if (incident == null && responses.Count >= ResponseCapacity) return false;
             var response = incident == null ? new GuestResponse(item.Id + "/contact", guest.GuestId, guest.RoomId,
                 item.SourceEntityId, null, 0, item.Id, now) : Notice(incident, guest, now);
+            if (response == null) return false;
             if (!responses.Contains(response)) responses.Add(response);
             response.ServiceCaseId = item.Id; item.Response = response;
+            return true;
         }
 
         bool ScheduleContext(GuestStay guest, ServiceKind kind, float now)
@@ -94,7 +97,7 @@ namespace WorstHotel
                 foreach (var incident in simulation.Incidents.Items.Where(item => item.GuestId == guest.GuestId && item.Active && item.Cause != null))
                     Notice(incident, guest, now);
                 foreach (var item in cases.Where(item => item.GuestId == guest.GuestId && item.Active).ToArray()) UpdateCase(item, guest, now, dt);
-                if (cases.Count < 32 && BudgetAvailable(guest) && !cases.Any(item => item.GuestId == guest.GuestId && item.Active))
+                if (cases.Count < CaseCapacity && BudgetAvailable(guest) && !cases.Any(item => item.GuestId == guest.GuestId && item.Active))
                     foreach (var kind in new[] { ServiceKind.LuggageStorage, ServiceKind.WakeUpCall, ServiceKind.LateCheckout })
                         if (Eligible(guest, kind) && TryCause(guest, kind, now, out string source, out int room, out float due, out string text) &&
                             TryCreate(guest, kind, now, due, source, room, text) != null) break;

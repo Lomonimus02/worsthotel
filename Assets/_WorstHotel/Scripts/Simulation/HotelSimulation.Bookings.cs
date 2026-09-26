@@ -101,6 +101,10 @@ namespace WorstHotel
             if (FindReservation(offerId) != null) return CommandResult.Fail("This enquiry has already been decided.");
             if (!ValidBookingPrice(price)) return CommandResult.Fail("Choose a price on the hotel's allowed price grid.");
             var availability = CanReserveRoom(roomId, offer); if (!availability.Success) return availability;
+            PruneCompletedOperatingHistory();
+            // Protected bodies/items are never erased just to make a booking fit on the wire.
+            if (reservations.Count >= 128)
+                return CommandResult.Fail("The guest ledger is full. Finish departures and store unclaimed luggage before accepting more stays.");
             reservations.Add(new HotelReservation(offer, roomId, price, actorId));
             SignalEvent("Booking accepted: " + offer.Application.GuestName + ", room " + roomId + ", day " + offer.ArrivalDay);
             return CommandResult.Ok("One-night booking accepted. " + availability.Message);
@@ -151,6 +155,7 @@ namespace WorstHotel
             int day = Calendar.DayAt(now);
             if (operatingServiceDay != day)
             {
+                PruneCompletedOperatingHistory();
                 Services?.BeginOperatingDay(day, Calendar.At(day + 2, 0));
                 // Only used/consumed linen slots are replenished by the existing system.
                 Housekeeping?.RefillForDay(day);
