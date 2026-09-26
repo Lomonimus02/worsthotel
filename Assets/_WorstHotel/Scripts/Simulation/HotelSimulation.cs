@@ -14,8 +14,8 @@ namespace WorstHotel
         public string LastEvent { get; private set; } = "Hotel ready";
         public void SignalEvent(string description) {
             if (IsReadOnlyMirror) return; LastEvent = description; EventRevision++; }
-        public float Remaining => Math.Max(0, settings.ServiceSeconds - Elapsed);
-        public bool IsServiceComplete => Running && Remaining <= 0;
+        public float Remaining => Math.Max(0, (ContinuousOperations ? NextReportAt : settings.ServiceSeconds) - Elapsed);
+        public bool IsServiceComplete => !ContinuousOperations && Running && Remaining <= 0;
         public EconomySystem Economy { get; }
         public GuestSatisfactionSystem Satisfaction { get; }
         public BoilerSystem Boiler { get; }
@@ -38,7 +38,7 @@ namespace WorstHotel
         public DayReport LastReport { get; private set; }
         public IReadOnlyList<DayReport> DayReports => reports.AsReadOnly();
         public IReadOnlyList<MaintenanceDecision> MaintenanceDecisions => maintenance.AsReadOnly();
-        public bool MaintenanceRequired => !Running && LastReport != null && dayNumber < settings.TotalDays && lastMaintenanceDay < dayNumber;
+        public bool MaintenanceRequired => !ContinuousOperations && !Running && LastReport != null && dayNumber < settings.TotalDays && lastMaintenanceDay < dayNumber;
         private readonly SessionSettings settings;
         private readonly Dictionary<int, RoomState> rooms;
         private readonly List<GuestStay> guests = new List<GuestStay>();
@@ -52,9 +52,12 @@ namespace WorstHotel
 
         public HotelSimulation(SessionSettings settings, RoomState[] roomStates, LivingHotelSettings living = null, NeedSettings needs = null,
             NoiseSettings noise = null, HeaterSettings heater = null, ElectricitySettings electricity = null,
-            HousekeepingSettings housekeeping = null, GuestServiceSettings services = null, RoomInfrastructureSettings infrastructure = null)
+            HousekeepingSettings housekeeping = null, GuestServiceSettings services = null, RoomInfrastructureSettings infrastructure = null,
+            OperationsSettings operations = null)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            Operations = operations;
+            if (operations != null) Calendar = new HotelCalendar(Clock, operations);
             LivingSettings = living;
             if (living != null) Schedules = new GuestScheduleSystem(living);
             NeedsSettings = living != null ? needs ?? new NeedSettings() : null;
@@ -110,6 +113,7 @@ namespace WorstHotel
         public CommandResult StartShift(IEnumerable<BookingAssignment> assignments, IEnumerable<BookingApplication> applications)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (ContinuousOperations) return CommandResult.Fail("The hotel uses continuous bookings; there is no Start Day.");
             if (Running) return CommandResult.Fail("A shift is already running.");
             if (dayNumber >= settings.TotalDays) return CommandResult.Fail("The three-day stay is complete.");
             if (dayNumber > 0 && lastMaintenanceDay < dayNumber) return CommandResult.Fail("Choose maintenance or explicitly defer it before the next day.");
@@ -158,8 +162,14 @@ namespace WorstHotel
         {
             if (IsReadOnlyMirror) return;
             if (!Number.IsFinite(dt) || dt < 0) throw new ArgumentOutOfRangeException(nameof(dt));
-            if (!Running || dt == 0 || Remaining <= 0) return;
-            float step = Math.Min(dt, Remaining);
+            if (!Running || dt == 0) return;
+            if (ContinuousOperations) { TickOperations(dt); return; }
+            if (Remaining <= 0) return;
+            TickStep(Math.Min(dt, Remaining));
+        }
+
+        private void TickStep(float step)
+        {
             if (LivingEnabled) TickLivingGuests(Elapsed + step, step);
             if (LivingEnabled)
             {
@@ -314,6 +324,7 @@ namespace WorstHotel
         public DayReport EndShift()
         {
             if (IsReadOnlyMirror) throw new InvalidOperationException(MirrorMessage);
+            if (ContinuousOperations) throw new InvalidOperationException("Daily reports are automatic and do not close the hotel.");
             if (!Running)
             {
                 if (LastReport != null) return LastReport;

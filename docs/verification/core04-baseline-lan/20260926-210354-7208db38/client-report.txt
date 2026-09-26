@@ -1,0 +1,12 @@
+Outcome=PASS Errors=0 Role=client Mode=PhysicalKeys Checks=155
+Utc=2026-09-26T21:04:16.8214492Z
+Run=20260926-210354-7208db38
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+Only client actor1 receives synthetic pad state; host remote reader is untouched by fixture code.
+WorldPoseAgreement=True StaffError=0.000 KeyError=0.000
+PhysicalFloorApproach=True RetreatMetres=0.67 KeyHorizontalGap=1.78
+AssignRoundtrip=True CommitRoundtrip=True ReadOnlyTickRejected=True SnapshotOnlyClockChecks=598
+DisconnectedReadOnly=True ClientPhysicsDisabled=True (verified before any intentional return to main menu)
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

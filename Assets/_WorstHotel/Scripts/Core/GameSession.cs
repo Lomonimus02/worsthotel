@@ -45,7 +45,16 @@ namespace WorstHotel
             InitializeService();
             RefreshSoloConfiguration();
             OpenPlanning();
-            LastMessage = "Choose guests, then assign rooms. Nothing is accepted until you commit.";
+            if (Simulation.ContinuousOperations)
+            {
+                var opened = Simulation.StartOperations();
+                if (!opened.Success) throw new InvalidOperationException(opened.Message);
+                Phase = DayPhase.Service;
+                Day = Simulation.CalendarDay;
+                LastMessage = opened.Message;
+                RaiseChanged();
+            }
+            else LastMessage = "Choose guests, then assign rooms. Nothing is accepted until you commit.";
         }
 
         void OpenPlanning()
@@ -68,6 +77,8 @@ namespace WorstHotel
         void ReportCommand(CommandResult result) { LastMessage = result.Message; RaiseChanged(); }
         public void CommitPlan(int actorId)
         {
+            if (Simulation.ContinuousOperations)
+            { ReportCommand(CommandResult.Fail("Continuous operations do not use a shift plan.")); return; }
             if (ForwardLan(LanCommandKind.CommitPlan)) return;
             if (Phase != DayPhase.Planning) return;
             if (!Plan.TryCommit(actorId, out var bookings, out var error)) { LastMessage = error; RaiseChanged(); return; }

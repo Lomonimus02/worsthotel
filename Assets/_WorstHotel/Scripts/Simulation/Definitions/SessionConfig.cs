@@ -32,6 +32,15 @@ namespace WorstHotel
         public float coldResolutionHysteresis = 0.5f;
         [Min(0)] public float overnightSeconds = 180;
 
+        [Header("Continuous operations (opt-in)")]
+        public bool continuousOperations;
+        [Min(24)] public float hotelDaySeconds = 720;
+        [Range(0, 23.99f)] public float openingHour = 8;
+        [Range(0, 23.99f)] public float reportHour = 6;
+
+        public OperationsSettings OperationsData() => continuousOperations ?
+            new OperationsSettings(hotelDaySeconds, openingHour, reportHour) : null;
+
         public SessionSettings ToData()
         {
             if (!boiler || !economy || guestArchetypes == null || rooms == null ||

@@ -15,6 +15,9 @@ namespace WorstHotel
         public IReadOnlyList<DayReport> Reports => reports.AsReadOnly();
         readonly List<DayReport> reports = new List<DayReport>();
         float accumulator;
+        // Synchronous developer advances must remain bounded even with extreme calendar settings.
+        const int MaximumDiagnosticTicks = 20000;
+        float DiagnosticAdvanceHorizon => Simulation.ContinuousOperations ? Simulation.Operations.SecondsPerDay : Settings.ServiceSeconds;
 
         void InitializeService()
         {
@@ -31,7 +34,8 @@ namespace WorstHotel
                 config.electricity ? config.electricity.ToData() : new ElectricitySettings(),
                 config.housekeeping ? config.housekeeping.ToData() : new HousekeepingSettings(),
                 config.services ? config.services.ToData() : null,
-                config.infrastructure ? config.infrastructure.ToData() : null);
+                config.infrastructure ? config.infrastructure.ToData() : null,
+                config.OperationsData());
 
         void Update()
         {
@@ -61,7 +65,17 @@ namespace WorstHotel
             if (Simulation.Clock.Speed > 1 && previousEvent != Simulation.EventRevision)
                 Simulation.Clock.SetSpeed(1);
             Cash = Simulation.Economy.Cash;
-            if (Phase == DayPhase.Service && Simulation.IsServiceComplete) EndShift();
+            if (Simulation.ContinuousOperations)
+            {
+                Day = Simulation.CalendarDay;
+                if (!ReferenceEquals(Report, Simulation.LastReport))
+                {
+                    Report = Simulation.LastReport;
+                    reports.Clear(); reports.AddRange(Simulation.DayReports);
+                }
+                RaiseChanged();
+            }
+            else if (Phase == DayPhase.Service && Simulation.IsServiceComplete) EndShift();
             else RaiseChanged();
             PauseDiagnostics.TickExit();
         }
@@ -69,6 +83,8 @@ namespace WorstHotel
         public void EndShift()
         {
             if (IsLanReplica) return;
+            if (Simulation.ContinuousOperations)
+            { ReportCommand(CommandResult.Fail("Continuous operations publish reports without closing the hotel.")); return; }
             if (Phase != DayPhase.Service) return;
             if (Wait) Wait.Stop("Shift complete");
             Report = Simulation.EndShift();
@@ -141,10 +157,13 @@ namespace WorstHotel
         {
             if (IsLanReplica) return;
             if (!Number.IsFinite(seconds) || seconds <= 0 || (Phase != DayPhase.Service && Phase != DayPhase.Planning)) return;
-            seconds = Mathf.Min(seconds, Settings.ServiceSeconds);
+            seconds = Mathf.Min(seconds, DiagnosticAdvanceHorizon);
             float step = 1f / Settings.TickRate;
-            while (seconds > 0 && (Phase == DayPhase.Service || Phase == DayPhase.Planning))
+            int ticks = 0;
+            while (seconds > 0 && ticks++ < MaximumDiagnosticTicks && (Phase == DayPhase.Service || Phase == DayPhase.Planning))
             { float delta = Mathf.Min(seconds, step); Tick(delta); seconds -= delta; }
+            if (seconds > 0 && ticks >= MaximumDiagnosticTicks)
+                ReportCommand(CommandResult.Fail("Developer advance reached its fixed-tick limit."));
         }
 
         public void AdvanceToNextEvent()
@@ -154,9 +173,17 @@ namespace WorstHotel
             if (Wait) Wait.Stop("Developer event advance");
             int revision = Simulation.EventRevision;
             float step = 1f / Settings.TickRate;
-            while (Phase == DayPhase.Service && Simulation.EventRevision == revision)
-                Tick(Mathf.Min(step, Simulation.Remaining));
+            float budget = DiagnosticAdvanceHorizon;
+            int ticks = 0;
+            while (Phase == DayPhase.Service && Simulation.EventRevision == revision && budget > 0 && ticks++ < MaximumDiagnosticTicks)
+            {
+                float delta = Mathf.Min(step, Mathf.Min(budget, Simulation.Remaining));
+                if (delta <= 0) break;
+                Tick(delta); budget -= delta;
+            }
             accumulator = 0;
+            if (Simulation.EventRevision == revision)
+                ReportCommand(CommandResult.Fail("No new hotel event within the bounded developer advance."));
         }
     }
 }
