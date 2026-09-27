@@ -38,6 +38,7 @@ namespace WorstHotel.Editor
                 var anchor = GameObject.Find(name);
                 var control = anchor.AddComponent<RepairControl>();
                 control.controller = controller; control.kind = kind;
+                if (kind == RepairControlKind.Breaker) control.displayName = "BOILER ISOLATION";
                 control.movingPart = moving ? moving : anchor.transform;
                 controls.Add(control);
             }

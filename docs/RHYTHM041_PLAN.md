@@ -9,7 +9,7 @@ Follow the requested order. Freeze runtime sources while Unity is compiling/test
 | Phase | Scope | Status/evidence |
 |---|---|---|
 | 0 | Inspect current project; compile, full tests, continuous SOLO/LAN, pause/WAIT; safe checkpoint | PASS:614 Edit,75 Play,fresh SOLO and LAN; [baseline](verification/rhythm041-phase0.md) |
-| 1 | Investigate actual boiler/electrical causal chain before changing it; document and fix/expose proven cause | Pending |
+| 1 | Investigate actual boiler/electrical causal chain before changing it; document and fix/expose proven cause | PASS:25 Edit,4 relevant physical scenarios; [cause, failed attempts and trace](BOILER_POWER_INTERACTION.md). New prompt pixels remain final readability gate. |
 | 2 | Intermediate boiler bands, pre-failure performance, wear/stress and recovery; no new maintenance yet | Pending |
 | 3 | Readable inspection, configurable Basic Service and Full Service with paid real downtime | Pending |
 | 4 | Pre-failure guest consequences, sustained severe escalation and eligible early checkout/once-only refunds | Pending |

@@ -1,3 +1,7 @@
+## Prototype 0.4.1 — phase 1 actual power relationship
+
+Kept central heat independent from room circuits. The placed heater now previews its real branch, current demand/capacity and overload risk before switching; boiler repair controls consistently say boiler isolation. Fresh model 25/25 and all four relevant physical scenarios passed: an actual carried heater changed A from2.55 to4.55, warning preceded natural trip, delivered heat stopped and B stayed powered. The new fixture also exposed and fixed an unrepresentable fractional remainder in diagnostic AdvanceTime; the direct model clock remains strict. Initial failures and an informational-log registration correction are preserved. [Measured chronology, scope and pending pixel review](BOILER_POWER_INTERACTION.md).
+
 ## Prototype 0.4.1 — phase 0 baseline
 
 Fresh existing-project checkpoint: compilation and full Edit 614/614, Play 75/75, continuous Windows SOLO and subsequent same-binary localhost LAN all passed. Existing 0.4 DLL and package hashes are unchanged; user pause-diagnostic edits are preserved. No runtime change yet. Read-only audits identify the missing sub-capacity boiler effects, actual staff-heater electrical cascade, booking/sleep authority boundaries and early-departure lifecycle risks. [Exact evidence and limitations](verification/rhythm041-phase0.md); [ordered milestone](RHYTHM041_PLAN.md).

@@ -81,6 +81,26 @@ namespace WorstHotel
             var state = State;
             if (state == null) return "Heater unavailable";
             if (!state.SwitchedOn && session.Phase != DayPhase.Service) return "Switched off · Power available during service\nCarry to move";
+            if (HasAuthority && IsCarried) return "Carried · Heat paused\nPut down fully inside a room";
+            if (!state.RoomId.HasValue)
+                return (state.SwitchedOn ? "Switch off" : "Switch on") + " · Outside a room\nNo local heat or room circuit load";
+            // The host's registered placement also feeds LAN captions; never sample replica physics.
+            var circuit = simulation.Electrical?.CircuitForRoom(state.RoomId.Value);
+            if (circuit != null)
+            {
+                string load = "Load " + circuit.RequestedLoad.ToString("0.##") + "/" + circuit.Capacity.ToString("0.##");
+                if (!state.SwitchedOn)
+                {
+                    float added = state.Settings.ElectricalLoad;
+                    string effect = circuit.LoadOverride.HasValue ? " actual; test load" :
+                        (double)circuit.RequestedLoad + added > circuit.Capacity ? " would overload" : " within limit";
+                    return "Switch on · Room " + state.RoomId.Value + " · Circuit " + circuit.Id + "\n" +
+                        (circuit.Tripped ? "No power · " : "") + load + " · +" + added.ToString("0.##") + effect;
+                }
+                return "Switch off · " + (state.Powered ? "Heating room " : "No power in room ") + state.RoomId.Value + "\n" +
+                    "Circuit " + circuit.Id + " · " + load + (circuit.LoadOverride.HasValue ? " · test load" :
+                        circuit.RequestedLoad > circuit.Capacity ? " · overloaded" : "");
+            }
             string status = IsCarried ? "Carried · Heat paused" : !state.SwitchedOn ? "Switched off" :
                 !state.RoomId.HasValue ? "Outside a room · No local heat" : !state.Powered ? "No electrical power" :
                 "Heating " + state.RoomId.Value + (placedRoom != null ? " · " + placedRoom.Temperature.ToString("F1") + "°C" : "") + " · manual heat";

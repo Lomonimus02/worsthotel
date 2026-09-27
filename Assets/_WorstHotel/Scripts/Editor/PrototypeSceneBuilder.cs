@@ -379,7 +379,7 @@ namespace WorstHotel.Editor
             var breaker = Group("BreakerAnchor", gameplay, new Vector3(3.13f, 2.08f, 36.48f)).transform;
             Box("Breaker backing", breaker, new Vector3(0, 0, .13f), new Vector3(.64f, 1.04f, .28f), "Ivory moulding", true);
             Box("Breaker handle", breaker, new Vector3(0, 0, -.12f), new Vector3(.37f, .54f, .28f), "Safety red", true);
-            Sign(utility, "3  BREAKER", new Vector3(3.13f, 2.81f, 36.63f), 1.31f, .30f, .12f);
+            Sign(utility, "3  BOILER\nISOLATION", new Vector3(3.13f, 2.81f, 36.63f), 1.31f, .50f, .10f);
 
             foreach (int index in new[] { 0, 1 })
             {
@@ -414,7 +414,7 @@ namespace WorstHotel.Editor
             Box("Workbench top", bench, new Vector3(0, 1.0f, 0), new Vector3(2.25f, .18f, 1.02f), "Walnut panels", true);
             for (int i = -1; i <= 1; i += 2) Box("Workbench legs", bench, new Vector3(i * .89f, .48f, 0), new Vector3(.18f, .97f, .78f), "Pipe iron");
             Box("New repair sheet", utility, new Vector3(6.76f, 2.18f, 35), new Vector3(.03f, 1.5f, 2.2f), "New plaster patch", false, false);
-            Sign(utility, "REPAIR ORDER\nVALVE > PANEL > BREAKER\nLATCH A > LATCH B > RESTART", new Vector3(4.8f, 2.15f, 39.61f), 3.1f, 1.05f, .13f);
+            Sign(utility, "BOILER REPAIR\nVALVE > PANEL > ISOLATION\nLATCH A > LATCH B > RESTART", new Vector3(4.8f, 2.15f, 39.61f), 3.1f, 1.05f, .13f);
         }
 
         static void Sign(Transform parent, string words, Vector3 position, float width, float height, float letterSize = .13f, float yaw = 0)

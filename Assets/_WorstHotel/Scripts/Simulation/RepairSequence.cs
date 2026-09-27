@@ -68,7 +68,7 @@ namespace WorstHotel
             if (control == RepairControlKind.ReliefValve) return Fail("Relief is the other staff member's job.");
             if (control != ExpectedControl())
             {
-                ResetAttempt("Wrong order. Reopen panel, isolate breaker, turn latch A, latch B, then restart.");
+                ResetAttempt("Wrong order. Reopen panel, isolate boiler, turn latch A, latch B, then restart.");
                 return CommandResult.Fail(Status);
             }
             if (OperatorActorId < 0) OperatorActorId = actorId;
@@ -76,10 +76,10 @@ namespace WorstHotel
             {
                 case RepairControlKind.Panel:
                     Step = RepairStep.Breaker;
-                    return Success("Panel open. Isolate the red breaker; keep relief supported.");
+                    return Success("Panel open. Use the red boiler isolation lever; keep relief supported.");
                 case RepairControlKind.Breaker:
                     Step = RepairStep.LatchA;
-                    return Success("Breaker isolated. Turn latch A fully, then latch B.");
+                    return Success("Boiler isolated. Turn latch A fully, then latch B.");
                 case RepairControlKind.LatchA:
                 case RepairControlKind.LatchB:
                     heldLatch = control;

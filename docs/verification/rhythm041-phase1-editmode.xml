@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="25" result="Passed" total="25" passed="25" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 10:42:00Z" end-time="2026-09-27 10:42:01Z" duration="0.3979372">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="619" result="Passed" start-time="2026-09-27 10:42:00Z" end-time="2026-09-27 10:42:01Z" duration="0.397937" total="25" passed="25" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1742" name="WorstHotel.Tests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="619" result="Passed" start-time="2026-09-27 10:42:00Z" end-time="2026-09-27 10:42:01Z" duration="0.390752" total="25" passed="25" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="19500" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1743" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="619" result="Passed" start-time="2026-09-27 10:42:00Z" end-time="2026-09-27 10:42:01Z" duration="0.389750" total="25" passed="25" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1744" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="619" result="Passed" start-time="2026-09-27 10:42:00Z" end-time="2026-09-27 10:42:01Z" duration="0.389029" total="25" passed="25" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1059" name="BoilerPowerInteractionTests" fullname="WorstHotel.Tests.BoilerPowerInteractionTests" classname="WorstHotel.Tests.BoilerPowerInteractionTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-27 10:42:00Z" end-time="2026-09-27 10:42:01Z" duration="0.169675" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1065" name="AcknowledgedNaturalGuestRadiatorSelfHelpRaisesOnlyAttributedCentralDemand" fullname="WorstHotel.Tests.BoilerPowerInteractionTests.AcknowledgedNaturalGuestRadiatorSelfHelpRaisesOnlyAttributedCentralDemand" methodname="AcknowledgedNaturalGuestRadiatorSelfHelpRaisesOnlyAttributedCentralDemand" classname="WorstHotel.Tests.BoilerPowerInteractionTests" runstate="Runnable" seed="1279215496" result="Passed" start-time="2026-09-27 10:42:00Z" end-time="2026-09-27 10:42:01Z" duration="0.134355" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1063" name="BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure" fullname="WorstHotel.Tests.BoilerPowerInteractionTests.BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure" classname="WorstHotel.Tests.BoilerPowerInteractionTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.011164" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1060" name="BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure(&quot;failure&quot;)" fullname="WorstHotel.Tests.BoilerPowerInteractionTests.BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure(&quot;failure&quot;)" methodname="BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure" classname="WorstHotel.Tests.BoilerPowerInteractionTests" runstate="Runnable" seed="1680291399" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.004302" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[failure: identical electrical identities/load/power/exposure at unchanged clock; then +0.5 measured exposure.
+]]></output>
+              </test-case>
+              <test-case id="1061" name="BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure(&quot;paid restart&quot;)" fullname="WorstHotel.Tests.BoilerPowerInteractionTests.BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure(&quot;paid restart&quot;)" methodname="BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure" classname="WorstHotel.Tests.BoilerPowerInteractionTests" runstate="Runnable" seed="1736479820" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.003131" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[paid restart: identical electrical identities/load/power/exposure at unchanged clock; then +0.5 measured exposure.
+]]></output>
+              </test-case>
+              <test-case id="1062" name="BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure(&quot;maintenance start&quot;)" fullname="WorstHotel.Tests.BoilerPowerInteractionTests.BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure(&quot;maintenance start&quot;)" methodname="BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure" classname="WorstHotel.Tests.BoilerPowerInteractionTests" runstate="Runnable" seed="324662979" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.001559" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[maintenance start: identical electrical identities/load/power/exposure at unchanged clock; then +0.5 measured exposure.
+]]></output>
+              </test-case>
+            </test-suite>
+            <test-case id="1064" name="SevereRoomColdDoesNotAutomaticallySwitchOrPowerAnyPortableHeater" fullname="WorstHotel.Tests.BoilerPowerInteractionTests.SevereRoomColdDoesNotAutomaticallySwitchOrPowerAnyPortableHeater" methodname="SevereRoomColdDoesNotAutomaticallySwitchOrPowerAnyPortableHeater" classname="WorstHotel.Tests.BoilerPowerInteractionTests" runstate="Runnable" seed="1412419952" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.013569" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1345" name="ElectricityTests" fullname="WorstHotel.Tests.ElectricityTests" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.190939" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1346" name="AuthoredCircuitsAndThreeOrdinaryRoomsHaveHeadroomWithoutAHeater" fullname="WorstHotel.Tests.ElectricityTests.AuthoredCircuitsAndThreeOrdinaryRoomsHaveHeadroomWithoutAHeater" methodname="AuthoredCircuitsAndThreeOrdinaryRoomsHaveHeadroomWithoutAHeater" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="1998241212" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.021702" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1349" name="ExactCapacityAndLightBookingWithOneLoudGuestRemainSafe" fullname="WorstHotel.Tests.ElectricityTests.ExactCapacityAndLightBookingWithOneLoudGuestRemainSafe" methodname="ExactCapacityAndLightBookingWithOneLoudGuestRemainSafe" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="1134569880" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.011384" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1354" name="HeaterMovingOrBeingCarriedMigratesItsDemandWithoutGhostRoomConsumers" fullname="WorstHotel.Tests.ElectricityTests.HeaterMovingOrBeingCarriedMigratesItsDemandWithoutGhostRoomConsumers" methodname="HeaterMovingOrBeingCarriedMigratesItsDemandWithoutGhostRoomConsumers" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="1209771548" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.007839" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1356" name="HeaterOverloadCreatesASecondaryGuestComplaintAndWorseReceiptThanDistributingBookings" fullname="WorstHotel.Tests.ElectricityTests.HeaterOverloadCreatesASecondaryGuestComplaintAndWorseReceiptThanDistributingBookings" methodname="HeaterOverloadCreatesASecondaryGuestComplaintAndWorseReceiptThanDistributingBookings" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="325655018" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.081454" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Controlled electrical diagnostic (real 45s thermal response): heater 101; three rooms on A demand4.55 vs distributed demand3.70; trip after 18.20007s, secondary room102 complaint after 41.20005s. Room101 temperature start 12.724, pretrip peak 16.11179, failed end 10.43585, powered end 21.6093. Refunds 45 vs 0; room102 satisfaction 72.99986 vs 100. No forced trip or mid-run temperature override; natural schedule/balance story belongs to Phase9.
+]]></output>
+            </test-case>
+            <test-case id="1357" name="InvalidElectricalConfigurationAndResetCommandsCannotAlterHealthyPower" fullname="WorstHotel.Tests.ElectricityTests.InvalidElectricalConfigurationAndResetCommandsCannotAlterHealthyPower" methodname="InvalidElectricalConfigurationAndResetCommandsCannotAlterHealthyPower" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="724631312" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.002586" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1350" name="OverloadNeedsContinuousExposureAndRecoversWhenTheExtraConsumerIsRemoved" fullname="WorstHotel.Tests.ElectricityTests.OverloadNeedsContinuousExposureAndRecoversWhenTheExtraConsumerIsRemoved" methodname="OverloadNeedsContinuousExposureAndRecoversWhenTheExtraConsumerIsRemoved" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="1537354306" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.007290" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1352" name="PowerCutSilencesElectricLoudActivityButPreservesShowerAndRequestedActivityLoad" fullname="WorstHotel.Tests.ElectricityTests.PowerCutSilencesElectricLoudActivityButPreservesShowerAndRequestedActivityLoad" methodname="PowerCutSilencesElectricLoudActivityButPreservesShowerAndRequestedActivityLoad" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="1433868674" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.002209" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1353" name="PowerLossContributesOnceToRoomConditionAndDoesNotInventASeparateQualityPenalty" fullname="WorstHotel.Tests.ElectricityTests.PowerLossContributesOnceToRoomConditionAndDoesNotInventASeparateQualityPenalty" methodname="PowerLossContributesOnceToRoomConditionAndDoesNotInventASeparateQualityPenalty" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="1491199092" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.004617" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1347" name="ReservationsAndRoomTravelDoNotCreateConsumersAndRelocationMigratesExactlyOnce" fullname="WorstHotel.Tests.ElectricityTests.ReservationsAndRoomTravelDoNotCreateConsumersAndRelocationMigratesExactlyOnce" methodname="ReservationsAndRoomTravelDoNotCreateConsumersAndRelocationMigratesExactlyOnce" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="1126637957" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.025820" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1351" name="ResetWithoutReducingDemandRetripsWhileReducedLoadStaysPowered" fullname="WorstHotel.Tests.ElectricityTests.ResetWithoutReducingDemandRetripsWhileReducedLoadStaysPowered" methodname="ResetWithoutReducingDemandRetripsWhileReducedLoadStaysPowered" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="143120151" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.015635" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1355" name="TrippedCircuitPersistsAcrossSettlementAndNewDayButFreshSessionStartsPowered" fullname="WorstHotel.Tests.ElectricityTests.TrippedCircuitPersistsAcrossSettlementAndNewDayButFreshSessionStartsPowered" methodname="TrippedCircuitPersistsAcrossSettlementAndNewDayButFreshSessionStartsPowered" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="1580295666" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.002144" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1348" name="UniqueRequestedConsumersPersistThroughPowerCutWhileDeliveryAndHeaterHeatStop" fullname="WorstHotel.Tests.ElectricityTests.UniqueRequestedConsumersPersistThroughPowerCutWhileDeliveryAndHeaterHeatStop" methodname="UniqueRequestedConsumersPersistThroughPowerCutWhileDeliveryAndHeaterHeatStop" classname="WorstHotel.Tests.ElectricityTests" runstate="Runnable" seed="1593475643" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.004808" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1647" name="RepairSequenceTests" fullname="WorstHotel.Tests.RepairSequenceTests" classname="WorstHotel.Tests.RepairSequenceTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.006829" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1651" name="APartiallyTurnedLatchSpringsBackButASeatedLatchStaysSeated" fullname="WorstHotel.Tests.RepairSequenceTests.APartiallyTurnedLatchSpringsBackButASeatedLatchStaysSeated" methodname="APartiallyTurnedLatchSpringsBackButASeatedLatchStaysSeated" classname="WorstHotel.Tests.RepairSequenceTests" runstate="Runnable" seed="429388900" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.002385" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1653" name="ChangingRepairRolesRequiresANewPanelSequence" fullname="WorstHotel.Tests.RepairSequenceTests.ChangingRepairRolesRequiresANewPanelSequence" methodname="ChangingRepairRolesRequiresANewPanelSequence" classname="WorstHotel.Tests.RepairSequenceTests" runstate="Runnable" seed="1607984991" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.000283" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1655" name="InvalidActorOrTimeCannotAdvanceLatchTravel" fullname="WorstHotel.Tests.RepairSequenceTests.InvalidActorOrTimeCannotAdvanceLatchTravel" methodname="InvalidActorOrTimeCannotAdvanceLatchTravel" classname="WorstHotel.Tests.RepairSequenceTests" runstate="Runnable" seed="1080630940" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.000342" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1654" name="NewFailureAndExplicitInterruptionCannotReuseCompletedProgress" fullname="WorstHotel.Tests.RepairSequenceTests.NewFailureAndExplicitInterruptionCannotReuseCompletedProgress" methodname="NewFailureAndExplicitInterruptionCannotReuseCompletedProgress" classname="WorstHotel.Tests.RepairSequenceTests" runstate="Runnable" seed="718088321" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.000625" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1649" name="OneActorCannotHoldReliefThenReplaceTheRequiredPartnerSequentially" fullname="WorstHotel.Tests.RepairSequenceTests.OneActorCannotHoldReliefThenReplaceTheRequiredPartnerSequentially" methodname="OneActorCannotHoldReliefThenReplaceTheRequiredPartnerSequentially" classname="WorstHotel.Tests.RepairSequenceTests" runstate="Runnable" seed="1808515804" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.000227" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1648" name="OrderedTwoActorProcedureRestartsWithoutRestoringWear" fullname="WorstHotel.Tests.RepairSequenceTests.OrderedTwoActorProcedureRestartsWithoutRestoringWear" methodname="OrderedTwoActorProcedureRestartsWithoutRestoringWear" classname="WorstHotel.Tests.RepairSequenceTests" runstate="Runnable" seed="649630493" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.000370" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1652" name="ReleasingReliefPreventsRestartAndPressureEscapeInvalidatesAllProgress" fullname="WorstHotel.Tests.RepairSequenceTests.ReleasingReliefPreventsRestartAndPressureEscapeInvalidatesAllProgress" methodname="ReleasingReliefPreventsRestartAndPressureEscapeInvalidatesAllProgress" classname="WorstHotel.Tests.RepairSequenceTests" runstate="Runnable" seed="1360262622" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.000406" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1650" name="WrongOrderClosesAttemptAndCorrectReopeningRecovers" fullname="WorstHotel.Tests.RepairSequenceTests.WrongOrderClosesAttemptAndCorrectReopeningRecovers" methodname="WrongOrderClosesAttemptAndCorrectReopeningRecovers" classname="WorstHotel.Tests.RepairSequenceTests" runstate="Runnable" seed="1222511137" result="Passed" start-time="2026-09-27 10:42:01Z" end-time="2026-09-27 10:42:01Z" duration="0.000265" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

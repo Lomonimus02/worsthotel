@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 10:48:11Z" end-time="2026-09-27 10:48:50Z" duration="38.6292729">
+  <test-suite type="TestSuite" id="1085" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="77" result="Passed" start-time="2026-09-27 10:48:11Z" end-time="2026-09-27 10:48:50Z" duration="38.629273" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1082" name="WorstHotel.PlayModeTests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="77" result="Passed" start-time="2026-09-27 10:48:11Z" end-time="2026-09-27 10:48:50Z" duration="38.621578" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="11604" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1083" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="77" result="Passed" start-time="2026-09-27 10:48:11Z" end-time="2026-09-27 10:48:50Z" duration="38.620441" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1084" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="77" result="Passed" start-time="2026-09-27 10:48:11Z" end-time="2026-09-27 10:48:50Z" duration="38.619438" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="77" result="Passed" start-time="2026-09-27 10:48:11Z" end-time="2026-09-27 10:48:50Z" duration="38.617727" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1035" name="ContinuousDiagnosticAdvanceDiscardsOnlyAnUnrepresentableFinalRemainder" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousDiagnosticAdvanceDiscardsOnlyAnUnrepresentableFinalRemainder" methodname="ContinuousDiagnosticAdvanceDiscardsOnlyAnUnrepresentableFinalRemainder" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="95540741" result="Passed" start-time="2026-09-27 10:48:11Z" end-time="2026-09-27 10:48:13Z" duration="1.359259" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1008" name="SoloBoilerFaultAloneKeepsPowerButActualHeaterCarryAndSwitchAddsTheTripCause" fullname="WorstHotel.Tests.Phase1PlayModeTests.SoloBoilerFaultAloneKeepsPowerButActualHeaterCarryAndSwitchAddsTheTripCause" methodname="SoloBoilerFaultAloneKeepsPowerButActualHeaterCarryAndSwitchAddsTheTripCause" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="158610436" result="Passed" start-time="2026-09-27 10:48:13Z" end-time="2026-09-27 10:48:50Z" duration="37.240426" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

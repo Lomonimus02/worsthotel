@@ -1,0 +1,263 @@
+// Uses the existing partial Phase1PlayModeTests scene setup, synthetic-pad ownership and teardown.
+// Evidence: controlled fault/cold; real guest routes and one real corridor→room heater carry/switch.
+// Not evidence of spontaneous boiler failure, shelf→room travel, spontaneous player choice, or human SOLO pacing.
+using System.Collections;
+using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.TestTools;
+
+namespace WorstHotel.Tests
+{
+    public sealed partial class Phase1PlayModeTests
+    {
+        [UnityTest, Category("ContinuousOperations")]
+        public IEnumerator SoloBoilerFaultAloneKeepsPowerButActualHeaterCarryAndSwitchAddsTheTripCause()
+        {
+            ManagementUI.Instance.Close();
+            bootstrap.ConfigureSolo();
+            // This fixture owns both virtual pads. Remove only the now-unused virtual B device.
+            InputSystem.RemoveDevice(padB); padB = null;
+            var session = GameSession.Instance;
+            waitScenarioSessionConfig = Object.Instantiate(session.config);
+            waitScenarioLivingConfig = Object.Instantiate(session.config.living);
+            // LABELLED ISOLATION: hold initial quiet rest beyond this short causal experiment.
+            // Prevent unrelated TV/phone/radiator/contact state changes from obscuring source attribution.
+            // Production boiler, thermal, heater and circuit settings/capacity/timers are untouched.
+            waitScenarioLivingConfig.firstActivityDelay = 1000;
+            waitScenarioSessionConfig.living = waitScenarioLivingConfig;
+            serviceUIConfig = Object.Instantiate(session.config.services);
+            serviceUIConfig.eligibility = 0;
+            serviceUIConfig.selfResponseObserveSeconds = serviceUIConfig.toleranceSeconds = 1000;
+            waitScenarioSessionConfig.services = serviceUIConfig;
+            session.config = waitScenarioSessionConfig;
+            session.NewGame(); ManagementUI.Instance.Close();
+            yield return null; yield return null;
+            var model = session.Simulation;
+            var actor = bootstrap.Players[0];
+            Assert.That(model.ContinuousOperations && model.Electrical.ContinuousStress && bootstrap.IsSolo, Is.True);
+            Assert.That(bootstrap.Players[1], Is.Null);
+            Assert.That(Object.FindObjectsByType<FirstPersonController>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length, Is.EqualTo(1));
+            Assert.That(bootstrap.GetComponentsInChildren<AudioListener>(true).Length, Is.EqualTo(1));
+            var presentation = Object.FindAnyObjectByType<GuestPresentation>();
+            Assert.That(presentation && presentation.enabled, Is.True);
+
+            // LABELLED BOOKING/KEY ADAPTER: real short-notice dated stays in A's three rooms;
+            // only rack pickup/handoff is model-authenticated. All reception/room arrivals below
+            // must be reported by the actual walking bodies. No route callbacks are injected.
+            for (int roomId = 101; roomId <= 103; roomId++)
+            {
+                var booked = model.DebugSpawnGuest(GuestKind.Budget, roomId);
+                Assert.That(booked.Success, Is.True, booked.Message);
+            }
+            session.AdvanceTime(1.2f); // Skip only the labelled short-notice arrival delay.
+            yield return WaitForCondition(() => model.Guests.Count == 3 && model.Guests.All(g =>
+                g.Agent.State == GuestAgentState.WaitingForCheckIn), 30,
+                "All three actual bodies must reach reception before any key is handed over.");
+            foreach (var guest in model.Guests)
+                Assert.That(CheckInWithModelKeyFixture(session, 0, guest.GuestId).Success, Is.True);
+            yield return WaitForCondition(() => model.Guests.All(g => g.Agent.HasReachedRoom &&
+                g.Agent.InAssignedRoom && g.Agent.Activity == GuestActivity.QuietRest && g.Agent.ActivityStaged), 30,
+                "All three guests must actually cross their doorways and stage quiet rest in owned rooms.");
+            foreach (var guest in model.Guests)
+            {
+                Assert.That(presentation.TryGetGuestTransform(guest.GuestId, out var guestBody), Is.True);
+                var markers = presentation.roomMarkers.Single(r => r.roomId == guest.RoomId);
+                Assert.That(HorizontalDistance(guestBody.position, markers.rest.position), Is.LessThan(.12f));
+                Assert.That(session.Rooms.Single(r => r.Profile.Id == guest.RoomId).GuestId, Is.EqualTo(guest.GuestId));
+            }
+            yield return null; yield return null;
+            var devices = Object.FindObjectsByType<PortableHeater>(FindObjectsSortMode.None).OrderBy(h => h.heaterId).ToArray();
+            Assert.That(devices.Select(h => h.heaterId), Is.EqualTo(new[] { "portable-heater-1", "portable-heater-2" }));
+            var heater = devices[0]; var body = heater.Body;
+            var a = model.Electrical.Find("A"); var b = model.Electrical.Find("B");
+            float quietDemand = 3 * model.Electrical.Settings.OccupiedRoomLoad;
+            Assert.That(a.LoadOverride, Is.Null); Assert.That(b.LoadOverride, Is.Null);
+            Assert.That(a.ActualRequestedLoad, Is.EqualTo(quietDemand).Within(.001f));
+            Assert.That(quietDemand, Is.LessThan(a.Capacity));
+            Assert.That(quietDemand + heater.State.Settings.ElectricalLoad, Is.GreaterThan(a.Capacity),
+                "The real authored three-room branch plus this single real heater must exceed unmodified capacity.");
+            Assert.That(devices.All(h => !h.State.SwitchedOn && h.State.DemandedElectricalLoad == 0), Is.True);
+            var beforeFault = model.Electrical.Consumers.ToDictionary(c => c.Id);
+            Assert.That(beforeFault.Keys.All(id => id.StartsWith("guest:") || id.StartsWith("heater:")), Is.True,
+                "This source audit expects actual guests/heaters, not an undocumented boiler pump consumer.");
+            float tripSeconds = model.Electrical.Settings.TripSeconds;
+            var coldRoom = session.Rooms.Single(r => r.Profile.Id == 101);
+            WriteBoilerPowerCausalPoint("healthy-no-heater", model, coldRoom, heater);
+
+            // CONTROLLED CAUSE A: explicit boiler fault and cold-room fixture, not a natural-failure claim.
+            // Both fault and cold are applied before any staff interaction with any heater.
+            model.Boiler.ForceFailure();
+            Assert.That(model.SetRoomTemperature(101, 14).Success, Is.True);
+            session.AdvanceTime(tripSeconds + 1);
+            yield return null; yield return null;
+            WriteBoilerPowerCausalPoint("failed-cold-no-heater", model, coldRoom, heater);
+            Assert.That(model.Boiler.Failed, Is.True);
+            Assert.That(model.Guests.Single(g => g.RoomId == 101).Needs.Temperature.Severity, Is.GreaterThan(0));
+            Assert.That(coldRoom.Temperature, Is.LessThan(14), "The controlled failed boiler must actually permit room cooling.");
+            Assert.That(a.ActualRequestedLoad, Is.EqualTo(quietDemand).Within(.001f));
+            Assert.That(a.HasPower && b.HasPower && !a.Warning && !b.Warning, Is.True);
+            Assert.That(a.TripCount + b.TripCount, Is.Zero, "The same boiler fault alone must not create an electrical trip.");
+            Assert.That(devices.All(h => !h.State.SwitchedOn && h.State.EffectiveHeatOutput == 0), Is.True,
+                "Cold guests and a failed boiler cannot silently turn on either physical heater.");
+            CollectionAssert.AreEquivalent(beforeFault.Keys, model.Electrical.Consumers.Select(c => c.Id));
+            foreach (var consumer in model.Electrical.Consumers)
+            {
+                var original = beforeFault[consumer.Id];
+                Assert.That(consumer.RoomId, Is.EqualTo(original.RoomId));
+                Assert.That(consumer.CircuitId, Is.EqualTo(original.CircuitId));
+                Assert.That(consumer.RequestedLoad, Is.EqualTo(original.RequestedLoad).Within(.0001f),
+                    "Boiler fault/cold did not add or rescale consumer " + consumer.Id);
+            }
+            // LABELLED INITIAL WORLD PLACEMENT: move this existing unheld/off body to the
+            // known clear corridor approach. No utility-shelf retrieval claim is made.
+            // After acquisition neither body nor staff is repositioned until the real drop.
+            body.position = new Vector3(-.5f, .04f, 10);
+            body.rotation = Quaternion.identity;
+            body.linearVelocity = body.angularVelocity = Vector3.zero;
+            yield return PositionEmptyActorForLinen(0, new Vector3(1.1f, .08f, 10), new Vector3(-.5f, .67f, 10));
+            var door = GameObject.Find("Door101").GetComponent<DoorInteractable>();
+            var owner = model.Guests.Single(g => g.RoomId == 101);
+            yield return new WaitForFixedUpdate(); // Let the hinge bind the real occupied-room privacy state.
+            Assert.That(model.RequestStaffRoomAccess(0, 101).Success, Is.True);
+            Assert.That(door.RequestGuestOpen(owner.GuestId), Is.True);
+            // LABELLED PERMISSION ADAPTER only; actual hinged opening and doorway collision stay active.
+            yield return WaitForCondition(() => door.IsPassageOpen, 2, "The authorized actual room101 door must clear the carry route.");
+            yield return PhysicsSteps(8);
+            yield return AimSuitcasePitch(() => body.worldCenterOfMass);
+            Assert.That(actor.Interactor.Focused, Is.SameAs(heater));
+            Assert.That(actor.Interactor.FocusedPickup, Is.SameAs(heater.GetComponent<PhysicsPickup>()));
+            QueueGrab(padA, true); yield return null; yield return null;
+            QueueGrab(padA, false); yield return null;
+            Assert.That(actor.Interactor.HeldBody, Is.SameAs(body));
+            Assert.That(body.GetComponent<ConfigurableJoint>(), Is.Not.Null);
+            Assert.That(body.isKinematic, Is.False);
+            yield return AimSuitcasePitch(() => actor.PlayerCamera.transform.position + actor.transform.forward * 4);
+            float carryDeadline = Time.realtimeSinceStartup + 5;
+            while (actor.transform.position.x >= -2.9f && Time.realtimeSinceStartup < carryDeadline)
+            {
+                Assert.That(actor.Interactor.HeldBody, Is.SameAs(body), "The actual carry joint must persist through the doorway.");
+                Assert.That(door.IsPassageOpen, Is.True);
+                InputSystem.QueueStateEvent(padA, new GamepadState { leftStick = Vector2.up });
+                yield return null;
+            }
+            QueueGrab(padA, false); yield return PhysicsSteps(30);
+            Assert.That(actor.transform.position.x, Is.LessThan(-2.9f));
+            Assert.That(actor.Interactor.HeldBody, Is.SameAs(body));
+            Assert.That(heater.roomVolumes.ResolveRoom(heater.placementCollider.bounds), Is.EqualTo(101));
+            Assert.That(heater.IsCarried, Is.True);
+            Assert.That(heater.State.RoomId, Is.Null, "A wholly in-room but still carried tool remains disconnected.");
+            Assert.That(heater.State.DemandedElectricalLoad, Is.Zero);
+            Assert.That(a.ActualRequestedLoad, Is.EqualTo(quietDemand).Within(.001f));
+            QueueGrab(padA, true); yield return null; yield return null;
+            QueueGrab(padA, false);
+            yield return WaitForCondition(() => !heater.IsCarried && actor.Interactor.HeldBody == null &&
+                heater.State.RoomId == 101 && body.linearVelocity.sqrMagnitude < .04f &&
+                Vector3.Distance(heater.transform.TransformPoint(heater.placementCollider.center), heater.placementCollider.bounds.center) < .05f,
+                8, "The actual released dynamic heater must settle wholly inside room101, with interpolation caught up.");
+            Assert.That(heater.State.SwitchedOn, Is.False);
+            Assert.That(a.ActualRequestedLoad, Is.EqualTo(quietDemand).Within(.001f));
+
+            // CAUSE B: actual empty employee viewpoint/input now hits the placed heater's switch.
+            // This is the sole action that adds the new requested consumer; no model switch API is used.
+            yield return FaceStation(actor, padA, heater, heater.placementCollider.bounds.center);
+            Assert.That(actor.Interactor.Focused, Is.SameAs(heater),
+                "The warning must be available on the actual focused heater before switching it on.");
+            Assert.That(actor.Interactor.HeldBody, Is.Null);
+            string beforePrompt = JsonUtility.ToJson(model.CaptureSnapshot(9201, 1));
+            string switchPrompt = heater.GetPrompt(actor.Interactor);
+            Assert.That(JsonUtility.ToJson(model.CaptureSnapshot(9201, 1)), Is.EqualTo(beforePrompt),
+                "Reading the pre-switch load warning must not toggle a device or reserve fictional circuit load.");
+            Assert.That(switchPrompt, Does.Contain(coldRoom.Profile.Id.ToString()));
+            Assert.That(Regex.IsMatch(switchPrompt, @"\b" + Regex.Escape(a.Id) + @"\b"), Is.True,
+                "The prompt must name the actual branch, not infer one from the employee's location.");
+            Assert.That(switchPrompt, Does.Contain(a.RequestedLoad.ToString("0.##")));
+            Assert.That(switchPrompt, Does.Contain(a.Capacity.ToString("0.##")));
+            Assert.That(switchPrompt, Does.Contain(heater.State.Settings.ElectricalLoad.ToString("0.##")));
+            Assert.That(switchPrompt.ToLowerInvariant(), Does.Contain("overload"),
+                "Measured remaining headroom is smaller than this heater's added demand; warn before the real switch.");
+            Assert.That(a.Reserve, Is.LessThan(heater.State.Settings.ElectricalLoad));
+            Assert.That(!heater.State.SwitchedOn && a.HasPower && !a.Warning, Is.True);
+            WriteBoilerPowerCausalPoint("placed-off-pre-switch", model, coldRoom, heater, switchPrompt);
+            QueueUse(padA, true); yield return null; yield return null;
+            QueueUse(padA, false); yield return null; yield return null;
+            WriteBoilerPowerCausalPoint("actual-switch-on", model, coldRoom, heater);
+            Assert.That(heater.State.SwitchedOn && heater.State.Powered, Is.True);
+            Assert.That(heater.State.EffectiveHeatOutput, Is.EqualTo(heater.State.Settings.HeatOutput));
+            float overloadDemand = quietDemand + heater.State.Settings.ElectricalLoad;
+            Assert.That(a.ActualRequestedLoad, Is.EqualTo(overloadDemand).Within(.001f));
+            var source = model.Electrical.Consumers.Single(c => c.Id == "heater:" + heater.heaterId);
+            Assert.That(source.RoomId, Is.EqualTo(101)); Assert.That(source.CircuitId, Is.EqualTo("A"));
+            Assert.That(source.RequestedLoad, Is.EqualTo(heater.State.Settings.ElectricalLoad));
+            var panel = Object.FindAnyObjectByType<ElectricalPanelPresentation>();
+            var view = panel.circuits.Single(c => c.circuitId == "A");
+            yield return WaitForCondition(() => view.consumers.text.Contains("HEATER 101"), 2,
+                "The physical circuit panel must identify the actual heater and room as the added consumer.");
+            float temperatureBeforePoweredInterval = coldRoom.Temperature;
+            session.AdvanceTime(model.Electrical.Settings.WarningSeconds + .25f);
+            yield return null; yield return null;
+            WriteBoilerPowerCausalPoint("overload-warning", model, coldRoom, heater);
+            Assert.That(a.Warning && !a.Tripped, Is.True, "Ordinary overload must show a warning before its actual trip.");
+            Assert.That(view.readout.text, Does.Contain("OVERLOAD"));
+            Assert.That(coldRoom.Temperature, Is.GreaterThan(temperatureBeforePoweredInterval),
+                "The powered heater adds real local warmth even though the central boiler is still failed.");
+            session.AdvanceTime(tripSeconds - a.OverloadSeconds + .25f);
+            yield return null; yield return null;
+            WriteBoilerPowerCausalPoint("actual-circuit-trip", model, coldRoom, heater);
+            Assert.That(a.Tripped && !a.HasPower, Is.True);
+            Assert.That(a.TripCount, Is.EqualTo(1));
+            Assert.That(a.ActualRequestedLoad, Is.EqualTo(overloadDemand).Within(.001f));
+            Assert.That(a.ActualDeliveredLoad, Is.Zero);
+            Assert.That(heater.State.SwitchedOn && !heater.State.Powered, Is.True);
+            Assert.That(heater.State.EffectiveHeatOutput, Is.Zero);
+            Assert.That(heater.statusLabel.text, Does.Contain("NO POWER"));
+            Assert.That(view.consumers.text, Does.Contain("HEATER 101"));
+            Assert.That(b.HasPower && b.TripCount == 0, Is.True);
+            Assert.That(devices[1].State.SwitchedOn, Is.False);
+            float temperatureAfterTrip = coldRoom.Temperature;
+            session.AdvanceTime(8);
+            yield return null; yield return null;
+            WriteBoilerPowerCausalPoint("after-trip-cooling", model, coldRoom, heater);
+            Assert.That(coldRoom.Temperature, Is.LessThan(temperatureAfterTrip),
+                "When A trips, the real heater loses output and the failed-boiler room resumes cooling.");
+            Assert.That(model.Boiler.Failed, Is.True, "No repair or secondary forced failure is hidden in the causal trace.");
+            Assert.That(Time.timeScale, Is.EqualTo(1));
+            LogCausal("CAUSAL RESULT: same boiler fault; actual carry+placement+switch added " + source.Id +
+                " on A at room101; requested=" + overloadDemand + "; warning→trip1; requested retained/delivered0; heater heat0; B stays powered.");
+            LogAssert.NoUnexpectedReceived();
+        }
+
+        static void LogCausal(string message)
+        {
+            LogAssert.Expect(LogType.Log, message);
+            Debug.Log(message);
+        }
+
+        static void WriteBoilerPowerCausalPoint(string phase, HotelSimulation model, RoomState room,
+            PortableHeater heater, string observedPrompt = null)
+        {
+            var a = model.Electrical.Find("A"); var b = model.Electrical.Find("B");
+            var state = heater.State;
+            string consumers = string.Join("; ", model.Electrical.Consumers.OrderBy(source => source.Id).Select(source =>
+                string.Format(CultureInfo.InvariantCulture, "{0}@room={1}/branch={2}:requested={3:F3},delivered={4:F3}",
+                    source.Id, source.RoomId?.ToString() ?? "none", source.CircuitId ?? "none", source.RequestedLoad, source.DeliveredLoad)));
+            LogCausal(string.Format(CultureInfo.InvariantCulture,
+                "CAUSAL phase={0} sim={1:F3}s day={2} time={3} " +
+                "boilerFailed={4} boilerOutput={5:F3} boilerLoad={6:F3} boilerStress={7:F3} boilerCondition={8:F3} pressure={9:F3} " +
+                "A(requested={10:F3},delivered={11:F3},capacity={12:F3},headroom={13:F3},stress={14:F3},overloadSeconds={15:F3},warning={16},trips={17}) " +
+                "B(requested={18:F3},delivered={19:F3},trips={20}) " +
+                "heater(id={21},room={22},on={23},carried={24},powered={25},demand={26:F3},heat={27:F3}) room{28}Temperature={29:F3}C consumers=[{30}] prompt=[{31}]",
+                phase, model.Elapsed, model.CalendarDay, model.Calendar.DisplayTime,
+                model.Boiler.Failed, model.Boiler.HeatingOutput, model.Boiler.Load, model.Boiler.Stress01, model.Boiler.Condition, model.Boiler.Pressure,
+                a.ActualRequestedLoad, a.ActualDeliveredLoad, a.Capacity, a.Reserve, a.Stress01, a.OverloadSeconds, a.Warning, a.TripCount,
+                b.ActualRequestedLoad, b.ActualDeliveredLoad, b.TripCount,
+                heater.heaterId, state.RoomId?.ToString() ?? "none", state.SwitchedOn, heater.IsCarried, state.Powered,
+                state.DemandedElectricalLoad, state.EffectiveHeatOutput, room.Profile.Id, room.Temperature, consumers,
+                observedPrompt?.Replace('\n', '|') ?? "not sampled"));
+        }
+    }
+}

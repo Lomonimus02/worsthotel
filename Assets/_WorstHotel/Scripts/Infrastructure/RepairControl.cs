@@ -36,7 +36,7 @@ namespace WorstHotel
             if (!controller || !controller.CanUseControls) return "No active service fault. Restore wear with between-day maintenance.";
             if (controller.SoloAssistEnabled && kind == RepairControlKind.ReliefValve)
                 return controller.SoloLatchSecondsRemaining > 0 ?
-                    "Valve catch secured · " + Mathf.CeilToInt(controller.SoloLatchSecondsRemaining) + "s left\nRelease and complete panel → breaker → A → B → restart" :
+                    "Valve catch secured · " + Mathf.CeilToInt(controller.SoloLatchSecondsRemaining) + "s left\nPanel → boiler isolation → A → B → restart" :
                     "Hold relief in green for " + controller.SoloValveRequiredHoldSeconds.ToString("0.#") + "s to secure catch\nSafe hold " + Mathf.RoundToInt(controller.SoloValveHoldProgress * 100) + "% · temporary SOLO support";
             if (!controller.SoloAssistEnabled && kind != RepairControlKind.ReliefValve && actor != null && controller.ReliefActorId == actor.ActorId)
                 return "Keep holding relief; your partner operates these controls";
@@ -44,7 +44,7 @@ namespace WorstHotel
             {
                 case RepairControlKind.ReliefValve: return "Hold relief valve — keep pressure inside the green band";
                 case RepairControlKind.Panel: return "Open hinged service panel";
-                case RepairControlKind.Breaker: return "Isolate red breaker (after panel)";
+                case RepairControlKind.Breaker: return "Isolate boiler with red lever\nRoom circuits A/B stay unchanged";
                 case RepairControlKind.LatchA: return "Turn latch A fully (hold); an unseated latch springs back";
                 case RepairControlKind.LatchB: return "Turn latch B fully (hold); keep relief supported";
                 case RepairControlKind.Restart:

@@ -157,7 +157,15 @@ namespace WorstHotel
             float step = 1f / Settings.TickRate;
             int ticks = 0;
             while (seconds > 0 && ticks++ < MaximumDiagnosticTicks && (Phase == DayPhase.Service || Phase == DayPhase.Planning))
-            { float delta = Mathf.Min(seconds, step); Tick(delta); seconds -= delta; }
+            {
+                float delta = Mathf.Min(seconds, step);
+                // Subtracting fixed float steps can leave a positive fraction smaller than
+                // this clock's precision. Do not submit a zero-progress diagnostic tick.
+                // The model still rejects unrepresentable direct calls; no clock jump is used.
+                float nextTime = (float)(Simulation.Elapsed + delta);
+                if (Simulation.ContinuousOperations && nextTime <= Simulation.Elapsed) break;
+                Tick(delta); seconds -= delta;
+            }
             if (seconds > 0 && ticks >= MaximumDiagnosticTicks)
                 ReportCommand(CommandResult.Fail("Developer advance reached its fixed-tick limit."));
         }
@@ -175,6 +183,8 @@ namespace WorstHotel
             {
                 float delta = Mathf.Min(step, Mathf.Min(budget, Simulation.Remaining));
                 if (delta <= 0) break;
+                float nextTime = (float)(Simulation.Elapsed + delta);
+                if (Simulation.ContinuousOperations && nextTime <= Simulation.Elapsed) break;
                 Tick(delta); budget -= delta;
             }
             accumulator = 0;

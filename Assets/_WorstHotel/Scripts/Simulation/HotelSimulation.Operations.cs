@@ -43,7 +43,9 @@ namespace WorstHotel
             if (delta > Math.Min((double)Operations.SecondsPerDay * 32, 86400d))
                 throw new ArgumentOutOfRangeException(nameof(delta), "Advance long intervals in bounded hotel steps.");
             float target = Elapsed + delta;
-            if (!Number.IsFinite(target) || target <= Elapsed) throw new ArgumentOutOfRangeException(nameof(delta));
+            if (!Number.IsFinite(target) || target <= Elapsed)
+                throw new ArgumentOutOfRangeException(nameof(delta), "Hotel step must advance a finite clock: elapsed=" +
+                    Elapsed.ToString("R") + ", delta=" + delta.ToString("R") + ", target=" + target.ToString("R"));
             while (Elapsed < target)
             {
                 CloseDueOperatingReports();

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="4" result="Failed(Child)" total="4" passed="3" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 10:49:52Z" end-time="2026-09-27 10:51:00Z" duration="68.324359">
+  <test-suite type="TestSuite" id="1085" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="77" result="Failed" site="Child" start-time="2026-09-27 10:49:52Z" end-time="2026-09-27 10:51:00Z" duration="68.324359" total="4" passed="3" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1082" name="WorstHotel.PlayModeTests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="77" result="Failed" site="Child" start-time="2026-09-27 10:49:52Z" end-time="2026-09-27 10:51:00Z" duration="68.315923" total="4" passed="3" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="25736" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1083" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="77" result="Failed" site="Child" start-time="2026-09-27 10:49:52Z" end-time="2026-09-27 10:51:00Z" duration="68.314575" total="4" passed="3" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1084" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="77" result="Failed" site="Child" start-time="2026-09-27 10:49:52Z" end-time="2026-09-27 10:51:00Z" duration="68.313546" total="4" passed="3" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="77" result="Failed" site="Child" start-time="2026-09-27 10:49:52Z" end-time="2026-09-27 10:51:00Z" duration="68.311658" total="4" passed="3" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="1035" name="ContinuousDiagnosticAdvanceDiscardsOnlyAnUnrepresentableFinalRemainder" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousDiagnosticAdvanceDiscardsOnlyAnUnrepresentableFinalRemainder" methodname="ContinuousDiagnosticAdvanceDiscardsOnlyAnUnrepresentableFinalRemainder" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="820728222" result="Passed" start-time="2026-09-27 10:49:52Z" end-time="2026-09-27 10:49:53Z" duration="1.385314" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1026" name="ContinuousSoloPhysicalRepairPaysOnceAndLeavesEmergencyPatchState" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousSoloPhysicalRepairPaysOnceAndLeavesEmergencyPatchState" methodname="ContinuousSoloPhysicalRepairPaysOnceAndLeavesEmergencyPatchState" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="14954754" result="Passed" start-time="2026-09-27 10:49:53Z" end-time="2026-09-27 10:50:16Z" duration="22.679426" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1008" name="SoloBoilerFaultAloneKeepsPowerButActualHeaterCarryAndSwitchAddsTheTripCause" fullname="WorstHotel.Tests.Phase1PlayModeTests.SoloBoilerFaultAloneKeepsPowerButActualHeaterCarryAndSwitchAddsTheTripCause" methodname="SoloBoilerFaultAloneKeepsPowerButActualHeaterCarryAndSwitchAddsTheTripCause" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1012404512" result="Failed" start-time="2026-09-27 10:50:16Z" end-time="2026-09-27 10:50:55Z" duration="38.930103" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <failure>
+                <message><![CDATA[Unhandled log message: '[Log] CAUSAL phase=healthy-no-heater sim=33.400s day=1 time=09:06 boilerFailed=False boilerOutput=1.000 boilerLoad=2.458 boilerStress=0.000 boilerCondition=84.939 pressure=38.763 A(requested=2.550,delivered=2.550,capacity=4.000,headroom=1.450,stress=0.000,overloadSeconds=0.000,warning=False,trips=0) B(requested=0.000,delivered=0.000,trips=0) heater(id=portable-heater-1,room=none,on=False,carried=False,powered=False,demand=0.000,heat=0.000) room101Temperature=21.524C consumers=[guest:stay-1-debug1@room=101/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug2@room=102/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug3@room=103/branch=A:requested=0.850,delivered=0.850; heater:portable-heater-1@room=none/branch=none:requested=0.000,delivered=0.000; heater:portable-heater-2@room=none/branch=none:requested=0.000,delivered=0.000] prompt=[not sampled]'. Use UnityEngine.TestTools.LogAssert.Expect]]></message>
+                <stack-trace><![CDATA[WorstHotel.Tests.Phase1PlayModeTests:WriteBoilerPowerCausalPoint (string,WorstHotel.HotelSimulation,WorstHotel.RoomState,WorstHotel.PortableHeater,string) (at Assets/_WorstHotel/Tests/PlayMode/BoilerPowerCausalTracePlayModeTests.cs:242)
+WorstHotel.Tests.Phase1PlayModeTests/<SoloBoilerFaultAloneKeepsPowerButActualHeaterCarryAndSwitchAddsTheTripCause>d__3:MoveNext () (at Assets/_WorstHotel/Tests/PlayMode/BoilerPowerCausalTracePlayModeTests.cs:90)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+]]></stack-trace>
+              </failure>
+              <output><![CDATA[CAUSAL phase=healthy-no-heater sim=33.400s day=1 time=09:06 boilerFailed=False boilerOutput=1.000 boilerLoad=2.458 boilerStress=0.000 boilerCondition=84.939 pressure=38.763 A(requested=2.550,delivered=2.550,capacity=4.000,headroom=1.450,stress=0.000,overloadSeconds=0.000,warning=False,trips=0) B(requested=0.000,delivered=0.000,trips=0) heater(id=portable-heater-1,room=none,on=False,carried=False,powered=False,demand=0.000,heat=0.000) room101Temperature=21.524C consumers=[guest:stay-1-debug1@room=101/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug2@room=102/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug3@room=103/branch=A:requested=0.850,delivered=0.850; heater:portable-heater-1@room=none/branch=none:requested=0.000,delivered=0.000; heater:portable-heater-2@room=none/branch=none:requested=0.000,delivered=0.000] prompt=[not sampled]
+CAUSAL phase=failed-cold-no-heater sim=52.400s day=1 time=09:44 boilerFailed=True boilerOutput=0.100 boilerLoad=2.458 boilerStress=0.000 boilerCondition=84.939 pressure=120.000 A(requested=2.550,delivered=2.550,capacity=4.000,headroom=1.450,stress=0.000,overloadSeconds=0.000,warning=False,trips=0) B(requested=0.000,delivered=0.000,trips=0) heater(id=portable-heater-1,room=none,on=False,carried=False,powered=False,demand=0.000,heat=0.000) room101Temperature=12.726C consumers=[guest:stay-1-debug1@room=101/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug2@room=102/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug3@room=103/branch=A:requested=0.850,delivered=0.850; heater:portable-heater-1@room=none/branch=none:requested=0.000,delivered=0.000; heater:portable-heater-2@room=none/branch=none:requested=0.000,delivered=0.000] prompt=[not sampled]
+CAUSAL phase=placed-off-pre-switch sim=58.000s day=1 time=09:56 boilerFailed=True boilerOutput=0.100 boilerLoad=2.458 boilerStress=0.000 boilerCondition=84.939 pressure=120.000 A(requested=2.550,delivered=2.550,capacity=4.000,headroom=1.450,stress=0.000,overloadSeconds=0.000,warning=False,trips=0) B(requested=0.000,delivered=0.000,trips=0) heater(id=portable-heater-1,room=101,on=False,carried=False,powered=True,demand=0.000,heat=0.000) room101Temperature=12.442C consumers=[guest:stay-1-debug1@room=101/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug2@room=102/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug3@room=103/branch=A:requested=0.850,delivered=0.850; heater:portable-heater-1@room=101/branch=A:requested=0.000,delivered=0.000; heater:portable-heater-2@room=none/branch=none:requested=0.000,delivered=0.000] prompt=[Switch on · Room 101 · Circuit A|Load 2.55/4 · +2 would overload]
+CAUSAL phase=actual-switch-on sim=58.200s day=1 time=09:56 boilerFailed=True boilerOutput=0.100 boilerLoad=2.458 boilerStress=0.000 boilerCondition=84.939 pressure=120.000 A(requested=4.550,delivered=4.550,capacity=4.000,headroom=-0.550,stress=0.000,overloadSeconds=0.000,warning=False,trips=0) B(requested=0.000,delivered=0.000,trips=0) heater(id=portable-heater-1,room=101,on=True,carried=False,powered=True,demand=2.000,heat=14.000) room101Temperature=12.432C consumers=[guest:stay-1-debug1@room=101/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug2@room=102/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug3@room=103/branch=A:requested=0.850,delivered=0.850; heater:portable-heater-1@room=101/branch=A:requested=2.000,delivered=2.000; heater:portable-heater-2@room=none/branch=none:requested=0.000,delivered=0.000] prompt=[not sampled]
+CAUSAL phase=overload-warning sim=64.450s day=1 time=10:08 boilerFailed=True boilerOutput=0.100 boilerLoad=2.458 boilerStress=0.000 boilerCondition=84.939 pressure=120.000 A(requested=4.550,delivered=4.550,capacity=4.000,headroom=-0.550,stress=0.347,overloadSeconds=6.250,warning=True,trips=0) B(requested=0.000,delivered=0.000,trips=0) heater(id=portable-heater-1,room=101,on=True,carried=False,powered=True,demand=2.000,heat=14.000) room101Temperature=13.971C consumers=[guest:stay-1-debug1@room=101/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug2@room=102/branch=A:requested=0.850,delivered=0.850; guest:stay-1-debug3@room=103/branch=A:requested=0.850,delivered=0.850; heater:portable-heater-1@room=101/branch=A:requested=2.000,delivered=2.000; heater:portable-heater-2@room=none/branch=none:requested=0.000,delivered=0.000] prompt=[not sampled]
+CAUSAL phase=actual-circuit-trip sim=76.450s day=1 time=10:32 boilerFailed=True boilerOutput=0.100 boilerLoad=2.458 boilerStress=0.000 boilerCondition=84.939 pressure=120.000 A(requested=4.550,delivered=0.000,capacity=4.000,headroom=-0.550,stress=1.000,overloadSeconds=18.000,warning=False,trips=1) B(requested=0.000,delivered=0.000,trips=0) heater(id=portable-heater-1,room=101,on=True,carried=False,powered=False,demand=2.000,heat=0.000) room101Temperature=16.265C consumers=[guest:stay-1-debug1@room=101/branch=A:requested=0.850,delivered=0.000; guest:stay-1-debug2@room=102/branch=A:requested=0.850,delivered=0.000; guest:stay-1-debug3@room=103/branch=A:requested=0.850,delivered=0.000; heater:portable-heater-1@room=101/branch=A:requested=2.000,delivered=0.000; heater:portable-heater-2@room=none/branch=none:requested=0.000,delivered=0.000] prompt=[not sampled]
+CAUSAL phase=after-trip-cooling sim=84.450s day=1 time=10:48 boilerFailed=True boilerOutput=0.100 boilerLoad=2.458 boilerStress=0.000 boilerCondition=84.939 pressure=120.000 A(requested=4.550,delivered=0.000,capacity=4.000,headroom=-0.550,stress=1.000,overloadSeconds=18.000,warning=False,trips=1) B(requested=0.000,delivered=0.000,trips=0) heater(id=portable-heater-1,room=101,on=True,carried=False,powered=False,demand=2.000,heat=0.000) room101Temperature=15.294C consumers=[guest:stay-1-debug1@room=101/branch=A:requested=0.850,delivered=0.000; guest:stay-1-debug2@room=102/branch=A:requested=0.850,delivered=0.000; guest:stay-1-debug3@room=103/branch=A:requested=0.850,delivered=0.000; heater:portable-heater-1@room=101/branch=A:requested=2.000,delivered=0.000; heater:portable-heater-2@room=none/branch=none:requested=0.000,delivered=0.000] prompt=[not sampled]
+CAUSAL RESULT: same boiler fault; actual carry+placement+switch added heater:portable-heater-1 on A at room101; requested=4.55; warning→trip1; requested retained/delivered0; heater heat0; B stays powered.
+]]></output>
+            </test-case>
+            <test-case id="1040" name="TwoAuthoredHeatersOverloadProductionCircuitAndActualResetRetripsUntilOneIsSwitchedOff" fullname="WorstHotel.Tests.Phase1PlayModeTests.TwoAuthoredHeatersOverloadProductionCircuitAndActualResetRetripsUntilOneIsSwitchedOff" methodname="TwoAuthoredHeatersOverloadProductionCircuitAndActualResetRetripsUntilOneIsSwitchedOff" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="737153677" result="Passed" start-time="2026-09-27 10:50:55Z" end-time="2026-09-27 10:51:00Z" duration="5.290556" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
