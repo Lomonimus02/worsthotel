@@ -4,7 +4,7 @@ The right-hand lobby wall now has a real STAFF ONLY doorway leading to a separat
 
 The old plant space is now a continuous guest gallery to North Wing 107–110. Guest room positions, routes, restoration purchase and luggage/cart behaviour are retained. Lobby seating is regrouped to clear the staff entrance. Door openings to the service wing, laundry and boiler room are wider than the original guest doors. Housekeeping directions point to the new laundry room. The LAN compatibility identifier changes so older maps cannot join this layout.
 
-Scene/C# compilation and rendered visual inspection covered the lobby entrance, service corridor, plant, electrical cabinet, laundry, sleeping room and guest connection. That review found and corrected a folding-table/shelf intersection, obscured entrance signage and seating in front of the service approach. No automated tests or harnesses were created or run. First-person traversal and complete repair/carry/sleep interactions still need a manual gameplay pass.
+Scene/C# compilation and rendered visual inspection covered the lobby entrance, service corridor, plant, electrical cabinet, laundry, sleeping room and guest connection. That review found and corrected a folding-table/shelf intersection, obscured entrance signage and seating in front of the service approach. Windows 0.5.2 built and opened in SOLO; the player was observed at the opened A/B cabinet and confirmed free passage through STAFF ONLY and the boiler doorway. No automated tests or harnesses were created or run. Complete repair/carry/sleep interactions were not exercised in this walkthrough.
 
 ## Prototype 0.5.1 — lighting and North Gallery correction
 

@@ -20,4 +20,6 @@ Boiler parts, six repair controls, pressure/capacity displays, steam/spark ancho
 
 Used the existing scene screenshot command with viewpoints for this layout. Inspected seven rendered views. Corrected the observed folding-table/shelf overlap, entrance approach, signage/frame overlap, and breaker grips protruding through the cabinet cover. No test runner or new test infrastructure.
 
-Gameplay traversal, carrying through the doors, repairs, and sleeping are not yet manually verified. The earlier 0.5.1 blackout/wing walkthrough was interrupted and is not retroactively marked complete by these scene renders.
+Windows 0.5.2 built successfully and was opened in SOLO. Computer Use observed the player in the new boiler room beside the opened A/B cabinet. The user confirmed that the STAFF ONLY entrance and boiler-room doorway could be traversed freely without getting stuck. The current player log contained no matching managed exception or shadow-overflow messages during this brief review.
+
+Carrying through the doors, the complete repair sequence, and sleeping were not exercised during this walkthrough. The earlier 0.5.1 blackout/wing walkthrough was interrupted and is not retroactively marked complete by these scene renders. The packaged ZIP is `Builds/TheWorstHotelEver-0.5.2-Windows.zip`; the local launcher is `Играть 0.5.2.lnk`.
