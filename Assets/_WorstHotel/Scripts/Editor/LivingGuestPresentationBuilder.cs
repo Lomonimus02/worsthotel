@@ -16,11 +16,11 @@ namespace WorstHotel.Editor
                 presentation.receptionPlaces[i] = Group("ReceptionWait" + (i + 1), anchors,
                     new Vector3(-2.8f - i * 1.05f, .01f, 1.30f)).transform;
 
-            presentation.roomMarkers = new GuestRoomMarkers[6];
-            for (int i = 0; i < 6; i++)
+            presentation.roomMarkers = new GuestRoomMarkers[HotelLayout.RoomCount];
+            for (int i = 0; i < HotelLayout.RoomCount; i++)
             {
                 int id = 101 + i, side = i % 2 == 0 ? -1 : 1;
-                float z = 10 + i / 2 * 7;
+                float z = HotelLayout.RoomZ(i);
                 var room = GameObject.Find("Room" + id).transform;
                 var markers = new GuestRoomMarkers
                 {

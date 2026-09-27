@@ -11,7 +11,7 @@ namespace WorstHotel.Editor
         public static void AddRoomPlaques()
         {
             RepairMissingRenderResources();
-            for (int id = 101; id <= 106; id++)
+            for (int id = 101; id <= 110; id++)
             {
                 var door = GameObject.Find("Door" + id);
                 if (door == null) throw new System.InvalidOperationException("Missing generated door " + id);

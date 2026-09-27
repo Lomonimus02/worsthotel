@@ -31,7 +31,7 @@ namespace WorstHotel
             Range(p.Temperature,-100,100);Range(p.PerceivedTemperature,-100,108);Unit(p.Noise);
             foreach (int count in new[] { m.ServicesRequested,m.ServicesFulfilled,m.ServicesDeclined,m.PromisesKept,m.PromisesBroken,m.BlanketsDelivered,m.LuggageStored })
                 Require(count>=0 && count<=10000,"Invalid service memory.");
-            var sources=Array(p.NoiseSources,6);Unique(sources.Select(n=>n.SourceEntityId));
+            var sources=Array(p.NoiseSources,10);Unique(sources.Select(n=>n.SourceEntityId));
             foreach(var source in sources)NoiseSource(source,rooms,guests);
             // JsonUtility expands a null nested class into a default object on the wire.
             if(p.HasTemperatureCause){Require(p.TemperatureCause!=null,"Missing perceived temperature cause.");Cause(p.TemperatureCause,rooms,guests);}

@@ -1,3 +1,11 @@
+## Prototype 0.5 — physicality corrections and growth
+
+Guests yield, stumble or fall with swept directional movement; accepted luggage help grants temporary room access and delivery now completes beside the wardrobe inside the room. The brass cart is parked visibly on the right of the corridor entrance. The unbaked scene previously had strong permanent ambient/directional light, shadowless mixed practicals and a bright cached reflection; practicals now cast realtime shadows and switch with their A/B zone, with only weak ambient visibility remaining.
+
+Reception → Renovation ledger: boiler capacity +75% ($1,000), one A/B branch +2.5 units ($800), permanent Room 102 window insulation ($450), and North Wing restoration ($1,600). Starting cash $1,600; operating cost $350/day. Restoration physically removes the barrier beyond the plant hall and enables rooms 107–110, their keys and existing guest/turnover/thermal/electrical systems. New rooms remain closed for sale until selected. Twelve ordinary daily enquiries support the expanded hotel without changing existing guest demand. Purchases persist for the session and replicate through LAN20/schema17. No new save framework.
+
+Compiled and built Windows 0.5. One brief manual SOLO attempt confirmed startup and automatic booking creation, with no managed exceptions recorded. Computer Use menu clicks worked but game keyboard input was unreliable; physical reactions, delivery, cart handling, blackout comparison, purchases and the complete expanded stay cycle are NOT manually verified. Final cart visibility/ambient adjustments were compiled into the release. No automated tests, test scenes or harnesses were added or run.
+
 ## Prototype 0.4.2 — physical hotel and luggage operations
 
 Added guest collision and brief impact recovery; owner-labelled arrival luggage, proactive assistance/storage, physical storage and doorstep delivery; a heavy brass cart with detachable cargo stabilization. Circuit A now powers the west side (101/103/105), B the east (102/104/106), including corridor/lobby/utility lamps. Existing host authority carries luggage/cart poses, guest recovery and service state. No new automated tests or harnesses.

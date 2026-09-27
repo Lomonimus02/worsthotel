@@ -80,6 +80,8 @@ namespace WorstHotel
         public int BasicMaintenanceCost { get; }
         public int BoilerUpgradeCost { get; }
         public int ElectricalUpgradeCost { get; }
+        public int InsulationUpgradeCost { get; }
+        public int WingRestorationCost { get; }
         public float ProperRepairCondition { get; }
         public float CompensationRate { get; }
         public float CompensationGoodwill { get; }
@@ -108,13 +110,14 @@ namespace WorstHotel
             float maxExpectation = 1.75f, float qualityPenaltyScale = 60, float patiencePenalty = 20,
             float initialReputation = 60, float reputationTarget = 70, float reputationChangeFactor = 0.15f,
             float coldSeverityDegrees = 4, float degradedSeverity = 0.15f, float brokenSeverity = 0.5f, float dirtySeverity = 0.3f,
-            int boilerUpgradeCost = 1800, int electricalUpgradeCost = 1200, int basicMaintenanceCost = 350)
+            int boilerUpgradeCost = 1800, int electricalUpgradeCost = 1200, int basicMaintenanceCost = 350,
+            int insulationUpgradeCost = 450, int wingRestorationCost = 1600)
         {
             var values = new[] { cheapPatchCondition, properRepairCondition, compensationRate, compensationGoodwill,
                 severeRefundThreshold, severeRefundRate, partialRefundThreshold, partialRefundRate, expectationSlope,
                 minExpectation, maxExpectation, qualityPenaltyScale, patiencePenalty, initialReputation, reputationTarget,
                 reputationChangeFactor, coldSeverityDegrees, degradedSeverity, brokenSeverity, dirtySeverity };
-            if (values.Any(value => !Number.IsFinite(value) || value < 0) || startingCash < 0 || dailyOperatingCost < 0 ||
+            if (values.Any(value => !Number.IsFinite(value) || value < 0) || startingCash < 0 || dailyOperatingCost < 0 || insulationUpgradeCost < 0 || wingRestorationCost < 0 ||
                 minPrice <= 0 || maxPrice < minPrice || priceStep <= 0 || cheapPatchCost < 0 || properRepairCost < 0 || boilerUpgradeCost < 0 || electricalUpgradeCost < 0 || basicMaintenanceCost < 0 ||
                 compensationRate > 1 || severeRefundRate > 1 || partialRefundRate > 1 || severeRefundThreshold >= partialRefundThreshold ||
                 coldSeverityDegrees <= 0 || maxExpectation < minExpectation || properRepairCondition > 100 || initialReputation > 100)
@@ -124,6 +127,7 @@ namespace WorstHotel
             ProperRepairCost = properRepairCost; ProperRepairCondition = properRepairCondition;
             BasicMaintenanceCost = basicMaintenanceCost;
             BoilerUpgradeCost = boilerUpgradeCost; ElectricalUpgradeCost = electricalUpgradeCost;
+            InsulationUpgradeCost = insulationUpgradeCost; WingRestorationCost = wingRestorationCost;
             CompensationRate = compensationRate; CompensationGoodwill = compensationGoodwill; SevereRefundThreshold = severeRefundThreshold;
             SevereRefundRate = severeRefundRate; PartialRefundThreshold = partialRefundThreshold; PartialRefundRate = partialRefundRate;
             ExpectationSlope = expectationSlope; MinExpectation = minExpectation; MaxExpectation = maxExpectation;
@@ -166,8 +170,8 @@ namespace WorstHotel
             var guestArray = guestArchetypes.ToArray();
             var roomArray = rooms.ToArray();
             if (guestArray.Length != 3 || guestArray.Select(guest => guest.Kind).Distinct().Count() != 3 ||
-                roomArray.Length != 6 || roomArray.Select(room => room.Id).Distinct().Count() != 6)
-                throw new ArgumentException("The prototype requires three different archetypes and six uniquely numbered rooms.");
+                roomArray.Length < 1 || roomArray.Length > 10 || roomArray.Select(room => room.Id).Distinct().Count() != roomArray.Length)
+                throw new ArgumentException("The prototype requires three different archetypes and up to ten uniquely numbered rooms.");
             GuestArchetypes = Array.AsReadOnly(guestArray); Rooms = Array.AsReadOnly(roomArray);
             Boiler = boiler ?? throw new ArgumentNullException(nameof(boiler));
             Economy = economy ?? throw new ArgumentNullException(nameof(economy));

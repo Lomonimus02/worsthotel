@@ -71,7 +71,7 @@ namespace WorstHotel
                 AddOperationsChoice(42, 689, 342, 43, "Room preparation", () => { showingOperations = false; OpenHousekeeping(); });
                 AddOperationsChoice(405, 689, 342, 43, "Daily reports", () => { operationsPage = OperationsPage.Reports; operationsListPage = 0; focus = 0; });
                 AddOperationsChoice(42, 745, 342, 42, "Boiler maintenance", () => { operationsPage = OperationsPage.Maintenance; focus = 0; });
-                AddOperationsChoice(405, 745, 342, 42, "Capacity upgrades", () => { operationsPage = OperationsPage.Upgrades; focus = 0; });
+                AddOperationsChoice(405, 745, 342, 42, "Renovation ledger", () => { operationsPage = OperationsPage.Upgrades; focus = 0; });
             }
             else if (operationsPage == OperationsPage.Bookings)
             {
@@ -104,8 +104,8 @@ namespace WorstHotel
                     var room = Session.Rooms[i]; int roomId = room.Profile.Id;
                     bool canReserve = available && simulation.CanReserveRoom(roomId, offer).Success ||
                         simulation.AutomaticBookingsEnabled && editable && CanPreviewBookingRoom(reservation, roomId);
-                    AddOperationsChoice(42 + i % 2 * 363, 414 + i / 2 * 46, 342, 40,
-                        (roomId == selectedRoom ? "● " : "") + "Room " + roomId + " · " + room.Profile.Label,
+                    AddOperationsChoice(42 + i % 2 * 363, 409 + i / 2 * 31, 342, 28,
+                        (roomId == selectedRoom ? "● " : "") + "Room " + roomId + (room.Operational ? " · " + room.Profile.Label : " · WING CLOSED"),
                         () => selectedRoom = roomId, canReserve);
                 }
                 if (stale)
@@ -202,7 +202,7 @@ namespace WorstHotel
             Label(new Rect(42, 78, 705, 48), operationsPage == OperationsPage.Overview ? "HOTEL OPERATIONS" :
                 operationsPage == OperationsPage.Bookings ? "DATED BOOKINGS" : operationsPage == OperationsPage.Offer ? "ONE-NIGHT BOOKING" :
                 operationsPage == OperationsPage.Sales || operationsPage == OperationsPage.RoomSales ? "ROOM SALES / RATES" :
-                operationsPage == OperationsPage.Forecast ? "BOOKING FORECAST" : operationsPage == OperationsPage.Maintenance ? "BOILER MAINTENANCE" : operationsPage == OperationsPage.Upgrades ? "CAPACITY UPGRADES" : "OPERATING REPORTS", Title);
+                operationsPage == OperationsPage.Forecast ? "BOOKING FORECAST" : operationsPage == OperationsPage.Maintenance ? "BOILER MAINTENANCE" : operationsPage == OperationsPage.Upgrades ? "RENOVATION LEDGER" : "OPERATING REPORTS", Title);
             Label(new Rect(42, 135, 705, 49), GuestLabels.HotelMoment(simulation, simulation.Elapsed) + " · Cash $" + Session.Cash.ToString("F0") +
                 "\n" + (simulation.AutomaticBookingsEnabled && operationsPage == OperationsPage.Bookings ? ConfirmedBookingSummary() :
                 "The hotel keeps running while you read and decide."), Small, Muted);

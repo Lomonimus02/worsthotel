@@ -14,15 +14,15 @@ namespace WorstHotel.Editor
             var itemsRoot = Group("Physical linen bundles", gameplay.transform).transform;
             var shelf = Group("Clean linen shelf", linenRoot, new Vector3(-3f, 0, 30.85f));
             var storage = shelf.AddComponent<LinenStorage>();
-            storage.cleanStock = new LinenBundleItem[6];
-            Box("Linen shelf back", shelf.transform, new Vector3(0, 1.02f, .25f), new Vector3(1.60f, 2.04f, .10f), "Walnut panels", true);
+            storage.cleanStock = new LinenBundleItem[HotelLayout.RoomCount];
+            Box("Linen shelf back", shelf.transform, new Vector3(0, 1.4f, .25f), new Vector3(1.60f, 2.8f, .10f), "Walnut panels", true);
             foreach (int side in new[] { -1, 1 })
-                Box("Linen shelf side", shelf.transform, new Vector3(side * .76f, 1.02f, 0), new Vector3(.08f, 2.04f, .60f), "Mahogany", true);
+                Box("Linen shelf side", shelf.transform, new Vector3(side * .76f, 1.4f, 0), new Vector3(.08f, 2.8f, .60f), "Mahogany", true);
             Box("Linen shelf plinth", shelf.transform, new Vector3(0, .065f, 0), new Vector3(1.60f, .13f, .60f), "Mahogany", true);
-            for (int row = 0; row < 3; row++)
+            for (int row = 0; row < 5; row++)
                 Box("Clean stock shelf " + (row + 1), shelf.transform, new Vector3(0, .63f + row * .45f, 0),
                     new Vector3(1.49f, .08f, .60f), "Walnut panels", true);
-            Text("Clean linen storage sign", shelf.transform, "CLEAN LINEN", new Vector3(0, 1.95f, -.312f), .15f, Lettering);
+            Text("Clean linen storage sign", shelf.transform, "CLEAN LINEN", new Vector3(0, 2.78f, -.312f), .15f, Lettering);
 
             var grabSettings = EnsureGrabConfiguration();
             for (int i = 0; i < storage.cleanStock.Length; i++)
@@ -55,10 +55,10 @@ namespace WorstHotel.Editor
             hamper.statusLabel = Text("Laundry hamper status", hamperObject.transform, "DIRTY LINEN", new Vector3(0, .65f, -.39f), .088f, Lettering);
             hamper.depositAnchor = Group("LaundryDepositAnchor", hamperObject.transform, new Vector3(0, .84f, 0)).transform;
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < HotelLayout.RoomCount; i++)
             {
                 int roomId = 101 + i, side = i % 2 == 0 ? -1 : 1;
-                float doorZ = 10 + (i / 2) * 7;
+                float doorZ = HotelLayout.RoomZ(i);
                 var room = GameObject.Find("Room" + roomId).transform;
                 Transform bedTransform = null;
                 foreach (Transform child in room)

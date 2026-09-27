@@ -80,7 +80,7 @@ namespace WorstHotel
             if (targetRoomId == guest.RoomId) return CommandResult.Fail("The guest is already assigned to that room.");
             if (guest.Agent.PendingMoveRoomId.HasValue && guest.Agent.PendingMoveRoomId != targetRoomId)
                 return CommandResult.Fail("Cancel the existing proposed move before choosing a different room.");
-            if (!rooms.TryGetValue(targetRoomId, out destination) || destination.Occupied ||
+            if (!rooms.TryGetValue(targetRoomId, out destination) || !destination.Operational || destination.Occupied ||
                 (destination.Reserved && (destination.ReservedGuestId != guestId || guest.Agent.PendingMoveRoomId != targetRoomId)))
                 return CommandResult.Fail("The destination must be a real free, unreserved room.");
             if (destination.Cleanliness != Cleanliness.Clean) return CommandResult.Fail("The destination room must be clean.");

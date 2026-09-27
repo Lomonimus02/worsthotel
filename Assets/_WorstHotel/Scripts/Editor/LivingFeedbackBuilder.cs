@@ -28,7 +28,7 @@ namespace WorstHotel.Editor
             feedback.phoneLens = Sphere("Complaint lamp", phone.transform, new Vector3(-.26f, .143f, -.12f), Vector3.one * .052f, "Warm lamp").GetComponent<Renderer>();
             foreach (var child in phone.GetComponentsInChildren<Transform>()) child.gameObject.isStatic = false;
 
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < HotelLayout.RoomCount; i++)
             {
                 var radiatorObject = GameObject.Find("Radiator" + (101 + i));
                 var view = radiatorObject.AddComponent<RadiatorHeatFeedback>(); view.roomId = 101 + i;

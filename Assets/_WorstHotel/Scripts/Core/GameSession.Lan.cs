@@ -107,6 +107,8 @@ namespace WorstHotel
                     if (Enum.IsDefined(typeof(MaintenanceChoice), command.amount)) ChooseMaintenance(playerId, (MaintenanceChoice)command.amount);
                     break;
                 case LanCommandKind.PurchaseBoilerUpgrade: PurchaseBoilerUpgrade(playerId); break;
+                case LanCommandKind.PurchaseInsulation: PurchaseInsulation(playerId); break;
+                case LanCommandKind.RestoreNorthWing: RestoreNorthWing(playerId); break;
                 case LanCommandKind.PurchaseElectricalUpgrade: PurchaseElectricalUpgrade(playerId, command.subject); break;
                 case LanCommandKind.SelectBoilerService:
                     SelectBoilerService(playerId, (BoilerServiceKind)command.amount, command.expectedMaintenanceRevision); break;

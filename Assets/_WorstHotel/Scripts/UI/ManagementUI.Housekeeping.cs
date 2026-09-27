@@ -28,7 +28,7 @@ namespace WorstHotel
             {
                 int roomId = room.Profile.Id;
                 var task = system.Tasks.FirstOrDefault(t => t.RoomId == roomId);
-                string status = PreparationStatus(room, task);
+                string status = room.Operational ? PreparationStatus(room, task) : "WING CLOSED";
                 var booking = Session.Plan.Assignments.FirstOrDefault(a => a.RoomId == roomId);
                 var upcoming = booking != null ? Session.Plan.Applications.FirstOrDefault(a => a.Id == booking.BookingId) : null;
                 var reservation = Session.Simulation.Reservations.Where(r => r.RoomId == roomId && r.Status == ReservationStatus.Reserved)
@@ -36,11 +36,11 @@ namespace WorstHotel
                 string nextBooking = Session.Simulation.ContinuousOperations ? (reservation != null ?
                     reservation.Offer.Application.GuestName + " · " + GuestLabels.HotelMoment(Session.Simulation, reservation.Offer.ArrivalAt) : "No upcoming arrival") :
                     upcoming != null ? upcoming.GuestName + " booked" : "No booking for this room";
-                float y = 212 + index++ * 68;
-                Fill(new Rect(42, y, 705, 61), LightPaper);
-                Label(new Rect(55, y + 4, 455, 29), roomId + "  /  " + status, Body, room.Cleanliness == Cleanliness.Clean && room.DepartingGuestId == null ? Teal : Wine);
-                Label(new Rect(55, y + 32, 455, 24), nextBooking, Small, Muted);
-                Label(new Rect(530, y + 10, 204, 39), task?.WorkingPlayerId != null ?
+                float x = 42 + index / 5 * 360; float y = 212 + index++ % 5 * 79;
+                Fill(new Rect(x, y, 345, 73), LightPaper);
+                Label(new Rect(x + 10, y + 4, 325, 26), roomId + "  /  " + status, Body, room.Cleanliness == Cleanliness.Clean && room.DepartingGuestId == null ? Teal : Wine);
+                Label(new Rect(x + 10, y + 30, 325, 22), nextBooking, Small, Muted);
+                Label(new Rect(x + 10, y + 52, 325, 20), task?.WorkingPlayerId != null ?
                     "Staff " + (task.WorkingPlayerId.Value + 1) : room.Cleanliness == Cleanliness.Dirty ? "Player preparation" : "", Small, Muted);
             }
             Label(new Rect(42, 634, 700, 91), "You may reserve dirty rooms, but guests need a prepared bed before receiving their key. The linen shelf and hamper are in the utility room at the far end of the corridor. Stock refills each morning.\n" + Session.LastMessage, Small, Muted);

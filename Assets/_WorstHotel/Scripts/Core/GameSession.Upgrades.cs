@@ -2,6 +2,20 @@ namespace WorstHotel
 {
     public sealed partial class GameSession
     {
+        public CommandResult PurchaseInsulation(int actorId)
+        {
+            var allowed = CanAuthorizeUpgrade(actorId); if (!allowed.Success) return GuestCommand(allowed);
+            if (ForwardLan(LanCommandKind.PurchaseInsulation)) return CommandResult.Ok(LastMessage);
+            var result = Simulation.PurchaseInsulation(actorId); Cash = Simulation.Economy.Cash; return GuestCommand(result);
+        }
+
+        public CommandResult RestoreNorthWing(int actorId)
+        {
+            var allowed = CanAuthorizeUpgrade(actorId); if (!allowed.Success) return GuestCommand(allowed);
+            if (ForwardLan(LanCommandKind.RestoreNorthWing)) return CommandResult.Ok(LastMessage);
+            var result = Simulation.RestoreNorthWing(actorId); Cash = Simulation.Economy.Cash; return GuestCommand(result);
+        }
+
         CommandResult CanAuthorizeUpgrade(int actorId)
         {
             if (actorId < 0 || actorId > 1 || Simulation == null || !Simulation.ContinuousOperations || Phase != DayPhase.Service)

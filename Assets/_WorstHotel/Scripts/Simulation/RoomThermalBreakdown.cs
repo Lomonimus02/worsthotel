@@ -27,11 +27,11 @@ namespace WorstHotel
             TemperatureBase = temperatureBase; BoilerOutput = Number.Clamp(output, 0, 1);
             RadiatorSetting = room.RadiatorSetting; RadiatorMultiplier = radiatorMultiplier;
             HeatingContribution = heatGain * BoilerOutput * radiatorMultiplier;
-            HeatLoss = room.Profile.HeatLoss; SupplementalHeat = supplement; TimeConstant = timeConstant;
+            HeatLoss = room.EffectiveHeatLoss; SupplementalHeat = supplement; TimeConstant = timeConstant;
             // Preserve the complete production expression. The displayed contribution is rounded
             // independently; feeding that stored float back here changes the original rounding.
             BaselineTarget = temperatureBase + heatGain * Number.Clamp(output, 0, 1) *
-                radiatorMultiplier - room.Profile.HeatLoss;
+                radiatorMultiplier - room.EffectiveHeatLoss;
             BoilerFailed = failed; BoilerMaintenance = maintenance;
         }
 

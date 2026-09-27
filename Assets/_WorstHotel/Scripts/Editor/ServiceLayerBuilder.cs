@@ -15,7 +15,7 @@ namespace WorstHotel.Editor
             BuildServiceShelf(root, items, ServiceItemKind.ReplacementBulb, new Vector3(6.20f, 0, 32.2f), 90);
             BuildServiceLuggage(root, items);
             BuildReceptionServiceControls(root);
-            for (int i = 0; i < 6; i++) BuildRoomServiceControls(root, 101 + i, i % 2 == 0 ? -1 : 1, 10 + i / 2 * 7);
+            for (int i = 0; i < HotelLayout.RoomCount; i++) BuildRoomServiceControls(root, 101 + i, i % 2 == 0 ? -1 : 1, HotelLayout.RoomZ(i));
             foreach (var child in root.GetComponentsInChildren<Transform>()) GameObjectUtility.SetStaticEditorFlags(child.gameObject, 0);
             foreach (var child in items.GetComponentsInChildren<Transform>()) GameObjectUtility.SetStaticEditorFlags(child.gameObject, 0);
         }
@@ -121,10 +121,9 @@ namespace WorstHotel.Editor
 
         static void BuildRoomServiceControls(Transform root, int roomId, int side, float z)
         {
-            var luggageMat = Group("Room luggage mat " + roomId, root, new Vector3(side * 1.23f, .015f, z + 2.05f));
+            var luggageMat = Group("Inside room luggage acceptance " + roomId, root, new Vector3(side * 4.2f, .015f, z - 1.25f));
             var luggageZone = luggageMat.AddComponent<LuggageDeliveryZone>(); luggageZone.roomId = roomId;
-            Box("Luggage delivery mat", luggageMat.transform, Vector3.zero, new Vector3(1.13f, .025f, 1.70f), "Teal upholstery", false, false);
-            Text("Luggage mat number", luggageMat.transform, "LUGGAGE " + roomId, new Vector3(0, .021f, 0), .09f, Lettering, new Vector3(90, side * 90, 0));
+            luggageZone.size = new Vector3(1.8f, 1.5f, 1.65f);
             // The knocker is on door-local +X. Mirror the whole shelf onto the other jamb;
             // using the same world -Z side put right-room shelves behind their knockers.
             // The shelf also stays outside the solid leaf's full +/-105-degree sweep.

@@ -56,7 +56,10 @@ namespace WorstHotel
                 new RoomNoiseLink(102, 104, walls), new RoomNoiseLink(104, 106, walls),
                 new RoomNoiseLink(101, 102, corridor), new RoomNoiseLink(103, 104, corridor), new RoomNoiseLink(105, 106, corridor),
                 new RoomNoiseLink(101, 104, corridor), new RoomNoiseLink(102, 103, corridor),
-                new RoomNoiseLink(103, 106, corridor), new RoomNoiseLink(104, 105, corridor)
+                new RoomNoiseLink(103, 106, corridor), new RoomNoiseLink(104, 105, corridor),
+                new RoomNoiseLink(107, 109, walls), new RoomNoiseLink(108, 110, walls),
+                new RoomNoiseLink(107, 108, corridor), new RoomNoiseLink(109, 110, corridor),
+                new RoomNoiseLink(107, 110, corridor), new RoomNoiseLink(108, 109, corridor)
             };
             return new RoomAdjacencyGraph(ids, links.Where(link => selected.Contains(link.RoomA) && selected.Contains(link.RoomB)));
         }

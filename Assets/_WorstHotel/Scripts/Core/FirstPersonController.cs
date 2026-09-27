@@ -139,9 +139,8 @@ namespace WorstHotel
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
             var guest = hit.collider.GetComponentInParent<GuestPhysicalReaction>();
-            if (guest && HasWorldAuthority && Input.SprintHeld && Input.Move.sqrMagnitude > .6f && Mathf.Abs(hit.normal.y) < .65f &&
-                Vector3.ProjectOnPlane(PresentationVelocity, Vector3.up).magnitude > 3.7f)
-                guest.Impact(75, walkSpeed * 1.25f, hit.moveDirection, true);
+            if (guest && HasWorldAuthority && Input.Move.sqrMagnitude > .05f && Mathf.Abs(hit.normal.y) < .65f)
+                guest.StaffContact(hit.moveDirection, Input.SprintHeld && Input.Move.sqrMagnitude > .6f, walkSpeed * Input.Move.magnitude);
             var rigidbody = hit.rigidbody;
             if (rigidbody && !rigidbody.isKinematic && (rigidbody.mass <= 45 || rigidbody.GetComponent<LuggageCart>()) && hit.moveDirection.y > -0.4f)
                 pushes[rigidbody] = new Vector3(hit.moveDirection.x, 0, hit.moveDirection.z);

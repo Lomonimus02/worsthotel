@@ -45,3 +45,4 @@ MonoBehaviour:
   basicMaintenanceConditionGain: 20
   basicMaintenanceConditionCap: 80
   basicMaintenanceStressReduction: 0.25
+  capacityUpgradeMultiplier: 1.75

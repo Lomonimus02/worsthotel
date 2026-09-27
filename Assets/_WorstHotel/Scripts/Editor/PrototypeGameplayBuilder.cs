@@ -71,9 +71,9 @@ namespace WorstHotel.Editor
             { x.kind = GuestKind.ColdSensitive; x.label = "Cold-sensitive guest"; x.description = "Pays fairly. Needs a warm room, especially at night."; x.referencePrice = 300; x.heatingDemand = 1.05f; x.coldThreshold = 20; x.patience = 65; x.noiseTolerance = .40f; x.coldPenaltyWeight = 1.35f; x.priceSensitivity = 16; });
             var business = Asset<GuestArchetypeDefinition>(root + "BusinessGuest.asset", x =>
             { x.kind = GuestKind.Business; x.label = "Business guest"; x.description = "Pays well. Expects quiet, working fixtures and a quick response."; x.referencePrice = 450; x.heatingDemand = 1; x.coldThreshold = 19.5f; x.patience = 45; x.noiseTolerance = .25f; x.coldPenaltyWeight = 1; x.priceSensitivity = 10; });
-            string[] names = { "Warm & quiet", "Cold tendency", "Pipe-side / noisy", "Degraded fixtures", "Quiet courtyard", "Drafty corner" };
-            float[] losses = { 0, 1.4f, .2f, .4f, .3f, .7f };
-            var rooms = new RoomDefinition[6];
+            string[] names = { "Warm & quiet", "Cold tendency", "Pipe-side / noisy", "Degraded fixtures", "Quiet courtyard", "Drafty corner", "North garden", "North courtyard", "North quiet end", "North corner" };
+            float[] losses = { 0, 1.4f, .2f, .4f, .3f, .7f, .4f, .6f, .3f, .8f };
+            var rooms = new RoomDefinition[HotelLayout.RoomCount];
             for (int i = 0; i < rooms.Length; i++)
             {
                 int index = i;
@@ -87,7 +87,7 @@ namespace WorstHotel.Editor
                 x.continuousOperations = true; x.hotelDaySeconds = 720; x.openingHour = 8; x.reportHour = 6;
                 x.automaticBookings = true; x.initiallyOpenRooms = 4; x.roomSalePrice = 180;
                 x.bookingBaseDemand = .9f; x.bookingPriceElasticity = 1.5f; x.firstDayBookingHour = 8.5f;
-                x.advanceBookingHour = 16; x.bookingDecisionSpacingHours = .5f; x.bookingSeed = 73129; });
+                x.advanceBookingHour = 16; x.bookingDecisionSpacingHours = .4f; x.bookingSeed = 73129; });
             // Extend older scene definitions without replacing any designer-tuned 0.1 field.
             if (!session.living)
             {
@@ -134,6 +134,8 @@ namespace WorstHotel.Editor
                 session.infrastructure = Asset<RoomInfrastructureConfig>(root + "RoomInfrastructure.asset", _ => { });
                 EditorUtility.SetDirty(session);
             }
+            session.rooms = rooms;
+            EditorUtility.SetDirty(session);
             return session;
         }
 

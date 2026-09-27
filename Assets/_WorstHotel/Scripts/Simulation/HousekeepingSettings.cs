@@ -10,8 +10,8 @@ namespace WorstHotel
         public float CleaningSeconds => MakeBedSeconds;
         public HousekeepingSettings(float makeBedSeconds = 1.5f, int cleanLinenPerDay = 6)
         {
-            if (!Number.IsFinite(makeBedSeconds) || makeBedSeconds <= 0 || cleanLinenPerDay <= 0 || cleanLinenPerDay > 6)
-                throw new ArgumentException("Manual turnover requires positive finite bed-making time and one to six physical shelf slots.");
+            if (!Number.IsFinite(makeBedSeconds) || makeBedSeconds <= 0 || cleanLinenPerDay <= 0 || cleanLinenPerDay > 10)
+                throw new ArgumentException("Manual turnover requires positive finite bed-making time and one to ten physical shelf slots.");
             MakeBedSeconds = makeBedSeconds;
             CleanLinenPerDay = cleanLinenPerDay;
         }

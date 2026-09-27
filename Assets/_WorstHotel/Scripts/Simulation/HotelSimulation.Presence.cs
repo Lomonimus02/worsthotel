@@ -113,12 +113,17 @@ namespace WorstHotel
             return CommandResult.Ok("Guest returned; their existing stay and schedule continue.");
         }
 
+        public bool HasLuggageStaffAccess(int roomId) => Services != null && Services.Items.Any(item =>
+            item.Kind == ServiceItemKind.Luggage && item.RoomId == roomId && item.StaffHandling &&
+            item.Location != ServiceItemLocation.Delivered && guests.Any(guest => guest.GuestId == item.GuestId && !guest.ReceiptPosted));
+
         public CommandResult RequestStaffRoomAccess(int actorId, int roomId)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             if (actorId < 0 || actorId > 1 || !rooms.TryGetValue(roomId, out var room)) return CommandResult.Fail("Unknown staff or room.");
             RefreshRoomPresence();
             if (!room.Occupied) return CommandResult.Ok("The room is vacant.");
+            if (HasLuggageStaffAccess(roomId)) return CommandResult.Ok("Staff access for accepted luggage delivery.");
             if (room.OccupancyState != RoomOccupancyState.GuestInside) return CommandResult.Fail("No answer. The guest is away; the room remains private.");
             if (room.PrivacyState == RoomPrivacyState.Private) return CommandResult.Fail("Not now, please. I need some privacy.");
             return CommandResult.Ok("Yes, you may come in.");

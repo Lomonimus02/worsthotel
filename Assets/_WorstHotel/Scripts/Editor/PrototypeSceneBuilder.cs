@@ -28,6 +28,7 @@ namespace WorstHotel.Editor
             var gameplay = Group("Gameplay", null);
             var spawns = Group("SpawnPoints", null);
             BuildShell(environment.transform);
+            BuildNorthWingShell(environment.transform);
             BuildLobby(environment.transform, gameplay.transform);
             BuildRooms(environment.transform, spawns.transform);
             BuildUtility(environment.transform, gameplay.transform);
@@ -40,13 +41,15 @@ namespace WorstHotel.Editor
             bootstrap.spawn2 = p2.transform;
             BuildGameplay(gameplay);
             AddEnvironmentFeedback(gameplay, environment);
+            OpenCentralPlantPassage();
+            AddProgressionPresentation(gameplay, environment);
             AddElectricalPanel(gameplay);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();
             Selection.activeGameObject = gameplay;
-            Debug.Log("Worst Hotel: authored hotel rebuilt with six accessible rooms, local player spawns, original modular kit and URP lighting.");
+            Debug.Log("Worst Hotel: authored hotel rebuilt with six original rooms and four restorable North Wing rooms, local player spawns, original modular kit and URP lighting.");
         }
 
         // Later delivery phases add a separate partial source file; phase 1 has no hidden gameplay placeholder.
@@ -74,6 +77,9 @@ namespace WorstHotel.Editor
             var renderers = serialized.FindProperty("m_RendererDataList");
             renderers.arraySize = 1;
             renderers.GetArrayElementAtIndex(0).objectReferenceValue = renderer;
+            serialized.FindProperty("m_AdditionalLightsPerObjectLimit").intValue = 8;
+            serialized.FindProperty("m_AdditionalLightShadowsSupported").boolValue = true;
+            serialized.FindProperty("m_AdditionalLightsShadowmapResolution").intValue = 4096;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             pipeline.renderScale = 1;
             pipeline.msaaSampleCount = 2;
@@ -198,10 +204,10 @@ namespace WorstHotel.Editor
             var floors = Group("Floors and ceilings", root).transform;
             Box("Lobby carpet", floors, new Vector3(0, -.16f, .5f), new Vector3(20, .32f, 11), "Grand carpet");
             Box("Rooms and corridor carpet", floors, new Vector3(0, -.16f, 17.5f), new Vector3(20, .32f, 23), "Grand carpet");
-            Box("Utility tile floor", floors, new Vector3(0, -.16f, 34.5f), new Vector3(14, .32f, 11), "Utility tile");
+            Box("Utility tile floor", floors, new Vector3(-2, -.16f, 34.5f), new Vector3(18, .32f, 11), "Utility tile");
             Box("Lobby ceiling", floors, new Vector3(0, 3.91f, .5f), new Vector3(20.3f, .22f, 11.3f), "Cream linen");
             Box("Hall and room ceiling", floors, new Vector3(0, 3.91f, 17.5f), new Vector3(20.3f, .22f, 23.3f), "Cream linen");
-            Box("Utility ceiling", floors, new Vector3(0, 3.91f, 34.5f), new Vector3(14.3f, .22f, 11.3f), "Utility tile");
+            Box("Utility ceiling", floors, new Vector3(-2, 3.91f, 34.5f), new Vector3(18.3f, .22f, 11.3f), "Utility tile");
             foreach (int side in new[] { -1, 1 })
             {
                 Box("Runner gold border", floors, new Vector3(side * 1.49f, .008f, 17.5f), new Vector3(.07f, .01f, 23), "Aged brass", false, false);
@@ -222,10 +228,12 @@ namespace WorstHotel.Editor
                 WallRun(walls, new Vector3(side * 6.075f, 0, 6), 7.85f);
                 WallRun(walls, new Vector3(side * 8.5f, 0, 29), 3);
                 for (int i = 0; i < 2; i++) WallRun(walls, new Vector3(side * 6.075f, 0, 13.5f + i * 7), 7.85f);
-                WallRun(walls, new Vector3(side * 7, 0, 34.5f), 11, 90);
+                WallRun(walls, new Vector3(side < 0 ? -11 : 7, 0, 34.5f), 11, 90);
                 WallRun(walls, new Vector3(side * 4.55f, 0, 29), 4.9f);
             }
-            WallRun(walls, new Vector3(0, 0, 40), 14);
+            WallRun(walls, new Vector3(-6.55f, 0, 40), 8.9f);
+            WallRun(walls, new Vector3(4.55f, 0, 40), 4.9f);
+            WallRun(walls, new Vector3(-9, 0, 29), 4);
             for (int side = -1; side <= 1; side += 2)
             {
                 float previous = 6;
@@ -288,17 +296,18 @@ namespace WorstHotel.Editor
             foreach (float lampX in new[] { -8.6f, -1.5f })
                 Place(lamp, lobby, new Vector3(lampX, 2.25f, 5.60f));
             Place(lamp, lobby, new Vector3(8.7f, 2.25f, 5.6f));
-            BuildLuggage(lobby, new Vector3(-6.5f, .02f, -.4f));
+            BuildLuggage(lobby, new Vector3(3.15f, .02f, 3.75f));
+            Sign(lobby, "BELL CART\nPUSH FROM HANDLE", new Vector3(3.2f, 2.45f, 5.57f), 1.65f, .65f, .10f);
             Box("Decades of paint patch", lobby, new Vector3(9.8f, 1.78f, 4.2f), new Vector3(.015f, .8f, 1.12f), "New plaster patch", false, false);
         }
 
         static void BuildRooms(Transform environment, Transform spawns)
         {
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < HotelLayout.RoomCount; i++)
             {
                 int number = 101 + i;
                 int side = i % 2 == 0 ? -1 : 1;
-                float z = 10 + i / 2 * 7;
+                float z = HotelLayout.RoomZ(i);
                 var room = Group("Room" + number, environment, new Vector3(side * 6.0f, 0, z)).transform;
                 Group("RoomTarget" + number, spawns, new Vector3(side * 4.3f, .05f, z + .7f));
                 var instance = Place(door, environment, new Vector3(side * 2.15f, 0, z), new Vector3(0, side * 90, 0));
@@ -461,16 +470,19 @@ namespace WorstHotel.Editor
             body.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             body.interpolation = RigidbodyInterpolation.Interpolate; body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
             var controls = cart.gameObject.AddComponent<LuggageCart>(); controls.displayName = "Brass luggage cart";
-            Box("Cart platform", cart, new Vector3(0, .28f, 0), new Vector3(1.50f, .18f, 1.12f), "Burgundy velvet", true);
-            Box("Brass platform rim", cart, new Vector3(0, .20f, 0), new Vector3(1.55f, .08f, 1.17f), "Aged brass", true, false);
+            Box("Cart platform", cart, new Vector3(0, .39f, 0), new Vector3(1.50f, .18f, 1.12f), "Burgundy velvet", true);
+            Box("Brass platform rim", cart, new Vector3(0, .31f, 0), new Vector3(1.55f, .08f, 1.17f), "Aged brass", true, false);
             var ground = cart.gameObject.AddComponent<BoxCollider>(); ground.center = new Vector3(0, .17f, 0); ground.size = new Vector3(1.40f, .32f, 1.0f);
             foreach (int side in new[] { -1, 1 })
             {
                 Pipe("Cart upright", cart, new Vector3(side * .66f, .22f, -.47f), new Vector3(side * .66f, 1.92f, -.47f), .085f, "Aged brass");
                 Pipe("Cart front upright", cart, new Vector3(side * .66f, .22f, .47f), new Vector3(side * .66f, 1.92f, .47f), .085f, "Aged brass");
                 Pipe("Cart roof side", cart, new Vector3(side * .66f, 1.92f, -.47f), new Vector3(side * .66f, 1.92f, .47f), .085f, "Aged brass");
-                Cylinder("Cart wheel", cart, new Vector3(side * .54f, .16f, -.3f), .15f, .09f, "Ink", new Vector3(0, 0, 90));
-                Cylinder("Cart wheel", cart, new Vector3(side * .54f, .16f, .3f), .15f, .09f, "Ink", new Vector3(0, 0, 90));
+                foreach (float axle in new[] { -.34f, .34f })
+                {
+                    Cylinder("Large rubber wheel", cart, new Vector3(side * .64f, .23f, axle), .22f, .14f, "Ink", new Vector3(0, 0, 90));
+                    Cylinder("Brass wheel hub", cart, new Vector3(side * .72f, .23f, axle), .105f, .025f, "Aged brass", new Vector3(0, 0, 90));
+                }
             }
             Pipe("Cart top rail", cart, new Vector3(-.66f, 1.92f, -.47f), new Vector3(.66f, 1.92f, -.47f), .085f, "Aged brass");
             Pipe("Cart handle", cart, new Vector3(-.58f, 1.15f, -.65f), new Vector3(.58f, 1.15f, -.65f), .09f, "Aged brass");
@@ -494,16 +506,16 @@ namespace WorstHotel.Editor
         static void BuildLights(Transform parent)
         {
             parent.gameObject.AddComponent<HotelAmbientLighting>().Apply();
-            RenderSettings.reflectionIntensity = .4f;
+            RenderSettings.reflectionIntensity = .10f;
             RenderSettings.fog = false;
             var sun = Group("Soft daylight bounce", parent, default, new Vector3(50, -30, 0)).AddComponent<Light>();
-            sun.type = LightType.Directional; sun.color = new Color(1, .94f, .84f); sun.intensity = .55f; sun.shadows = LightShadows.None;
+            sun.type = LightType.Directional; sun.color = new Color(.64f, .75f, 1); sun.intensity = .045f; sun.shadows = LightShadows.None;
             RenderSettings.sun = sun;
             for (int i = 0; i < 3; i++) PointLight(parent, "Lobby warm fill", new Vector3(-6 + i * 6, 3.18f, .3f), new Color(1, .77f, .48f), 4, 8);
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 6; i++)
                 foreach (float side in new[] { -1.45f, 1.45f })
-                    PointLight(parent, "Hall warm fill", new Vector3(side, 3.15f, 8 + i * 6), new Color(1, .79f, .53f), 1.5f, 4.5f);
-            for (int i = 0; i < 6; i++) PointLight(parent, "Room light " + (101 + i), new Vector3(i % 2 == 0 ? -6 : 6, 3.25f, 10 + i / 2 * 7), new Color(1, .82f, .59f), 3.0f, 6.0f);
+                    PointLight(parent, "Hall warm fill", new Vector3(side, 3.15f, 8 + i * 4), new Color(1, .79f, .53f), 4f, 5f);
+            for (int i = 0; i < HotelLayout.RoomCount; i++) PointLight(parent, "Room light " + (101 + i), new Vector3(i % 2 == 0 ? -6 : 6, 3.25f, HotelLayout.RoomZ(i)), new Color(1, .82f, .59f), 3.0f, 6.0f);
             PointLight(parent, "Boiler work light", new Vector3(-2, 3.28f, 35.5f), new Color(.82f, .90f, 1), 3.3f, 8);
             PointLight(parent, "Panel work light", new Vector3(4, 3.20f, 36), new Color(1, .85f, .61f), 3.0f, 6);
             foreach (var position in new[] { new Vector3(-2, 3.63f, 35.5f), new Vector3(4, 3.63f, 36) })
@@ -530,7 +542,7 @@ namespace WorstHotel.Editor
             var reflection = Group("Lobby reflection", parent, new Vector3(0, 1.9f, .4f)).AddComponent<ReflectionProbe>();
             reflection.mode = ReflectionProbeMode.Realtime; reflection.refreshMode = ReflectionProbeRefreshMode.OnAwake;
             reflection.timeSlicingMode = ReflectionProbeTimeSlicingMode.AllFacesAtOnce; reflection.resolution = 128;
-            reflection.size = new Vector3(20, 4, 11); reflection.boxProjection = true; reflection.intensity = .45f;
+            reflection.size = new Vector3(20, 4, 11); reflection.boxProjection = true; reflection.intensity = .08f;
             string path = Root + "/Settings/HotelVolume.asset";
             var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(path);
             if (!profile)
@@ -548,8 +560,20 @@ namespace WorstHotel.Editor
         static void PointLight(Transform parent, string name, Vector3 position, Color color, float intensity, float range)
         {
             var light = Group(name, parent, position).AddComponent<Light>();
-            light.type = LightType.Point; light.color = color; light.intensity = intensity; light.range = range;
-            light.shadows = LightShadows.None; light.lightmapBakeType = LightmapBakeType.Mixed;
+            light.type = LightType.Point; light.color = color; light.intensity = intensity * 2.2f; light.range = range;
+            light.shadows = LightShadows.Hard; light.shadowResolution = LightShadowResolution.Low;
+            light.shadowBias = .025f; light.shadowNormalBias = .1f;
+            light.lightmapBakeType = LightmapBakeType.Realtime;
+            var extra = light.gameObject.AddComponent<UniversalAdditionalLightData>();
+            extra.usePipelineSettings = false;
+            var shadowSettings = new SerializedObject(extra);
+            shadowSettings.FindProperty("m_AdditionalLightsShadowResolutionTier").intValue = UniversalAdditionalLightData.AdditionalLightsShadowResolutionTierLow;
+            shadowSettings.ApplyModifiedPropertiesWithoutUndo();
+            if (name == "Hall warm fill")
+            {
+                light.type = LightType.Spot; light.spotAngle = 57; light.innerSpotAngle = 35;
+                light.transform.localRotation = Quaternion.Euler(90, 0, 0);
+            }
         }
     }
 }

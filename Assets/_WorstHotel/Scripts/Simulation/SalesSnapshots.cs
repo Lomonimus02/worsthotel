@@ -66,7 +66,7 @@ namespace WorstHotel
                 config.PriceElasticity == expected.PriceElasticity && config.FirstDayDecisionStartHour == expected.FirstDayDecisionStartHour &&
                 config.AdvanceDecisionStartHour == expected.AdvanceDecisionStartHour && config.DecisionSpacingHours == expected.DecisionSpacingHours &&
                 config.Seed == expected.Seed, "Automatic-sales configuration differs from this hotel.");
-            var policies = Array(value.Rooms, 6); Unique(policies.Select(row => row.RoomId));
+            var policies = Array(value.Rooms, 10); Unique(policies.Select(row => row.RoomId));
             var cursors = Array(value.Days, 2); Unique(cursors.Select(row => row.ArrivalDay));
             if (!config.Enabled)
             {

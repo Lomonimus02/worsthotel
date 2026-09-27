@@ -32,12 +32,12 @@ namespace WorstHotel.Editor
             {
                 float x = i == 0 ? -.52f : .52f;
                 string id = i == 0 ? "A" : "B";
-                Text("Circuit " + id + " room label", cabinet.transform, id + "  /  " + (i == 0 ? "WEST 101/103/105" : "EAST 102/104/106"), new Vector3(x, 2.49f, -.105f), .065f, Mat("Ink").color);
+                Text("Circuit " + id + " room label", cabinet.transform, id + "  /  " + (i == 0 ? "WEST ODD ROOMS" : "EAST EVEN ROOMS"), new Vector3(x, 2.49f, -.105f), .065f, Mat("Ink").color);
                 var station = Group("Electrical breaker " + id, cabinet.transform, new Vector3(x, 1.80f, -.23f));
                 Box("Breaker body", station.transform, Vector3.zero, new Vector3(.71f, .99f, .23f), "Pipe iron", true, false);
                 var collider = station.AddComponent<BoxCollider>(); collider.size = new Vector3(.76f, 1.05f, .38f);
                 var control = station.AddComponent<ElectricalBreakerControl>(); control.circuitId = id; control.panel = panel;
-                control.displayName = "Electrical circuit " + id + (i == 0 ? " · WEST 101 / 103 / 105" : " · EAST 102 / 104 / 106");
+                control.displayName = "Electrical circuit " + id + (i == 0 ? " · WEST / ODD ROOMS" : " · EAST / EVEN ROOMS");
                 var lever = Group("Electrical lever " + id, station.transform, new Vector3(0, 0, -.15f)).transform;
                 Box("Large breaker grip", lever, new Vector3(0, .02f, -.07f), new Vector3(.43f, .51f, .19f), "Safety red", true, false);
                 Text("Breaker on marking", station.transform, "ON", new Vector3(0, .38f, -.124f), .075f, Lettering);
@@ -52,8 +52,8 @@ namespace WorstHotel.Editor
                 panel.circuits[i] = new ElectricalPanelPresentation.CircuitView
                     { circuitId = id, lever = lever, readout = readout, consumers = consumers, warningLens = lens.GetComponent<Renderer>(), warningLight = light };
             }
-            panel.roomLights = new ElectricalPanelPresentation.RoomPowerBinding[8];
-            for (int i = 0; i < 6; i++)
+            panel.roomLights = new ElectricalPanelPresentation.RoomPowerBinding[HotelLayout.RoomCount + 2];
+            for (int i = 0; i < HotelLayout.RoomCount; i++)
             {
                 int id = 101 + i;
                 var room = GameObject.Find("Room" + id);
@@ -67,12 +67,12 @@ namespace WorstHotel.Editor
             }
             // Rooms alternate across the hall: odd numbers west, even numbers east.
             // Include the corresponding lobby, hall sconces and utility luminaires.
-            var assignedLights = panel.roomLights.Take(6).SelectMany(binding => binding.lights).ToHashSet();
-            var assignedSurfaces = panel.roomLights.Take(6).SelectMany(binding => binding.luminousSurfaces).ToHashSet();
+            var assignedLights = panel.roomLights.Take(HotelLayout.RoomCount).SelectMany(binding => binding.lights).ToHashSet();
+            var assignedSurfaces = panel.roomLights.Take(HotelLayout.RoomCount).SelectMany(binding => binding.luminousSurfaces).ToHashSet();
             for (int side = 0; side < 2; side++)
             {
                 bool west = side == 0;
-                panel.roomLights[6 + side] = new ElectricalPanelPresentation.RoomPowerBinding
+                panel.roomLights[HotelLayout.RoomCount + side] = new ElectricalPanelPresentation.RoomPowerBinding
                 {
                     circuitId = west ? "A" : "B",
                     lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None).Where(light =>

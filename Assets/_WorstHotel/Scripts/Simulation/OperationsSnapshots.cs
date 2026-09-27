@@ -8,6 +8,7 @@ namespace WorstHotel
         public float SecondsPerDay, StartHour, ReportHour, ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour;
         public int ReportHistoryLimit, ReportSequence, PeriodOpeningCash, OffersThroughDay, ServiceDay, PeriodMaintenanceSpend, PeriodCapitalSpend;
         public float PeriodStartedAt;
+        public bool NorthWingRestored, Room102Insulated;
         public SalesSnapshot Sales;
         public ReceiptSnapshot[] PeriodReceipts;
         public ScheduledOfferSnapshot[] Offers;
@@ -59,6 +60,7 @@ namespace WorstHotel
             ReportSequence = ReportSequence, PeriodOpeningCash = periodOpeningCash, PeriodStartedAt = periodStartedAt,
             PeriodMaintenanceSpend = PeriodMaintenanceSpend,
             PeriodCapitalSpend = PeriodCapitalSpend,
+            NorthWingRestored = NorthWingRestored, Room102Insulated = Room102Insulated,
             Sales = CaptureSales(),
             OffersThroughDay = offersThroughDay, ServiceDay = operatingServiceDay,
             PeriodReceipts = periodReceipts.Select(SnapshotData.Capture).ToArray(),
@@ -70,6 +72,7 @@ namespace WorstHotel
             ReportSequence = data.ReportSequence; periodOpeningCash = data.PeriodOpeningCash; periodStartedAt = data.PeriodStartedAt;
             PeriodMaintenanceSpend = data.PeriodMaintenanceSpend;
             PeriodCapitalSpend = data.PeriodCapitalSpend;
+            NorthWingRestored = data.NorthWingRestored; Room102Insulated = data.Room102Insulated; ApplyProgressionToRooms();
             offersThroughDay = data.OffersThroughDay; operatingServiceDay = data.ServiceDay;
             periodReceipts.Clear(); periodReceipts.AddRange(data.PeriodReceipts.Select(SnapshotData.Receipt));
             bookingOffers.Clear(); bookingOffers.AddRange(data.Offers.Select(SnapshotData.Offer));
@@ -113,7 +116,8 @@ namespace WorstHotel
             foreach (var receipt in receipts) { ValidateOperatingReceipt(receipt, roomIds); DepartureReceipt(receipt, model.Time); }
             Require(receipts.Sum(item => (long)item.Price) <= int.MaxValue && receipts.Sum(item => (long)item.Compensation) <= int.MaxValue,
                 "Operating receipt totals overflow.");
-            var offers = Array(data.Offers, 16); Unique(offers.Select(item => item.Application?.Id));
+            Require(!data.NorthWingRestored || roomIds.Contains(110), "Opened wing has no room registry.");
+            var offers = Array(data.Offers, 24); Unique(offers.Select(item => item.Application?.Id));
             foreach (var offer in offers) ValidateScheduledOffer(offer, calendar, schedules);
             var reservations = Array(data.Reservations, 128); Unique(reservations.Select(item => item.Offer?.Application?.Id));
             foreach (var reservation in reservations)

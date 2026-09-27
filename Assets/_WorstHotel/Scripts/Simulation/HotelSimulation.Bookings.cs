@@ -76,6 +76,7 @@ namespace WorstHotel
 
         public CommandResult CanReserveInterval(int roomId, float arrivalAt, float checkoutAt, string exceptGuestId = null)
         {
+            if (!IsRoomOperational(roomId)) return CommandResult.Fail("This room is in the closed North Wing. Restore it in the renovation ledger.");
             if (!rooms.TryGetValue(roomId, out var room) || !Number.IsFinite(arrivalAt) || !Number.IsFinite(checkoutAt) ||
                 arrivalAt < 0 || checkoutAt <= arrivalAt) return CommandResult.Fail("Choose a valid room and stay interval.");
             foreach (var reservation in reservations.Where(item => item.Active && item.Id != exceptGuestId))

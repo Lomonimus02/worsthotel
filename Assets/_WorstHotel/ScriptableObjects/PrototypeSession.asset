@@ -23,6 +23,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d693e9d48aaddf849a21d278e80bc846, type: 2}
   - {fileID: 11400000, guid: 139b8ab18df7c494c9b5fc4129bd844d, type: 2}
   - {fileID: 11400000, guid: 981fd9ada5572fd47a272ce683927b77, type: 2}
+  - {fileID: 11400000, guid: d7b45e4e91f742844b77f909260b5141, type: 2}
+  - {fileID: 11400000, guid: 3b500a6bdda76b741a1afd1eb9c18b3d, type: 2}
+  - {fileID: 11400000, guid: d1e424ef13b6e9747894ea7d0d15a95b, type: 2}
+  - {fileID: 11400000, guid: 37a1f2ce44191114489d8b51feabb5ff, type: 2}
   boiler: {fileID: 11400000, guid: 338ddd6c9b50f714db663d64592a3ddc, type: 2}
   economy: {fileID: 11400000, guid: 07f7e5032719534489ebbf410567c547, type: 2}
   living: {fileID: 11400000, guid: 52fe6e358e45e9744b64bebcad18cabe, type: 2}
@@ -56,5 +60,5 @@ MonoBehaviour:
   bookingPriceElasticity: 1.5
   firstDayBookingHour: 8.5
   advanceBookingHour: 16
-  bookingDecisionSpacingHours: 0.5
+  bookingDecisionSpacingHours: 0.4
   bookingSeed: 73129

@@ -7,40 +7,51 @@ namespace WorstHotel
     {
         void UpdateOperationsUpgrades()
         {
-            var model = Session.Simulation; var boiler = model.Boiler;
-            bool boilerAffordable = model.Economy.Cash >= Session.Economy.BoilerUpgradeCost;
-            AddOperationsChoice(58, 358, 673, 43, boiler.CapacityUpgradePurchased ? "Boiler upgrade installed" :
-                "Buy boiler capacity upgrade · $" + Session.Economy.BoilerUpgradeCost + (boilerAffordable ? "" : " · insufficient cash"),
-                () => Session.PurchaseBoilerUpgrade(owner), !boiler.CapacityUpgradePurchased && boilerAffordable);
-            if (model.Electrical == null) return;
-            bool electricalAvailable = string.IsNullOrEmpty(model.Electrical.UpgradedCircuitId);
-            bool electricalAffordable = model.Economy.Cash >= Session.Economy.ElectricalUpgradeCost;
-            for (int i = 0; i < 2; i++)
+            var model = Session.Simulation;
+            var costs = Session.Economy;
+            AddOperationsChoice(58, 293, 673, 37, model.Boiler.CapacityUpgradePurchased ? "Boiler upgrade installed" :
+                "Install new burner · $" + costs.BoilerUpgradeCost, () => Session.PurchaseBoilerUpgrade(owner),
+                !model.Boiler.CapacityUpgradePurchased && model.Economy.Cash >= costs.BoilerUpgradeCost);
+            if (model.Electrical != null)
             {
-                string id = i == 0 ? "A" : "B";
-                var circuit = model.Electrical.Find(id);
-                AddOperationsChoice(58, 550 + i * 59, 673, 43, !electricalAvailable ?
-                    "Circuit " + id + (model.Electrical.UpgradedCircuitId == id ? " · upgrade installed" : " · upgrade used on circuit " + model.Electrical.UpgradedCircuitId) :
-                    "Upgrade circuit " + id + " · " + circuit.Capacity.ToString("F2") + " → " +
-                    (circuit.Capacity + model.Electrical.Settings.CapacityUpgradeAmount).ToString("F2") + " u · $" + Session.Economy.ElectricalUpgradeCost +
-                    (electricalAffordable ? "" : " · insufficient cash"), () => Session.PurchaseElectricalUpgrade(owner, id), electricalAvailable && electricalAffordable);
+                bool available = string.IsNullOrEmpty(model.Electrical.UpgradedCircuitId);
+                for (int i = 0; i < 2; i++)
+                {
+                    string id = i == 0 ? "A" : "B";
+                    AddOperationsChoice(58 + i * 343, 428, 330, 37, available ? "Upgrade " + id + " · $" + costs.ElectricalUpgradeCost :
+                        "Upgrade installed on " + model.Electrical.UpgradedCircuitId, () => Session.PurchaseElectricalUpgrade(owner, id),
+                        available && model.Economy.Cash >= costs.ElectricalUpgradeCost);
+                }
             }
+            AddOperationsChoice(58, 558, 673, 37, model.Room102Insulated ? "Room 102 window work complete" :
+                "Seal Room 102 windows · $" + costs.InsulationUpgradeCost, () => Session.PurchaseInsulation(owner),
+                !model.Room102Insulated && model.Economy.Cash >= costs.InsulationUpgradeCost);
+            AddOperationsChoice(58, 702, 673, 39, model.NorthWingRestored ? "Wing open · choose rooms for sale" :
+                "Restore North Wing · $" + costs.WingRestorationCost, () =>
+                { if (model.NorthWingRestored) ShowRoomSales(); else Session.RestoreNorthWing(owner); },
+                model.NorthWingRestored || model.Economy.Cash >= costs.WingRestorationCost);
         }
 
         void DrawOperationsUpgrades()
         {
             var model = Session.Simulation; var boiler = model.Boiler;
-            float multiplier = boiler.CapacityUpgradePurchased ? 1 : Session.BoilerSettings.Capacity.CapacityUpgradeMultiplier;
-            Fill(new Rect(42, 196, 705, 221), LightPaper);
-            Label(new Rect(58, 207, 673, 32), "BOILER · ONE CAPACITY UPGRADE", Heading);
-            Label(new Rect(58, 252, 673, 98), "Rated capacity " + boiler.RatedCapacity.ToString("F2") + " → " + (boiler.RatedCapacity * multiplier).ToString("F2") +
-                " u · effective now " + boiler.EffectiveCapacity.ToString("F2") + " → " + (boiler.EffectiveCapacity * multiplier).ToString("F2") + " u\n" +
-                "Condition " + boiler.Condition.ToString("F0") + "% · " + BoilerMaintenanceLabels.State(model) +
-                "\nIncreases capacity permanently. Existing wear, stress, patch penalty and maintenance downtime remain.", Small, Muted);
-            Fill(new Rect(42, 435, 705, 234), LightPaper);
-            Label(new Rect(58, 446, 673, 32), "ELECTRICITY · CHOOSE ONE CIRCUIT", Heading);
-            Label(new Rect(58, 489, 673, 54), "One electrical upgrade for the hotel: A or B. Adds capacity without removing consumer demand.\nA tripped breaker still needs a physical reset; an upgrade is not a repair.", Small, Muted);
-            Label(new Rect(42, 676, 705, 22), "Capital purchases this reporting period: $" + model.PeriodCapitalSpend, Small, Teal);
+            Fill(new Rect(42, 196, 705, 144), LightPaper);
+            Label(new Rect(58, 207, 673, 30), "HEATING / NEW BURNER", Heading);
+            float rated = boiler.CapacityUpgradePurchased ? boiler.RatedCapacity : boiler.RatedCapacity * Session.BoilerSettings.Capacity.CapacityUpgradeMultiplier;
+            Label(new Rect(58, 245, 673, 45), "Rated " + boiler.RatedCapacity.ToString("F2") + " → " + rated.ToString("F2") +
+                " u. Same guests, more reserve. Existing wear still needs service.", Small, Muted);
+            Fill(new Rect(42, 350, 705, 125), LightPaper);
+            Label(new Rect(58, 359, 673, 30), "ELECTRICITY / CHOOSE A OR B", Heading);
+            Label(new Rect(58, 394, 673, 32), "Permanent +" + model.Electrical.Settings.CapacityUpgradeAmount.ToString("F2") +
+                " u on one branch. More rooms and heaters; reset tripped breakers separately.", Small, Muted);
+            Fill(new Rect(42, 485, 705, 120), LightPaper);
+            Label(new Rect(58, 493, 673, 30), "COLD ROOM 102 / WINDOW INSULATION", Heading);
+            Label(new Rect(58, 528, 673, 30), "80% less window heat loss and 25% lower base heating demand. Permanent.", Small, Muted);
+            Fill(new Rect(42, 615, 705, 137), LightPaper);
+            Label(new Rect(58, 623, 673, 30), "NORTH WING / FOUR MORE ROOMS", Heading);
+            Label(new Rect(58, 660, 673, 39), "Rooms 107–110, beyond the plant hall. Restoration opens the barrier immediately.\nNew rooms start closed for sale. Existing A/B circuits and boiler supply them.", Small, Muted);
+            Label(new Rect(42, 762, 705, 38), model.OperationalRoomCount + "/10 rooms operational · cash $" + model.Economy.Cash +
+                " · spent this period $" + model.PeriodCapitalSpend, Small, Teal);
         }
     }
 }

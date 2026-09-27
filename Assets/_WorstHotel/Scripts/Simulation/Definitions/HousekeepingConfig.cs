@@ -8,7 +8,7 @@ namespace WorstHotel
         [Tooltip("Real seconds of uninterrupted player interaction after bringing clean linen to the bed.")]
         [Min(0.1f)] public float makeBedSeconds = 1.5f;
         [Tooltip("Physical shelf slots. Consumed slots are replenished once before each new planning day.")]
-        [Range(1, 6)] public int cleanLinenPerDay = 6;
+        [Range(1, 10)] public int cleanLinenPerDay = 6;
         public HousekeepingSettings ToData() => new HousekeepingSettings(makeBedSeconds, cleanLinenPerDay);
     }
 }

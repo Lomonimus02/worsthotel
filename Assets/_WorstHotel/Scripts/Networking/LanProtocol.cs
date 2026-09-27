@@ -13,7 +13,7 @@ namespace WorstHotel
         AnswerServiceCall, TalkServiceGuest, DiscussRoomConcern,
         AcceptBooking, CancelBooking, SetBookingPrice, BeginBoilerMaintenance,
         PurchaseBoilerUpgrade, PurchaseElectricalUpgrade, EndServicePhoneConversation, SelectBoilerService,
-        SetRoomSalesPolicy, ReassignBooking, OfferLuggage
+        SetRoomSalesPolicy, ReassignBooking, OfferLuggage, PurchaseInsulation, RestoreNorthWing
     }
 
     [Serializable] public sealed class LanCommand
@@ -53,9 +53,9 @@ namespace WorstHotel
     /// <summary>Small, versioned LAN boundary. A network connection, never a payload, selects its staff identity.</summary>
     public static class LanProtocol
     {
-        public const int Version = 19, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
+        public const int Version = 20, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
         public const ushort DefaultPort = 7777;
-        public const string BuildCompatibility = "worst-hotel-0.4.2-luggage19-gzip";
+        public const string BuildCompatibility = "worst-hotel-0.5-growth20-gzip";
 
         public static bool ValidAddress(string value) => IPAddress.TryParse(value, out var address) &&
             address.AddressFamily == AddressFamily.InterNetwork && !address.Equals(IPAddress.Any) &&
@@ -72,10 +72,10 @@ namespace WorstHotel
             command.kind != LanCommandKind.BeginBoilerMaintenance &&
             (!automaticBookingsEnabled || command.kind != LanCommandKind.AcceptBooking && command.kind != LanCommandKind.SetBookingPrice) &&
             (command.kind == LanCommandKind.SetRoomSalesPolicy ? continuousOperations && automaticBookingsEnabled &&
-                command.expectedPolicyRevision >= 1 && string.IsNullOrEmpty(command.subject) && command.roomId >= 101 && command.roomId <= 106 :
+                command.expectedPolicyRevision >= 1 && string.IsNullOrEmpty(command.subject) && command.roomId >= 101 && command.roomId <= 110 :
                 command.expectedPolicyRevision == -1 && !command.openForSale) &&
             (command.kind != LanCommandKind.ReassignBooking || continuousOperations &&
-                !string.IsNullOrWhiteSpace(command.subject) && command.roomId >= 101 && command.roomId <= 106 && command.amount == 0) &&
+                !string.IsNullOrWhiteSpace(command.subject) && command.roomId >= 101 && command.roomId <= 110 && command.amount == 0) &&
             (command.kind == LanCommandKind.SelectBoilerService ? continuousOperations &&
                 command.expectedMaintenanceRevision >= 0 &&
                 (command.amount == (int)BoilerServiceKind.Basic || command.amount == (int)BoilerServiceKind.Full) :
@@ -86,7 +86,7 @@ namespace WorstHotel
             (UsesDirectDecision(command.kind) && continuousOperations ?
                 !string.IsNullOrWhiteSpace(command.expectedDirectIntentId) && command.expectedDirectIntentId.Length <= 512 &&
                 command.expectedDirectIntentRevision > 0 : string.IsNullOrEmpty(command.expectedDirectIntentId) && command.expectedDirectIntentRevision == -1) &&
-            (command.roomId == 0 || command.roomId >= 101 && command.roomId <= 106);
+            (command.roomId == 0 || command.roomId >= 101 && command.roomId <= 110);
 
         static bool UsesDirectDecision(LanCommandKind kind) => kind == LanCommandKind.CancelMove ||
             kind == LanCommandKind.OfferCredit || kind == LanCommandKind.AcceptConsequences;

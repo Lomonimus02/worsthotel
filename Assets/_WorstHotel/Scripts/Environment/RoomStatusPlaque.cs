@@ -56,7 +56,7 @@ namespace WorstHotel
                 return;
             }
             bool reserved = session.Phase == DayPhase.Planning ? plan != null && plan.TryGetAssignment(roomId, out _) : room.Reserved;
-            string status = room.Occupied ? "OCCUPIED" : room.DepartingGuestId != null ? "GUEST LEAVING" :
+            string status = !room.Operational ? "WING CLOSED" : room.Occupied ? "OCCUPIED" : room.DepartingGuestId != null ? "GUEST LEAVING" :
                 room.TurnoverState == HousekeepingState.Cleaning ? "CLEANING" : room.Cleanliness == Cleanliness.Dirty ?
                 (reserved ? "WAIT CLEAN" : "DIRTY") : reserved ? "RESERVED" : "READY";
             string reading = room.Temperature.ToString("0.0", CultureInfo.InvariantCulture) + "°C";

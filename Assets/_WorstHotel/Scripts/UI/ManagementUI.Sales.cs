@@ -35,10 +35,11 @@ namespace WorstHotel
             {
                 int roomId = policy.RoomId;
                 var room = Session.Rooms.FirstOrDefault(item => item.Profile.Id == roomId);
-                AddOperationsChoice(42, 276 + row++ * 63, 705, 56,
-                    "Room " + roomId + " · " + (policy.OpenForSale ? "OPEN" : "CLOSED") + " · $" + policy.Price +
+                int column = row / 5, line = row++ % 5;
+                AddOperationsChoice(42 + column * 360, 276 + line * 73, 345, 66,
+                    "Room " + roomId + " · " + (!Session.Simulation.IsRoomOperational(roomId) ? "WING LOCKED" : policy.OpenForSale ? "OPEN" : "CLOSED") + " · $" + policy.Price +
                     "\n" + (room == null ? "Room unavailable" : room.Profile.Label + " · " + PreparationStatus(room, Session.Simulation.Housekeeping?.Find(roomId))),
-                    () => SelectRoomSales(roomId));
+                    () => SelectRoomSales(roomId), Session.Simulation.IsRoomOperational(roomId));
             }
         }
 
@@ -66,7 +67,7 @@ namespace WorstHotel
         {
             var model = Session.Simulation;
             int open = model.RoomSalesPolicies.Count(item => item.OpenForSale);
-            Label(new Rect(42, 196, 705, 69), open + "/" + Session.Rooms.Length + " rooms open to new sales\n" +
+            Label(new Rect(42, 196, 705, 69), open + "/" + model.OperationalRoomCount + " operational rooms open to new sales\n" +
                 "Ordinary reservations arrive automatically. Set rates and prepare rooms; existing contracts stay in place.", Body, Muted);
             Label(new Rect(42, 663, 705, 30), "Opening a room does not guarantee a booking. Closing it does not cancel existing stays.", Small, Muted);
         }

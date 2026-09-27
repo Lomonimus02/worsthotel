@@ -5,7 +5,7 @@ namespace WorstHotel
     /// <summary>Bounded ordinary demand using the existing eight enquiries for each hotel date.</summary>
     public sealed class SalesSettings
     {
-        public const int DecisionsPerDay = 8;
+        public const int DecisionsPerDay = 12;
         public bool Enabled { get; }
         public int InitiallyOpenRooms { get; }
         public int InitialPrice { get; }
@@ -18,9 +18,9 @@ namespace WorstHotel
 
         public SalesSettings(bool enabled = false, int initiallyOpenRooms = 4, int initialPrice = 180,
             float baseDemand = .9f, float priceElasticity = 1.5f, float firstDayDecisionStartHour = 8.5f,
-            float advanceDecisionStartHour = 16, float decisionSpacingHours = .5f, int seed = 73129)
+            float advanceDecisionStartHour = 16, float decisionSpacingHours = .4f, int seed = 73129)
         {
-            if (initiallyOpenRooms < 0 || initiallyOpenRooms > 6 || initialPrice < 0 ||
+            if (initiallyOpenRooms < 0 || initiallyOpenRooms > 10 || initialPrice < 0 ||
                 !Number.IsFinite(baseDemand) || baseDemand < 0 || baseDemand > 1 ||
                 !Number.IsFinite(priceElasticity) || priceElasticity < 0 ||
                 !Hour(firstDayDecisionStartHour) || !Hour(advanceDecisionStartHour) ||

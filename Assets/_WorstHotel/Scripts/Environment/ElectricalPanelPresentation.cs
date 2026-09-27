@@ -121,7 +121,7 @@ namespace WorstHotel
             foreach (var binding in roomLights)
             {
                 if (binding.circuit == null) continue;
-                bool power = binding.circuit.HasPower;
+                bool power = binding.circuit.HasPower && (binding.room == null || binding.room.Operational);
                 bool warning = power && binding.circuit != null && binding.circuit.Warning && !binding.circuit.Tripped;
                 // Gentle 18% sag every2.4 real seconds. It never fabricates a blackout or accelerates in WAIT.
                 float dim = warning ? 1 - .18f * (.5f + .5f * Mathf.Sin(Time.time * Mathf.PI * 2 / 2.4f)) : 1;

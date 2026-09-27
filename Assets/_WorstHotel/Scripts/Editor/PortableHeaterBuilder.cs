@@ -9,12 +9,13 @@ namespace WorstHotel.Editor
         public static void AddPortableHeater(GameObject gameplay)
         {
             var registry = gameplay.AddComponent<RoomVolumeRegistry>();
-            registry.volumes = new RoomVolumeRegistry.RoomVolume[6];
-            for (int i = 0; i < 6; i++)
+            registry.volumes = new RoomVolumeRegistry.RoomVolume[HotelLayout.RoomCount];
+            for (int i = 0; i < HotelLayout.RoomCount; i++)
             {
                 int row = i / 2, side = i % 2 == 0 ? -1 : 1;
                 float south = row == 0 ? 6.38f : 13.88f + (row - 1) * 7;
                 float north = row == 2 ? 28.62f : 13.12f + row * 7;
+                if (i >= 6) { south = HotelLayout.RoomZ(i) - 3.12f; north = HotelLayout.RoomZ(i) + 3.12f; }
                 registry.volumes[i] = new RoomVolumeRegistry.RoomVolume(101 + i,
                     new Bounds(new Vector3(side * 6.075f, 1.67f, (south + north) * .5f),
                         new Vector3(7.03f, 3.46f, north - south)));

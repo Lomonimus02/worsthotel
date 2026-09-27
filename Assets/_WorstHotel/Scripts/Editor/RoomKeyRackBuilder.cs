@@ -9,12 +9,12 @@ namespace WorstHotel.Editor
         /// <summary>Six real, numbered keys beside the reception counter, with fixed return docks.</summary>
         public static void AddRoomKeyRack(GameObject gameplay)
         {
-            var rackObject = Group("Room key rack", gameplay.transform, new Vector3(-1.60f, 1.85f, 3.35f));
+            var rackObject = Group("Room key rack", gameplay.transform, new Vector3(-2.3f, 1.85f, 4.25f));
             var rack = rackObject.AddComponent<RoomKeyRack>();
-            rack.keys = new RoomKeyItem[6];
+            rack.keys = new RoomKeyItem[HotelLayout.RoomCount];
             var rackTransform = rackObject.transform;
-            Box("Key rack backboard", rackTransform, Vector3.zero, new Vector3(.80f, 1.40f, .16f), "Mahogany", true);
-            Box("Key rack inset", rackTransform, new Vector3(0, 0, -.088f), new Vector3(.71f, 1.29f, .028f), "Walnut panels", true, false);
+            Box("Key rack backboard", rackTransform, Vector3.zero, new Vector3(2.13f, 1.40f, .16f), "Mahogany", true);
+            Box("Key rack inset", rackTransform, new Vector3(0, 0, -.088f), new Vector3(2.02f, 1.29f, .028f), "Walnut panels", true, false);
             Box("Key rack pedestal", rackTransform, new Vector3(0, -1.43f, .02f), new Vector3(.68f, .84f, .38f), "Mahogany", true);
             Box("Key rack upright", rackTransform, new Vector3(0, -.92f, .055f), new Vector3(.25f, .44f, .22f), "Mahogany", true);
             Box("Key rack foot", rackTransform, new Vector3(0, -1.79f, .02f), new Vector3(.80f, .12f, .44f), "Mahogany", true);
@@ -25,8 +25,8 @@ namespace WorstHotel.Editor
             for (int i = 0; i < rack.keys.Length; i++)
             {
                 int roomId = 101 + i;
-                float x = (i % 2 - .5f) * .39f;
-                float y = .28f - (i / 2) * .43f;
+                float x = (i % 5 - 2f) * .39f;
+                float y = .16f - (i / 5) * .53f;
                 // The label remains at the empty dock after its matching physical key is taken.
                 Text("Rack number " + roomId, rackTransform, roomId.ToString(),
                     new Vector3(x, y + .16f, -.111f), .085f, Lettering);

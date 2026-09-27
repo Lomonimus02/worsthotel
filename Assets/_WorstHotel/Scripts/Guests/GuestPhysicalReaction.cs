@@ -2,13 +2,14 @@ using UnityEngine;
 
 namespace WorstHotel
 {
-    // AI owns the feet. A kinematic contact body receives impacts; only the visual rig falls.
+    // Authored walking gives way to swept, directional displacement during contact.
     public sealed class GuestPhysicalReaction : MonoBehaviour
     {
         Transform visual;
         CapsuleCollider capsule;
-        float recovery, cooldown;
-        float fallSide;
+        Vector3 velocity, localImpact;
+        float recovery, duration, cooldown;
+        int level;
         public bool Recovering => recovery > 0;
 
         public void Initialize(Transform body)
@@ -24,65 +25,93 @@ namespace WorstHotel
         void Contact(Collision collision)
         {
             var other = collision.rigidbody;
-            if (!other || other.isKinematic || !visual || !visual.gameObject.activeSelf) return;
-            Impact(other.mass, collision.relativeVelocity.magnitude, transform.position - other.position);
-            if (!Recovering && other.mass > 25 && other.GetComponent<LuggageCart>() && collision.relativeVelocity.magnitude > .08f)
-            {
-                Vector3 away = Vector3.ProjectOnPlane(transform.position - other.position, Vector3.up).normalized;
-                if (TryWalk(transform, transform.position + away * Mathf.Min(.035f, collision.relativeVelocity.magnitude * Time.fixedDeltaTime), out var next))
-                    transform.position = next;
-            }
+            if (!other || other.isKinematic) return;
+            var direction = Vector3.ProjectOnPlane(transform.position - other.worldCenterOfMass, Vector3.up).normalized;
+            float speed = Mathf.Max(0, Vector3.Dot(other.linearVelocity, direction));
+            // Contact resolution may already have slowed a moving object this frame.
+            speed = Mathf.Max(speed, collision.relativeVelocity.magnitude);
+            Impact(other.mass, speed, direction);
+        }
+
+        public void StaffContact(Vector3 direction, bool running, float speed)
+        {
+            if (speed < .1f) return;
+            Begin(running ? 2 : 1, direction, running ? 2.1f : .85f, !running);
         }
 
         public void Impact(float mass, float speed, Vector3 direction, bool sprint = false)
         {
-            if (!visual || !visual.gameObject.activeSelf || !capsule.enabled || Recovering || Time.time < cooldown ||
-                (LocalCoopBootstrap.Instance && (!LocalCoopBootstrap.Instance.HasWorldAuthority || LocalCoopBootstrap.Instance.IsPaused))) return;
-            if (mass < 3 || speed < (sprint ? 4 : 1.65f) || mass * speed < 25) return;
-            recovery = 3.0f; cooldown = Time.time + 5.5f;
-            fallSide = Vector3.Dot(transform.right, direction) < 0 ? 1 : -1;
+            if (mass < 2 || speed < .12f) return;
+            float momentum = mass * speed;
+            int strength = !sprint && ((mass >= 45 && speed >= 2.05f) || (mass >= 7 && momentum >= 36)) ? 3 :
+                sprint || (speed >= .8f && momentum >= 5) ? 2 : 1;
+            Begin(strength, direction, strength == 3 ? Mathf.Clamp(speed * 1.25f, 2.8f, 4) : strength == 2 ? 1.65f : .65f, strength == 1);
         }
 
-        public bool AnimateRecovery(float delta)
+        void Begin(int strength, Vector3 direction, float speed, bool sidestep)
+        {
+            if (!visual || !visual.gameObject.activeInHierarchy || !capsule.enabled ||
+                (LocalCoopBootstrap.Instance && !LocalCoopBootstrap.Instance.HasWorldAuthority) || Time.timeScale == 0) return;
+            if (Recovering && strength <= level || Time.time < cooldown && strength <= level) return;
+            direction = Vector3.ProjectOnPlane(direction, Vector3.up).normalized;
+            if (direction.sqrMagnitude < .1f) return;
+            if (sidestep)
+            {
+                var side = Vector3.Cross(Vector3.up, direction);
+                if (Vector3.Dot(transform.right, direction) < 0) side = -side;
+                direction = (direction * .65f + side * .75f).normalized;
+            }
+            level = strength;
+            duration = recovery = strength == 3 ? 2.8f : strength == 2 ? .85f : .3f;
+            cooldown = Time.time + (strength == 3 ? 3.4f : strength == 2 ? 1.1f : .32f);
+            velocity = direction * speed;
+            localImpact = transform.InverseTransformDirection(direction);
+        }
+
+        public bool AnimateRecovery(float deltaTime)
         {
             if (!Recovering) return false;
-            recovery = Mathf.Max(0, recovery - delta);
-            float elapsed = 3 - recovery;
-            float amount = elapsed < .4f ? Mathf.SmoothStep(0, 1, elapsed / .4f) :
-                recovery < .95f ? Mathf.SmoothStep(0, 1, recovery / .95f) : 1;
-            // A compact sideways sit/fall avoids throwing a two-metre rig through adjacent walls.
-            visual.localPosition = new Vector3(0, -.46f * amount, 0);
-            visual.localRotation = Quaternion.Euler(-28 * amount, 0, fallSide * 32 * amount);
-            capsule.height = Mathf.Lerp(2.05f, 1.20f, amount);
+            float dt = Mathf.Min(deltaTime, .05f);
+            if (TryWalk(transform, transform.position + velocity * dt, out var next)) transform.position = next;
+            velocity = Vector3.MoveTowards(velocity, Vector3.zero, (level == 3 ? 4 : level == 2 ? 3 : 2) * dt);
+            recovery = Mathf.Max(0, recovery - dt);
+            float elapsed = duration - recovery;
+            float amount = Mathf.Min(Mathf.SmoothStep(0, 1, elapsed / .16f), Mathf.SmoothStep(0, 1, recovery / (level == 3 ? .85f : .3f)));
+            float angle = level == 3 ? 65 : level == 2 ? 19 : 5;
+            visual.localPosition = Vector3.down * amount * (level == 3 ? .65f : level == 2 ? .10f : .02f);
+            visual.localRotation = Quaternion.Euler(localImpact.z * angle * amount, 0, -localImpact.x * angle * amount);
+            capsule.height = Mathf.Lerp(2.05f, level == 3 ? 1.05f : 1.85f, amount);
             capsule.center = Vector3.up * capsule.height * .5f;
-            if (recovery <= 0) { visual.localPosition = Vector3.zero; visual.localRotation = Quaternion.identity; }
+            if (!Recovering) { visual.localPosition = Vector3.zero; visual.localRotation = Quaternion.identity; capsule.height = 2.05f; capsule.center = Vector3.up * 1.025f; }
             return true;
         }
 
         public static bool TryWalk(Transform guest, Vector3 desired, out Vector3 next)
         {
             next = guest.position;
-            if (Clear(guest, desired)) { next = desired; return true; }
-            Vector3 travel = desired - guest.position;
-            var side = Vector3.Cross(Vector3.up, travel.normalized) * travel.magnitude;
+            var travel = desired - next;
+            if (Clear(guest, travel)) { next = desired; return true; }
+            var side = Vector3.Cross(Vector3.up, travel);
             foreach (float sign in new[] { 1f, -1f })
             {
-                var slide = guest.position + travel * .2f + side * sign;
-                if (Clear(guest, slide)) { next = slide; return true; }
+                var slide = travel * .2f + side * sign;
+                if (Clear(guest, slide)) { next += slide; return true; }
             }
             return false;
         }
 
-        static bool Clear(Transform guest, Vector3 destination)
+        static bool Clear(Transform guest, Vector3 move)
         {
-            var move = destination - guest.position;
             if (move.sqrMagnitude < .000001f) return true;
             foreach (var hit in Physics.CapsuleCastAll(guest.position + Vector3.up * .42f,
                 guest.position + Vector3.up * 1.65f, .32f, move.normalized, move.magnitude + .025f,
                 Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
             {
                 if (hit.transform.IsChildOf(guest)) continue;
-                if (hit.collider.GetComponentInParent<DoorInteractable>()) continue;
+                // Escape an existing contact, but never step farther into it.
+                if (hit.distance <= .001f && Vector3.Dot(move, guest.position + Vector3.up - hit.collider.bounds.center) > 0) continue;
+                var door = hit.collider.GetComponentInParent<DoorInteractable>();
+                if (door && door.IsPassageOpen) continue;
                 if (hit.rigidbody && !hit.rigidbody.isKinematic && hit.rigidbody.mass < 20) continue;
                 return false;
             }

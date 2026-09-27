@@ -15,6 +15,7 @@ namespace WorstHotel
         Renderer[] visuals;
         Collider[] colliders;
         RoomKeyLocation? shownLocation;
+        bool wingLocked;
 
         void Awake()
         {
@@ -35,6 +36,15 @@ namespace WorstHotel
             }
             var state = State;
             if (state == null) return;
+            bool locked = !simulation.IsRoomOperational(roomId);
+            if (locked)
+            {
+                foreach (var visual in visuals) visual.enabled = false;
+                foreach (var shape in colliders) shape.enabled = false;
+                Body.useGravity = false; Body.constraints = RigidbodyConstraints.FreezeAll;
+                wingLocked = true; return;
+            }
+            if (wingLocked) { wingLocked = false; shownLocation = null; }
             if (shownLocation != state.Location)
             {
                 // A checkout/reset may return an object. Dispose any joint before changing its body.
@@ -82,7 +92,7 @@ namespace WorstHotel
         public override bool TryBeginCarry(PlayerInteractor player)
         {
             var current = GameSession.Instance ? GameSession.Instance.Simulation : null;
-            if (current == null || current != simulation || player == null) return false;
+            if (current == null || current != simulation || player == null || !current.IsRoomOperational(roomId)) return false;
             var result = simulation.Keys.PickUp(player.ActorId, roomId);
             if (!result.Success) return false;
             Body.constraints = RigidbodyConstraints.None;

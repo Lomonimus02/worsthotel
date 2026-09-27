@@ -21,7 +21,7 @@ namespace WorstHotel
                 throw new ArgumentException("The initial room sale price must be on the hotel's allowed price grid.");
             int index = 0;
             foreach (int roomId in rooms.Keys.OrderBy(id => id))
-                roomSalesPolicies.Add(new RoomSalesPolicy(roomId, index++ < sales.InitiallyOpenRooms, sales.InitialPrice));
+                roomSalesPolicies.Add(new RoomSalesPolicy(roomId, index++ < sales.InitiallyOpenRooms && rooms[roomId].Operational, sales.InitialPrice));
         }
 
         public CommandResult SetRoomSalesPolicy(int actorId, int roomId, bool open, int price, int expectedPolicyRevision = -1)
@@ -30,6 +30,7 @@ namespace WorstHotel
             if (!AutomaticBookingsEnabled) return CommandResult.Fail("Automatic ordinary room sales are disabled in this hotel.");
             var policy = roomSalesPolicies.FirstOrDefault(item => item.RoomId == roomId);
             if (policy == null) return CommandResult.Fail("Choose a real room sales policy.");
+            if (!IsRoomOperational(roomId)) return CommandResult.Fail("Restore the North Wing before opening this room for sale.");
             if (expectedPolicyRevision >= 0 && expectedPolicyRevision != policy.Revision)
                 return CommandResult.Fail("This room's sales policy changed. Refresh it before applying the draft.");
             if (!ValidBookingPrice(price)) return CommandResult.Fail("Choose a room rate on the hotel's allowed price grid.");

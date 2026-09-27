@@ -18,3 +18,4 @@ MonoBehaviour:
   warningSeconds: 6
   tripSeconds: 18
   powerLossConditionSeverity: 0.65
+  capacityUpgradeAmount: 2.5

@@ -64,6 +64,7 @@ namespace WorstHotel
             if (NeedsSettings != null) NeedEvaluator = new GuestNeedEvaluator(NeedsSettings);
             NoiseSettings = living != null ? noise ?? new NoiseSettings() : null;
             rooms = (roomStates ?? throw new ArgumentNullException(nameof(roomStates))).ToDictionary(room => room.Profile.Id);
+            ApplyProgressionToRooms();
             InitializeRoomKeys();
             InitializeSales();
             HousekeepingSettings = living != null ? housekeeping ?? new HousekeepingSettings() : null;

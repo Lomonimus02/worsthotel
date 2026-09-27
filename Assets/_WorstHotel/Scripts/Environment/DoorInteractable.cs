@@ -53,7 +53,8 @@ namespace WorstHotel
             }
         }
         bool Inside(PlayerInteractor actor) => actor && transform.InverseTransformPoint(actor.transform.position).z > .35f;
-        bool NeedsPermission(PlayerInteractor actor) => room != null && room.Occupied && !Inside(actor);
+        bool NeedsPermission(PlayerInteractor actor) => room != null && room.Occupied && !Inside(actor) &&
+            boundSimulation?.HasLuggageStaffAccess(roomId) != true;
         public override string GetPrompt(PlayerInteractor actor)
         {
             BindRoom();

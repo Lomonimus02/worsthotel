@@ -24,8 +24,8 @@ namespace WorstHotel
             ContinuousStress = continuousStress;
             if (roomIds == null) throw new ArgumentNullException(nameof(roomIds));
             int[] ids = roomIds.OrderBy(id => id).ToArray();
-            if (ids.Length == 0 || ids.Any(id => id < 101 || id > 106) || ids.Distinct().Count() != ids.Length)
-                throw new ArgumentException("The authored electrical panel requires unique room IDs from 101 through 106.");
+            if (ids.Length == 0 || ids.Any(id => id < 101 || id > 110) || ids.Distinct().Count() != ids.Length)
+                throw new ArgumentException("The authored electrical panel requires unique room IDs from 101 through 110.");
             var circuits = new[]
             {
                 new ElectricalCircuit("A", ids.Where(id => id % 2 == 1).ToArray(), this),
@@ -162,7 +162,7 @@ namespace WorstHotel
             foreach (var room in rooms.Values)
             {
                 var circuit = roomCircuits[room.Profile.Id];
-                room.CircuitId = circuit.Id; room.HasPower = circuit.HasPower;
+                room.CircuitId = circuit.Id; room.HasPower = circuit.HasPower && room.Operational;
                 room.PowerLossConditionSeverity = Settings.PowerLossConditionSeverity;
             }
             if (lastHeaters != null)

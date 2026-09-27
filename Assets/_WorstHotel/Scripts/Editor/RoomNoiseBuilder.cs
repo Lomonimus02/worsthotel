@@ -9,7 +9,7 @@ namespace WorstHotel.Editor
         /// <summary>Separate fixed knocker targets preserve the ordinary moving-door interaction.</summary>
         public static void AddRoomNoiseInteractions(GameObject gameplay)
         {
-            for (int roomId = 101; roomId <= 106; roomId++)
+            for (int roomId = 101; roomId <= 110; roomId++)
             {
                 var door = GameObject.Find("Door" + roomId);
                 if (door == null) throw new System.InvalidOperationException("Missing authored room door " + roomId);

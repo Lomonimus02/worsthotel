@@ -68,6 +68,9 @@ namespace WorstHotel
     public sealed class RoomState
     {
         public RoomProfile Profile { get; }
+        public bool Operational { get; internal set; } = true;
+        public bool WindowInsulated { get; internal set; }
+        public float EffectiveHeatLoss => Profile.HeatLoss * (WindowInsulated ? .2f : 1);
         public float Temperature { get; set; }
         public float Noise { get; set; }
         public float SourceNoise { get; internal set; }

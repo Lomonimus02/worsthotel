@@ -48,7 +48,7 @@ namespace WorstHotel
                 request.ResolutionReason = "Staff offered physical luggage assistance";
             }
             return CommandResult.Ok(storage ? "Yes, thank you. Leave my bags in storage, then bring them to room " + guest.RoomId + "." :
-                "Yes, please. Bring my bags to the luggage mat outside room " + guest.RoomId + ".");
+                "Yes, please. Bring my bags INSIDE room " + guest.RoomId + ", beside the wardrobe. You have staff access.");
         }
 
         void AcceptLuggageResponsibility(GuestStay guest)

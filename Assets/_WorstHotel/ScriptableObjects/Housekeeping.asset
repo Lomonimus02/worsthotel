@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Housekeeping
   m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.HousekeepingConfig
   makeBedSeconds: 1.5
-  cleanLinenPerDay: 6
+  cleanLinenPerDay: 10

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e64bdaed2a343694b9b6c0cd278eafc6, type: 3}
   m_Name: Economy
   m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.EconomyConfig
-  startingCash: 750
-  dailyOperatingCost: 450
+  startingCash: 1600
+  dailyOperatingCost: 350
   minPrice: 120
   maxPrice: 650
   priceStep: 10
@@ -40,3 +40,7 @@ MonoBehaviour:
   degradedSeverity: 0.15
   brokenSeverity: 0.5
   dirtySeverity: 0.3
+  boilerUpgradeCost: 1000
+  electricalUpgradeCost: 800
+  insulationUpgradeCost: 450
+  wingRestorationCost: 1600

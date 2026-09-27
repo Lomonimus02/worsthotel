@@ -44,10 +44,11 @@ namespace WorstHotel
         // A null profile explicitly means a vacant room, not a zero-load closed hotel.
         internal float TypicalSpaceHeating(RoomState room, GuestProfile profile, LivingHotelSettings living)
         {
+            if (!room.Operational) return 0;
             double spaceBase = profile != null ? (double)profile.HeatingDemand * living.QuietDemandMultiplier : Infrastructure.VacantRadiatorDemand;
             if (spaceBase <= 0 || room.RadiatorSetting <= 0) return 0;
             return (float)Math.Min(float.MaxValue, spaceBase * Infrastructure.DemandMultiplier(room.RadiatorSetting) *
-                (1 + Math.Max(0d, room.Profile.HeatLoss) * Infrastructure.HeatLossDemandFactor));
+                (1 + Math.Max(0d, room.EffectiveHeatLoss) * Infrastructure.HeatLossDemandFactor) * (room.WindowInsulated ? .75f : 1));
         }
 
         internal float ShowerHotWaterDemand(GuestProfile profile, LivingHotelSettings living) =>
