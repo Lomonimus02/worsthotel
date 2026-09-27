@@ -12,6 +12,8 @@ namespace WorstHotel
         PlayerInteractor driver;
         readonly Dictionary<ServiceSupplyItem, float> resting = new Dictionary<ServiceSupplyItem, float>();
         readonly List<ServiceSupplyItem> cargo = new List<ServiceSupplyItem>();
+        const float YawInertiaPerKg = .35f;
+        const float DriverReach = 2.8f;
         static readonly List<LuggageCart> carts = new List<LuggageCart>();
         public static bool IsGuiding(int actor) => carts.Exists(cart => cart && cart.driver && cart.driver.ActorId == actor);
         public static bool HasDeliveryForRoom(PlayerInteractor actor, HotelSimulation simulation, int roomId)
@@ -19,7 +21,7 @@ namespace WorstHotel
             if (!actor || actor.HeldBody || simulation == null) return false;
             foreach (var cart in carts)
             {
-                if (!cart || cart.driver != actor || Vector3.Distance(actor.transform.position, cart.handle.position) > 2.8f) continue;
+                if (!cart || cart.driver != actor || Vector3.Distance(actor.transform.position, cart.handle.position) > DriverReach) continue;
                 foreach (var bag in cart.cargo)
                     if (bag && bag.CargoJoint && bag.CargoJoint.connectedBody == cart.body && bag.BoundSimulation == simulation &&
                         bag.State?.Location == ServiceItemLocation.Dropped && simulation.HasLuggageStaffAccess(roomId, bag.ItemId)) return true;
@@ -32,6 +34,12 @@ namespace WorstHotel
         {
             body = GetComponent<Rigidbody>(); carts.Add(this);
             body.centerOfMass = new Vector3(0, .25f, 0);
+            // The elevated, offset handle tilts the automatic principal inertia frame.
+            // Align it with the chassis so frozen X/Z leave the actual vertical Y free.
+            body.inertiaTensorRotation = Quaternion.identity;
+            // Setting the frame disables automatic inertia before the first physics step;
+            // supply chassis moments as well, rather than keeping Unity's default 1 kg m².
+            body.inertiaTensor = body.mass * new Vector3(.6f, YawInertiaPerKg, .6f);
             body.solverIterations = 12; body.solverVelocityIterations = 6;
             wheelContact = new PhysicsMaterial("Cart rolling contact")
                 { dynamicFriction = .04f, staticFriction = .06f, bounciness = 0, frictionCombine = PhysicsMaterialCombine.Minimum };
@@ -39,7 +47,7 @@ namespace WorstHotel
         }
 
         public override bool CanInteract(PlayerInteractor actor) => base.CanInteract(actor) && actor && !actor.HeldBody &&
-            (!driver || driver == actor) && Vector3.Distance(actor.transform.position, handle.position) < 2.1f;
+            (!driver || driver == actor) && Vector3.Distance(actor.transform.position, handle.position) < (driver == actor ? DriverReach : 2.1f);
         public override string GetPrompt(PlayerInteractor actor) => driver && driver != actor ? "Other employee is guiding the cart" :
             driver == actor ? "Release handle · move to push, look to steer" : "Take handle · move to push, look to steer";
         public override void Interact(PlayerInteractor actor)
@@ -48,7 +56,7 @@ namespace WorstHotel
         void FixedUpdate()
         {
             if (!Authority || body.isKinematic) return;
-            if (driver && (!driver.CanAct || driver.HeldBody || Vector3.Distance(driver.transform.position, handle.position) > 2.8f)) driver = null;
+            if (driver && (!driver.CanAct || driver.HeldBody || Vector3.Distance(driver.transform.position, handle.position) > DriverReach)) driver = null;
             if (LocalCoopBootstrap.Instance && LocalCoopBootstrap.Instance.IsPaused) return;
             if (driver)
             {
@@ -57,9 +65,15 @@ namespace WorstHotel
                 Vector3 forward = Vector3.ProjectOnPlane(player.PlayerCamera.transform.forward, Vector3.up).normalized;
                 Vector3 desired = (forward * input.y + Vector3.Cross(Vector3.up, forward) * input.x) * (player.Input.SprintHeld ? 2.7f : 1.75f);
                 Vector3 velocity = Vector3.ProjectOnPlane(body.linearVelocity, Vector3.up);
-                body.AddForce(Vector3.ClampMagnitude((desired - velocity) * 5, 7), ForceMode.Acceleration);
+                // Match the employee's speed despite chassis damping, including pulling
+                // backwards where controller contact cannot push the cart along for us.
+                body.AddForce(Vector3.ClampMagnitude((desired - velocity) * 5 + velocity * body.linearDamping, 7), ForceMode.Acceleration);
                 float turn = Vector3.SignedAngle(transform.forward, forward, Vector3.up) * Mathf.Deg2Rad;
-                body.AddTorque(Vector3.up * Mathf.Clamp(turn * 7 - body.angularVelocity.y * 4, -5, 5), ForceMode.Acceleration);
+                // Acceleration torque converts through the frozen X/Z inertia axes and can
+                // produce invalid torque. Apply finite yaw torque directly; .35 m² is the
+                // approximate yaw inertia per kg of this cart's 1.55 x 1.17 m chassis.
+                float yawAcceleration = Mathf.Clamp(turn * 24 - body.angularVelocity.y * 8, -12, 12);
+                body.AddTorque(Vector3.up * (yawAcceleration * body.mass * YawInertiaPerKg), ForceMode.Force);
             }
             cargo.RemoveAll(item => !item || !item.CargoJoint || item.CargoJoint.connectedBody != body);
             var nearby = Physics.OverlapBox(transform.TransformPoint(new Vector3(0, .88f, 0)), new Vector3(.71f, .50f, .46f),

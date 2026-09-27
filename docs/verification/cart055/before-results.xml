@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 21:20:16Z" end-time="2026-09-27 21:20:26Z" duration="10.1279805">
+  <test-suite type="TestSuite" id="1100" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="92" result="Failed" site="Child" start-time="2026-09-27 21:20:16Z" end-time="2026-09-27 21:20:26Z" duration="10.127981" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1097" name="WorstHotel.PlayModeTests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="92" result="Failed" site="Child" start-time="2026-09-27 21:20:16Z" end-time="2026-09-27 21:20:26Z" duration="10.119185" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="36808" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1098" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="92" result="Failed" site="Child" start-time="2026-09-27 21:20:16Z" end-time="2026-09-27 21:20:26Z" duration="10.117989" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1099" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="92" result="Failed" site="Child" start-time="2026-09-27 21:20:16Z" end-time="2026-09-27 21:20:26Z" duration="10.117377" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="92" result="Failed" site="Child" start-time="2026-09-27 21:20:16Z" end-time="2026-09-27 21:20:26Z" duration="10.115928" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="1062" name="CartHandleDrivesTurnsReversesAndReleasesWithoutInvalidPhysics" fullname="WorstHotel.Tests.Phase1PlayModeTests.CartHandleDrivesTurnsReversesAndReleasesWithoutInvalidPhysics" methodname="CartHandleDrivesTurnsReversesAndReleasesWithoutInvalidPhysics" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="575252796" result="Failed" start-time="2026-09-27 21:20:16Z" end-time="2026-09-27 21:20:26Z" duration="10.097913" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <failure>
+                <message><![CDATA[  Look steering must rotate the dynamic chassis.
+  Expected: in range (12,45)
+  But was:  0.0159751475f
+]]></message>
+                <stack-trace><![CDATA[at WorstHotel.Tests.Phase1PlayModeTests+<CartHandleDrivesTurnsReversesAndReleasesWithoutInvalidPhysics>d__115.MoveNext () [0x004fd] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Tests\PlayMode\LuggageCartPlayModeTests.cs:67
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in .\Library\PackageCache\com.unity.test-framework@0b7a23ab2e1d\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:44
+]]></stack-trace>
+              </failure>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

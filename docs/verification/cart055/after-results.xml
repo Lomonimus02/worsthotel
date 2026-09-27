@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 21:38:17Z" end-time="2026-09-27 21:38:42Z" duration="25.5024019">
+  <test-suite type="TestSuite" id="1101" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="93" result="Passed" start-time="2026-09-27 21:38:17Z" end-time="2026-09-27 21:38:42Z" duration="25.502402" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1098" name="WorstHotel.PlayModeTests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="93" result="Passed" start-time="2026-09-27 21:38:17Z" end-time="2026-09-27 21:38:42Z" duration="25.494977" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="30688" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1099" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="93" result="Passed" start-time="2026-09-27 21:38:17Z" end-time="2026-09-27 21:38:42Z" duration="25.494279" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1100" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="93" result="Passed" start-time="2026-09-27 21:38:17Z" end-time="2026-09-27 21:38:42Z" duration="25.493697" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="93" result="Passed" start-time="2026-09-27 21:38:17Z" end-time="2026-09-27 21:38:42Z" duration="25.492346" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1062" name="CartHandleDrivesTurnsReversesAndReleasesWithoutInvalidPhysics" fullname="WorstHotel.Tests.Phase1PlayModeTests.CartHandleDrivesTurnsReversesAndReleasesWithoutInvalidPhysics" methodname="CartHandleDrivesTurnsReversesAndReleasesWithoutInvalidPhysics" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="153526445" result="Passed" start-time="2026-09-27 21:38:17Z" end-time="2026-09-27 21:38:29Z" duration="12.183151" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Authored cart: position=(3.15, -0.01, 3.75), inertia=(0.00, 28.00, 0.00), inertiaRotation=(0.00000, 0.00000, 0.00000, 1.00000), angularVelocity=(0.00, 0.00, 0.00)
+Cart forward travel=2.921, velocity=(0.00, 0.00, 1.62)
+Cart actual yaw change=23.95, angularVelocity=(0.00, 0.02, 0.00), guiding=True, inertia=(0.00, 28.00, 0.00), actorYaw=29.36675, cart=(-0.01, -0.01, 5.27), actor=(0.00, 0.03, 2.76)
+]]></output>
+            </test-case>
+            <test-case id="1063" name="CartSecuresTwoPhysicalSuitcasesTransportsThemAndReleasesOnGrab" fullname="WorstHotel.Tests.Phase1PlayModeTests.CartSecuresTwoPhysicalSuitcasesTransportsThemAndReleasesOnGrab" methodname="CartSecuresTwoPhysicalSuitcasesTransportsThemAndReleasesOnGrab" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="429018559" result="Passed" start-time="2026-09-27 21:38:29Z" end-time="2026-09-27 21:38:42Z" duration="13.293843" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Loaded cart yaw=11.56914, angularVelocity=(0.00, 0.00, 0.00), cart=(0.00, -0.01, 11.85), actor=(0.00, 0.03, 10.46)
+Loaded cart travel=3.853; two physical bags retained.
+Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
