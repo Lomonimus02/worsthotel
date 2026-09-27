@@ -35,6 +35,7 @@ namespace WorstHotel
         public LanRole LanRole { get; private set; }
         public int LocalActorId { get; private set; }
         public bool HasWorldAuthority => LanRole != LanRole.Client;
+        public bool HasApplicationFocus => hasFocus;
         public bool RemoteInputLeaseExpired { get; private set; }
         public const float RemoteInputLeaseSeconds = .35f;
         public event Action<int> RemoteLedgerRequested;
@@ -75,6 +76,8 @@ namespace WorstHotel
 
         public void ResetInputEpoch(long epoch)
         {
+            if (LanRole == LanRole.Host && GameSession.Instance && GameSession.Instance.Wait)
+                GameSession.Instance.Wait.RevokeSleep(StaffWakeReason.SessionChanged);
             inputEpoch = epoch; lastRemoteSequence = -1; lastRemoteInputTime = float.NegativeInfinity;
             remoteFrame = new LanInputFrame(); localPending = new LanInputFrame();
             RemoteInputLeaseExpired = false;
@@ -85,6 +88,8 @@ namespace WorstHotel
         {
             if (remoteConnected == connected) return;
             remoteConnected = connected;
+            if (!connected && LanRole == LanRole.Host && GameSession.Instance && GameSession.Instance.Wait)
+                GameSession.Instance.Wait.RevokeSleep(StaffWakeReason.DeviceUnavailable);
             lastRemoteInputTime = float.NegativeInfinity; remoteFrame = new LanInputFrame();
             if (LanRole == LanRole.Host && Players[1])
             {

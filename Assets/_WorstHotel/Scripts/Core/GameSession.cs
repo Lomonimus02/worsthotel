@@ -35,7 +35,7 @@ namespace WorstHotel
         {
             if (LanSession.Instance && LanSession.Instance.IsClientReplica && !buildingReplica) return;
             if (!buildingReplica && LanSession.Instance) LanSession.Instance.NotifyHostNewGame();
-            if (Wait) Wait.Stop("New session");
+            if (Wait) Wait.ResetForSession();
             Day = 1;
             Economy = config.economy.ToData();
             BoilerSettings = config.boiler.ToData();

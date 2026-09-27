@@ -50,9 +50,15 @@ namespace WorstHotel
             float step = 1f / Settings.TickRate;
             while (accumulator >= step && (Phase == DayPhase.Service || Phase == DayPhase.Planning))
             {
-                accumulator -= step;
+                float actualStep = Wait && Wait.isActiveAndEnabled ? Wait.ClampSleepStep(step) : step;
+                if (actualStep <= 0 || Simulation.ContinuousOperations && (float)(Simulation.Elapsed + actualStep) <= Simulation.Elapsed)
+                {
+                    if (Wait) Wait.ObserveSimulationEvents();
+                    accumulator = 0; break;
+                }
+                accumulator -= actualStep;
                 float speed = Simulation.Clock.Speed;
-                Tick(step);
+                Tick(actualStep);
                 // An event ends the accelerated batch immediately, discarding its remaining budget.
                 if (speed > 1 && Simulation.Clock.Speed == 1) { accumulator = 0; break; }
             }
@@ -65,7 +71,8 @@ namespace WorstHotel
             if (Phase == DayPhase.Planning) Simulation.AdvancePreparation(step);
             else Simulation.Tick(step);
             if (Wait && Wait.isActiveAndEnabled) Wait.ObserveSimulationEvents();
-            if (Simulation.Clock.Speed > 1 && previousEvent != Simulation.EventRevision)
+            if (Simulation.Clock.Speed > 1 && previousEvent != Simulation.EventRevision &&
+                !(Wait && Wait.isActiveAndEnabled && Wait.IsSleeping))
                 Simulation.Clock.SetSpeed(1);
             Cash = Simulation.Economy.Cash;
             if (Simulation.ContinuousOperations)
@@ -159,12 +166,16 @@ namespace WorstHotel
             while (seconds > 0 && ticks++ < MaximumDiagnosticTicks && (Phase == DayPhase.Service || Phase == DayPhase.Planning))
             {
                 float delta = Mathf.Min(seconds, step);
+                bool sleeping = Wait && Wait.IsSleeping;
+                if (Wait && Wait.isActiveAndEnabled) delta = Wait.ClampSleepStep(delta);
                 // Subtracting fixed float steps can leave a positive fraction smaller than
                 // this clock's precision. Do not submit a zero-progress diagnostic tick.
                 // The model still rejects unrepresentable direct calls; no clock jump is used.
                 float nextTime = (float)(Simulation.Elapsed + delta);
-                if (Simulation.ContinuousOperations && nextTime <= Simulation.Elapsed) break;
+                if (delta <= 0 || Simulation.ContinuousOperations && nextTime <= Simulation.Elapsed)
+                { if (Wait) Wait.ObserveSimulationEvents(); break; }
                 Tick(delta); seconds -= delta;
+                if (sleeping && !Wait.IsSleeping) break;
             }
             if (seconds > 0 && ticks >= MaximumDiagnosticTicks)
                 ReportCommand(CommandResult.Fail("Developer advance reached its fixed-tick limit."));

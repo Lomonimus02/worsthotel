@@ -1,3 +1,7 @@
+## Prototype 0.4.1 — phase 7 staff room and sleep
+
+Added a compact two-cot staff niche and real bed consent. SOLO needs one employee; co-op needs two distinct beds. Only the hotel clock accelerates8× until06:00 or a real critical condition; minor events and paid service completion continue normally. Held/released activation, fresh cancellation, pause/device/focus/lease loss, reconnect and session resets have separate safeguards. LAN18 validates sleep state atomically before model mutation. Scene/compile and all15 physical/network/WAIT/pause cases passed, including real branch-trip wake and ordinary Rigidbody gravity. Actual two-EXE sleep and pixel review remain final gates. [Evidence](verification/rhythm041-phase7.md).
+
 ## Prototype 0.4.1 — phase 6 natural daily rhythm
 
 Production stays now return from optional afternoon outings, wind down at staggered bedtimes and wake to one actual morning shower; finite morning activities never restart unpacking or leave again. Demand remains attributed to real room consumers with no hourly multiplier. Schema15/LAN17 atomically preserve dated timing and itinerary boundaries.803 Edit cases passed across full+corrected economic retry,110 focused and2 physical routes passed. Genuine early departures exposed an obsolete fault-count comparison; strict retention/refund/total-cost and unchanged profit/earned-upgrade gates passed without production retuning. [Measured evidence and limitations](verification/rhythm041-phase6.md).

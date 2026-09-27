@@ -36,6 +36,7 @@ namespace WorstHotel
                 lastMessage = LastMessage, planning = Plan.CaptureSnapshot(), model = Simulation.CaptureSnapshot(epoch, sequence),
                 waitReason = Wait ? Wait.Reason : "", waitVotes = new[] { Wait && Wait.HasVoted(0), Wait && Wait.HasVoted(1) },
                 waitProgress = new[] { Wait ? Wait.VoteProgress(0) : 0, Wait ? Wait.VoteProgress(1) : 0 },
+                sleep = Wait ? LanStaffSleepFrame.FromView(Wait.CaptureSleepView()) : new LanStaffSleepFrame(),
                 repairStatus = repair ? repair.Status : ""
             };
         }
@@ -69,6 +70,7 @@ namespace WorstHotel
                 targetPlan = PlanningSystem.FromSnapshot(targetRooms, Economy, BoilerSettings, frame.planning);
             }
             catch (ArgumentException error) { return CommandResult.Fail("Invalid host planning: " + error.Message); }
+            if (!ValidLanSleepFrame(frame, targetSimulation, fresh)) return CommandResult.Fail("Invalid host staff sleep state.");
             var result = targetSimulation.ApplySnapshot(frame.model);
             if (!result.Success) return result;
             Simulation = targetSimulation; Rooms = targetRooms; Plan = targetPlan;
@@ -80,6 +82,7 @@ namespace WorstHotel
                 Phase == DayPhase.Planning || Phase == DayPhase.Service ? null : Simulation.LastReport;
             replicaEpoch = frame.epoch; accumulator = 0;
             if (Wait) Wait.ApplyLanView(frame.waitReason, frame.waitVotes, frame.waitProgress);
+            if (Wait) Wait.ApplyLanSleepView(frame.sleep.ToView());
             RaiseChanged();
             if (ManagementUI.Instance && (fresh || previousPhase != Phase))
             {

@@ -5,10 +5,10 @@ namespace WorstHotel
     /// <summary>Active staff consent controls hotel ticks; player and rigidbody time remain unchanged.</summary>
     [DefaultExecutionOrder(-425)]
     [RequireComponent(typeof(GameSession))]
-    public sealed class WaitController : MonoBehaviour
+    public sealed partial class WaitController : MonoBehaviour
     {
         public WaitConfig config;
-        public bool IsWaiting => session && session.Simulation != null && session.Simulation.Clock.Speed > 1;
+        public bool IsWaiting => Mode == HotelAdvanceMode.Wait;
         public string Reason { get; private set; } = "Both staff hold WAIT to advance to the next hotel event.";
         public bool HasVoted(int actorId) => actorId >= 0 && actorId < 2 && votes[actorId];
         public float VoteProgress(int actorId) => actorId >= 0 && actorId < 2 ? Mathf.Clamp01(heldSeconds[actorId] / settings.HoldSeconds) : 0;
@@ -37,6 +37,7 @@ namespace WorstHotel
             var coop = LocalCoopBootstrap.Instance;
             if (!coop || coop.Players[0] == null || !coop.IsSolo && coop.Players[1] == null)
             { Stop("Two connected staff are required to wait."); return; }
+            if (UpdateSleep(coop)) return;
             for (int i = 0; i < coop.RequiredStaffCount; i++)
                 if (!coop.Players[i].Input.WaitHeld) mustRelease[i] = false;
 
@@ -63,6 +64,7 @@ namespace WorstHotel
             if (votes[0] && (coop.IsSolo || votes[1]))
             {
                 observedRevision = session.Simulation.EventRevision;
+                BeginWaitMode();
                 session.Simulation.Clock.SetSpeed(settings.Speed);
                 Reason = "Waiting for the next hotel event. Move or look to stop.";
             }
@@ -104,6 +106,7 @@ namespace WorstHotel
 
         public void Stop(string reason)
         {
+            StopAdvanceView();
             if (session && session.Simulation != null) session.Simulation.Clock.SetSpeed(1);
             for (int i = 0; i < 2; i++)
             {
@@ -133,7 +136,14 @@ namespace WorstHotel
                 if (observedSimulation != null) observedSimulation.Clock.SetSpeed(1);
                 observedSimulation = simulation;
                 observedRevision = simulation.EventRevision;
+                RevokeSleep(StaffWakeReason.SessionChanged);
                 Stop(LocalCoopBootstrap.Instance && LocalCoopBootstrap.Instance.IsSolo ? "Hold WAIT to advance to the next hotel event." : "Both staff hold WAIT to advance to the next hotel event.");
+                return;
+            }
+            if (HasSleepConsentInProgress)
+            {
+                observedRevision = simulation.EventRevision;
+                ObserveSleepAfterTick();
                 return;
             }
             if (observedRevision != simulation.EventRevision)
@@ -175,8 +185,10 @@ namespace WorstHotel
             GUI.color = new Color(0.045f, 0.075f, 0.085f, 0.88f);
             GUI.DrawTexture(new Rect(x, 732, width, 46), Texture2D.whiteTexture);
             GUI.color = Color.white;
-            string a = VoteText(0, coop.Players[0].Input.WaitLabel), b = coop.IsSolo ? "" : "     |     " + VoteText(1, coop.Players[1].Input.WaitLabel);
-            string debugLabel = IsWaiting && !(votes[0] && (coop.IsSolo || votes[1])) ? "  DEBUG" : "";
+            bool bedConsent = HasSleepConsentInProgress;
+            string a = bedConsent ? SleepVoteText(0) : VoteText(0, coop.Players[0].Input.WaitLabel);
+            string b = coop.IsSolo ? "" : "     |     " + (bedConsent ? SleepVoteText(1) : VoteText(1, coop.Players[1].Input.WaitLabel));
+            string debugLabel = Mode == HotelAdvanceMode.None && session.Simulation.Clock.Speed > 1 ? "  DEBUG" : "";
             GUI.Label(new Rect(x + 8, 733, width - 16, 44),
                 "HOTEL TIME  " + session.Simulation.Clock.Speed + "×" + debugLabel + "     " + a + b + "\n" + Reason, bannerStyle);
             GUI.color = oldColor;
@@ -185,5 +197,7 @@ namespace WorstHotel
 
         private string VoteText(int actorId, string button) => "Staff " + (actorId + 1) + " " + button + ": " +
             (votes[actorId] ? "READY" : mustRelease[actorId] ? "release to rearm" : "hold " + Mathf.RoundToInt(VoteProgress(actorId) * 100) + "%");
+        private string SleepVoteText(int actorId) => "Staff " + (actorId + 1) + ": " +
+            (HasSleepConsent(actorId) ? "BED " + (SleepBedId(actorId) + 1) + " READY" : "use the other staff bed");
     }
 }

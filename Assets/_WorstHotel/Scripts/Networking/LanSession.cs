@@ -232,6 +232,12 @@ namespace WorstHotel
             if (Role != LanRole.Host || !manager || !manager.IsListening || !PeerConnected || remoteClient == ulong.MaxValue) return;
             var session = GameSession.Instance;
             if (hostModel != session.Simulation) { hostModel = session.Simulation; nextModel = nextWorld = 0; }
+            // Connection-menu input runs after the ordinary time controller this frame.
+            // Revoke before publishing so no paused packet retains active advance consent.
+            var advance = session.Wait;
+            if (advance && (advance.IsWaiting || advance.HasSleepConsent(0) || advance.HasSleepConsent(1)) &&
+                (coop.IsPaused || MenuOpen))
+                advance.RevokeSleep(coop.IsPaused ? StaffWakeReason.Paused : StaffWakeReason.MenuOpened);
             if (Time.unscaledTime >= nextModel)
             {
                 nextModel = Time.unscaledTime + .2f;
