@@ -118,7 +118,14 @@ namespace WorstHotel.Tests
                 .Append(Shower(fixture, offer.Application.Archetype)).Max();
             Assert.That(before.OneShowerPeakDemand, Is.EqualTo(expected + maxShower).Within(.00001f));
             Book(fixture, offer, 104); SameForecast(before, hotel.ForecastBookingLoad(offer.Id, 104));
-            Assert.That(hotel.ForecastBookingLoad(offer.Id, 106).Available, Is.False, "A preview cannot move an accepted reservation.");
+            var reserved = hotel.FindReservation(offer.Id);
+            int originalRevision = reserved.Revision;
+            var alternate = hotel.ForecastBookingLoad(offer.Id, 106);
+            Assert.That(alternate.Available, Is.True, alternate.Reason);
+            Assert.That(alternate.MaxConcurrentGuests, Is.EqualTo(4), "An alternative room preview counts the existing stay exactly once.");
+            Assert.That(hotel.FindReservation(offer.Id), Is.SameAs(reserved));
+            Assert.That(reserved.RoomId, Is.EqualTo(104), "A pure preview cannot commit the proposed move.");
+            Assert.That(reserved.Revision, Is.EqualTo(originalRevision));
             Require(hotel.SetBookingPrice(1, offer.Id, fixture.Settings.Economy.MinPrice + fixture.Settings.Economy.PriceStep));
             SameForecast(before, hotel.ForecastBookingLoad(offer.Id, 104));
             Require(hotel.CancelBooking(1, booked[1].Id));

@@ -276,14 +276,16 @@ namespace WorstHotel
         }
 
         public bool SubmitCommand(LanCommandKind kind, string subject = null, int roomId = 0, int amount = 0, int reservationRevision = -1,
-            string directIntentId = null, int directIntentRevision = -1, int maintenanceRevision = -1)
+            string directIntentId = null, int directIntentRevision = -1, int maintenanceRevision = -1,
+            int policyRevision = -1, bool openForSale = false)
         {
             if (!IsClientReplica || !HasSnapshot || !PeerConnected || MenuOpen) return false;
             var session = GameSession.Instance;
             var command = new LanCommand { epoch = Epoch, sequence = ++commandSequence, day = session.Day,
                 phase = session.Phase, kind = kind, subject = subject, roomId = roomId, amount = amount,
                 expectedReservationRevision = reservationRevision, expectedDirectIntentId = directIntentId,
-                expectedDirectIntentRevision = directIntentRevision, expectedMaintenanceRevision = maintenanceRevision };
+                expectedDirectIntentRevision = directIntentRevision, expectedMaintenanceRevision = maintenanceRevision,
+                expectedPolicyRevision = policyRevision, openForSale = openForSale };
             Send(CommandMessage, NetworkManager.ServerClientId, command, LanProtocol.MaxCommandBytes);
             return true;
         }
@@ -301,7 +303,7 @@ namespace WorstHotel
             var command = Read<LanCommand>(reader, LanProtocol.MaxCommandBytes);
             var session = GameSession.Instance;
             if (MenuOpen || !LanProtocol.ValidCommand(command, Epoch, lastCommandSequence, session.Day, session.Phase,
-                session.Simulation.ContinuousOperations) ||
+                session.Simulation.ContinuousOperations, session.Simulation.AutomaticBookingsEnabled) ||
                 session.Phase == DayPhase.Service && !coop.Players[1].IsUIBlocked)
             { RejectedRemoteCommands++; return; }
             lastCommandSequence = command.sequence;

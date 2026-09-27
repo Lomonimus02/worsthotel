@@ -26,7 +26,7 @@ namespace WorstHotel.Tests
             var rooms = settings.Rooms.OrderBy(room => room.Id).Select(room => new RoomState(room)).ToArray();
             var hotel = new HotelSimulation(settings, rooms, asset.living.ToData(), asset.needs.ToData(),
                 asset.noise.ToData(), asset.heater.ToData(), asset.electricity.ToData(), asset.housekeeping.ToData(),
-                asset.services.ToData(), asset.infrastructure.ToData(), asset.OperationsData());
+                asset.services.ToData(), asset.infrastructure.ToData(), ManualBookingFixture.Operations(asset));
             Assert.That(hotel.ContinuousOperations, Is.True, "This test measures the authored continuous capacity model.");
             Require(hotel.StartOperations());
             for (int index = 0; index < kinds.Length; index++)

@@ -9,11 +9,13 @@ namespace WorstHotel
         long replicaEpoch;
         public bool IsLanReplica => Simulation != null && Simulation.IsReadOnlyMirror;
         bool ForwardLan(LanCommandKind kind, string subject = null, int room = 0, int amount = 0, int reservationRevision = -1,
-            string directIntentId = null, int directIntentRevision = -1, int maintenanceRevision = -1)
+            string directIntentId = null, int directIntentRevision = -1, int maintenanceRevision = -1,
+            int policyRevision = -1, bool openForSale = false)
         {
             var lan = LanSession.Instance;
             if (!lan || !lan.IsClientReplica) return false;
-            LastMessage = lan.SubmitCommand(kind, subject, room, amount, reservationRevision, directIntentId, directIntentRevision, maintenanceRevision) ? "Sent to the host…" : "Waiting for the host connection.";
+            LastMessage = lan.SubmitCommand(kind, subject, room, amount, reservationRevision, directIntentId, directIntentRevision,
+                maintenanceRevision, policyRevision, openForSale) ? "Sent to the host…" : "Waiting for the host connection.";
             return true;
         }
 
@@ -126,6 +128,10 @@ namespace WorstHotel
                 case LanCommandKind.AcceptBooking: AcceptBooking(playerId, command.subject, command.roomId, command.amount); break;
                 case LanCommandKind.CancelBooking: CancelBooking(playerId, command.subject, command.expectedReservationRevision); break;
                 case LanCommandKind.SetBookingPrice: SetBookingPrice(playerId, command.subject, command.amount, command.expectedReservationRevision); break;
+                case LanCommandKind.SetRoomSalesPolicy:
+                    SetRoomSalesPolicy(playerId, command.roomId, command.openForSale, command.amount, command.expectedPolicyRevision); break;
+                case LanCommandKind.ReassignBooking:
+                    ReassignBooking(playerId, command.subject, command.roomId, command.expectedReservationRevision); break;
             }
         }
     }

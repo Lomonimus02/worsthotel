@@ -10,6 +10,14 @@ namespace WorstHotel
         string OverviewOccupancy => Session.Rooms.Count(room => room.Occupied) + "/" + Session.Rooms.Length +
             " occupied · " + Session.Rooms.Count(OverviewRoomReady) + " vacant rooms ready";
 
+        int OverviewBookedFor(int day) => Session.Simulation.Reservations.Count(item =>
+            item.Offer.ArrivalDay == day && item.Status != ReservationStatus.Cancelled);
+
+        string OverviewSales => Session.Simulation.RoomSalesPolicies.Count(item => item.OpenForSale) + "/" + Session.Rooms.Length +
+            " open to new sales";
+
+        string OverviewConfirmed => "Booked: today " + OverviewBookedFor(Session.Day) + " · tomorrow " + OverviewBookedFor(Session.Day + 1);
+
         static bool OverviewRoomReady(RoomState room) => !room.Occupied && string.IsNullOrEmpty(room.DepartingGuestId) &&
             room.Cleanliness == Cleanliness.Clean && room.TurnoverState != HousekeepingState.Moving && room.TurnoverState != HousekeepingState.Cleaning;
 
@@ -76,25 +84,31 @@ namespace WorstHotel
         // The text is the same factual projection rendered below; opening it never changes hotel state.
         public string DisplayedOperationsOverview => !IsOperationsOpen || operationsPage != OperationsPage.Overview ? null :
             OverviewOccupancy + "\n" + string.Join("\n", Session.Rooms.Select(OverviewRoomLine)) + "\n" +
-            string.Join("\n", OverviewMovements().Take(5).Select(value => value.label)) + "\n" +
+            (Session.Simulation.AutomaticBookingsEnabled ? OverviewSales + "\n" + OverviewConfirmed + "\n" : "") +
+            string.Join("\n", OverviewMovements().Take(Session.Simulation.AutomaticBookingsEnabled ? 4 : 5).Select(value => value.label)) + "\n" +
             OverviewHeating() + "\n" + OverviewPower + "\n" + OverviewBacklog();
 
         void DrawOperationsOverview()
         {
             var model = Session.Simulation;
+            bool automatic = model.AutomaticBookingsEnabled;
             Label(new Rect(42, 252, 342, 29), "ROOMS", Heading, Teal);
             Label(new Rect(405, 252, 342, 29), "NEXT IN & OUT", Heading, Teal);
             Label(new Rect(42, 283, 342, 26), OverviewOccupancy, Small, Muted);
+            if (automatic) Label(new Rect(42, 307, 342, 23), OverviewSales, Small, Muted);
             for (int index = 0; index < Session.Rooms.Length; index++)
             {
                 var room = Session.Rooms[index];
-                Label(new Rect(42, 312 + index * 28, 342, 26), OverviewRoomLine(room), Small,
+                Label(new Rect(42, (automatic ? 331 : 312) + index * (automatic ? 25 : 28), 342, 25), OverviewRoomLine(room), Small,
                     !room.Occupied && !OverviewRoomReady(room) ? Wine : Ink);
             }
             int row = 0;
-            foreach (var item in OverviewMovements().Take(5))
-                Label(new Rect(405, 288 + row++ * 39, 342, 38), item.label + "\n" + GuestLabels.HotelMoment(model, item.time), Small);
-            if (row == 0) Label(new Rect(405, 294, 342, 66), "No scheduled arrivals or checkouts.\nApplications are available above.", Small, Muted);
+            if (automatic) Label(new Rect(405, 283, 342, 25), OverviewConfirmed, Small, Muted);
+            foreach (var item in OverviewMovements().Take(automatic ? 4 : 5))
+                Label(new Rect(405, (automatic ? 313 : 288) + row++ * 39, 342, 38), item.label + "\n" + GuestLabels.HotelMoment(model, item.time), Small);
+            if (row == 0) Label(new Rect(405, automatic ? 320 : 294, 342, 80), automatic ?
+                "No scheduled arrivals or checkouts.\nNew sales depend on open rooms, rates and demand." :
+                "No scheduled arrivals or checkouts.\nApplications are available above.", Small, Muted);
             Fill(new Rect(42, 493, 705, 132), LightPaper);
             Label(new Rect(55, 500, 679, 28), OverviewHeating(), Small, model.Boiler.Failed || model.Boiler.MaintenanceInProgress ? Wine : Teal);
             Label(new Rect(55, 529, 679, 26), OverviewPower, Small, Ink);

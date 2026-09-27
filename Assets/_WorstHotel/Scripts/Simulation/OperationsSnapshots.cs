@@ -8,11 +8,12 @@ namespace WorstHotel
         public float SecondsPerDay, StartHour, ReportHour, ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour;
         public int ReportHistoryLimit, ReportSequence, PeriodOpeningCash, OffersThroughDay, ServiceDay, PeriodMaintenanceSpend, PeriodCapitalSpend;
         public float PeriodStartedAt;
+        public SalesSnapshot Sales;
         public ReceiptSnapshot[] PeriodReceipts;
         public ScheduledOfferSnapshot[] Offers;
         public ReservationSnapshot[] Reservations;
         public OperationsSettings ToSettings() => new OperationsSettings(SecondsPerDay, StartHour, ReportHour,
-            ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour, ReportHistoryLimit);
+            ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour, ReportHistoryLimit, Sales?.Settings?.ToSettings());
     }
     [Serializable] public sealed class ScheduledOfferSnapshot
     {
@@ -25,6 +26,7 @@ namespace WorstHotel
         public ScheduledOfferSnapshot Offer;
         public int RoomId, Price, ActorId, Revision;
         public ReservationStatus Status;
+        public bool IsAutomatic;
     }
 
     internal static partial class SnapshotData
@@ -42,8 +44,8 @@ namespace WorstHotel
         internal static ScheduledBookingOffer Offer(ScheduledOfferSnapshot o) => new ScheduledBookingOffer(Booking(o.Application),
             o.ArrivalDay, o.ArrivalAt, o.SleepAt, o.WakeAt, o.CheckoutAt);
         internal static ReservationSnapshot Capture(HotelReservation r) => new ReservationSnapshot
-        { Offer = Capture(r.Offer), RoomId = r.RoomId, Price = r.Price, ActorId = r.ActorId, Revision = r.Revision, Status = r.Status };
-        internal static HotelReservation Reservation(ReservationSnapshot r) => new HotelReservation(Offer(r.Offer), r.RoomId, r.Price, r.ActorId)
+        { Offer = Capture(r.Offer), RoomId = r.RoomId, Price = r.Price, ActorId = r.ActorId, Revision = r.Revision, Status = r.Status, IsAutomatic = r.IsAutomatic };
+        internal static HotelReservation Reservation(ReservationSnapshot r) => new HotelReservation(Offer(r.Offer), r.RoomId, r.Price, r.ActorId, r.IsAutomatic)
         { Revision = r.Revision, Status = r.Status };
     }
 
@@ -57,6 +59,7 @@ namespace WorstHotel
             ReportSequence = ReportSequence, PeriodOpeningCash = periodOpeningCash, PeriodStartedAt = periodStartedAt,
             PeriodMaintenanceSpend = PeriodMaintenanceSpend,
             PeriodCapitalSpend = PeriodCapitalSpend,
+            Sales = CaptureSales(),
             OffersThroughDay = offersThroughDay, ServiceDay = operatingServiceDay,
             PeriodReceipts = periodReceipts.Select(SnapshotData.Capture).ToArray(),
             Offers = bookingOffers.Select(SnapshotData.Capture).ToArray(), Reservations = reservations.Select(SnapshotData.Capture).ToArray()
@@ -71,6 +74,7 @@ namespace WorstHotel
             periodReceipts.Clear(); periodReceipts.AddRange(data.PeriodReceipts.Select(SnapshotData.Receipt));
             bookingOffers.Clear(); bookingOffers.AddRange(data.Offers.Select(SnapshotData.Offer));
             reservations.Clear(); reservations.AddRange(data.Reservations.Select(SnapshotData.Reservation));
+            RestoreSales(data.Sales);
             Economy.RestoreOperatingSequence(ReportSequence);
         }
     }
@@ -114,9 +118,12 @@ namespace WorstHotel
             foreach (var reservation in reservations)
             {
                 ValidateScheduledOffer(reservation.Offer, calendar); EnumValue(reservation.Status);
-                Require(roomIds.Contains(reservation.RoomId) && reservation.ActorId >= 0 && reservation.ActorId <= 1 && reservation.Revision >= 1 &&
+                Require(roomIds.Contains(reservation.RoomId) && reservation.ActorId >= (reservation.IsAutomatic ? -1 : 0) && reservation.ActorId <= 1 && reservation.Revision >= 1 &&
                     reservation.Price >= economy.MinPrice && reservation.Price <= economy.MaxPrice &&
                     (reservation.Price - economy.MinPrice) % economy.PriceStep == 0, "Invalid dated reservation.");
+                Require((reservation.Status != ReservationStatus.Reserved || reservation.Revision <= int.MaxValue - 2) &&
+                    (reservation.Status != ReservationStatus.Arrived || reservation.Revision <= int.MaxValue - 1),
+                    "Reservation has no revisions left for its remaining lifecycle.");
                 var guest = model.Guests.FirstOrDefault(item => item.Application.Id == reservation.Offer.Application.Id);
                 if (reservation.Status == ReservationStatus.Arrived || reservation.Status == ReservationStatus.Completed)
                     Require(guest != null && guest.Price == reservation.Price &&

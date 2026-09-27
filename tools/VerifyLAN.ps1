@@ -70,9 +70,10 @@ try {
             throw "$side did not pass with a fresh zero-error report. Inspect $runPath"
         }
         if ($ContinuousFixtures) {
-            foreach ($evidence in @('Mode=ContinuousFixtures', 'PhysicalLedgerAccess=True', 'BookingRoundtrip=True',
-                'PriceEdit=True', 'StaleRevisionRejected=True', 'Cancellation=True', 'MidnightPersistence=True',
-                'ReportOnce=True', 'PostBoundaryBooking=True', 'RemotePaidUpgrades=True', 'UpgradeDoesNotRepair=True',
+            foreach ($evidence in @('Mode=ContinuousFixtures', 'PhysicalLedgerAccess=True', 'SalesPolicyRoundtrip=True',
+                'AutomaticBooking=True', 'Reassignment=True', 'AgreedPricePreserved=True', 'StaleRevisionRejected=True', 'StalePolicyRejected=True',
+                'Cancellation=True', 'MidnightPersistence=True', 'ReportOnce=True', 'PostBoundaryReassignment=True',
+                'RemotePaidUpgrades=True', 'UpgradeDoesNotRepair=True',
                 'DuplicateCapitalRejected=True', 'OtherBranchRejected=True', 'RemotePaidMaintenance=True',
                 'MaintenanceDowntime=True', 'DuplicateMaintenanceRejected=True', 'MaintenanceRestored=True',
                 'ThreeAccountingBoundaries=True', 'ContinuousCapitalVerified=True')) {
@@ -105,7 +106,7 @@ try {
             $report -notmatch 'DisconnectedReadOnly=True')) { throw 'Client report lacks model roundtrip, pose agreement or read-only disconnect evidence.' }
     }
     if ($Capture) {
-        $captureNames = if ($ContinuousFixtures) { @('client-continuous-bookings.png', 'client-continuous-boundary.png', 'client-continuous-report.png',
+        $captureNames = if ($ContinuousFixtures) { @('client-continuous-sales.png', 'client-continuous-bookings.png', 'client-continuous-boundary.png', 'client-continuous-report.png',
             'client-continuous-capital-before.png', 'client-continuous-capital-installed.png', 'client-continuous-maintenance-active.png',
             'client-continuous-maintenance-complete.png', 'client-continuous-report-2.png', 'client-continuous-report-3.png') }
             elseif ($ServiceFixtures) { @('client-service-stock.png', 'client-service-delivered.png', 'client-service-phone.png',

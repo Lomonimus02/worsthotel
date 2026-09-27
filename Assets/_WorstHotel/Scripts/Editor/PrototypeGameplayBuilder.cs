@@ -84,7 +84,10 @@ namespace WorstHotel.Editor
             var economy = Asset<EconomyConfig>(root + "Economy.asset", _ => { });
             var session = Asset<SessionConfig>(root + "PrototypeSession.asset", x =>
             { x.guestArchetypes = new[] { budget, cold, business }; x.rooms = rooms; x.boiler = boiler; x.economy = economy; x.tickRate = 5; x.serviceSeconds = 300; x.totalDays = 3; x.day3BusinessReferencePrice = 525;
-                x.continuousOperations = true; x.hotelDaySeconds = 720; x.openingHour = 8; x.reportHour = 6; });
+                x.continuousOperations = true; x.hotelDaySeconds = 720; x.openingHour = 8; x.reportHour = 6;
+                x.automaticBookings = true; x.initiallyOpenRooms = 4; x.roomSalePrice = 180;
+                x.bookingBaseDemand = .9f; x.bookingPriceElasticity = 1.5f; x.firstDayBookingHour = 8.5f;
+                x.advanceBookingHour = 16; x.bookingDecisionSpacingHours = .5f; x.bookingSeed = 73129; });
             // Extend older scene definitions without replacing any designer-tuned 0.1 field.
             if (!session.living)
             {

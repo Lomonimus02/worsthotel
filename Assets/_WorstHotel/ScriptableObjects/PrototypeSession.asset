@@ -49,3 +49,12 @@ MonoBehaviour:
   hotelDaySeconds: 720
   openingHour: 8
   reportHour: 6
+  automaticBookings: 1
+  initiallyOpenRooms: 4
+  roomSalePrice: 180
+  bookingBaseDemand: 0.9
+  bookingPriceElasticity: 1.5
+  firstDayBookingHour: 8.5
+  advanceBookingHour: 16
+  bookingDecisionSpacingHours: 0.5
+  bookingSeed: 73129

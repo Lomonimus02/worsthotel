@@ -31,10 +31,11 @@ namespace WorstHotel
         public int RoomId { get; internal set; }
         public int Price { get; internal set; }
         public int ActorId { get; internal set; }
+        public bool IsAutomatic { get; }
         public int Revision { get; internal set; } = 1;
         public ReservationStatus Status { get; internal set; }
         public bool Active => Status == ReservationStatus.Reserved || Status == ReservationStatus.Arrived;
-        internal HotelReservation(ScheduledBookingOffer offer, int roomId, int price, int actorId)
-        { Offer = offer; RoomId = roomId; Price = price; ActorId = actorId; }
+        internal HotelReservation(ScheduledBookingOffer offer, int roomId, int price, int actorId, bool isAutomatic = false)
+        { Offer = offer; RoomId = roomId; Price = price; ActorId = actorId; IsAutomatic = isAutomatic; }
     }
 }

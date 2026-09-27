@@ -52,7 +52,7 @@ namespace WorstHotel.Tests
                 var hotel = new HotelSimulation(settings, rooms, living.ToData(), config.needs.ToData(),
                     config.noise.ToData(), config.heater.ToData(), config.electricity.ToData(),
                     config.housekeeping.ToData(), config.services.ToData(), config.infrastructure.ToData(),
-                    config.OperationsData());
+                    ManualBookingFixture.Operations(config));
                 Require(hotel.StartOperations());
                 foreach (int roomId in occupiedRooms) Require(hotel.DebugSpawnGuest(GuestKind.ColdSensitive, roomId));
                 Assert.That(hotel.Guests, Is.Empty, "Diagnostic reservations still wait for their actual scheduled due time.");

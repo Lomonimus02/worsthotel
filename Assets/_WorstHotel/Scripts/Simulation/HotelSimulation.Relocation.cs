@@ -87,6 +87,9 @@ namespace WorstHotel
             if (RoomTurnoverProtected(destination)) return CommandResult.Fail("The destination must be clear of the previous guest and current cleaning task.");
             if (ContinuousOperations)
             {
+                var reservation = FindReservation(guestId);
+                if (reservation != null && reservation.Revision >= int.MaxValue - 1)
+                    return CommandResult.Fail("The booking must retain a revision for checkout.");
                 var datedAvailability = CanReserveInterval(targetRoomId, Elapsed, guest.Agent.CheckoutTime, guest.GuestId);
                 if (!datedAvailability.Success) return datedAvailability;
             }

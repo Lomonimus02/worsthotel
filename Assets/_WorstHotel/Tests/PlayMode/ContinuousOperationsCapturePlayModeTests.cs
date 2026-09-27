@@ -12,7 +12,7 @@ namespace WorstHotel.Tests
     // comes from the separate opt-in built-player operations UI verification.
     public sealed partial class Phase1PlayModeTests
     {
-        [UnityTest, Category("ContinuousOperations")]
+        [UnityTest, Category("ContinuousOperations"), Category("AutomaticSales")]
         public IEnumerator ContinuousOperationsControllerPagesReflectCurrentStatusAndDoNotRepeatCharges()
         {
             ManagementUI.Instance.Close(); bootstrap.ConfigureSolo();
@@ -33,17 +33,26 @@ namespace WorstHotel.Tests
             session.config = waitScenarioSessionConfig; session.NewGame(); ManagementUI.Instance.Close();
             var model = session.Simulation;
             Assert.That(model.ContinuousOperations && bootstrap.IsSolo, Is.True);
-            var today = model.BookingOffers.Where(offer => offer.ArrivalDay == 1).OrderBy(offer => offer.ArrivalAt).Take(2).ToArray();
+            Assert.That(model.AutomaticBookingsEnabled, Is.True);
+            // Restrict today's advertised supply, then let the genuine enquiry slots choose
+            // two stays. Physical room callbacks below remain the labelled presentation adapter.
+            foreach (var policy in model.RoomSalesPolicies)
+                Assert.That(model.SetRoomSalesPolicy(0, policy.RoomId, policy.RoomId <= 102, 180, policy.Revision).Success, Is.True);
+            session.AdvanceTime(model.Calendar.At(1, 12.1f) - model.Elapsed);
+            var today = model.Reservations.Where(row => row.Offer.ArrivalDay == 1 && row.Active).OrderBy(row => row.Offer.ArrivalAt).Select(row => row.Offer).ToArray();
+            Assert.That(today.Length, Is.EqualTo(2));
             for (int index = 0; index < today.Length; index++)
             {
-                Assert.That(session.AcceptBooking(0, today[index].Id, 101 + index, session.Economy.MinPrice).Success, Is.True);
                 session.AdvanceTime(today[index].ArrivalAt - model.Elapsed + .1f);
                 Assert.That(session.ReportGuestReachedReception(today[index].Id).Success, Is.True);
                 Assert.That(CheckInWithModelKeyFixture(session, 0, today[index].Id).Success, Is.True);
                 Assert.That(session.ReportGuestReachedRoom(today[index].Id).Success, Is.True);
             }
-            var tomorrow = model.BookingOffers.Where(offer => offer.ArrivalDay == 2).OrderBy(offer => offer.ArrivalAt).Take(2).ToArray();
-            Assert.That(session.AcceptBooking(0, tomorrow[0].Id, 104, session.Economy.MinPrice).Success, Is.True);
+            foreach (var policy in model.RoomSalesPolicies)
+                Assert.That(model.SetRoomSalesPolicy(0, policy.RoomId, policy.RoomId == 104, 180, policy.Revision).Success, Is.True);
+            session.AdvanceTime(model.Calendar.At(1, 19.6f) - model.Elapsed);
+            var tomorrow = model.Reservations.Single(row => row.Offer.ArrivalDay == 2 && row.Active);
+            Assert.That(tomorrow.RoomId, Is.EqualTo(104));
             // These forced facts demonstrate labels, not natural wear or overload pacing.
             model.Boiler.SetCondition(45);
             Assert.That(model.Electrical.ForceTrip("B").Success, Is.True);
@@ -66,7 +75,7 @@ namespace WorstHotel.Tests
             Assert.That(ui.DisplayedOperationsOverview, Does.Not.Contain("OUT · 101"));
             Assert.That(ui.DisplayedOperationsOverview, Does.Contain("OUT · 102"));
             yield return ChooseOperationsOption("Tomorrow's bookings");
-            yield return ChooseOperationsOption(tomorrow[1].Application.GuestName + " · ");
+            yield return ChooseOperationsOption(tomorrow.Offer.Application.GuestName + " · ");
             yield return ChooseOperationsOption("Room 106 · ");
             yield return ChooseOperationsOption("Forecast · ");
             Assert.That(ui.DisplayedForecastCircuitState, Does.Contain("TRIPPED · reset required"));

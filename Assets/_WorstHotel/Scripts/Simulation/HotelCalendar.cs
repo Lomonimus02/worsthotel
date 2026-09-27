@@ -12,10 +12,11 @@ namespace WorstHotel
         public float SleepHour { get; }
         public float CheckoutHour { get; }
         public int ReportHistoryLimit { get; }
+        public SalesSettings Sales { get; }
 
         public OperationsSettings(float secondsPerDay = 720, float startHour = 8, float reportHour = 6,
             float arrivalStartHour = 14, float arrivalEndHour = 18, float sleepHour = 23,
-            float checkoutHour = 10, int reportHistoryLimit = 32)
+            float checkoutHour = 10, int reportHistoryLimit = 32, SalesSettings sales = null)
         {
             if (!Number.IsFinite(secondsPerDay) || secondsPerDay < 24 ||
                 !ValidHour(startHour) || !ValidHour(reportHour) || !ValidHour(arrivalStartHour) ||
@@ -26,6 +27,8 @@ namespace WorstHotel
             SecondsPerDay = secondsPerDay; StartHour = startHour; ReportHour = reportHour;
             ArrivalStartHour = arrivalStartHour; ArrivalEndHour = arrivalEndHour;
             SleepHour = sleepHour; CheckoutHour = checkoutHour; ReportHistoryLimit = reportHistoryLimit;
+            Sales = sales ?? new SalesSettings();
+            Sales.ValidateCalendar(startHour, arrivalStartHour);
         }
 
         static bool ValidHour(float value) => Number.IsFinite(value) && value >= 0 && value < 24;

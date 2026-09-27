@@ -16,7 +16,7 @@ namespace WorstHotel.Tests
             var settings = config.ToData();
             var model = new HotelSimulation(settings, settings.Rooms.Select(room => new RoomState(room)).ToArray(),
                 config.living.ToData(), config.needs.ToData(), config.noise.ToData(), config.heater.ToData(),
-                config.electricity.ToData(), config.housekeeping.ToData(), config.services.ToData(), config.infrastructure.ToData(), config.OperationsData());
+                config.electricity.ToData(), config.housekeeping.ToData(), config.services.ToData(), config.infrastructure.ToData(), ManualBookingFixture.Operations(config));
             Require(model.StartOperations());
             return model;
         }

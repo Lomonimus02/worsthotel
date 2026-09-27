@@ -45,7 +45,7 @@ namespace WorstHotel
             var offer = new ScheduledBookingOffer(application, day, arrival, sleep,
                 ScheduledWakeAt(day), Calendar.At(day + 1, Operations.CheckoutHour));
             bookingOffers.Add(offer);
-            var result = AcceptBooking(0, offer.Id, roomId, price);
+            var result = CommitBooking(offer, roomId, price, 0, false);
             bookingOffers.Remove(offer);
             return result;
         }
@@ -96,17 +96,25 @@ namespace WorstHotel
         public CommandResult AcceptBooking(int actorId, string offerId, int roomId, int price)
         {
             var gate = BookingCommandGate(actorId); if (!gate.Success) return gate;
+            if (AutomaticBookingsEnabled)
+                return CommandResult.Fail("Ordinary reservations arrive automatically. Manage room sales and rates instead.");
             var offer = bookingOffers.FirstOrDefault(item => item.Id == offerId);
+            return CommitBooking(offer, roomId, price, actorId, false);
+        }
+
+        CommandResult CommitBooking(ScheduledBookingOffer offer, int roomId, int price, int actorId, bool automatic)
+        {
             if (offer == null) return CommandResult.Fail("This booking enquiry is no longer available.");
-            if (FindReservation(offerId) != null) return CommandResult.Fail("This enquiry has already been decided.");
+            if (FindReservation(offer.Id) != null) return CommandResult.Fail("This enquiry has already been decided.");
             if (!ValidBookingPrice(price)) return CommandResult.Fail("Choose a price on the hotel's allowed price grid.");
             var availability = CanReserveRoom(roomId, offer); if (!availability.Success) return availability;
             PruneCompletedOperatingHistory();
             // Protected bodies/items are never erased just to make a booking fit on the wire.
             if (reservations.Count >= 128)
                 return CommandResult.Fail("The guest ledger is full. Finish departures and store unclaimed luggage before accepting more stays.");
-            reservations.Add(new HotelReservation(offer, roomId, price, actorId));
-            SignalEvent("Booking accepted: " + offer.Application.GuestName + ", room " + roomId + ", day " + offer.ArrivalDay);
+            reservations.Add(new HotelReservation(offer, roomId, price, actorId, automatic));
+            SignalEvent((automatic ? "New reservation: " : "Booking accepted: ") + offer.Application.GuestName +
+                ", room " + roomId + ", day " + offer.ArrivalDay);
             return CommandResult.Ok("One-night booking accepted. " + availability.Message);
         }
 
@@ -114,6 +122,7 @@ namespace WorstHotel
         {
             var gate = EditableBooking(actorId, reservationId, expectedRevision, out var reservation);
             if (!gate.Success) return gate;
+            if (reservation.Revision == int.MaxValue) return CommandResult.Fail("The booking revision is exhausted.");
             reservation.Status = ReservationStatus.Cancelled; reservation.Revision++;
             SignalEvent("Booking cancelled: " + reservation.Offer.Application.GuestName);
             return CommandResult.Ok("Future booking cancelled.");
@@ -123,10 +132,30 @@ namespace WorstHotel
         {
             var gate = EditableBooking(actorId, reservationId, expectedRevision, out var reservation);
             if (!gate.Success) return gate;
+            if (AutomaticBookingsEnabled)
+                return CommandResult.Fail("This guest's agreed price is fixed. Change room sale rates for future reservations.");
             if (!ValidBookingPrice(price)) return CommandResult.Fail("Choose a price on the hotel's allowed price grid.");
+            if (reservation.Price == price) return CommandResult.Ok("The agreed price is unchanged.");
+            if (reservation.Revision >= int.MaxValue - 2)
+                return CommandResult.Fail("The booking must retain revisions for arrival and checkout.");
             reservation.Price = price; reservation.ActorId = actorId; reservation.Revision++;
             SignalEvent("Future booking price updated");
             return CommandResult.Ok("Agreed price updated before arrival.");
+        }
+
+        public CommandResult ReassignBooking(int actorId, string reservationId, int roomId, int expectedRevision = -1)
+        {
+            var gate = EditableBooking(actorId, reservationId, expectedRevision, out var reservation);
+            if (!gate.Success) return gate;
+            var available = CanReserveInterval(roomId, reservation.Offer.ArrivalAt, reservation.Offer.CheckoutAt, reservation.Id);
+            if (!available.Success) return available;
+            if (reservation.RoomId == roomId) return CommandResult.Ok("This reservation is already assigned to that room.");
+            if (reservation.Revision >= int.MaxValue - 2)
+                return CommandResult.Fail("The booking must retain revisions for arrival and checkout.");
+            // A closed sales room may receive an existing contract. Price and dated identity stay fixed.
+            reservation.RoomId = roomId; reservation.ActorId = actorId; reservation.Revision++;
+            SignalEvent("Booking room changed: " + reservation.Offer.Application.GuestName + ", room " + roomId);
+            return CommandResult.Ok("Room assignment updated. The guest keeps the agreed price and dates.");
         }
 
         CommandResult EditableBooking(int actorId, string id, int revision, out HotelReservation reservation)

@@ -12,6 +12,11 @@ namespace WorstHotel
         {
             var fresh = session.Simulation;
             Require(fresh.ContinuousOperations && fresh.Guests.Count == 0, "fresh-reset inventory belongs to the new empty continuous hotel");
+            Require(fresh.AutomaticBookingsEnabled && fresh.RoomSalesPolicies.Count == session.Rooms.Length &&
+                fresh.RoomSalesPolicies.Count(row => row.OpenForSale) == fresh.Operations.Sales.InitiallyOpenRooms &&
+                fresh.RoomSalesPolicies.All(row => row.Price == fresh.Operations.Sales.InitialPrice && row.Revision == 1) &&
+                fresh.SalesDecisionCursors.Count == 2 && fresh.SalesDecisionCursors.All(row => row.NextOfferIndex == 0),
+                "new game resets sales policies and timed demand without instantly creating reservations");
             Require(fresh.Keys.Items.Count == session.Rooms.Length && fresh.Keys.Items.All(item =>
                 item.Location == RoomKeyLocation.OnRack && !item.PlayerId.HasValue && string.IsNullOrEmpty(item.GuestId)),
                 "fresh reset returns exactly one unowned key per room to its rack");

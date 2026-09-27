@@ -10,15 +10,8 @@ namespace WorstHotel
 {
     public sealed partial class LanDevelopmentVerification
     {
-        ScheduledBookingOffer[] ContinuousTomorrowOffers() => session.Simulation.BookingOffers
-            .Where(item => item.ArrivalDay == 2).OrderBy(item => item.ArrivalAt).ToArray();
-
-        int ContinuousReferenceRate(ScheduledBookingOffer offer)
-        {
-            int min = session.Economy.MinPrice, step = session.Economy.PriceStep;
-            int max = min + (session.Economy.MaxPrice - min) / step * step;
-            return Mathf.Clamp(min + Mathf.RoundToInt((offer.Application.ReferencePrice - min) / (float)step) * step, min, max);
-        }
+        HotelReservation[] ContinuousSecondDateBookings() => session.Simulation.Reservations
+            .Where(item => item.Offer.ArrivalDay == 2).OrderBy(item => item.Offer.ArrivalAt).ToArray();
 
         void RequireProductionContinuous()
         {
@@ -26,6 +19,8 @@ namespace WorstHotel
                 "continuous LAN fixture uses production continuous mode, not a legacy clone");
             Require(session.config.hotelDaySeconds == 720 && session.config.openingHour == 8 && session.config.reportHour == 6,
                 "continuous LAN fixture retains production calendar timing");
+            Require(session.config.automaticBookings && session.Simulation.AutomaticBookingsEnabled,
+                "ordinary reservations use production automatic sales, not manual approval");
             Require(session.Phase == DayPhase.Service && !session.PlanCommitted && session.Simulation.Running,
                 "hotel operates without committing a shift plan");
             facts.Add("LANVersion=" + LanProtocol.Version + " ModelSchema=" + HotelModelSnapshot.ProtocolVersion +
@@ -36,16 +31,20 @@ namespace WorstHotel
         {
             Require(NetworkManager.Singleton && NetworkManager.Singleton.IsListening, "actual NGO host listens");
             RequireProductionContinuous();
-            WriteStage("host-listening");
-            yield return Until(() => lan.PeerConnected, 35, "continuous remote client connected normally");
-            CheckCameraAndAuthority();
             var model = session.Simulation;
             var rooms = session.Rooms;
             long epoch = lan.Epoch;
-            var offers = ContinuousTomorrowOffers();
-            Require(offers.Length >= 3 && model.Guests.Count == 0, "tomorrow enquiries have no materialized guests");
-            string primaryId = offers[0].Id, cancelledId = offers[1].Id, laterId = offers[2].Id;
-            int updatedPrice = ContinuousReferenceRate(offers[0]) + session.Economy.PriceStep;
+            Require(model.Elapsed < model.SalesDecisionAt(1, 0) && model.Reservations.Count == 0,
+                "fresh host closes first-date sales before the first ordinary demand decision");
+            foreach (var policy in model.RoomSalesPolicies)
+                Require(model.SetRoomSalesPolicy(0, policy.RoomId, false, policy.Price, policy.Revision).Success,
+                    "normal host policy command closes room " + policy.RoomId);
+            session.RaiseChanged();
+            facts.Add("DIAGNOSTIC: ordinary host model sales-policy commands close all rooms before the first enquiry while transport connects. No sales configuration is disabled and no reservation is injected. Subsequent opening/rate/reassignment uses actual client controller commands.");
+            WriteStage("host-listening");
+            yield return Until(() => lan.PeerConnected, 35, "continuous remote client connected normally");
+            CheckCameraAndAuthority();
+            Require(model.Guests.Count == 0 && model.Reservations.Count == 0, "closed initial sales created no stays while the peer connected");
             var terminal = FindAnyObjectByType<ReceptionTerminal>();
             Require(terminal, "authored reception terminal exists");
             Vector3 aim = terminal.transform.position + Vector3.up * .35f;
@@ -55,20 +54,49 @@ namespace WorstHotel
             WriteStage("continuous-reception-ready");
             yield return Stage("continuous-ledger-open", 30);
             yield return Until(() => coop.Players[1].IsUIBlocked, 5, "host received actual client ledger UI state");
-            yield return Until(() => model.FindReservation(primaryId)?.Revision == 2, 45, "remote controller accepts and edits tomorrow reservation");
+            AdvanceContinuousDiagnosticTo(model.Calendar.At(1, 12.5f), "closed first-date demand window");
+            Require(model.SalesDecisionCursors.Single(item => item.ArrivalDay == 1).NextOfferIndex == SalesSettings.DecisionsPerDay &&
+                model.Reservations.Count == 0, "closed sales consume the day's timed enquiries without a queued reopening burst");
+            WriteStage("continuous-sales-ready");
+            yield return Stage("continuous-sales-opened", 60);
+            int advertisedRate = model.Operations.Sales.InitialPrice + session.Economy.PriceStep;
+            Require(model.RoomSalesPolicies.Count(item => item.OpenForSale) == 3 &&
+                model.RoomSalesPolicies.Where(item => item.OpenForSale).All(item => item.RoomId >= 101 && item.RoomId <= 103) &&
+                model.RoomSalesPolicies.Single(item => item.RoomId == 101).Price == advertisedRate,
+                "actual remote controller opens three sale rooms and edits one future rate");
+            Require(model.Reservations.Count == 0 && model.Guests.Count == 0,
+                "policy edits alone do not create guests or future reservations");
+            WriteStage("continuous-sales-observed");
+            yield return Stage("continuous-policy-stale-sent", 12);
+            yield return Until(() => session.LastMessage.Contains("sales policy changed"), 8, "normal host bridge rejects a stale policy revision");
+            Require(model.RoomSalesPolicies.Single(item => item.RoomId == 101).OpenForSale &&
+                model.RoomSalesPolicies.Single(item => item.RoomId == 101).Price == advertisedRate && model.Reservations.Count == 0,
+                "stale policy intent cannot close or reprice the current sale");
+            WriteStage("continuous-policy-stale-rejected");
+            yield return Stage("continuous-demand-observe-ready", 12);
+            AdvanceContinuousDiagnosticTo(model.Calendar.At(1, 19.6f), "normal timed automatic enquiries for second date");
+            var bookings = ContinuousSecondDateBookings();
+            Require(bookings.Length == 3 && bookings.All(item => item.IsAutomatic && item.ActorId == -1 && item.Revision == 1 &&
+                item.Status == ReservationStatus.Reserved), "production seeded demand created three ordinary future reservations without approval");
+            Require(bookings.Any(item => item.RoomId == 101 && item.Price == advertisedRate),
+                "the advertised rate is captured in the future room101 agreement");
+            string primaryId = bookings[0].Id, cancelledId = bookings[1].Id, laterId = bookings[2].Id;
+            int agreedPrice = bookings[0].Price, cancelledRoom = bookings[1].RoomId, laterPrice = bookings[2].Price;
+            WriteStage("continuous-demand-ready");
+            yield return Until(() => model.FindReservation(primaryId)?.Revision == 2, 45, "remote controller reassigns an automatically booked stay");
             var reservation = model.FindReservation(primaryId);
-            Require(reservation.Status == ReservationStatus.Reserved && reservation.RoomId == 101 &&
-                reservation.Price == updatedPrice && reservation.ActorId == 1, "host owns exact edited reservation from authenticated actor1");
+            Require(reservation.Status == ReservationStatus.Reserved && reservation.RoomId == 105 && reservation.IsAutomatic &&
+                reservation.Price == agreedPrice && reservation.ActorId == 1, "host reassigns the same automatic contract while preserving its agreed price");
             Require(model.Guests.Count == 0 && rooms.All(room => !room.Occupied && room.ReservedGuestId == null),
-                "future acceptance does not occupy today's rooms or spawn guests");
+                "future automatic bookings and reassignment do not occupy today's rooms or spawn guests");
             WriteStage("continuous-edit-observed");
             yield return Stage("continuous-stale-sent", 12);
             yield return Until(() => session.LastMessage.Contains("booking changed"), 8, "normal command route rejects stale reservation revision");
-            Require(reservation.Revision == 2 && reservation.Status == ReservationStatus.Reserved && reservation.Price == updatedPrice,
-                "stale cancel does not mutate the newer price agreement");
+            Require(reservation.Revision == 2 && reservation.Status == ReservationStatus.Reserved && reservation.Price == agreedPrice && reservation.RoomId == 105,
+                "stale cancel does not mutate the newer room assignment or agreed price");
             WriteStage("continuous-stale-rejected");
             yield return Until(() => model.FindReservation(cancelledId)?.Status == ReservationStatus.Cancelled, 40,
-                "second controller-created reservation is cancelled through host command");
+                "second automatically created reservation is cancelled through the actual client controller");
             yield return Stage("continuous-ready-boundary", 12);
 
             int cashBefore = model.Economy.Cash;
@@ -101,8 +129,9 @@ namespace WorstHotel
                 "turnover identity and dirty linen persist across the calendar boundary");
             Require(model.Keys.Find(101) == rackKey && rackKey.Location == RoomKeyLocation.OnRack,
                 "the same physical room key remains on its rack");
-            Require(model.FindReservation(primaryId).Status == ReservationStatus.Reserved && model.FindReservation(primaryId).Price == updatedPrice,
-                "tomorrow reservation survives midnight with its agreed price");
+            Require(model.FindReservation(primaryId).Status == ReservationStatus.Reserved && model.FindReservation(primaryId).Price == agreedPrice &&
+                model.FindReservation(primaryId).RoomId == 105 && model.FindReservation(primaryId).IsAutomatic,
+                "automatic reservation survives midnight with its origin, room and agreed price");
             Require(model.Economy.Cash == cashBefore - session.Economy.DailyOperatingCost && model.LastReport.Receipts.Count == 0,
                 "exactly one operating charge and no premature guest receipts");
             var report = model.LastReport;
@@ -110,14 +139,15 @@ namespace WorstHotel
                 "; normal fixed-tick AdvanceTime crosses midnight/report; not a human-duration or arrival-route test.");
             WriteStage("continuous-boundary-ready");
             yield return Stage("continuous-boundary-observed", 18);
-            yield return Until(() => model.FindReservation(laterId)?.Status == ReservationStatus.Reserved, 35,
-                "client can accept another current-day booking after midnight through the same connection");
-            Require(model.FindReservation(laterId).ActorId == 1 && model.FindReservation(laterId).RoomId == 102,
-                "cancelled room capacity is reused by the new authenticated reservation");
+            yield return Until(() => model.FindReservation(laterId)?.Revision == 2, 35,
+                "client can reassign another existing booking after midnight through the same connection");
+            Require(model.FindReservation(laterId).ActorId == 1 && model.FindReservation(laterId).RoomId == cancelledRoom &&
+                model.FindReservation(laterId).Price == laterPrice && model.FindReservation(laterId).IsAutomatic,
+                "cancelled room capacity is reused by a legal reassignment without repricing or creating a new contract");
             Require(model.LastReport == report && model.DayReports.Count == 1 && model.Economy.Cash == cashBefore - session.Economy.DailyOperatingCost,
                 "subsequent booking and report reading cannot charge the accounting period twice");
-            Require(lan.AcceptedRemoteCommands >= 6, "normal NGO accepted booking, edit, stale attempt, second booking, cancel and post-boundary booking envelopes");
-            facts.Add("PhysicalLedgerAccess=True BookingRoundtrip=True PriceEdit=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryBooking=True");
+            Require(lan.AcceptedRemoteCommands >= 8, "normal NGO carried three policy edits, stale policy, reassignment, stale cancel, cancellation and post-boundary reassignment");
+            facts.Add("PhysicalLedgerAccess=True BookingRoundtrip=True SalesPolicyRoundtrip=True AutomaticBooking=True Reassignment=True AgreedPricePreserved=True StalePolicyRejected=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryReassignment=True");
             facts.Add("HostEpoch=" + epoch + " Day=" + session.Day + " Cash=" + model.Economy.Cash + " Report=" + report.DayNumber +
                 " RemoteCommands=" + lan.AcceptedRemoteCommands + " ModelBytes=" + lan.LastModelBytes + " WorldBytes=" + lan.LastWorldBytes);
             WriteStage("continuous-booking-roundtrip-complete");
@@ -136,9 +166,6 @@ namespace WorstHotel
             lastClientSequence = lan.AppliedModelSequence; lastClientClock = session.Simulation.Elapsed; clockTracking = true;
             ManagementUI.Instance.Close();
             var mirror = session.Simulation; var rooms = session.Rooms; long epoch = lan.Epoch;
-            var offers = ContinuousTomorrowOffers();
-            Require(offers.Length >= 3, "client received dated enquiries");
-            string primaryId = offers[0].Id, cancelledId = offers[1].Id, laterId = offers[2].Id;
             yield return Stage("continuous-reception-ready", 12);
             var terminal = FindAnyObjectByType<ReceptionTerminal>();
             Vector3 aim = terminal.transform.position + Vector3.up * .35f;
@@ -149,27 +176,54 @@ namespace WorstHotel
             yield return Until(() => ManagementUI.Instance.IsOperationsOpen && ManagementUI.Instance.Owner == 1, 6,
                 "real client use opens the physically authorized operations journal");
             WriteStage("continuous-ledger-open");
+            yield return Stage("continuous-sales-ready", 15);
+            yield return Until(() => mirror.SalesDecisionCursors.Any(item => item.ArrivalDay == 1 && item.NextOfferIndex == SalesSettings.DecisionsPerDay) &&
+                mirror.RoomSalesPolicies.All(item => !item.OpenForSale), 8, "replica observes consumed first-date demand with all sales closed");
+            Require(mirror.Reservations.Count == 0 && mirror.Guests.Count == 0, "closed first-date sales have no fabricated reservations");
+            yield return ContinuousChoose("Room sales / rates");
+            for (int roomId = 101; roomId <= 103; roomId++) yield return ContinuousOpenSalesRoom(roomId, roomId == 101);
+            Require(mirror.Reservations.Count == 0 && mirror.Guests.Count == 0, "actual sales-policy UI never instantly creates a booking");
+            if (capture) yield return Capture("client-continuous-sales");
+            yield return ContinuousChoose("Back to operations");
+            WriteStage("continuous-sales-opened");
+            yield return Stage("continuous-sales-observed", 10);
+            var policy101 = mirror.RoomSalesPolicies.Single(item => item.RoomId == 101);
+            int currentPolicyRevision = policy101.Revision, advertisedRate = policy101.Price;
+            // Negative requests use the normal authenticated bridge while the actual ledger is open.
+            session.SetRoomSalesPolicy(1, 101, false, advertisedRate + session.Economy.PriceStep, currentPolicyRevision - 1);
+            WriteStage("continuous-policy-stale-sent");
+            yield return Stage("continuous-policy-stale-rejected", 12);
+            policy101 = mirror.RoomSalesPolicies.Single(item => item.RoomId == 101);
+            Require(policy101.Revision == currentPolicyRevision && policy101.OpenForSale && policy101.Price == advertisedRate,
+                "stale policy command cannot overwrite the accepted current draft");
+            WriteStage("continuous-demand-observe-ready");
+            yield return Stage("continuous-demand-ready", 18);
+            yield return Until(() => ContinuousSecondDateBookings().Length == 3, 10, "timed production reservations return through ordinary host snapshots");
+            var bookings = ContinuousSecondDateBookings();
+            Require(bookings.All(item => item.IsAutomatic && item.ActorId == -1 && item.Status == ReservationStatus.Reserved),
+                "replica receives explicit automatic origin, without client acceptance");
+            string primaryId = bookings[0].Id, cancelledId = bookings[1].Id, laterId = bookings[2].Id;
+            int cancelledRoom = bookings[1].RoomId, laterPrice = bookings[2].Price;
             yield return ContinuousChoose("Tomorrow's bookings");
-            yield return ContinuousChoose(offers[0].Application.GuestName + " · ");
-            yield return ContinuousChoose("Accept booking");
-            yield return Until(() => mirror.FindReservation(primaryId)?.Status == ReservationStatus.Reserved, 8, "accepted booking returns through normal snapshots");
+            yield return ContinuousChoose(bookings[0].Offer.Application.GuestName + " · ");
             int originalRevision = mirror.FindReservation(primaryId).Revision;
             int originalPrice = mirror.FindReservation(primaryId).Price;
-            yield return ContinuousChoose("+ $");
-            yield return ContinuousChoose("Update agreed price");
+            yield return ContinuousChoose("Room 105 · ");
+            yield return ContinuousChoose("Reassign booking");
             yield return Until(() => mirror.FindReservation(primaryId)?.Revision == originalRevision + 1 &&
-                mirror.FindReservation(primaryId).Price == originalPrice + session.Economy.PriceStep, 8, "edited price returns through host snapshot");
+                mirror.FindReservation(primaryId).RoomId == 105, 8, "reassignment returns through the authoritative host snapshot");
+            Require(mirror.FindReservation(primaryId).Price == originalPrice && mirror.FindReservation(primaryId).IsAutomatic,
+                "actual reassignment preserves the original agreed price and automatic origin");
             yield return Stage("continuous-edit-observed", 8);
             // Explicit negative command fixture, not an injected server mutation or custom diagnostic RPC.
             session.CancelBooking(1, primaryId, originalRevision);
             WriteStage("continuous-stale-sent");
             yield return Stage("continuous-stale-rejected", 10);
             Require(mirror.FindReservation(primaryId).Status == ReservationStatus.Reserved &&
-                mirror.FindReservation(primaryId).Revision == originalRevision + 1, "stale partner intent leaves the newer reservation intact");
+                mirror.FindReservation(primaryId).Revision == originalRevision + 1 && mirror.FindReservation(primaryId).RoomId == 105,
+                "stale partner intent leaves the newer reservation intact");
             yield return ContinuousChoose("Back to bookings");
-            yield return ContinuousChoose(offers[1].Application.GuestName + " · ");
-            yield return ContinuousChoose("Accept booking");
-            yield return Until(() => mirror.FindReservation(cancelledId)?.Status == ReservationStatus.Reserved, 8, "second future reservation is authoritative");
+            yield return ContinuousChoose(bookings[1].Offer.Application.GuestName + " · ");
             yield return ContinuousChoose("Cancel reservation");
             yield return Until(() => mirror.FindReservation(cancelledId)?.Status == ReservationStatus.Cancelled, 8, "cancellation returns in normal snapshot");
             yield return ContinuousChoose("Back to bookings");
@@ -200,8 +254,8 @@ namespace WorstHotel
             Require(mirror.Economy.Cash == cashBefore - session.Economy.DailyOperatingCost && session.Report.Receipts.Count == 0,
                 "client receives exactly one operating cost without premature room payments");
             Require(mirror.FindReservation(primaryId).Status == ReservationStatus.Reserved &&
-                mirror.FindReservation(primaryId).Price == originalPrice + session.Economy.PriceStep &&
-                mirror.FindReservation(cancelledId).Status == ReservationStatus.Cancelled, "both edited and cancelled booking decisions survive");
+                mirror.FindReservation(primaryId).Price == originalPrice && mirror.FindReservation(primaryId).RoomId == 105 &&
+                mirror.FindReservation(cancelledId).Status == ReservationStatus.Cancelled, "both reassigned and cancelled booking decisions survive");
             if (capture) yield return Capture("client-continuous-boundary");
             yield return ContinuousChoose("Daily reports");
             yield return ContinuousChoose("Operating report 1");
@@ -213,10 +267,15 @@ namespace WorstHotel
             yield return ContinuousChoose("Back to reports");
             yield return ContinuousChoose("Back to operations");
             yield return ContinuousChoose("Today's bookings");
-            yield return ContinuousChoose(offers[2].Application.GuestName + " · ");
-            yield return ContinuousChoose("Accept booking");
-            yield return Until(() => mirror.FindReservation(laterId)?.Status == ReservationStatus.Reserved, 8,
-                "post-midnight enquiry still uses live authenticated network commands");
+            yield return ContinuousChoose(bookings[2].Offer.Application.GuestName + " · ");
+            int laterRevision = mirror.FindReservation(laterId).Revision;
+            yield return ContinuousChoose("Room " + cancelledRoom + " · ");
+            yield return ContinuousChoose("Reassign booking");
+            yield return Until(() => mirror.FindReservation(laterId)?.Revision == laterRevision + 1 &&
+                mirror.FindReservation(laterId).RoomId == cancelledRoom, 8,
+                "post-midnight reassignment still uses live authenticated network commands");
+            Require(mirror.FindReservation(laterId).Price == laterPrice && mirror.FindReservation(laterId).IsAutomatic,
+                "post-midnight room change preserves the same agreed price and origin");
             yield return Stage("continuous-booking-roundtrip-complete", 10);
             yield return RunContinuousCapitalClient();
             yield return Stage("continuous-host-complete", 10);
@@ -225,11 +284,26 @@ namespace WorstHotel
                 "mirror clock and reservations only change through host snapshots");
             Require(ManagementUI.Instance.IsOperationsOpen && lan.Epoch == epoch && session.Simulation == mirror,
                 "same connection and local menu remain usable throughout");
-            facts.Add("PhysicalLedgerAccess=True BookingRoundtrip=True PriceEdit=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryBooking=True");
+            facts.Add("PhysicalLedgerAccess=True BookingRoundtrip=True SalesPolicyRoundtrip=True AutomaticBooking=True Reassignment=True AgreedPricePreserved=True StalePolicyRejected=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryReassignment=True");
             facts.Add("ReadOnlyMirror=True SnapshotOnlyClockChecks=" + stableClockChecks + " HostEpoch=" + epoch +
                 " Day=" + session.Day + " Cash=" + mirror.Economy.Cash + " Report=" + session.Report.DayNumber +
                 "; forced system faults and bounded diagnostic advance are setup, not human play or natural overload evidence.");
             Queue(default); WriteStage("client-complete");
+        }
+
+        IEnumerator ContinuousOpenSalesRoom(int roomId, bool raiseRate)
+        {
+            var model = session.Simulation;
+            var policy = model.RoomSalesPolicies.Single(item => item.RoomId == roomId);
+            int revision = policy.Revision, rate = policy.Price + (raiseRate ? session.Economy.PriceStep : 0);
+            Require(!policy.OpenForSale, "room " + roomId + " starts closed before actual controller policy editing");
+            yield return ContinuousChoose("Room " + roomId + " · ");
+            yield return ContinuousChoose("Open to new sales");
+            if (raiseRate) yield return ContinuousChoose("+ $");
+            yield return ContinuousChoose("Apply sales policy");
+            yield return Until(() => model.RoomSalesPolicies.Any(item => item.RoomId == roomId && item.Revision == revision + 1 &&
+                item.OpenForSale && item.Price == rate), 8, "accepted room " + roomId + " policy returns through the snapshot");
+            yield return ContinuousChoose("Back to room sales");
         }
 
         IEnumerator ContinuousChoose(string prefix)

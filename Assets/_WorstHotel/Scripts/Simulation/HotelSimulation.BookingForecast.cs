@@ -26,8 +26,6 @@ namespace WorstHotel
             var reservation = FindReservation(offerId);
             if (reservation != null && reservation.Status != ReservationStatus.Reserved)
                 return new BookingLoadForecast(offerId, roomId, "This enquiry is no longer a future booking.");
-            if (reservation != null && reservation.RoomId != roomId)
-                return new BookingLoadForecast(offerId, roomId, "This booking already has a different assigned room.");
             var offer = reservation?.Offer ?? bookingOffers.FirstOrDefault(item => item.Id == offerId);
             if (offer == null || offer.ArrivalAt <= Elapsed)
                 return new BookingLoadForecast(offerId, roomId, "This arrival enquiry is no longer available.");

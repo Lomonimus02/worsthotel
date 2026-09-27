@@ -70,14 +70,20 @@ if ($ServiceFixtures -and $reportText -notmatch 'GuestServicesVerified=True') { 
 if ($ServiceFixtures -and $reportText -notmatch 'NaturalContactsVerified=True') { throw 'Natural guest contact fixtures did not complete.' }
 if ($ContinuousFixtures) {
     foreach ($evidence in @('ContinuousOperationsVerified=True CashConserved=True ModelContinuity=True RoomRegistryContinuity=True ClockContinuity=True EpochContinuity=True',
-        'Reports=3 UniquePaidStays=14 CurrentPeriodReceipts=5', 'StaffSlots=1 ModelKeyHandoffs=14', 'ContinuousFreshInventoryReset=True')) {
+        'AutomaticSales=True SalesClosurePreservesContracts=True AgreedRatesPreserved=True', 'ContinuousFreshInventoryReset=True')) {
         if ($reportText -notmatch [regex]::Escape($evidence)) { throw "Continuous SOLO lacks $evidence. Inspect $report" }
     }
+    $soldCount = 0
     foreach ($cohort in 1..3) {
-        $count = if ($cohort -eq 1) { 4 } else { 5 }
-        if ($reportText -notmatch "Cohort ${cohort}: booked=$count checkedIn=$count actualRoomArrivals=$count actualDepartures=$count paidStays=$count") {
+        $capacity = if ($cohort -eq 1) { 4 } else { 5 }
+        $cohortMatch = [regex]::Match($reportText, "Cohort ${cohort}: booked=(\d+) checkedIn=\1 actualRoomArrivals=\1 actualDepartures=\1 paidStays=\1(?: |\r?\n)")
+        if (-not $cohortMatch.Success -or [int]$cohortMatch.Groups[1].Value -lt 1 -or [int]$cohortMatch.Groups[1].Value -gt $capacity) {
             throw "Continuous cohort $cohort did not complete its actual routes and once-only payments."
         }
+        $soldCount += [int]$cohortMatch.Groups[1].Value
+    }
+    if ($reportText -notmatch "Reports=3 UniquePaidStays=$soldCount " -or $reportText -notmatch "StaffSlots=1 ModelKeyHandoffs=$soldCount ") {
+        throw 'Continuous counts must equal all actual automatic contracts, with exactly three reports.'
     }
     $snapshotPath = Join-Path $capturePath 'continuous-final-snapshot.json'
     if (-not (Test-Path -LiteralPath $snapshotPath) -or (Get-Item -LiteralPath $snapshotPath).LastWriteTimeUtc -lt $startedAt) {

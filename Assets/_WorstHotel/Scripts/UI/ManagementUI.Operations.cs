@@ -8,10 +8,10 @@ namespace WorstHotel
 {
     public sealed partial class ManagementUI
     {
-        enum OperationsPage { Overview, Bookings, Offer, Reports, Report, Maintenance, Upgrades, Forecast }
+        enum OperationsPage { Overview, Bookings, Offer, Reports, Report, Maintenance, Upgrades, Forecast, Sales, RoomSales }
         bool showingOperations;
         OperationsPage operationsPage;
-        int operationsDay, operationsListPage, operationsReportNumber, operationsPrice, operationsReceiptPage;
+        int operationsDay, operationsListPage, operationsReportNumber, operationsPrice, operationsReceiptPage, operationsBookingRevision;
         string operationsOfferId;
         readonly List<(Rect rect, string title, Action action, bool enabled)> operationsChoices = new();
         public bool IsOperationsOpen => IsOpen && showingOperations && !guestContext && !wakePhone && !showingServiceBoard && !showingHousekeeping && selectedServiceGuest == null;
@@ -34,10 +34,11 @@ namespace WorstHotel
 
         void SelectOperationsOffer(string id)
         {
-            var offer = Session.Simulation.BookingOffers.FirstOrDefault(item => item.Id == id);
+            var offer = OperationsOffer(id);
             if (offer == null) return;
             operationsOfferId = id; operationsPage = OperationsPage.Offer; focus = 0;
             var reservation = Session.Simulation.Reservations.FirstOrDefault(item => item.Id == id);
+            operationsBookingRevision = reservation?.Revision ?? -1;
             int min = Session.Economy.MinPrice, step = Session.Economy.PriceStep;
             operationsPrice = reservation?.Price ?? Mathf.Clamp(min + Mathf.RoundToInt((offer.Application.ReferencePrice - min) / (float)step) * step, min, MaximumGridPrice);
             selectedRoom = reservation?.RoomId ?? Session.Rooms.FirstOrDefault(room =>
@@ -54,8 +55,17 @@ namespace WorstHotel
             operationsChoices.Clear();
             if (operationsPage == OperationsPage.Overview)
             {
-                AddOperationsChoice(42, 196, 342, 43, "Today's bookings", () => ShowOperationsBookings(Session.Day));
-                AddOperationsChoice(405, 196, 342, 43, "Tomorrow's bookings", () => ShowOperationsBookings(Session.Day + 1));
+                if (simulation.AutomaticBookingsEnabled)
+                {
+                    AddOperationsChoice(42, 196, 225, 43, "Room sales / rates", ShowRoomSales);
+                    AddOperationsChoice(282, 196, 225, 43, "Today's bookings", () => ShowOperationsBookings(Session.Day));
+                    AddOperationsChoice(522, 196, 225, 43, "Tomorrow's bookings", () => ShowOperationsBookings(Session.Day + 1));
+                }
+                else
+                {
+                    AddOperationsChoice(42, 196, 342, 43, "Today's bookings", () => ShowOperationsBookings(Session.Day));
+                    AddOperationsChoice(405, 196, 342, 43, "Tomorrow's bookings", () => ShowOperationsBookings(Session.Day + 1));
+                }
                 AddOperationsChoice(42, 633, 342, 43, "Guests / conversations", () => { showingOperations = false; focus = 0; });
                 AddOperationsChoice(405, 633, 342, 43, "Service board / promises", () => { showingOperations = false; ShowServices(); }, simulation.Services != null);
                 AddOperationsChoice(42, 689, 342, 43, "Room preparation", () => { showingOperations = false; OpenHousekeeping(); });
@@ -67,7 +77,7 @@ namespace WorstHotel
             {
                 AddOperationsChoice(42, 196, 342, 40, "TODAY · Day " + Session.Day, () => ShowOperationsBookings(Session.Day));
                 AddOperationsChoice(405, 196, 342, 40, "TOMORROW · Day " + (Session.Day + 1), () => ShowOperationsBookings(Session.Day + 1));
-                var offers = simulation.BookingOffers.Where(item => item.ArrivalDay == operationsDay).OrderBy(item => item.ArrivalAt).ToArray();
+                var offers = OperationsBookingOffers().ToArray();
                 operationsListPage = Mathf.Clamp(operationsListPage, 0, Math.Max(0, (offers.Length - 1) / 6));
                 int row = 0;
                 foreach (var offer in offers.Skip(operationsListPage * 6).Take(6))
@@ -83,32 +93,44 @@ namespace WorstHotel
             }
             else if (operationsPage == OperationsPage.Offer)
             {
-                var offer = simulation.BookingOffers.FirstOrDefault(item => item.Id == operationsOfferId);
+                var offer = OperationsOffer(operationsOfferId);
                 if (offer == null) { operationsPage = OperationsPage.Bookings; UpdateOperationsPanel(); return; }
                 var reservation = simulation.Reservations.FirstOrDefault(item => item.Id == offer.Id);
-                bool editable = reservation != null && reservation.Status == ReservationStatus.Reserved && offer.ArrivalAt > simulation.Elapsed;
-                bool available = reservation == null && offer.ArrivalAt > simulation.Elapsed;
+                bool stale = reservation != null && reservation.Revision != operationsBookingRevision;
+                bool editable = reservation != null && reservation.Status == ReservationStatus.Reserved && offer.ArrivalAt > simulation.Elapsed && !stale;
+                bool available = !simulation.AutomaticBookingsEnabled && reservation == null && offer.ArrivalAt > simulation.Elapsed;
                 for (int i = 0; i < Session.Rooms.Length; i++)
                 {
                     var room = Session.Rooms[i]; int roomId = room.Profile.Id;
-                    bool canReserve = available && simulation.CanReserveRoom(roomId, offer).Success;
+                    bool canReserve = available && simulation.CanReserveRoom(roomId, offer).Success ||
+                        simulation.AutomaticBookingsEnabled && editable && CanPreviewBookingRoom(reservation, roomId);
                     AddOperationsChoice(42 + i % 2 * 363, 414 + i / 2 * 46, 342, 40,
                         (roomId == selectedRoom ? "● " : "") + "Room " + roomId + " · " + room.Profile.Label,
                         () => selectedRoom = roomId, canReserve);
                 }
-                AddOperationsChoice(42, 556, 90, 39, "− $" + Session.Economy.PriceStep,
-                    () => operationsPrice = Mathf.Max(Session.Economy.MinPrice, operationsPrice - Session.Economy.PriceStep), (available || editable) && operationsPrice > Session.Economy.MinPrice);
-                AddOperationsChoice(657, 556, 90, 39, "+ $" + Session.Economy.PriceStep,
-                    () => operationsPrice = Mathf.Min(MaximumGridPrice, operationsPrice + Session.Economy.PriceStep), (available || editable) && operationsPrice < MaximumGridPrice);
+                if (stale)
+                    AddOperationsChoice(42, 554, 705, 40, "Refresh booking · changed since this view opened", () => SelectOperationsOffer(operationsOfferId));
+                else if (!simulation.AutomaticBookingsEnabled)
+                {
+                    AddOperationsChoice(42, 556, 90, 39, "− $" + Session.Economy.PriceStep,
+                        () => operationsPrice = Mathf.Max(Session.Economy.MinPrice, operationsPrice - Session.Economy.PriceStep), (available || editable) && operationsPrice > Session.Economy.MinPrice);
+                    AddOperationsChoice(657, 556, 90, 39, "+ $" + Session.Economy.PriceStep,
+                        () => operationsPrice = Mathf.Min(MaximumGridPrice, operationsPrice + Session.Economy.PriceStep), (available || editable) && operationsPrice < MaximumGridPrice);
+                }
                 AddOperationsChoice(42, 603, 705, 34, BookingForecastChoiceTitle(),
                     () => { operationsPage = OperationsPage.Forecast; focus = 0; });
-                if (reservation == null)
+                if (reservation == null && !simulation.AutomaticBookingsEnabled)
                     AddOperationsChoice(42, 640, 705, 45, "Accept booking · room " + selectedRoom + " · $" + operationsPrice,
-                        () => Session.AcceptBooking(owner, offer.Id, selectedRoom, operationsPrice), available && simulation.CanReserveRoom(selectedRoom, offer).Success);
-                else
+                        () => ApplyAcceptedBooking(offer.Id, selectedRoom, operationsPrice), available && simulation.CanReserveRoom(selectedRoom, offer).Success);
+                else if (reservation != null)
                 {
-                    int revision = reservation.Revision;
-                    AddOperationsChoice(42, 640, 342, 45, "Update agreed price", () => Session.SetBookingPrice(owner, reservation.Id, operationsPrice, revision), editable && operationsPrice != reservation.Price);
+                    int revision = operationsBookingRevision;
+                    if (simulation.AutomaticBookingsEnabled)
+                        AddOperationsChoice(42, 640, 342, 45, "Reassign booking · room " + selectedRoom,
+                            () => ApplyBookingRoom(reservation.Id, selectedRoom, revision),
+                            editable && selectedRoom != reservation.RoomId && CanPreviewBookingRoom(reservation, selectedRoom));
+                    else
+                        AddOperationsChoice(42, 640, 342, 45, "Update agreed price", () => ApplyBookingPrice(reservation.Id, operationsPrice, revision), editable && operationsPrice != reservation.Price);
                     AddOperationsChoice(405, 640, 342, 45, "Cancel reservation", () => Session.CancelBooking(owner, reservation.Id, revision), editable);
                 }
             }
@@ -147,8 +169,11 @@ namespace WorstHotel
             }
             if (operationsPage == OperationsPage.Maintenance) UpdateOperationsMaintenance();
             if (operationsPage == OperationsPage.Upgrades) UpdateOperationsUpgrades();
+            if (operationsPage == OperationsPage.Sales) UpdateRoomSales();
+            if (operationsPage == OperationsPage.RoomSales) UpdateRoomSalesDraft();
             if (operationsPage != OperationsPage.Overview)
                 AddOperationsChoice(42, 746, 705, 42, operationsPage == OperationsPage.Forecast ? "Back to booking" : operationsPage == OperationsPage.Offer ? "Back to bookings" :
+                    operationsPage == OperationsPage.RoomSales ? "Back to room sales" :
                     selectedReview != null ? "Back to report" : operationsPage == OperationsPage.Report ? "Back to reports" : "Back to operations", OperationsBack);
             AddOperationsChoice(42, 799, 705, 42, "Close / keep working", Close);
             actions.Clear(); enabledActions.Clear();
@@ -164,6 +189,7 @@ namespace WorstHotel
             else if (operationsPage == OperationsPage.Forecast) operationsPage = OperationsPage.Offer;
             else if (operationsPage == OperationsPage.Offer) operationsPage = OperationsPage.Bookings;
             else if (operationsPage == OperationsPage.Report) operationsPage = OperationsPage.Reports;
+            else if (operationsPage == OperationsPage.RoomSales) operationsPage = OperationsPage.Sales;
             else if (operationsPage == OperationsPage.Overview) Close();
             else operationsPage = OperationsPage.Overview;
             focus = 0;
@@ -175,18 +201,24 @@ namespace WorstHotel
             Fill(new Rect(15, 50, 770, 820), Paper); Border(new Rect(23, 58, 754, 804), Brass);
             Label(new Rect(42, 78, 705, 48), operationsPage == OperationsPage.Overview ? "HOTEL OPERATIONS" :
                 operationsPage == OperationsPage.Bookings ? "DATED BOOKINGS" : operationsPage == OperationsPage.Offer ? "ONE-NIGHT BOOKING" :
+                operationsPage == OperationsPage.Sales || operationsPage == OperationsPage.RoomSales ? "ROOM SALES / RATES" :
                 operationsPage == OperationsPage.Forecast ? "BOOKING FORECAST" : operationsPage == OperationsPage.Maintenance ? "BOILER MAINTENANCE" : operationsPage == OperationsPage.Upgrades ? "CAPACITY UPGRADES" : "OPERATING REPORTS", Title);
             Label(new Rect(42, 135, 705, 49), GuestLabels.HotelMoment(simulation, simulation.Elapsed) + " · Cash $" + Session.Cash.ToString("F0") +
-                "\nThe hotel keeps running while you read and decide.", Small, Muted);
+                "\n" + (simulation.AutomaticBookingsEnabled && operationsPage == OperationsPage.Bookings ? ConfirmedBookingSummary() :
+                "The hotel keeps running while you read and decide."), Small, Muted);
             if (operationsPage == OperationsPage.Overview) DrawOperationsOverview();
             else if (operationsPage == OperationsPage.Offer) DrawOperationsOffer();
-            else if (operationsPage == OperationsPage.Bookings && !simulation.BookingOffers.Any(item => item.ArrivalDay == operationsDay))
-                Label(new Rect(42, 274, 705, 70), "No applications for Day " + operationsDay + ".", Body, Muted);
+            else if (operationsPage == OperationsPage.Bookings && !OperationsBookingOffers().Any())
+                Label(new Rect(42, 274, 705, 95), simulation.AutomaticBookingsEnabled ?
+                    "No confirmed bookings for Day " + operationsDay + ".\nOrdinary bookings arrive automatically as open rooms sell.\nReview room sales and rates from the operations page." :
+                    "No applications for Day " + operationsDay + ".", Body, Muted);
             else if (operationsPage == OperationsPage.Reports) DrawCurrentOperationsFinance();
             else if (operationsPage == OperationsPage.Report) DrawOperatingReport();
             else if (operationsPage == OperationsPage.Maintenance) DrawOperationsMaintenance();
             else if (operationsPage == OperationsPage.Upgrades) DrawOperationsUpgrades();
             else if (operationsPage == OperationsPage.Forecast) DrawBookingForecast();
+            else if (operationsPage == OperationsPage.Sales) DrawRoomSales();
+            else if (operationsPage == OperationsPage.RoomSales) DrawRoomSalesDraft();
             if (operationsPage != OperationsPage.Overview)
                 Label(new Rect(42, 699, 705, 41), string.IsNullOrEmpty(Session.LastMessage) ? "" : "Last update: " + Session.LastMessage, Small, Wine);
             foreach (var choice in operationsChoices) ButtonAt(choice.rect, choice.title, choice.action, choice.enabled);
@@ -195,7 +227,7 @@ namespace WorstHotel
         void DrawOperationsOffer()
         {
             var simulation = Session.Simulation;
-            var offer = simulation.BookingOffers.FirstOrDefault(item => item.Id == operationsOfferId);
+            var offer = OperationsOffer(operationsOfferId);
             if (offer == null) return;
             var reservation = simulation.Reservations.FirstOrDefault(item => item.Id == offer.Id);
             Label(new Rect(42, 196, 705, 38), offer.Application.GuestName + " · " + offer.Application.Archetype.Label, Heading);
@@ -207,7 +239,10 @@ namespace WorstHotel
             var room = Session.Rooms.First(item => item.Profile.Id == selectedRoom);
             Label(new Rect(42, 373, 705, 39), reservation != null ? reservation.Status + " · room " + reservation.RoomId + " · agreed $" + reservation.Price :
                 "Room " + selectedRoom + " now: " + PreparationStatus(room, simulation.Housekeeping?.Find(selectedRoom)) + " · future dates checked separately", Small, reservation != null ? Teal : Muted);
-            Label(new Rect(152, 554, 485, 42), "OFFER  $" + operationsPrice, Heading);
+            if (!simulation.AutomaticBookingsEnabled && (reservation == null || reservation.Revision == operationsBookingRevision))
+                Label(new Rect(152, 554, 485, 42), "OFFER  $" + operationsPrice, Heading);
+            else if (reservation != null && reservation.Revision == operationsBookingRevision)
+                Label(new Rect(42, 556, 705, 42), "Agreed $" + reservation.Price + " stays fixed · previewing room " + selectedRoom, Body, Muted);
         }
 
         void DrawOperatingReport()

@@ -23,26 +23,32 @@ namespace WorstHotel
                 .Concat(continuousFinalSnapshot.Operations.PeriodReceipts).ToArray();
             Require(completedReports.Length == 3 && continuousModel.ReportSequence == 3 &&
                 completedReports.Select(r => r.DayNumber).SequenceEqual(new[] { 1, 2, 3 }), "exactly three consecutive nonmodal reports");
-            Require(completedReports.Select(r => r.Receipts.Count).SequenceEqual(new[] { 0, 4, 5 }) &&
-                continuousFinalSnapshot.Operations.PeriodReceipts.Length == 5,
-                "06:00 report receipts0/4/5 and the final five next-morning checkouts in the current period");
             string[] booked = continuousCohorts.SelectMany(c => c.Ids).ToArray();
-            Require(booked.Length == 14 && booked.Distinct().Count() == 14 && continuousReceipts.Length == 14 &&
-                continuousReceipts.Select(r => r.GuestId).Distinct().Count() == 14 &&
+            Require(booked.Length > 0 && booked.Distinct().Count() == booked.Length && continuousReceipts.Length == booked.Length &&
+                continuousReceipts.Select(r => r.GuestId).Distinct().Count() == booked.Length &&
                 booked.OrderBy(id => id).SequenceEqual(continuousReceipts.Select(r => r.GuestId).OrderBy(id => id)),
-                "fourteen and only fourteen booked identities are paid exactly once");
+                "all and only actually sold automatic identities are paid exactly once");
+            Require(continuousSalesExpanded && continuousSalesClosed &&
+                continuousModel.RoomSalesPolicies.All(row => !row.OpenForSale) &&
+                continuousModel.Reservations.All(row => row.IsAutomatic && row.Offer.ArrivalDay <= 3),
+                "sales policy preserved three actual cohorts and prevented a fourth without cancelling existing contracts");
             Require(continuousReceipts.All(r => r.Price > 0 && r.Price - r.Compensation > 0), "every actual stay produces a positive paid receipt");
             foreach (var cohort in continuousCohorts)
             {
+                Require(cohort.SalesComplete && cohort.Ids.Length > 0 && cohort.Ids.Length <= (cohort.Day == 1 ? 4 : 5),
+                    "measured cohort count respects the offered capacity, without a guaranteed demand fill");
                 Require(cohort.CheckedIn.Count == cohort.Ids.Length && cohort.RoomArrivals.Count == cohort.Ids.Length &&
                     cohort.Departures.Count == cohort.Ids.Length && cohort.Stays.Count == cohort.Ids.Length &&
                     cohort.Stays.Values.All(g => g.ReceiptPosted && g.Agent.State == GuestAgentState.Left),
                     "cohort " + cohort.Day + " really checks in, reaches rooms, checks out and physically leaves");
                 Require(cohort.WalkedMetres > 15 * cohort.Ids.Length, "cohort " + cohort.Day + " has observed actual body travel");
+                Require(continuousReceipts.Where(receipt => cohort.AgreedPrices.ContainsKey(receipt.GuestId)).All(receipt =>
+                    receipt.Price == cohort.AgreedPrices[receipt.GuestId]), "automatic agreed rates survive reassignment, sales closure and billing");
             }
-            Require(continuousKeyHandoffs == 14 && continuousTurnovers >= 9 && continuousInspections >= continuousTurnovers &&
+            int usedRooms = continuousCohorts.SelectMany(cohort => cohort.Stays.Values).Select(guest => guest.RoomId).Distinct().Count();
+            Require(continuousKeyHandoffs == booked.Length && continuousTurnovers >= booked.Length - usedRooms && continuousInspections >= continuousTurnovers &&
                 continuousInspections <= continuousTurnovers + 1,
-                "one staff supplies fourteen keys and prepares the reused rooms after real departures");
+                "one staff supplies every sold stay's key and prepares the reused rooms after real departures");
             long receiptsNet = continuousReceipts.Sum(r => (long)r.Price - r.Compensation);
             long operating = completedReports.Sum(r => (long)r.OperatingCost);
             long maintenance = completedReports.Sum(r => (long)r.MaintenanceSpend) + continuousModel.PeriodMaintenanceSpend;
@@ -60,6 +66,8 @@ namespace WorstHotel
             File.WriteAllText(Path.Combine(output, "continuous-final-snapshot.json"), JsonUtility.ToJson(continuousFinalSnapshot, true));
             facts.Add("Cash conservation: start=" + continuousStartingCash + " +netReceipts=" + receiptsNet + " -operating=" + operating +
                 " -maintenance=" + maintenance + " -capital=" + capital + " =cash=" + expected + ". Reports never post checkout revenue a second time.");
+            facts.Add("AutomaticSales=True SalesClosurePreservesContracts=True AgreedRatesPreserved=True SoldStays=" + booked.Length +
+                " EarlyCheckouts=" + continuousReceipts.Count(receipt => receipt.EarlyCheckout));
             facts.Add("Optional earned upgrade purchased=" + continuousUpgradeBought + "; if false the production policy did not reach its affordable pre-D3-evening threshold while keeping bill450+patch200 buffer. This is an observation, not a guaranteed purchase objective.");
         }
 
@@ -105,7 +113,8 @@ namespace WorstHotel
                     " capital=" + report.CapitalSpend + " net=" + report.Net + " openingCash=" + report.OpeningCash + " closingCash=" + report.Cash);
             foreach (var receipt in continuousReceipts)
                 text.AppendLine("Receipt id=" + receipt.GuestId + " room=" + receipt.RoomId + " gross=" + receipt.Price + " refund=" + receipt.Compensation +
-                    " net=" + (receipt.Price - receipt.Compensation) + " satisfaction=" + F(receipt.Satisfaction));
+                    " net=" + (receipt.Price - receipt.Compensation) + " satisfaction=" + F(receipt.Satisfaction) +
+                    " early=" + receipt.EarlyCheckout + " earlyAt=" + F(receipt.CheckoutAt));
             text.AppendLine("CurrentStaffJob=" + (continuousJob ?? "idle") + " CurrentStaffPhase=" + continuousStaffPhase + " NextActionAt=" + F(continuousDue));
             text.AppendLine("Evidence limits: ordinary production GameSession8x ticks and actual guest navigation; timed model staff travel/key/linen/repair adapters, not physical carrying or human SOLO pacing. GPU images require separate visual review. No hardware performance, long-pause, AltTab, disk-save or multiplayer claim.");
             foreach (string fact in facts) text.AppendLine(fact);

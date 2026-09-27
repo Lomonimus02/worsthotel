@@ -38,8 +38,21 @@ namespace WorstHotel
         [Range(0, 23.99f)] public float openingHour = 8;
         [Range(0, 23.99f)] public float reportHour = 6;
 
+        [Header("Ordinary room sales")]
+        public bool automaticBookings = true;
+        [Range(0, 6)] public int initiallyOpenRooms = 4;
+        [Min(0)] public int roomSalePrice = 180;
+        [Range(0, 1)] public float bookingBaseDemand = .9f;
+        [Min(0)] public float bookingPriceElasticity = 1.5f;
+        [Range(0, 23.99f)] public float firstDayBookingHour = 8.5f;
+        [Range(0, 23.99f)] public float advanceBookingHour = 16;
+        [Min(.01f)] public float bookingDecisionSpacingHours = .5f;
+        public int bookingSeed = 73129;
+
         public OperationsSettings OperationsData() => continuousOperations ?
-            new OperationsSettings(hotelDaySeconds, openingHour, reportHour) : null;
+            new OperationsSettings(hotelDaySeconds, openingHour, reportHour, sales: new SalesSettings(automaticBookings,
+                initiallyOpenRooms, roomSalePrice, bookingBaseDemand, bookingPriceElasticity, firstDayBookingHour,
+                advanceBookingHour, bookingDecisionSpacingHours, bookingSeed)) : null;
 
         public SessionSettings ToData()
         {

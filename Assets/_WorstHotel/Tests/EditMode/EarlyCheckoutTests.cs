@@ -43,7 +43,7 @@ namespace WorstHotel.Tests
                 var rooms = settings.Rooms.Select(room => new RoomState(room)).ToArray();
                 var hotel = new HotelSimulation(settings, rooms, living.ToData(), needs.ToData(), asset.noise.ToData(),
                     asset.heater.ToData(), asset.electricity.ToData(), asset.housekeeping.ToData(), services.ToData(),
-                    asset.infrastructure.ToData(), asset.OperationsData());
+                    asset.infrastructure.ToData(), ManualBookingFixture.Operations(asset));
                 Require(hotel.StartOperations());
                 Require(hotel.DebugSpawnGuest(kind, 102)); // Labelled dated one-night booking fixture.
                 hotel.Tick(1.25f);

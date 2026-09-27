@@ -30,6 +30,7 @@ namespace WorstHotel
             // Initial setup only. Calendar boundaries never call StartDay or BeginService.
             Services?.StartDay(dayNumber, Calendar.At(dayNumber + 1, Operations.CheckoutHour));
             RefreshBookingSchedule(Elapsed);
+            RefreshSalesDays(Elapsed);
             RefreshGuestLoad();
             Boiler.BeginService();
             SignalEvent("Hotel open — continuous operations");
@@ -49,12 +50,17 @@ namespace WorstHotel
             while (Elapsed < target)
             {
                 CloseDueOperatingReports();
+                RefreshSalesDays(Elapsed);
+                ProcessDueSalesDecisions(Elapsed);
                 float step = Math.Min(1f, Math.Min(target - Elapsed, Math.Min(NextReportAt, Calendar.At(Calendar.Day + 1, 0)) - Elapsed));
                 if (Boiler.MaintenanceInProgress) step = Math.Min(step, Boiler.MaintenanceEndsAt - Elapsed);
+                if (TryGetNextSalesDecision(out float salesAt, out _, out _)) step = Math.Min(step, salesAt - Elapsed);
                 if (step <= 0 || Elapsed + step == Elapsed)
                     throw new InvalidOperationException("The hotel clock cannot represent another simulation step.");
                 RefreshBookingSchedule(Elapsed + step);
                 TickStep(step);
+                RefreshSalesDays(Elapsed);
+                ProcessDueSalesDecisions(Elapsed);
                 TickEarlyCheckout(Elapsed, step);
                 PostCompletedStays(Elapsed);
                 dayNumber = Calendar.Day;

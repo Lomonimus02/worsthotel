@@ -48,7 +48,7 @@ namespace WorstHotel.Tests
                 var rooms = settings.Rooms.OrderBy(room => room.Id).Select(room => new RoomState(room)).ToArray();
                 var hotel = new HotelSimulation(settings, rooms, living.ToData(), asset.needs.ToData(),
                     asset.noise.ToData(), asset.heater.ToData(), asset.electricity.ToData(), asset.housekeeping.ToData(),
-                    services.ToData(), asset.infrastructure.ToData(), asset.OperationsData());
+                    services.ToData(), asset.infrastructure.ToData(), ManualBookingFixture.Operations(asset));
                 Require(hotel.StartOperations());
                 for (int index = 0; index < occupants; index++)
                     Require(hotel.DebugSpawnGuest(Mixed[index], 101 + index));

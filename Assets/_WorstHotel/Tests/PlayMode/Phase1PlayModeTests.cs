@@ -34,12 +34,15 @@ namespace WorstHotel.Tests
             yield return null;
             bootstrap = LocalCoopBootstrap.Instance;
             Assert.That(bootstrap, Is.Not.Null);
-            // Historical scene tests exercise the original shift contract explicitly.
-            // Continuous acceptance tests keep the real production asset and opt out of this adapter.
-            if (!TestContext.CurrentContext.Test.Properties["Category"].Contains("ContinuousOperations"))
+            // Historical fixtures select shift mode and/or a fixed manual roster explicitly.
+            // AutomaticSales scenarios retain real production demand and timed reservations.
+            bool continuous = TestContext.CurrentContext.Test.Properties["Category"].Contains("ContinuousOperations");
+            bool automaticSales = TestContext.CurrentContext.Test.Properties["Category"].Contains("AutomaticSales");
+            if (!continuous || !automaticSales)
             {
                 legacySceneConfig = Object.Instantiate(GameSession.Instance.config);
-                legacySceneConfig.continuousOperations = false;
+                legacySceneConfig.continuousOperations = continuous;
+                legacySceneConfig.automaticBookings = automaticSales;
                 GameSession.Instance.config = legacySceneConfig;
                 GameSession.Instance.NewGame();
             }

@@ -20,7 +20,8 @@ namespace WorstHotel
         // It deliberately makes no natural pacing, three-day or physical check-in claim.
         IEnumerator VerifyOperationsUI()
         {
-            Require(soloTour && session.Simulation.ContinuousOperations, "UI verification uses production continuous SOLO mode");
+            Require(soloTour && session.Simulation.ContinuousOperations && session.Simulation.AutomaticBookingsEnabled,
+                "UI verification uses production continuous SOLO mode with automatic ordinary sales");
             driveSpeed = 1; currentDay = null;
             var production = session.config;
             var fixture = Instantiate(production);
@@ -32,7 +33,7 @@ namespace WorstHotel
             services.eligibility = 0;
             services.selfResponseObserveSeconds = services.toleranceSeconds = 1000;
             fixture.economy = economy; fixture.living = living; fixture.services = services;
-            facts.Add("OPERATIONS UI ONLY: cloned production continuous configuration; diagnostic cash=4000, first activity delay=1000, optional service eligibility=0 and self-response observation/tolerance=1000. Explicit initial model reception/key/room callbacks prepare labels; these are not evidence of physical guest routes or check-in. Forced boiler condition45, branch B trip, dirty room105 and early checkout demonstrate factual status. Staff viewpoints are empty-handed diagnostic placements. Page choices use only the owned synthetic controller. Clock1x plus a labelled report-boundary advance; no three-day lifecycle, human playtest or natural failure claim.");
+            facts.Add("OPERATIONS UI ONLY: cloned production continuous configuration with automatic sales ENABLED; diagnostic cash=4000, first activity delay=1000, optional service eligibility=0 and self-response observation/tolerance=1000. Initial normal room-policy commands offer two rooms at the allowed minimum rate; labelled clock advances execute scheduled demand decisions and obtain actual reservation IDs, never AcceptBooking or injected contracts. Explicit model reception/key/room callbacks prepare labels; these are not physical guest-route or check-in evidence. Forced boiler condition45, branch B trip, dirty room105 and debug departure demonstrate factual status, not the severe early-departure policy. Staff viewpoints are empty-handed diagnostic placements. Every UI page/action uses the owned synthetic controller. Clock1x plus labelled schedule/report advances; no three-day lifecycle, natural balance, human playtest or natural failure claim.");
             File.WriteAllText(Path.Combine(output, "operations-ui-hashes.txt"),
                 "SHA256 capture filename. Distinct hashes reject identical captures only; each real player image still requires manual UI/legibility review.\n");
             try
@@ -43,20 +44,28 @@ namespace WorstHotel
                 observedSimulation.Housekeeping.Changed += ObserveCleaning;
                 session.Wait.Stop("Explicit UI-only diagnostic"); session.Wait.enabled = false;
                 var model = session.Simulation;
-                var today = model.BookingOffers.Where(offer => offer.ArrivalDay == 1).OrderBy(offer => offer.ArrivalAt).Take(2).ToArray();
-                Require(today.Length == 2, "two current dated offers exist");
+                Require(model.AutomaticBookingsEnabled, "presentation clone preserves production automatic sales");
+                foreach (var policy in model.RoomSalesPolicies)
+                    Require(model.SetRoomSalesPolicy(0, policy.RoomId, policy.RoomId == 101 || policy.RoomId == 102,
+                        session.Economy.MinPrice, policy.Revision).Success, "labelled initial two-room sales policy adapter");
+                AdvanceOperationsUICalendarTo(model.SalesDecisionAt(1, SalesSettings.DecisionsPerDay - 1) + .25f);
+                var today = model.Reservations.Where(item => item.Offer.ArrivalDay == 1 && item.Status == ReservationStatus.Reserved)
+                    .OrderBy(item => item.Offer.ArrivalAt).ToArray();
+                Require(today.Length == 2 && today.All(item => item.IsAutomatic) && today.Select(item => item.RoomId).OrderBy(id => id).SequenceEqual(new[] { 101, 102 }),
+                    "scheduled ordinary demand created exactly two actual day-one contracts under two-room policy");
                 for (int index = 0; index < today.Length; index++)
                 {
-                    Require(session.AcceptBooking(0, today[index].Id, 101 + index, session.Economy.MinPrice).Success, "diagnostic current booking");
-                    session.AdvanceTime(today[index].ArrivalAt - model.Elapsed + .1f);
+                    AdvanceOperationsUICalendarTo(today[index].Offer.ArrivalAt + .25f);
                     Require(session.ReportGuestReachedReception(today[index].Id).Success, "labelled reception callback adapter");
-                    Require(model.Keys.PickUp(0, 101 + index).Success && model.CheckIn(0, today[index].Id).Success,
+                    Require(model.Keys.PickUp(0, today[index].RoomId).Success && model.CheckIn(0, today[index].Id).Success,
                         "labelled model rack pickup and room-key handoff adapter");
                     Require(session.ReportGuestReachedRoom(today[index].Id).Success, "labelled room callback adapter");
                 }
-                var tomorrow = model.BookingOffers.Where(offer => offer.ArrivalDay == 2).OrderBy(offer => offer.ArrivalAt).Take(2).ToArray();
-                Require(tomorrow.Length == 2, "two future dated offers exist");
-                Require(session.AcceptBooking(0, tomorrow[0].Id, 104, session.Economy.MinPrice).Success, "diagnostic future booking");
+                foreach (var policy in model.RoomSalesPolicies)
+                    Require(model.SetRoomSalesPolicy(0, policy.RoomId, policy.RoomId == 104 || policy.RoomId == 105,
+                        session.Economy.MinPrice, policy.Revision).Success, "labelled next-date two-room sales policy adapter");
+                Require(today.All(item => item.Price == session.Economy.MinPrice && item.Status == ReservationStatus.Arrived),
+                    "closing day-one sale rooms preserves their existing contracts and guests");
                 model.Boiler.SetCondition(45);
                 Require(model.Electrical.ForceTrip("B").Success && model.DebugMarkRoomDirty(105).Success, "explicit status setup");
                 session.RaiseChanged(); yield return null; yield return null;
@@ -73,20 +82,53 @@ namespace WorstHotel
                 yield return CaptureOperationsPage("01-operations", "Operations overview / prepared factual hotel conditions");
 
                 var departed = model.Guests.Single(guest => guest.GuestId == today[0].Id);
-                Require(model.DebugCheckoutGuest(departed.GuestId).Success, "explicit early checkout setup");
+                Require(model.DebugCheckoutGuest(departed.GuestId).Success, "explicit debug departure setup, not severe-policy evidence");
                 session.AdvanceTime(.1f);
                 Require(departed.ReceiptPosted && !ui.DisplayedOperationsOverview.Contains("OUT · 101"), "paid departure is omitted from upcoming movements");
                 yield return CaptureOperationsPage("02-paid-departure", "Paid departure is retained in history but omitted from upcoming checkouts");
+                yield return ChooseOperationsUI("Room sales / rates");
+                yield return CaptureOperationsPage("02a-room-sales", "Actual room sales page / two future sale rooms distinct from existing occupied contracts");
+                yield return ChooseOperationsUI("Room 105 · ");
+                var policy105 = model.RoomSalesPolicies.Single(item => item.RoomId == 105);
+                int policyRevision = policy105.Revision, originalRate = policy105.Price;
+                yield return ChooseOperationsUI("+ $");
+                Require(ui.DisplayedSalesPrice == originalRate + session.Economy.PriceStep && policy105.Price == originalRate &&
+                    policy105.Revision == policyRevision, "controller sale-rate draft does not change policy before Apply");
+                yield return CaptureOperationsPage("02b-rate-draft", "Owned controller future-rate draft / stored policy and existing guest prices remain unchanged");
+                yield return ChooseOperationsUI("Apply sales policy");
+                Require(policy105.Price == originalRate + session.Economy.PriceStep && policy105.Revision == policyRevision + 1 &&
+                    today.All(item => item.Price == session.Economy.MinPrice), "controller applies future rate once without repricing existing contracts");
+                yield return CaptureOperationsPage("02c-rate-applied", "Applied future room rate / policy revision updated / no contract repricing");
+                yield return ChooseOperationsUI("Back to room sales");
+                yield return ChooseOperationsUI("Back to operations");
+                AdvanceOperationsUICalendarTo(model.SalesDecisionAt(2, SalesSettings.DecisionsPerDay - 1) + .25f);
+                var tomorrow = model.Reservations.Where(item => item.Offer.ArrivalDay == 2 && item.Status == ReservationStatus.Reserved)
+                    .OrderBy(item => item.Offer.ArrivalAt).ToArray();
+                Require(tomorrow.Length == 2 && tomorrow.All(item => item.IsAutomatic) && tomorrow.Select(item => item.RoomId).OrderBy(id => id).SequenceEqual(new[] { 104, 105 }),
+                    "scheduled future demand created two real confirmed reservations under the current sales policy");
                 yield return ChooseOperationsUI("Tomorrow's bookings");
-                yield return CaptureOperationsPage("03-bookings", "Tomorrow's actual dated booking list");
-                yield return ChooseOperationsUI(tomorrow[1].Application.GuestName + " · ");
+                Require(!ui.OperationsOptionTitles.Any(title => title.StartsWith("Accept booking", StringComparison.Ordinal)),
+                    "automatic schedule exposes confirmed contracts, not ordinary approval controls");
+                yield return CaptureOperationsPage("03-bookings", "Tomorrow's automatically confirmed dated bookings / agreed charges before refunds");
+                var selected = tomorrow[0];
+                int originalRoom = selected.RoomId, originalPrice = selected.Price, originalRevision = selected.Revision;
+                var originalOffer = selected.Offer;
+                yield return ChooseOperationsUI(selected.Offer.Application.GuestName + " · ");
                 yield return ChooseOperationsUI("Room 106 · ");
-                yield return CaptureOperationsPage("04-booking-detail", "Selected room106 / unchanged draft booking price");
+                Require(selected.RoomId == originalRoom && selected.Price == originalPrice && selected.Revision == originalRevision &&
+                    ui.DisplayedBookingRoom == 106 && ui.DisplayedBookingPrice == originalPrice &&
+                    !ui.OperationsOptionTitles.Any(title => title.StartsWith("Accept booking", StringComparison.Ordinal) || title == "Update agreed price"),
+                    "real room-selection draft preserves the existing contract and its fixed price");
+                yield return CaptureOperationsPage("04-booking-detail", "Confirmed booking reassignment preview in room106 / existing agreed price remains fixed");
                 yield return ChooseOperationsUI("Forecast · ");
                 Require(ui.DisplayedForecastCircuitState.Contains("TRIPPED · reset required") && ui.DisplayedBookingForecast.CircuitReserve > 0,
                     "positive estimated reserve does not conceal actual tripped branch");
                 yield return CaptureOperationsPage("05-forecast", "Approximate booking demand / actual tripped circuit remains explicit");
                 yield return ChooseOperationsUI("Back to booking");
+                yield return ChooseOperationsUI("Reassign booking · room 106");
+                Require(selected.RoomId == 106 && selected.Revision == originalRevision + 1 && selected.Price == originalPrice &&
+                    ReferenceEquals(selected.Offer, originalOffer), "actual controller reassigns exactly once while preserving contract identity, dates and agreed price");
+                yield return CaptureOperationsPage("05a-reassigned", "Applied future-room reassignment / same automatic contract, guest, dates and agreed rate");
                 yield return ChooseOperationsUI("Back to bookings");
                 yield return ChooseOperationsUI("Back to operations");
                 yield return ChooseOperationsUI("Boiler maintenance");
@@ -152,16 +194,30 @@ namespace WorstHotel
                 yield return Until(() => electricalPanel.cover.IsPassageOpen, 3, "diagnostic cabinet opening reveals physical readouts");
                 Position(coop.Players[0], new Vector3(4.9f, .1f, 32.7f), new Vector3(4.9f, 1.9f, 35.25f));
                 yield return CaptureOperationsPage("16-electrical-readout", "Physical panel / installed branch capacity and actual power state");
-                Require(captures.Count == 16 && operationsImageHashes.Count == 16, "sixteen distinct fresh player capture candidates");
+                Require(captures.Count == 20 && operationsImageHashes.Count == 20, "twenty distinct fresh player capture candidates");
                 completedReports = session.Reports.ToArray(); finalCash = model.Economy.Cash; finalReputation = model.Economy.Reputation;
                 operationsUIVerified = true;
-                facts.Add("OperationsUIVerified=True ControllerPages=True PaidActions=True ReportsOnce=True DistinctCaptureCandidates=16 ManualVisualReview=REQUIRED ThreeDayLifecycle=False HumanPlaytest=False");
+                facts.Add("OperationsUIVerified=True AutomaticSales=True ControllerPolicyRate=True ConfirmedContracts=True ImmutableAgreedPrice=True ReassignmentPreviewAndApply=True ControllerPages=True PaidActions=True ReportsOnce=True DistinctCaptureCandidates=20 ManualVisualReview=REQUIRED ThreeDayLifecycle=False NaturalBalance=False HumanPlaytest=False");
             }
             finally
             {
                 session.config = production;
                 Destroy(fixture); Destroy(economy); Destroy(living); Destroy(services);
             }
+        }
+
+        void AdvanceOperationsUICalendarTo(float target)
+        {
+            var model = session.Simulation;
+            Require(model.AutomaticBookingsEnabled && Number.IsFinite(target), "UI calendar adapter requires an automatic production hotel");
+            if (model.Elapsed >= target) return;
+            facts.Add("UI-only scheduled-clock adapter: " + model.Elapsed.ToString("F2") + " -> " + target.ToString("F2") +
+                ". Regular model steps process due sales; no reservation injection or synthetic demand decision.");
+            // AdvanceTime uses the ordinary fixed model steps. A quarter-second margin avoids
+            // treating a rounded final remainder as a missing decision exactly at the boundary.
+            session.AdvanceTime(target - model.Elapsed + .25f);
+            Require(ReferenceEquals(session.Simulation, model) && model.Elapsed >= target && session.Phase == DayPhase.Service,
+                "scheduled-clock adapter preserves the active model and reaches the intended presentation date");
         }
 
         IEnumerator ChooseOperationsUI(string prefix)

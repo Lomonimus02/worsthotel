@@ -35,7 +35,10 @@ if ($reportText -notmatch 'Outcome=PASS Errors=0' -or $reportText -notmatch 'Ope
 }
 $manifestPath = Join-Path $capturePath 'capture-manifest.txt'
 $manifest = @(Get-Content -LiteralPath $manifestPath | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
-if ($manifest.Count -ne 16) { throw 'Expected sixteen fresh player capture candidates.' }
+if ($manifest.Count -ne 20) { throw 'Expected twenty fresh player capture candidates.' }
+foreach ($required in @('02a-room-sales.png', '02b-rate-draft.png', '02c-rate-applied.png', '05a-reassigned.png')) {
+    if ($manifest -notcontains $required) { throw "Missing automatic sales UI capture: $required" }
+}
 foreach ($name in $manifest) {
     if ([IO.Path]::GetFileName($name) -ne $name) { throw 'Nonlocal capture name.' }
     $captureFile = Join-Path $capturePath $name

@@ -51,6 +51,8 @@ namespace WorstHotel
             WriteStage("continuous-other-circuit-rejected");
 
             yield return Stage("continuous-maintenance-selected", 20);
+            yield return Until(() => !coop.Players[1].IsUIBlocked, 8,
+                "host receives the client's closed journal before physical setup");
             Require(!boiler.MaintenanceInProgress && model.Economy.Cash == cashBefore - capitalCost,
                 "remote menu selection neither pays nor shuts down the boiler");
             var servicePoint = BoilerServiceInteraction.Instance;
@@ -194,7 +196,9 @@ namespace WorstHotel
                 "host acknowledges the prepared selection before the client closes its command menu");
             Require(!mirror.Boiler.MaintenanceInProgress && mirror.Economy.Cash == selectionCash,
                 "selecting a service does not charge or invent completed physical setup");
-            yield return TapButton(GamepadButton.East);
+            yield return ContinuousChoose("Close / keep working");
+            yield return Until(() => !ManagementUI.Instance.IsOpen && !coop.Players[1].IsUIBlocked, 5,
+                "actual controller closes the journal and releases the client for physical setup");
             WriteStage("continuous-maintenance-selected");
             yield return Stage("continuous-maintenance-positioned", 12);
             var servicePoint = BoilerServiceInteraction.Instance;

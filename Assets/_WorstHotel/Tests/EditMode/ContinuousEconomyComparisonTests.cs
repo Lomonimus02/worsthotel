@@ -39,7 +39,7 @@ namespace WorstHotel.Tests
                 Rooms = Settings.Rooms.Select(profile => new RoomState(profile)).ToArray();
                 Hotel = new HotelSimulation(Settings, Rooms, config.living.ToData(), config.needs.ToData(),
                     config.noise.ToData(), config.heater.ToData(), config.electricity.ToData(), config.housekeeping.ToData(),
-                    config.services.ToData(), config.infrastructure.ToData(), config.OperationsData());
+                    config.services.ToData(), config.infrastructure.ToData(), ManualBookingFixture.Operations(config));
                 MinCash = Settings.Economy.StartingCash;
                 Hotel.Boiler.OnFailureStarted += () =>
                 {
