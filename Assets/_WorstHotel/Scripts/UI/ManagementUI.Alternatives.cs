@@ -12,12 +12,14 @@ namespace WorstHotel
         void DrawGuestResponseActions(GuestStay guest, HotelIncident[] situations)
         {
             bool inRoom = guest.Agent != null && guest.Agent.InAssignedRoom;
+            // The ledger is useful for room planning, but is not physical presence with a guest.
+            bool legacyResponse = !Session.Simulation.ContinuousOperations;
             bool softNoise = Session.Simulation.Services?.Cases.Any(c => c.GuestId == guest.GuestId && GuestLabels.IsKnownOpenService(c) && c.Kind == ServiceKind.AskNeighborsQuiet) == true;
             int credit = (int)Math.Round(guest.Price * Session.Economy.CompensationRate, MidpointRounding.AwayFromZero);
-            ButtonAt(new Rect(42, 598, 345, 35), guest.Compensated ? "Credit reserved $" + guest.CompensationCredit : "Offer $" + credit + " for patience",
-                () => Session.OfferCompensation(owner, guest.GuestId), inRoom && !guest.Compensated && (situations.Length > 0 || softNoise));
+            ButtonAt(new Rect(42, 598, 345, 35), guest.Compensated ? "Credit reserved $" + guest.CompensationCredit : legacyResponse ? "Offer $" + credit + " for patience" : "Discuss credit in person / by phone",
+                () => Session.OfferCompensation(owner, guest.GuestId), legacyResponse && inRoom && !guest.Compensated && (situations.Length > 0 || softNoise));
             ButtonAt(new Rect(401, 598, 346, 35), "Accept loss / leave unresolved",
-                () => Session.AcceptConsequences(owner, guest.GuestId), inRoom && situations.Any(s => !s.AttentionAcknowledged));
+                () => Session.AcceptConsequences(owner, guest.GuestId), legacyResponse && inRoom && situations.Any(s => !s.AttentionAcknowledged));
             bool pendingMove = guest.Agent != null && guest.Agent.PendingMoveRoomId.HasValue;
             var moveIntent = Session.Simulation.ContinuousOperations ? Session.Simulation.Services?.DirectIntent(guest.GuestId) : null;
             string expectedIntentId = moveIntent?.Id;

@@ -66,19 +66,22 @@ namespace WorstHotel.Tests
             Assert.That(upgraded.CapacityUpgradePurchased, Is.True);
         }
 
-        [Test]
-        public void BoilerUpgradeRetainsCurrentFailureAndUnservicedPatchWithoutEmittingRecovery()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void BoilerUpgradePreservesAPatchOrItsSubsequentFailureWithoutEmittingRecovery(bool failAfterPatch)
         {
-            var boiler = Boiler(); PreparePatch(boiler); boiler.SetLoad(5); boiler.ForceFailure();
+            var boiler = Boiler(); PreparePatch(boiler); boiler.SetLoad(5);
+            if (failAfterPatch) boiler.ForceFailure();
             float condition = boiler.Condition, stress = boiler.Stress01, pressure = boiler.Pressure, output = boiler.HeatingOutput;
             int recovered = 0; boiler.OnFailureResolved += () => recovered++;
             Assert.That(Install(boiler).Success, Is.True);
-            Assert.That(boiler.Failed, Is.True);
-            Assert.That(boiler.EmergencyPatchActive, Is.True);
+            Assert.That(boiler.Failed, Is.EqualTo(failAfterPatch));
+            Assert.That(boiler.EmergencyPatchActive, Is.EqualTo(!failAfterPatch));
             Assert.That(boiler.Condition, Is.EqualTo(condition));
             Assert.That(boiler.Stress01, Is.EqualTo(stress));
             Assert.That(boiler.Pressure, Is.EqualTo(pressure));
-            Assert.That(boiler.HeatingOutput, Is.EqualTo(output));
+            if (failAfterPatch) Assert.That(boiler.HeatingOutput, Is.EqualTo(output));
+            else Assert.That(boiler.HeatingOutput, Is.GreaterThan(output));
             Assert.That(recovered, Is.Zero);
         }
 

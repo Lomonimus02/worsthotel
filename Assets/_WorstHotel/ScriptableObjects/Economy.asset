@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e64bdaed2a343694b9b6c0cd278eafc6, type: 3}
   m_Name: Economy
   m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.EconomyConfig
-  startingCash: 350
+  startingCash: 750
   dailyOperatingCost: 450
   minPrice: 120
   maxPrice: 650

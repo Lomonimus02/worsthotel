@@ -5,7 +5,7 @@ namespace WorstHotel
     [CreateAssetMenu(menuName = "Worst Hotel/Economy configuration")]
     public sealed class EconomyConfig : ScriptableObject
     {
-        public int startingCash = 350;
+        public int startingCash = 750;
         public int dailyOperatingCost = 450;
         public int minPrice = 120;
         public int maxPrice = 650;

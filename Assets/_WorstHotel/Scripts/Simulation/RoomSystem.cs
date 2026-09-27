@@ -31,18 +31,27 @@ namespace WorstHotel
             bool ownsRoom = occupant != null && room.Occupied && room.GuestId == occupant.GuestId &&
                 occupant.RoomId == room.Profile.Id && !occupant.ReceiptPosted && agent != null && agent.CheckedIn &&
                 agent.State != GuestAgentState.CheckingOut && agent.State != GuestAgentState.Leaving && agent.State != GuestAgentState.Left;
-            float spaceBase = ownsRoom ? occupant.Application.Archetype.HeatingDemand * living.QuietDemandMultiplier :
-                Infrastructure.VacantRadiatorDemand;
-            float space = spaceBase * Infrastructure.DemandMultiplier(room.RadiatorSetting) *
-                (1 + Math.Max(0, room.Profile.HeatLoss) * Infrastructure.HeatLossDemandFactor);
+            float space = TypicalSpaceHeating(room, ownsRoom ? occupant.Application.Archetype : null, living);
             bool runningShower = ownsRoom && agent.HasReachedRoom && agent.InAssignedRoom &&
                 agent.State == GuestAgentState.PerformingActivity && agent.Activity == GuestActivity.Shower && agent.ActivityStaged;
             // Hot water has its own tap: a radiator valve cannot subtract from this room's
             // shower or any other room. Walking to a shower is not running it yet.
-            float water = runningShower ? occupant.Application.Archetype.HeatingDemand *
-                Math.Max(0, living.ShowerDemandMultiplier - living.QuietDemandMultiplier) : 0;
+            float water = runningShower ? ShowerHotWaterDemand(occupant.Application.Archetype, living) : 0;
             return new RoomHeatingDemand(room.Profile.Id, ownsRoom ? occupant.GuestId : null, space, water);
         }
+
+        // Forecast and live room consumers use exactly the same radiator/loss arithmetic.
+        // A null profile explicitly means a vacant room, not a zero-load closed hotel.
+        internal float TypicalSpaceHeating(RoomState room, GuestProfile profile, LivingHotelSettings living)
+        {
+            double spaceBase = profile != null ? (double)profile.HeatingDemand * living.QuietDemandMultiplier : Infrastructure.VacantRadiatorDemand;
+            if (spaceBase <= 0 || room.RadiatorSetting <= 0) return 0;
+            return (float)Math.Min(float.MaxValue, spaceBase * Infrastructure.DemandMultiplier(room.RadiatorSetting) *
+                (1 + Math.Max(0d, room.Profile.HeatLoss) * Infrastructure.HeatLossDemandFactor));
+        }
+
+        internal float ShowerHotWaterDemand(GuestProfile profile, LivingHotelSettings living) =>
+            (float)Math.Min(float.MaxValue, (double)profile.HeatingDemand * Math.Max(0d, (double)living.ShowerDemandMultiplier - living.QuietDemandMultiplier));
 
         public void TickInfrastructure(IEnumerable<RoomState> rooms, float dt)
         {

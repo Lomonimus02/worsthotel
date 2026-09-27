@@ -12,7 +12,7 @@ namespace WorstHotel
         RespondService, AcknowledgeService, CompleteWakeUp, CloseWakePhone,
         AnswerServiceCall, TalkServiceGuest, DiscussRoomConcern,
         AcceptBooking, CancelBooking, SetBookingPrice, BeginBoilerMaintenance,
-        PurchaseBoilerUpgrade, PurchaseElectricalUpgrade
+        PurchaseBoilerUpgrade, PurchaseElectricalUpgrade, EndServicePhoneConversation
     }
 
     [Serializable] public sealed class LanCommand
@@ -48,9 +48,9 @@ namespace WorstHotel
     /// <summary>Small, versioned LAN boundary. A network connection, never a payload, selects its staff identity.</summary>
     public static class LanProtocol
     {
-        public const int Version = 11, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
+        public const int Version = 12, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
         public const ushort DefaultPort = 7777;
-        public const string BuildCompatibility = "worst-hotel-0.4-upgrades11-gzip";
+        public const string BuildCompatibility = "worst-hotel-0.4-discussions12-gzip";
 
         public static bool ValidAddress(string value) => IPAddress.TryParse(value, out var address) &&
             address.AddressFamily == AddressFamily.InterNetwork && !address.Equals(IPAddress.Any) &&
@@ -66,10 +66,13 @@ namespace WorstHotel
             command.amount >= 0 && command.amount <= 100000 &&
             (command.kind == LanCommandKind.CancelBooking || command.kind == LanCommandKind.SetBookingPrice ?
                 command.expectedReservationRevision >= 0 : command.expectedReservationRevision == -1) &&
-            (command.kind == LanCommandKind.CancelMove && continuousOperations ?
+            (UsesDirectDecision(command.kind) && continuousOperations ?
                 !string.IsNullOrWhiteSpace(command.expectedDirectIntentId) && command.expectedDirectIntentId.Length <= 512 &&
                 command.expectedDirectIntentRevision > 0 : string.IsNullOrEmpty(command.expectedDirectIntentId) && command.expectedDirectIntentRevision == -1) &&
             (command.roomId == 0 || command.roomId >= 101 && command.roomId <= 106);
+
+        static bool UsesDirectDecision(LanCommandKind kind) => kind == LanCommandKind.CancelMove ||
+            kind == LanCommandKind.OfferCredit || kind == LanCommandKind.AcceptConsequences;
 
         static bool UsesResponseIdentity(LanCommandKind kind) => kind == LanCommandKind.AnswerServiceCall ||
             kind == LanCommandKind.TalkServiceGuest || kind == LanCommandKind.DiscussRoomConcern;

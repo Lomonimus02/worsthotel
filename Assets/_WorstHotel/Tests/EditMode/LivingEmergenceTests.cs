@@ -7,7 +7,8 @@ using UnityEditor;
 
 namespace WorstHotel.Tests
 {
-    /// <summary>Production-tuning acceptance, with explicit timed boundary callbacks instead of rendered navigation.</summary>
+    /// <summary>Historical shift-mode integration with the original 4.2-rated boiler and explicit timed route callbacks.
+    /// ContinuousEconomyComparisonTests owns current production continuous-calendar balance.</summary>
     public sealed class LivingEmergenceTests
     {
         const string AssetPath = "Assets/_WorstHotel/ScriptableObjects/PrototypeSession.asset";
@@ -120,7 +121,24 @@ namespace WorstHotel.Tests
             var asset = AssetDatabase.LoadAssetAtPath<SessionConfig>(AssetPath);
             Assert.That(asset, Is.Not.Null);
             Assert.That(asset.living && asset.needs && asset.noise && asset.heater && asset.electricity && asset.housekeeping, Is.True);
-            var settings = asset.ToData();
+            // This scenario explicitly exercises StartShift/EndShift and Defer, including the
+            // historical small overload that motivated its heater workaround. Copy the assets
+            // so new continuous-calendar capacity tuning cannot rewrite that legacy fixture.
+            var legacy = UnityEngine.Object.Instantiate(asset);
+            var legacyBoiler = UnityEngine.Object.Instantiate(asset.boiler);
+            SessionSettings settings;
+            try
+            {
+                legacy.continuousOperations = false;
+                legacyBoiler.safeLoad = 4.2f;
+                legacy.boiler = legacyBoiler;
+                settings = legacy.ToData();
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(legacy);
+                UnityEngine.Object.DestroyImmediate(legacyBoiler);
+            }
             var rooms = settings.Rooms.Select(profile => new RoomState(profile)).ToArray();
             return new Run { Settings = settings, Rooms = rooms, Seed = asset.living.seed,
                 Simulation = new HotelSimulation(settings, rooms, asset.living.ToData(), asset.needs.ToData(),
@@ -252,7 +270,7 @@ namespace WorstHotel.Tests
             Assert.That(run.Rooms.All(room => !simulation.Noise.GetNoiseOverride(room.Profile.Id).HasValue), Is.True);
             run.EndTargetTemperature = run.Room(104).Temperature;
             run.Report = simulation.EndShift();
-            TestContext.WriteLine("Natural production trace: distributed=" + distributed + ", heater=" + useHeater + ", seed=" + run.Seed +
+            TestContext.WriteLine("Historical shift trace (boiler rated4.2): distributed=" + distributed + ", heater=" + useHeater + ", seed=" + run.Seed +
                 ", thermalTau=" + run.Settings.TemperatureTimeConstant + ", showers=" + run.NaturalShowers + ", peakBoilerLoad=" + run.MaximumBoilerLoad +
                 ", minHeatOutput=" + run.MinimumHeatingOutput + ", coldObserved=" + run.ColdObserved + ", coldComplaint=" + run.Complaint + ", heaterAt=" + run.HeaterOn +
                 ", temperatureAtPlacement=" + run.PlacementTemperature + ", poweredPeak=" + run.PretripWarmest +

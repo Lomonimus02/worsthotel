@@ -22,8 +22,6 @@ namespace WorstHotel
             }
             return GuestCommand(Simulation.CancelGuestMove(actorId, guestId));
         }
-        public CommandResult AcceptConsequences(int actorId, string guestId) => ForwardLan(LanCommandKind.AcceptConsequences, guestId) ?
-            CommandResult.Ok(LastMessage) : GuestCommand(Simulation.AcceptConsequences(actorId, guestId));
         public CommandResult AcceptBoilerConsequences(int actorId) => ForwardLan(LanCommandKind.AcceptBoilerConsequences) ?
             CommandResult.Ok(LastMessage) : GuestCommand(Simulation.AcceptBoilerConsequences(actorId));
 

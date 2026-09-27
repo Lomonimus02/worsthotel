@@ -49,6 +49,10 @@ namespace WorstHotel
         {
             var simulation = Session.Simulation;
             var item = simulation.Services.Cases.FirstOrDefault(c => c.Id == response.ServiceCaseId && GuestLabels.IsKnownOpenService(c));
+            var discussion = simulation.ContinuousOperations ? simulation.Services.CompensationDiscussion(response.GuestId) : null;
+            bool canDecide = !simulation.ContinuousOperations || discussion != null && discussion.ResponseId == response.Id;
+            string discussionId = discussion?.Id;
+            int discussionRevision = discussion?.Revision ?? -1;
             float y = 414;
             if (item != null && item.Status != ServiceStatus.InProgress)
             {
@@ -56,24 +60,30 @@ namespace WorstHotel
                 PhoneChoice(ref y, "Decline politely", () => ServiceResponse(item.Id, false));
                 if (item.Status == ServiceStatus.Requested)
                     PhoneChoice(ref y, "Acknowledge · decide later", () => { serviceHasResponse = true; Session.AcknowledgeService(owner, item.Id); });
+                var guest = simulation.Guests.FirstOrDefault(value => value.GuestId == response.GuestId);
+                if (item.Kind == ServiceKind.AskNeighborsQuiet && guest != null && !guest.Compensated && canDecide)
+                    PhoneChoice(ref y, "Offer compensation · noise remains", () =>
+                    { serviceHasResponse = true; Session.OfferCompensation(owner, guest.GuestId, discussionId, discussionRevision); });
             }
             else
             {
                 var incident = simulation.Incidents.Items.FirstOrDefault(i => i.Id == response.IncidentId &&
-                    i.EpisodeCount == response.IncidentEpisode && GuestLabels.IsActionable(i));
+                    i.EpisodeCount == response.IncidentEpisode && (GuestLabels.IsActionable(i) ||
+                        discussion?.IncidentId == i.Id && i.Active && GuestLabels.IsKnownToHotel(i)));
                 var guest = simulation.Guests.FirstOrDefault(g => g.GuestId == response.GuestId);
-                if (incident != null && guest != null && !guest.Compensated)
-                    PhoneChoice(ref y, "Offer compensation", () => { serviceHasResponse = true; Session.OfferCompensation(owner, guest.GuestId); });
+                if (incident != null && guest != null && !guest.Compensated && canDecide)
+                    PhoneChoice(ref y, "Offer compensation", () => { serviceHasResponse = true; Session.OfferCompensation(owner, guest.GuestId, discussionId, discussionRevision); });
                 if (incident != null || item != null)
                     PhoneChoice(ref y, "Review guest / room choices", () =>
                     {
                         Session.CloseWakePhone(owner); wakePhone = false; phoneResponseId = null;
                         selectedServiceGuest = response.GuestId; selectedServiceCase = null; focus = 0;
                     });
-                if (incident != null && !incident.AttentionAcknowledged)
-                    PhoneChoice(ref y, "Leave the problem unresolved", () => { serviceHasResponse = true; Session.AcceptConsequences(owner, response.GuestId); });
+                if (incident != null && !incident.AttentionAcknowledged && canDecide)
+                    PhoneChoice(ref y, "Leave the problem unresolved", () => { serviceHasResponse = true; Session.AcceptConsequences(owner, response.GuestId, discussionId, discussionRevision); });
             }
-            PhoneChoice(ref y, "End conversation / other calls", () => { phoneResponseId = null; serviceHasResponse = false; focus = 0; });
+            PhoneChoice(ref y, "End conversation / other calls", () =>
+            { Session.EndServicePhoneConversation(owner, response.GuestId); phoneResponseId = null; serviceHasResponse = false; focus = 0; });
         }
 
         void PhoneChoice(ref float y, string title, System.Action action)
@@ -92,7 +102,8 @@ namespace WorstHotel
                     Label(new Rect(42, 206, 705, 35), "ROOM " + response.RoomId + " · " + GuestName(response.GuestId), Heading);
                     Label(new Rect(42, 264, 705, 98), GuestLabels.ResponseClue(Session.Simulation, response), Body);
                     var item = services.Cases.FirstOrDefault(c => c.Id == response.ServiceCaseId && GuestLabels.IsKnownToHotel(c));
-                    Label(new Rect(42, 365, 705, 33), item != null ? GuestLabels.ServiceProgress(item, Session.Simulation) : "Guest concern · heard by reception", Small, Teal);
+                    Label(new Rect(42, 365, 705, 33), GuestLabels.IntentState(services.CompensationDiscussion(response.GuestId), Session.Simulation) ??
+                        (item != null ? GuestLabels.ServiceProgress(item, Session.Simulation) : "Guest concern · heard by reception"), Small, Teal);
                 }
                 return;
             }

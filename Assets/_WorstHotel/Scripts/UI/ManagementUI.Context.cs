@@ -11,6 +11,7 @@ namespace WorstHotel
         readonly List<(string title, System.Action action)> contextChoices = new List<(string, System.Action)>();
         public bool IsGuestContextOpen => IsOpen && guestContext;
         public string ContextGuestId => IsGuestContextOpen ? selectedServiceGuest : null;
+        public string FocusedContextOption => IsGuestContextOpen && focus >= 0 && focus < contextChoices.Count ? contextChoices[focus].title : null;
         public IEnumerable<string> ContextOptionTitles => contextChoices.Select(choice => choice.title);
 
         /// <summary>Called after the authority has accepted a physical knock or conversation.</summary>
@@ -58,8 +59,7 @@ namespace WorstHotel
         {
             var guest = Session.Simulation.Guests.FirstOrDefault(g => g.GuestId == selectedServiceGuest);
             if (guest?.Agent == null) { pending = Close; return; }
-            var cases = Session.Simulation.Incidents.Items.Where(s => s.GuestId == guest.GuestId && GuestLabels.IsActionable(s))
-                .OrderByDescending(s => s.Stage).ToArray();
+            var cases = GuestConversationSituations(guest).OrderByDescending(s => s.Stage).ToArray();
             bool present = ContextGuestAvailable(guest);
             bool privateActivity = guest.Agent.State == GuestAgentState.Sleeping || guest.Agent.Activity == GuestActivity.Shower;
             bool noisy = CanAskForQuiet(Session.Simulation, guest);
@@ -82,12 +82,16 @@ namespace WorstHotel
         void BuildGuestContextChoices(GuestStay guest)
         {
             contextChoices.Clear();
-            var cases = Session.Simulation.Incidents.Items.Where(s => s.GuestId == guest.GuestId && GuestLabels.IsActionable(s)).ToArray();
+            var cases = GuestConversationSituations(guest);
             bool canTalk = ContextGuestAvailable(guest) && guest.Agent.State != GuestAgentState.Sleeping &&
                 guest.Agent.Activity != GuestActivity.Shower;
             bool noisy = CanAskForQuiet(Session.Simulation, guest);
+            var discussion = Session.Simulation.ContinuousOperations ? Session.Simulation.Services?.CompensationDiscussion(guest.GuestId) : null;
+            bool canDecide = !Session.Simulation.ContinuousOperations || discussion != null;
+            string discussionId = discussion?.Id;
+            int discussionRevision = discussion?.Revision ?? -1;
             var service = CurrentGuestService(guest);
-            if (canTalk && service != null && (cases.Length == 0 || Session.Simulation.ContinuousOperations && service.Kind == ServiceKind.ExtraBlanket) && !noisy)
+            if (canTalk && service != null && (cases.All(value => value.Stage < SituationStage.Complaint) || Session.Simulation.ContinuousOperations && service.Kind == ServiceKind.ExtraBlanket) && !noisy)
             {
                 if (service.Status != ServiceStatus.InProgress)
                 {
@@ -104,11 +108,11 @@ namespace WorstHotel
                 if (service.Kind == ServiceKind.WakeUpCall && service.Status == ServiceStatus.InProgress)
                     contextChoices.Add((Session.Simulation.Elapsed < service.DueTime ? "Cancel promised call" : "Cancel overdue call · counts as missed", () =>
                     { contextHasResponse = true; Session.RespondToService(owner, service.Id, false); }));
-                if (service.Kind == ServiceKind.AskNeighborsQuiet && !guest.Compensated)
+                if (service.Kind == ServiceKind.AskNeighborsQuiet && !guest.Compensated && canDecide)
                 {
                     int credit = (int)System.Math.Round(guest.Price * Session.Economy.CompensationRate, System.MidpointRounding.AwayFromZero);
                     contextChoices.Add(("Offer $" + credit + " compensation · noise remains", () =>
-                    { contextHasResponse = true; Session.OfferCompensation(owner, guest.GuestId); }));
+                    { contextHasResponse = true; Session.OfferCompensation(owner, guest.GuestId, discussionId, discussionRevision); }));
                 }
                 if (contextThroughDoor)
                     contextChoices.Add(("Ask permission to enter", () =>
@@ -120,23 +124,34 @@ namespace WorstHotel
             {
                 if (noisy) contextChoices.Add(("Ask to keep it down", () =>
                 { contextHasResponse = true; Session.RequestQuiet(owner, guest.GuestId); }));
-                if (cases.Length > 0 && !guest.Compensated)
+                if (cases.Length > 0 && !guest.Compensated && canDecide)
                 {
                     int credit = (int)System.Math.Round(guest.Price * Session.Economy.CompensationRate, System.MidpointRounding.AwayFromZero);
                     contextChoices.Add(("Offer $" + credit + " compensation", () =>
-                    { contextHasResponse = true; Session.OfferCompensation(owner, guest.GuestId); }));
+                    { contextHasResponse = true; Session.OfferCompensation(owner, guest.GuestId, discussionId, discussionRevision); }));
                 }
                 if (noisy || cases.Length > 0 || guest.Agent.PendingMoveRoomId.HasValue)
                     contextChoices.Add((guest.Agent.PendingMoveRoomId.HasValue ? "Review the room change" : "Offer another room", () =>
                     { Session.CloseGuestConversation(owner, guest.GuestId); guestContext = false; choosingMoveRoom = true; focus = 0; }));
-                if (!noisy && cases.Length > 0 && cases.All(s => !s.AttentionAcknowledged))
+                if (!noisy && cases.Length > 0 && cases.All(s => !s.AttentionAcknowledged) && canDecide)
                     contextChoices.Add(("Leave the problem unresolved", () =>
-                    { contextHasResponse = true; Session.AcceptConsequences(owner, guest.GuestId); }));
+                    { contextHasResponse = true; Session.AcceptConsequences(owner, guest.GuestId, discussionId, discussionRevision); }));
                 if (contextThroughDoor)
                     contextChoices.Add(("Ask permission to enter", () =>
                     { contextHasResponse = true; contextAwaitingEntry = Session.RequestGuestRoomEntry(owner, guest.GuestId).Success; }));
             }
             contextChoices.Add(("Cancel / end conversation", Close));
+        }
+
+        HotelIncident[] GuestConversationSituations(GuestStay guest)
+        {
+            var model = Session.Simulation;
+            var discussion = model.ContinuousOperations ? model.Services?.CompensationDiscussion(guest.GuestId) : null;
+            // An actual conversation may already be discussing a known mild problem. Show
+            // that same concern while its finite decision is pending; the overview stays quiet.
+            return model.Incidents.Items.Where(value => value.GuestId == guest.GuestId &&
+                (GuestLabels.IsActionable(value) || discussion?.IncidentId == value.Id && value.Active &&
+                    GuestLabels.IsKnownToHotel(value))).ToArray();
         }
 
         ServiceCase CurrentGuestService(GuestStay guest) => Session.Simulation.Services?.Cases

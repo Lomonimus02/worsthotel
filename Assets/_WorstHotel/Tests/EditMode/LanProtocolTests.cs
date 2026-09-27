@@ -60,15 +60,17 @@ namespace WorstHotel.Tests
                 "Unrelated commands cannot smuggle booking revision fields.");
         }
 
-        [Test]
-        public void ContinuousMoveCancellationRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope()
+        [TestCase(LanCommandKind.CancelMove)]
+        [TestCase(LanCommandKind.OfferCredit)]
+        [TestCase(LanCommandKind.AcceptConsequences)]
+        public void ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope(LanCommandKind kind)
         {
             var ordinary = JsonUtility.FromJson<LanCommand>(JsonUtility.ToJson(Valid()));
             Assert.That(LanProtocol.ValidCommand(ordinary, 41, 2, 1, DayPhase.Planning), Is.True,
                 "An ordinary command must survive Unity JSON's null-to-empty string normalization.");
             ordinary.expectedDirectIntentId = "";
             Assert.That(LanProtocol.ValidCommand(ordinary, 41, 2, 1, DayPhase.Planning), Is.True);
-            var command = Valid(); command.kind = LanCommandKind.CancelMove; command.phase = DayPhase.Service;
+            var command = Valid(); command.kind = kind; command.phase = DayPhase.Service;
             Assert.That(LanProtocol.ValidCommand(command, 41, 2, 1, DayPhase.Service), Is.True);
             Assert.That(LanProtocol.ValidCommand(command, 41, 2, 1, DayPhase.Service, true), Is.False);
             command.expectedDirectIntentId = "guest/move/7/103"; command.expectedDirectIntentRevision = 1;

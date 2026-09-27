@@ -87,13 +87,49 @@ namespace WorstHotel.Tests
         }
 
         [Test]
-        public void BelowCapacityStillRecoversAPatchAndLaterFailureRetainsItsUnservicedMarker()
+        public void BelowCapacityRecoversStressAndNextFailureEndsPatchBeforeNotifyingObservers()
         {
             var boiler = Create(); ReadyForRepair(boiler); Assert.That(Patch(boiler).Success, Is.True);
             boiler.SetLoad(0); boiler.Tick(1);
             Assert.That(boiler.Stress01, Is.GreaterThan(0).And.LessThan(.2f));
+            float condition = boiler.Condition, stress = boiler.Stress01;
+            int callbacks = 0;
+            boiler.OnFailureStarted += () =>
+            {
+                callbacks++;
+                Assert.That(boiler.Failed, Is.True);
+                Assert.That(boiler.EmergencyPatchActive, Is.False);
+                Assert.That(boiler.Condition, Is.EqualTo(condition));
+                Assert.That(boiler.Stress01, Is.EqualTo(stress));
+            };
             boiler.ForceFailure();
+            boiler.ForceFailure();
+            Assert.That(boiler.EmergencyPatchActive, Is.False);
+            Assert.That(callbacks, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ActualAccumulatedOverloadEndsPatchButDoesNotRestoreTheWornCondition()
+        {
+            var boiler = Create(); ReadyForRepair(boiler); Assert.That(Patch(boiler).Success, Is.True);
+            boiler.SetLoad(8);
+            for (int second = 0; second < 720 && !boiler.Failed; second++) boiler.Tick(1);
+            Assert.That(boiler.Failed, Is.True, "Sustained real demand must cause this failure, not another diagnostic ForceFailure call.");
+            Assert.That(boiler.EmergencyPatchActive, Is.False);
+            Assert.That(boiler.Condition, Is.EqualTo(40));
+            Assert.That(boiler.Stress01, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void RejectedOfflineFailureDoesNotEndThePatchBeforeMaintenanceCompletes()
+        {
+            var boiler = Create(); ReadyForRepair(boiler); Assert.That(Patch(boiler).Success, Is.True);
+            Assert.That(Begin(boiler, 10).Success, Is.True);
+            boiler.ForceFailure();
+            Assert.That(boiler.Failed, Is.False);
             Assert.That(boiler.EmergencyPatchActive, Is.True);
+            Assert.That(Complete(boiler, 70), Is.True);
+            Assert.That(boiler.EmergencyPatchActive, Is.False);
         }
 
         [Test]

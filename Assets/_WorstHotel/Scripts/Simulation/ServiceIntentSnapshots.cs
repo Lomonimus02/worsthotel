@@ -122,6 +122,38 @@ namespace WorstHotel
                     if (Active(intent)) Require(guest.Agent != null && guest.Agent.PendingMoveRoomId > 0,
                         "Direct key exchange has no pending destination.");
                 }
+                if (intent.Purpose == ServiceIntentPurpose.CompensationDiscussion)
+                {
+                    Require(string.IsNullOrEmpty(intent.CaseId) && !string.IsNullOrEmpty(intent.IncidentId) &&
+                        incidents.ContainsKey(intent.IncidentId),
+                        "Compensation discussion has no reported causal incident.");
+                    if (!string.IsNullOrEmpty(intent.ResponseId))
+                        Require(responses[intent.ResponseId].IncidentId == intent.IncidentId &&
+                            responses[intent.ResponseId].CommunicatedAt >= 0,
+                            "Compensation discussion has a private or unrelated response.");
+                    if (intent.Status == ServiceIntentStatus.Completed)
+                        Require(guest.Compensated, "Completed compensation discussion has no reserved credit.");
+                    if (Active(intent))
+                    {
+                        // A stable incident ID can open a new, still-private episode after a
+                        // finished discussion. Only the current wait requires current disclosure;
+                        // terminal history retains its causal ID and any retained heard response.
+                        Require(incidents[intent.IncidentId].HasContactedStaff,
+                            "Active compensation discussion was not communicated.");
+                        var agent = guest.Agent;
+                        bool roomState = agent != null && (agent.State == GuestAgentState.InRoom || agent.State == GuestAgentState.PerformingActivity);
+                        Require(agent != null && agent.CheckedIn && agent.HasReachedRoom && !agent.IsRelocating &&
+                            agent.Activity != GuestActivity.Shower && (roomState || agent.State == GuestAgentState.WaitingAtServiceReception) &&
+                            snapshot.Rooms.Any(room => room.Id == guest.RoomId && room.GuestId == intent.GuestId) &&
+                            intent.Deadline <= agent.CheckoutTime,
+                            "Compensation discussion has no available physical guest.");
+                        if (!string.IsNullOrEmpty(agent.ResponseActionId))
+                            Require(agent.ResponseActionId == intent.ResponseId,
+                                "Compensation discussion lost its current physical contact.");
+                        // Recovery is processed before service intents in a simulation step.
+                        // An inactive cause can therefore be valid briefly before the discussion closes.
+                    }
+                }
                 if (intent.Kind == ServiceIntentKind.Direct)
                 {
                     Require(intent.Deadline >= intent.CreatedAt && intent.Status != ServiceIntentStatus.AwaitingReceipt, "Direct interaction needs a finite wait.");

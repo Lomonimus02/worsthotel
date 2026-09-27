@@ -43,6 +43,8 @@ namespace WorstHotel
             // Validation includes both keys and both rooms. No state changes if a key is wrong,
             // another player holds it, or a pending destination has become unavailable.
             int previousRoom = guest.RoomId;
+            Services?.FinishCompensationDiscussion(guest, false, "Room keys exchanged instead", false);
+            if (guest.Agent.ResponseActionId != null) ClearGuestResponseAction(guest, false);
             Keys.CommitHandToGuest(targetRoomId, guestId, previousRoom);
             Services?.FinishRoomMoveIntent(guest, true);
             ReleaseOwnedRoom(guest, source);
@@ -98,11 +100,12 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             if (actorId < 0 || actorId > 1) return CommandResult.Fail("Unknown staff actor.");
             var guest = FindLivingGuest(guestId);
-            if (guest == null || !guest.Agent.InAssignedRoom)
+            if (guest == null || (ContinuousOperations ? Services?.CanResolveCompensationDiscussion(guest) != true : !guest.Agent.InAssignedRoom))
                 return CommandResult.Fail("Choose a checked-in guest who is currently in their room.");
             if (Incidents.AcknowledgeAttention(guestId) == 0)
                 return CommandResult.Fail("This guest has no new active situation to acknowledge.");
             Incidents.RecordIgnored(guest);
+            Services?.FinishCompensationDiscussion(guest, false, "Staff left the problem unresolved");
             SignalEvent("Staff accepted the consequences for " + guest.Name + "; discomfort and its costs continue");
             return CommandResult.Ok("Current situations acknowledged. Room conditions, dissatisfaction and financial consequences continue.");
         }

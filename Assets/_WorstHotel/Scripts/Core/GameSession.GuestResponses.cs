@@ -14,7 +14,14 @@ namespace WorstHotel
                 !PlayerInteractor.TryGetPlayer(actor, out var player) ||
                 Vector3.Distance(player.transform.position, grant.source.position) > 4)
                 return GuestCommand(CommandResult.Fail("Answer using the physical reception telephone."));
-            return GuestCommand(Simulation.AnswerIncomingServiceCall(actor, responseId));
+            var result = Simulation.AnswerIncomingServiceCall(actor, responseId);
+            if (result.Success)
+            {
+                var response = Simulation.Services.FindResponse(responseId);
+                grant.answeredGuestId = response?.GuestId;
+                grant.answeredResponseId = response?.Id;
+            }
+            return GuestCommand(result);
         }
 
         public CommandResult TalkToServiceGuest(int actor, string guestId, string responseId)

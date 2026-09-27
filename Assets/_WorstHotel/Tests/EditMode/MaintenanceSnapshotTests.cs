@@ -75,6 +75,7 @@ namespace WorstHotel.Tests
         [TestCase("spend")]
         [TestCase("overflow")]
         [TestCase("report")]
+        [TestCase("failed-patch")]
         public void MalformedPaidStateRejectsAtomicallyWithoutConsumingSequence(string change)
         {
             var host = Create(); var mirror = Create(); mirror.EnableReadOnlyMirror();
@@ -94,6 +95,7 @@ namespace WorstHotel.Tests
                 case "spend": bad.Operations.PeriodMaintenanceSpend = -1; break;
                 case "overflow": bad.Operations.PeriodMaintenanceSpend = int.MaxValue; break;
                 case "report": bad.Reports[0].MaintenanceSpend = -1; break;
+                case "failed-patch": bad.Boiler.Failed = true; bad.Boiler.EmergencyPatchActive = true; break;
             }
             Assert.That(mirror.ApplySnapshot(bad).Success, Is.False, change);
             Assert.That(State(mirror), Is.EqualTo(before));

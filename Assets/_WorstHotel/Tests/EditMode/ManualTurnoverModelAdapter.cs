@@ -50,14 +50,20 @@ namespace WorstHotel.Tests
         readonly HotelSimulation simulation;
         readonly RoomState[] rooms;
         readonly string[] staff;
+        readonly Action<int, int> prepareRoomFixtures;
+        readonly float fixturePreparationSeconds;
         HousekeepingTask task;
         int actor = -1, phase;
         float due, lastAction, previousDoor = 1.3f;
         string cleanId;
         const float StaffSpeed = 3.5f, LinenStorageZ = 30.65f;
 
-        internal TimedManualTurnoverAdapter(HotelSimulation simulation, RoomState[] rooms, string[] staff)
-        { this.simulation = simulation; this.rooms = rooms; this.staff = staff; }
+        internal TimedManualTurnoverAdapter(HotelSimulation simulation, RoomState[] rooms, string[] staff,
+            Action<int, int> prepareRoomFixtures = null, float fixturePreparationSeconds = 0)
+        {
+            this.simulation = simulation; this.rooms = rooms; this.staff = staff;
+            this.prepareRoomFixtures = prepareRoomFixtures; this.fixturePreparationSeconds = fixturePreparationSeconds;
+        }
 
         internal void Tick()
         {
@@ -93,6 +99,19 @@ namespace WorstHotel.Tests
                     phase = 3; due = now + storageTrip;
                     break;
                 case 3:
+                    if (prepareRoomFixtures != null)
+                    {
+                        // Staff have physically returned to this still-dirty vacant room.
+                        // The same slot remains occupied while the optional inspection runs;
+                        // bed completion cannot release the room for another key handoff yet.
+                        phase = 5; due = now + fixturePreparationSeconds;
+                        break;
+                    }
+                    ManualTurnoverModelAdapter.Require(simulation.BeginMakeBed(actor, task.RoomId, cleanId));
+                    phase = 4; lastAction = now; due = now + .1f;
+                    break;
+                case 5:
+                    prepareRoomFixtures(actor, task.RoomId);
                     ManualTurnoverModelAdapter.Require(simulation.BeginMakeBed(actor, task.RoomId, cleanId));
                     phase = 4; lastAction = now; due = now + .1f;
                     break;

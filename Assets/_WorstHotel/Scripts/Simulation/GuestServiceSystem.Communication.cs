@@ -155,6 +155,10 @@ namespace WorstHotel
             { if (item.BudgetCharged) guest.Memory.ServicesRequested = Count(guest.Memory.ServicesRequested); Changed?.Invoke(item); }
             if (response.IncidentId != null) simulation.Incidents.MarkCommunicated(guest, response.IncidentId, response.IncidentEpisode, simulation.Elapsed);
             BeginCaseIntent(guest, item);
+            // Only this actual conversation may hold a guest for a compensation choice.
+            // Merely observing a Remote cause never pauses their ordinary schedule.
+            if (IntentBehaviorEnabled && DirectIntent(guest.GuestId) == null && response.IncidentId != null)
+                BeginCompensationDiscussion(actor, guest.GuestId, response.IncidentId);
             if (DirectIntent(guest.GuestId) == null) simulation.ClearGuestResponseAction(guest, true);
             var reason = Incident(response)?.Reason;
             string concern = reason == IncidentReason.Temperature ? "The room temperature is uncomfortable." :

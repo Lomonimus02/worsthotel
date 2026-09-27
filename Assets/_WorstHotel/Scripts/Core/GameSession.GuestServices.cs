@@ -6,7 +6,13 @@ namespace WorstHotel
 {
     public sealed partial class GameSession
     {
-        sealed class PhoneGrant { public HotelSimulation model; public Transform source; public float expires; }
+        sealed class PhoneGrant
+        {
+            public HotelSimulation model;
+            public Transform source;
+            public float expires;
+            public string answeredGuestId, answeredResponseId;
+        }
         readonly PhoneGrant[] phoneGrants = new PhoneGrant[2];
         bool ServiceWorkPhase => Phase == DayPhase.Service || Phase == DayPhase.Planning;
         bool ServiceTarget(int actor, HotelInteractable target, out PlayerInteractor player) =>

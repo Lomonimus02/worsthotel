@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Boiler
   m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.BoilerConfig
   initialCondition: 85
-  safeLoad: 4.2
+  safeLoad: 4.6
   baseWearPerMinute: 4
   overloadWearPerMinute: 16
   pressureBase: 40

@@ -98,7 +98,7 @@ namespace WorstHotel
             if (ReadOnlyMirror) return;
             if (MaintenanceInProgress) return;
             if (Failed) return;
-            Failed = true; ReliefActorId = -1;
+            Failed = true; EmergencyPatchActive = false; ReliefActorId = -1;
             CancelSoloLatch();
             SetPressure(Math.Max(Pressure, settings.FailurePressure));
             UpdateOutput();

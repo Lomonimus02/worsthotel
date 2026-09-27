@@ -19,12 +19,13 @@ namespace WorstHotel
             if (intent.Status == ServiceIntentStatus.Completed)
                 return intent.ReceivedAt >= 0 ? "Blanket received by the guest" : intent.Purpose == ServiceIntentPurpose.ServiceDecision ?
                     "Decision recorded · " + ServiceState(simulation.Services.FindCase(intent.CaseId)?.Status ?? ServiceStatus.Fulfilled) :
-                    intent.Purpose == ServiceIntentPurpose.RoomMove ? "Room keys exchanged" : "Guest condition recovered";
+                    intent.Purpose == ServiceIntentPurpose.RoomMove ? "Room keys exchanged" : intent.Purpose == ServiceIntentPurpose.CompensationDiscussion ?
+                    "Discussion finished · underlying problem reassessed separately" : "Guest condition recovered";
             if (intent.Status == ServiceIntentStatus.TimedOut) return "The guest's wait ended";
             if (intent.Status == ServiceIntentStatus.Cancelled) return intent.DeliveredAt >= 0 ? "Delivery cancelled · collect the blanket" : "Agreement ended";
             if (intent.Kind == ServiceIntentKind.DropOff) return "Delivery to room " + intent.RoomId + " · guest can continue their day";
             if (intent.Kind == ServiceIntentKind.Direct) return (intent.Purpose == ServiceIntentPurpose.RoomMove ?
-                "Waiting for key " + simulation.Guests.FirstOrDefault(guest => guest.GuestId == intent.GuestId)?.Agent?.PendingMoveRoomId : "Waiting for your decision") +
+                "Waiting for key " + simulation.Guests.FirstOrDefault(guest => guest.GuestId == intent.GuestId)?.Agent?.PendingMoveRoomId : intent.Purpose == ServiceIntentPurpose.CompensationDiscussion ? "Discussing compensation" : "Waiting for your decision") +
                 " until " + HotelMoment(simulation, intent.Deadline);
             return "Reported problem · reassessed when the guest is in the room";
         }

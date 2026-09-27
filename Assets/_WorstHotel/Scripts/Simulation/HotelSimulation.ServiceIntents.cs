@@ -2,6 +2,12 @@ namespace WorstHotel
 {
     public sealed partial class HotelSimulation
     {
+        public CommandResult BeginCompensationDiscussion(int actorId, string guestId, string incidentId = null) =>
+            Services?.BeginCompensationDiscussion(actorId, guestId, incidentId) ?? ServicesDisabled();
+
+        public CommandResult EndCompensationDiscussion(int actorId, string guestId, string expectedIntentId, int expectedRevision) =>
+            Services?.EndCompensationDiscussion(actorId, guestId, expectedIntentId, expectedRevision) ?? ServicesDisabled();
+
         public CommandResult DropOffBlanket(int actorId, string guestId, int roomId, int expectedIntentRevision, int expectedItemGeneration) =>
             Services?.DropOffBlanket(actorId, guestId, roomId, expectedIntentRevision, expectedItemGeneration) ?? ServicesDisabled();
 

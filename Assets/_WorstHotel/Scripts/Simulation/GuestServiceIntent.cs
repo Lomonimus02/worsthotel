@@ -1,7 +1,7 @@
 namespace WorstHotel
 {
     public enum ServiceIntentKind { Remote, DropOff, Direct }
-    public enum ServiceIntentPurpose { Incident, BlanketDelivery, ServiceDecision, RoomMove }
+    public enum ServiceIntentPurpose { Incident, BlanketDelivery, ServiceDecision, RoomMove, CompensationDiscussion = 4 }
     public enum ServiceIntentStatus { Active, AwaitingReceipt, Completed, Cancelled, TimedOut }
 
     /// <summary>One authoritative continuation of an existing concern or agreement, not a second request generator.</summary>

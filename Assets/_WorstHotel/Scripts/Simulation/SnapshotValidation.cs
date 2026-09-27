@@ -72,6 +72,7 @@ namespace WorstHotel
             }
             Require(s.Boiler!=null,"Missing boiler.");var b=s.Boiler;Range(b.Condition,0,100);Unit(b.HeatingOutput);Unit(b.Stress01);Nonnegative(b.Load,b.Pressure,b.FailureExposure,b.OccupancyLoad,b.LoadOverride);Require(b.ReliefActorId>=-1,"Invalid relief owner.");
             Nonnegative(b.MaintenanceEndsAt);
+            Require(!b.Failed || !b.EmergencyPatchActive, "A new failure ends the active emergency patch.");
             Require(s.HasOperations || (b.Stress01 == 0 && !b.EmergencyPatchActive && b.MaintenanceEndsAt == 0), "Legacy boiler cannot contain continuous operating states.");
             Require(b.MaintenanceEndsAt == 0 || (s.Running && b.MaintenanceEndsAt > s.Time && b.HeatingOutput == 0 && b.ReliefActorId == -1),
                 "Invalid boiler downtime state.");

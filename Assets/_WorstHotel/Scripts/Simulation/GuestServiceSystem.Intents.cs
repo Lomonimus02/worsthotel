@@ -57,19 +57,22 @@ namespace WorstHotel
         {
             if (!IntentBehaviorEnabled) return CommandResult.Ok();
             var current = DirectIntent(guest.GuestId);
-            if (current != null && current.Purpose != ServiceIntentPurpose.RoomMove)
+            if (current != null && current.Purpose != ServiceIntentPurpose.RoomMove && current.Purpose != ServiceIntentPurpose.CompensationDiscussion)
                 return CommandResult.Fail("Finish the guest's current direct service decision before proposing another.");
             if (guest.Agent.State == GuestAgentState.Sleeping || guest.Agent.Activity == GuestActivity.Shower ||
                 guest.Agent.IsRelocating || guest.Agent.ResponseActionId != null && current == null)
                 return CommandResult.Fail("The guest is not currently available for a room-key exchange.");
             if (guest.Agent.CheckoutTime - simulation.Elapsed <= Settings.ContactLeadSeconds)
                 return CommandResult.Fail("There is no longer enough time to arrange a room change before checkout.");
-            return current != null || intents.Count < 1024 ? CommandResult.Ok() : CommandResult.Fail("Service history capacity reached.");
+            return current?.Purpose == ServiceIntentPurpose.RoomMove || intents.Count < 1024 ? CommandResult.Ok() : CommandResult.Fail("Service history capacity reached.");
         }
 
         internal void BeginRoomMoveIntent(GuestStay guest, int destination)
         {
-            if (!IntentBehaviorEnabled || DirectIntent(guest.GuestId) != null) return;
+            if (!IntentBehaviorEnabled) return;
+            var current = DirectIntent(guest.GuestId);
+            if (current != null && current.Purpose != ServiceIntentPurpose.CompensationDiscussion) return;
+            if (current != null) CloseIntent(current, ServiceIntentStatus.Cancelled, "Room change chosen instead", false);
             int ordinal = 1;
             while (FindIntent(guest.GuestId + "/move/" + ordinal) != null) ordinal++;
             string id = guest.GuestId + "/move/" + ordinal;
@@ -77,6 +80,7 @@ namespace WorstHotel
             if (intent == null) return;
             intent.Deadline = Math.Min(guest.Agent.CheckoutTime, simulation.Elapsed + Settings.DirectWaitSeconds);
             guest.Agent.DirectServiceIntentId = intent.Id;
+            if (current != null && guest.Agent.ResponseActionId != null) simulation.ClearGuestResponseAction(guest, false);
             simulation.HoldGuestForServiceIntent(guest);
         }
 
@@ -156,6 +160,12 @@ namespace WorstHotel
                     else if (FindCase(intent.CaseId) is ServiceCase request && request.Active)
                         Finish(request, guest, ServiceStatus.Expired, 0);
                     simulation.SignalEvent("Room " + guest.RoomId + ": the guest's direct service wait ended.");
+                    continue;
+                }
+                if (intent.Purpose == ServiceIntentPurpose.CompensationDiscussion &&
+                    (!CompensationPresence(guest) || CompensableIncident(guest, intent.IncidentId) == null))
+                {
+                    CloseIntent(intent, ServiceIntentStatus.Cancelled, "Compensation discussion no longer needed");
                     continue;
                 }
                 if (intent.Status == ServiceIntentStatus.AwaitingReceipt && CanReceiveBlanket(guest)) ReceiveBlanket(intent, guest);

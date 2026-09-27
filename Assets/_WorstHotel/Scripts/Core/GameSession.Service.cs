@@ -99,13 +99,6 @@ namespace WorstHotel
             if (ManagementUI.Instance) { ManagementUI.Instance.Close(); ManagementUI.Instance.Open(0); }
         }
 
-        public void OfferCompensation(int actorId, string guestId)
-        {
-            if (ForwardLan(LanCommandKind.OfferCredit, guestId)) return;
-            if (actorId < 0 || actorId > 1 || Phase != DayPhase.Service) return;
-            ReportCommand(Simulation.OfferCompensation(guestId));
-        }
-
         public void ContinueAfterSettlement(int actorId)
         {
             if (ForwardLan(LanCommandKind.ContinueSettlement)) return;

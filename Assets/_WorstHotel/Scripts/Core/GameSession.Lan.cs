@@ -96,7 +96,7 @@ namespace WorstHotel
                 case LanCommandKind.Remove: Remove(playerId, command.roomId); break;
                 case LanCommandKind.SetPrice: SetPrice(playerId, command.roomId, command.amount); break;
                 case LanCommandKind.CommitPlan: CommitPlan(playerId); break;
-                case LanCommandKind.OfferCredit: OfferCompensation(playerId, command.subject); break;
+                case LanCommandKind.OfferCredit: OfferCompensation(playerId, command.subject, command.expectedDirectIntentId, command.expectedDirectIntentRevision); break;
                 case LanCommandKind.ContinueSettlement: ContinueAfterSettlement(playerId); break;
                 case LanCommandKind.Maintenance:
                     if (Enum.IsDefined(typeof(MaintenanceChoice), command.amount)) ChooseMaintenance(playerId, (MaintenanceChoice)command.amount);
@@ -107,7 +107,7 @@ namespace WorstHotel
                 case LanCommandKind.RestartSession: RestartSession(playerId); break;
                 case LanCommandKind.MoveGuest: MoveGuest(playerId, command.subject, command.roomId); break;
                 case LanCommandKind.CancelMove: CancelGuestMove(playerId, command.subject, command.expectedDirectIntentId, command.expectedDirectIntentRevision); break;
-                case LanCommandKind.AcceptConsequences: AcceptConsequences(playerId, command.subject); break;
+                case LanCommandKind.AcceptConsequences: AcceptConsequences(playerId, command.subject, command.expectedDirectIntentId, command.expectedDirectIntentRevision); break;
                 case LanCommandKind.AcceptBoilerConsequences: AcceptBoilerConsequences(playerId); break;
                 case LanCommandKind.RequestQuiet: RequestQuiet(playerId, command.subject); break;
                 case LanCommandKind.RequestGuestRoomEntry: RequestGuestRoomEntry(playerId, command.subject); break;
@@ -116,6 +116,7 @@ namespace WorstHotel
                 case LanCommandKind.AcknowledgeService: AcknowledgeService(playerId, command.subject); break;
                 case LanCommandKind.CompleteWakeUp: CompleteWakeUpCall(playerId, command.subject); break;
                 case LanCommandKind.CloseWakePhone: CloseWakePhone(playerId); break;
+                case LanCommandKind.EndServicePhoneConversation: EndServicePhoneConversation(playerId, command.subject); break;
                 case LanCommandKind.AnswerServiceCall: AnswerIncomingServiceCall(playerId, command.subject); break;
                 case LanCommandKind.TalkServiceGuest:
                     TalkToServiceGuest(playerId, Simulation.Services?.FindResponse(command.subject)?.GuestId, command.subject); break;

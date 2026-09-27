@@ -15,6 +15,8 @@ namespace WorstHotel
             public float expires;
         }
         readonly ConversationGrant[] conversations = new ConversationGrant[2];
+        float ConversationLifetime => Simulation.ContinuousOperations ?
+            Mathf.Max(30, (Simulation.Services?.Settings.DirectWaitSeconds ?? 30) + 5) : 30;
 
         internal void ClearGuestConversation(int actorId)
         {
@@ -44,8 +46,9 @@ namespace WorstHotel
             if (!(lan && lan.Role == LanRole.Host && actorId == 1) && ManagementUI.Instance?.IsOpen == true)
                 ManagementUI.Instance.Close();
             conversations[actorId] = new ConversationGrant { model = Simulation, guestId = guestId,
-                roomId = guest.RoomId, throughDoor = throughDoor, source = source, expires = Time.unscaledTime + 30 };
+                roomId = guest.RoomId, throughDoor = throughDoor, source = source, expires = Time.unscaledTime + ConversationLifetime };
             DiscloseGuestConcern(actorId, guest);
+            if (Simulation.ContinuousOperations) Simulation.BeginCompensationDiscussion(actorId, guestId);
             if (lan && lan.Role == LanRole.Host && actorId == 1) lan.RequestRemoteGuestConversation(guestId, throughDoor);
             else ManagementUI.Instance?.OpenGuestContext(actorId, guestId, throughDoor);
             return CommandResult.Ok("Speaking with " + guest.Name + ".");

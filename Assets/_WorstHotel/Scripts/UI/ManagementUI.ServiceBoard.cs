@@ -19,6 +19,7 @@ namespace WorstHotel
         public bool IsWakePhoneOpen => IsOpen && wakePhone;
         public bool IsWakeCallInProgress => IsWakePhoneOpen && callingPromise != null;
         public IEnumerable<string> ServiceOptionTitles => serviceChoices.Select(choice => choice.title);
+        public string FocusedServiceOption => (IsServiceBoardOpen || IsWakePhoneOpen) && focus >= 0 && focus < serviceChoices.Count ? serviceChoices[focus].title : null;
 
         public void OpenReceptionServiceBoard(int actorId)
         {

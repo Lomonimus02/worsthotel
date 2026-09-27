@@ -212,7 +212,9 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             if (!Running) return CommandResult.Fail("Compensation can only be promised during a guest's stay.");
             var guest = guests.FirstOrDefault(stay => stay.GuestId == guestId);
-            if (LivingEnabled && (guest == null || !guest.Agent.CheckedIn || !guest.Agent.InAssignedRoom))
+            if (ContinuousOperations && (Services == null || !Services.CanCompensate(guest)))
+                return CommandResult.Fail("Speak with the guest during their current compensation discussion first.");
+            if (!ContinuousOperations && LivingEnabled && (guest == null || !guest.Agent.CheckedIn || !guest.Agent.InAssignedRoom))
                 return CommandResult.Fail("Compensation is available while a checked-in guest is staying in their room.");
             var currentReasons = LivingEnabled ? Incidents.Items.Where(incident => incident.GuestId == guestId && incident.Active &&
                     (Services?.Settings.NaturalCommunicationEnabled != true || incident.HasContactedStaff))
@@ -227,6 +229,7 @@ namespace WorstHotel
                 {
                     NeedEvaluator.ApplyCompensationRelief(guest, currentReasons);
                     Incidents.AcceptCompensationResponse(guest);
+                    Services?.FinishCompensationDiscussion(guest, true, "Compensation credit reserved");
                     SignalEvent(guest.Name + " accepted a compensation credit and temporary relief; unchanged causes can return");
                 }
             }

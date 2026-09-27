@@ -8,7 +8,7 @@ namespace WorstHotel
 {
     public sealed partial class ManagementUI
     {
-        enum OperationsPage { Overview, Bookings, Offer, Reports, Report, Maintenance, Upgrades }
+        enum OperationsPage { Overview, Bookings, Offer, Reports, Report, Maintenance, Upgrades, Forecast }
         bool showingOperations;
         OperationsPage operationsPage;
         int operationsDay, operationsListPage, operationsReportNumber, operationsPrice, operationsReceiptPage;
@@ -92,14 +92,16 @@ namespace WorstHotel
                 {
                     var room = Session.Rooms[i]; int roomId = room.Profile.Id;
                     bool canReserve = available && simulation.CanReserveRoom(roomId, offer).Success;
-                    AddOperationsChoice(42 + i % 2 * 363, 419 + i / 2 * 51, 342, 43,
+                    AddOperationsChoice(42 + i % 2 * 363, 414 + i / 2 * 46, 342, 40,
                         (roomId == selectedRoom ? "● " : "") + "Room " + roomId + " · " + room.Profile.Label,
                         () => selectedRoom = roomId, canReserve);
                 }
-                AddOperationsChoice(42, 584, 90, 39, "− $" + Session.Economy.PriceStep,
+                AddOperationsChoice(42, 556, 90, 39, "− $" + Session.Economy.PriceStep,
                     () => operationsPrice = Mathf.Max(Session.Economy.MinPrice, operationsPrice - Session.Economy.PriceStep), (available || editable) && operationsPrice > Session.Economy.MinPrice);
-                AddOperationsChoice(657, 584, 90, 39, "+ $" + Session.Economy.PriceStep,
+                AddOperationsChoice(657, 556, 90, 39, "+ $" + Session.Economy.PriceStep,
                     () => operationsPrice = Mathf.Min(MaximumGridPrice, operationsPrice + Session.Economy.PriceStep), (available || editable) && operationsPrice < MaximumGridPrice);
+                AddOperationsChoice(42, 603, 705, 34, BookingForecastChoiceTitle(),
+                    () => { operationsPage = OperationsPage.Forecast; focus = 0; });
                 if (reservation == null)
                     AddOperationsChoice(42, 640, 705, 45, "Accept booking · room " + selectedRoom + " · $" + operationsPrice,
                         () => Session.AcceptBooking(owner, offer.Id, selectedRoom, operationsPrice), available && simulation.CanReserveRoom(selectedRoom, offer).Success);
@@ -113,17 +115,17 @@ namespace WorstHotel
             else if (operationsPage == OperationsPage.Reports)
             {
                 var available = Session.Reports.Reverse().ToArray();
-                operationsListPage = Mathf.Clamp(operationsListPage, 0, Math.Max(0, (available.Length - 1) / 6));
+                operationsListPage = Mathf.Clamp(operationsListPage, 0, Math.Max(0, (available.Length - 1) / 5));
                 int row = 0;
-                foreach (var report in available.Skip(operationsListPage * 6).Take(6))
+                foreach (var report in available.Skip(operationsListPage * 5).Take(5))
                 {
                     int number = report.DayNumber;
-                    AddOperationsChoice(42, 248 + row++ * 65, 705, 57, "Operating report " + number + " · net $" + report.Net +
+                    AddOperationsChoice(42, 394 + row++ * 54, 705, 47, "Operating report " + number + " · net $" + report.Net +
                         "\n" + report.Receipts.Count + " stays settled · cash $" + report.Cash,
                         () => { operationsReportNumber = number; operationsReceiptPage = 0; operationsPage = OperationsPage.Report; selectedReview = null; focus = 0; });
                 }
-                if (available.Length > 6)
-                    AddOperationsChoice(42, 648, 705, 35, "Older reports ›", () => { operationsListPage = (operationsListPage + 1) % ((available.Length + 5) / 6); focus = 0; });
+                if (available.Length > 5)
+                    AddOperationsChoice(42, 665, 705, 28, "Older reports ›", () => { operationsListPage = (operationsListPage + 1) % ((available.Length + 4) / 5); focus = 0; });
             }
             else if (operationsPage == OperationsPage.Report)
             {
@@ -145,7 +147,7 @@ namespace WorstHotel
             if (operationsPage == OperationsPage.Maintenance) UpdateOperationsMaintenance();
             if (operationsPage == OperationsPage.Upgrades) UpdateOperationsUpgrades();
             if (operationsPage != OperationsPage.Overview)
-                AddOperationsChoice(42, 746, 705, 42, operationsPage == OperationsPage.Offer ? "Back to bookings" :
+                AddOperationsChoice(42, 746, 705, 42, operationsPage == OperationsPage.Forecast ? "Back to booking" : operationsPage == OperationsPage.Offer ? "Back to bookings" :
                     selectedReview != null ? "Back to report" : operationsPage == OperationsPage.Report ? "Back to reports" : "Back to operations", OperationsBack);
             AddOperationsChoice(42, 799, 705, 42, "Close / keep working", Close);
             actions.Clear(); enabledActions.Clear();
@@ -158,6 +160,7 @@ namespace WorstHotel
         void OperationsBack()
         {
             if (selectedReview != null) selectedReview = null;
+            else if (operationsPage == OperationsPage.Forecast) operationsPage = OperationsPage.Offer;
             else if (operationsPage == OperationsPage.Offer) operationsPage = OperationsPage.Bookings;
             else if (operationsPage == OperationsPage.Report) operationsPage = OperationsPage.Reports;
             else if (operationsPage == OperationsPage.Overview) Close();
@@ -171,19 +174,18 @@ namespace WorstHotel
             Fill(new Rect(15, 50, 770, 820), Paper); Border(new Rect(23, 58, 754, 804), Brass);
             Label(new Rect(42, 78, 705, 48), operationsPage == OperationsPage.Overview ? "HOTEL OPERATIONS" :
                 operationsPage == OperationsPage.Bookings ? "DATED BOOKINGS" : operationsPage == OperationsPage.Offer ? "ONE-NIGHT BOOKING" :
-                operationsPage == OperationsPage.Maintenance ? "BOILER MAINTENANCE" : operationsPage == OperationsPage.Upgrades ? "CAPACITY UPGRADES" : "OPERATING REPORTS", Title);
+                operationsPage == OperationsPage.Forecast ? "BOOKING FORECAST" : operationsPage == OperationsPage.Maintenance ? "BOILER MAINTENANCE" : operationsPage == OperationsPage.Upgrades ? "CAPACITY UPGRADES" : "OPERATING REPORTS", Title);
             Label(new Rect(42, 135, 705, 49), GuestLabels.HotelMoment(simulation, simulation.Elapsed) + " · Cash $" + Session.Cash.ToString("F0") +
                 "\nThe hotel keeps running while you read and decide.", Small, Muted);
             if (operationsPage == OperationsPage.Overview) DrawOperationsOverview();
             else if (operationsPage == OperationsPage.Offer) DrawOperationsOffer();
             else if (operationsPage == OperationsPage.Bookings && !simulation.BookingOffers.Any(item => item.ArrivalDay == operationsDay))
                 Label(new Rect(42, 274, 705, 70), "No applications for Day " + operationsDay + ".", Body, Muted);
-            else if (operationsPage == OperationsPage.Reports)
-                Label(new Rect(42, 196, 705, 46), "Next report: " + GuestLabels.HotelMoment(simulation, simulation.NextReportAt) +
-                    (Session.Reports.Count == 0 ? "\nNo completed accounting periods yet." : ""), Small, Muted);
+            else if (operationsPage == OperationsPage.Reports) DrawCurrentOperationsFinance();
             else if (operationsPage == OperationsPage.Report) DrawOperatingReport();
             else if (operationsPage == OperationsPage.Maintenance) DrawOperationsMaintenance();
             else if (operationsPage == OperationsPage.Upgrades) DrawOperationsUpgrades();
+            else if (operationsPage == OperationsPage.Forecast) DrawBookingForecast();
             if (operationsPage != OperationsPage.Overview)
                 Label(new Rect(42, 699, 705, 41), Session.LastMessage, Small, Wine);
             foreach (var choice in operationsChoices) ButtonAt(choice.rect, choice.title, choice.action, choice.enabled);
@@ -229,7 +231,7 @@ namespace WorstHotel
             var room = Session.Rooms.First(item => item.Profile.Id == selectedRoom);
             Label(new Rect(42, 373, 705, 39), reservation != null ? reservation.Status + " · room " + reservation.RoomId + " · agreed $" + reservation.Price :
                 "Room " + selectedRoom + " now: " + PreparationStatus(room, simulation.Housekeeping?.Find(selectedRoom)) + " · future dates checked separately", Small, reservation != null ? Teal : Muted);
-            Label(new Rect(152, 582, 485, 42), "OFFER  $" + operationsPrice, Heading);
+            Label(new Rect(152, 554, 485, 42), "OFFER  $" + operationsPrice, Heading);
         }
 
         void DrawOperatingReport()
@@ -243,8 +245,9 @@ namespace WorstHotel
                 return;
             }
             Label(new Rect(42, 195, 705, 86), "PERIOD " + report.DayNumber + " · Revenue $" + report.Gross + " − credits/refunds $" + report.Compensation +
-                "\nOperations $" + report.OperatingCost + " · net $" + report.Net + " · cash $" + report.Cash +
-                "\nRead-only accounts. Existing stays and physical work continue.", Small, Muted);
+                "\nOperations $" + report.OperatingCost + " · maintenance $" + report.MaintenanceSpend + " · capital $" + report.CapitalSpend +
+                "\nNet $" + report.Net + " · opening cash $" + report.OpeningCash + " → closing $" + report.Cash +
+                "\nThese costs are already posted. Existing stays and physical work continue.", Small, Muted);
             if (report.Receipts.Count == 0) Label(new Rect(42, 317, 705, 80), "No stays settled during this period.\nGuests still staying will pay when their own stay ends.", Body, Muted);
         }
     }

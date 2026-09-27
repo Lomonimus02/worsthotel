@@ -34,6 +34,10 @@ The continuous physical repair sequence now charges one emergency patch, restore
 
 Added one permanent boiler capacity purchase (+25%, $1,800) and one electrical branch choice (+1 unit to A or B, $1,200). Purchases preserve demand, condition, stress, existing outages and maintenance; a tripped breaker still requires physical reset. Controller ledger pages show cost/benefit and installed state, and host commands reject repeated/invalid/unaffordable transactions. Capital costs persist and appear in report net without being charged twice. Compile passed; relevant Edit **85/85**, actual ledger/physical heater and breaker Play **1/1**. [Evidence and limits](verification/core04-phase7.md). Model schema 10 / LAN protocol 11.
 
+## Prototype 0.4 — phase 8 economy and forecast
+
+Added live cash-period accounting, unpaid booking totals and room-specific load forecasts using actual equipment/valves, overlapping stay intervals and a one-shower peak estimate. Opening working cash is $750, and rated boiler capacity is 4.6 after natural three-night comparisons: cautious four returns $1,980 net without failures; managed five returns $2,405 with two failures; unmanaged six earns higher gross but retains $101 after costs. Finite compensation conversations now hold the guest coherently at the room, phone or desk and require actual staff authority plus an exact decision revision; patch penalty ends at the next actual failure without erasing paid expenses. Compile passed; full Edit **612/614** followed by corrected relevant **20/20**, actual-session Play **6/6** followed by final **5/5**. [Measurements, failed iterations, adapters and limits](verification/core04-phase8.md). Model schema 11 / LAN protocol 12. Final full suites and actual SOLO/LAN remain phase 10.
+
 ## Prototype 0.3.2 — Natural Service
 
 26 September 2026. Natural Service implemented and packaged as Windows 0.3.2; the pause investigation remains explicitly deferred.
