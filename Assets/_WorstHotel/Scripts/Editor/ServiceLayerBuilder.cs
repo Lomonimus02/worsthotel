@@ -66,8 +66,7 @@ namespace WorstHotel.Editor
 
         static void BuildServiceLuggage(Transform root, Transform items)
         {
-            var decorativeCart = GameObject.Find("Brass luggage cart");
-            if (decorativeCart) Object.DestroyImmediate(decorativeCart);
+            // BuildLobby already creates the functional cart. Keep it when adding luggage storage.
             // Keep the complete solid use volume clear of the z=.35 reception arrival lane,
             // including the guest capsule radius at the fifth and sixth waiting positions.
             var area = Group("Guest luggage storage area", root, new Vector3(-8.1f, 0, -1.10f));

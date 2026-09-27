@@ -1,3 +1,7 @@
+## Prototype 0.5.3 — restore the missing luggage cart
+
+The functional brass cart was created by the lobby builder, then deleted by an obsolete decorative-cart cleanup in the service-storage builder. Removed that deletion so the cart, its Rigidbody, handle and luggage support survive scene generation beneath the BELL CART sign. Rebuilt the scene and Windows player; a focused rendered scene view confirms the cart in place. Carrying cargo and steering have not yet been manually exercised. The LAN compatibility identifier changes because older scenes have no cart to replicate. No automated tests or new harnesses.
+
 ## Prototype 0.5.2 — separate service wing from the lobby
 
 The right-hand lobby wall now has a real STAFF ONLY doorway leading to a separate service corridor. Laundry/supplies, staff sleeping and boiler/electrical each have their own room and door. Linen, blanket/bulb sources, the dirty hamper and both heaters are authored in the laundry room; their physical items and source anchors move together. The two existing staff beds retain their sleep interactions in a modest separate room. The boiler's controls, readouts, effects and upgrade visual move together to the plant room; the room-power cabinet has its own clear wall location and a deeper cover that conceals the breaker grips when closed.
