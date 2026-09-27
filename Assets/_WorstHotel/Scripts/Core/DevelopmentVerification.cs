@@ -52,6 +52,7 @@ namespace WorstHotel
             runner.agencyFixtures = Array.IndexOf(arguments, "-verifyAgency") >= 0;
             runner.serviceFixtures = Array.IndexOf(arguments, "-verifyServices") >= 0;
             runner.operationsUI = Array.IndexOf(arguments, "-verifyOperationsUI") >= 0;
+            runner.continuousTour = Array.IndexOf(arguments, "-verifyHotelContinuous") >= 0;
             Directory.CreateDirectory(runner.output);
             File.WriteAllText(Path.Combine(runner.output, "capture-manifest.txt"), string.Empty);
             DontDestroyOnLoad(runner.gameObject);
@@ -71,7 +72,8 @@ namespace WorstHotel
         // This opt-in historical driver verifies the original three-shift regression flow.
         // Configure before scene Start/transport startup; ordinary production sessions never use it.
         public static bool ShouldUseLegacyFixture(string[] arguments) => arguments != null &&
-            Array.IndexOf(arguments, "-verifyLanContinuous") < 0 && Array.IndexOf(arguments, "-verifyOperationsUI") < 0;
+            Array.IndexOf(arguments, "-verifyLanContinuous") < 0 && Array.IndexOf(arguments, "-verifyOperationsUI") < 0 &&
+            Array.IndexOf(arguments, "-verifyHotelContinuous") < 0;
 
         void PrepareLegacyVerification(Scene scene, LoadSceneMode mode)
         {
@@ -124,6 +126,7 @@ namespace WorstHotel
         {
             if (finished) return;
             float watchdog = 570 + (agencyFixtures ? 530 : 0) + (serviceFixtures ? 600 : 0);
+            if (continuousTour) watchdog = 720;
             if (Time.realtimeSinceStartup - began > watchdog)
             {
                 Debug.LogError("VERIFY: internal " + watchdog + "-second watchdog expired.");
@@ -134,6 +137,16 @@ namespace WorstHotel
             if (coop.IsPaused) return;
             if (session.Phase == DayPhase.Planning || session.Phase == DayPhase.Service)
                 session.Simulation.Clock.SetSpeed(capturing ? 1 : driveSpeed);
+            if (continuousTour)
+            {
+                try { UpdateContinuousVerification(); }
+                catch (Exception exception)
+                {
+                    Debug.LogError("VERIFY continuous: " + exception);
+                    finished = true; WriteReport("FAIL"); Application.Quit(2);
+                }
+                return;
+            }
             MaintainAgencyActivities();
             if (session.Phase != DayPhase.Service || currentDay == null) return;
             var simulation = session.Simulation;
@@ -202,6 +215,7 @@ namespace WorstHotel
             observedSimulation = session.Simulation;
             observedSimulation.Housekeeping.Changed += ObserveCleaning;
             initialized = true;
+            if (continuousTour) { yield return VerifyContinuousHotel(); yield break; }
             if (operationsUI) { yield return VerifyOperationsUI(); yield break; }
             facts.Add("The three-day lifecycle uses no forced failure, temperature override, activity override or synthetic route-completion callback. " +
                 "Optional presence/agency fixtures use separate preliminary sessions and are explicitly reset before day1.");

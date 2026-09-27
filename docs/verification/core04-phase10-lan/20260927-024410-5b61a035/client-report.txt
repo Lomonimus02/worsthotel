@@ -1,0 +1,25 @@
+Outcome=FAIL Errors=1 Role=client Mode=ContinuousFixtures Checks=196
+Utc=2026-09-27T02:45:03.6765424Z
+Run=20260927-024410-5b61a035
+CONTINUOUS CAPITAL FIXTURE: cloned economy starting cash=8000; production continuous calendar, service, capacity, wear and prices remain unchanged. This is funded command/accounting verification, not an affordability or natural-profit claim.
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+LANVersion=12 ModelSchema=11 Compatibility=worst-hotel-0.4-discussions12-gzip
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+SERVICE AIM: target=(-5.000, 1.770, 2.400) actor=(-5.000, 0.035, 0.950) camera=(-5.000, 1.645, 0.985) angle=5.05 yawError=0.00 pitchError=-5.05 startAngle=5.05 bestAngle=5.05 elapsed=0.26 pulses=0 settled=True worldSequence=9 inputLook=(0.000, 0.000) intendedSurface=True maxSampleFrameMs=0.0 uiBlocked=False pickup=False caption=Hotel fixture|[A / Cross]  Open the reception ledger
+SERVICE LOOK DOSE: dose=(0.00, 0.00) world=2->9 responseAndSettle=0.26 observed=0.00 angle=5.05 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+GPU candidate=client-continuous-bookings.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-boundary.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-report.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-capital-before.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-capital-installed.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-maintenance-active.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-maintenance-complete.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-report-2.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+FAIL: System.InvalidOperationException: Peer reported failure during continuous-report-3-ready
+  at WorstHotel.LanDevelopmentVerification+<Until>d__66.MoveNext () [0x000e0] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:436 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__52.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:141 
+ERROR: LAN VERIFY FAILED [client]: System.InvalidOperationException: Peer reported failure during continuous-report-3-ready
+  at WorstHotel.LanDevelopmentVerification+<Until>d__66.MoveNext () [0x000e0] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:436 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__52.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:141 
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

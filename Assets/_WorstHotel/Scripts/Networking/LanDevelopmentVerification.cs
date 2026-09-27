@@ -29,6 +29,8 @@ namespace WorstHotel
         RoomKeyItem key;
         readonly List<string> facts = new List<string>();
         SessionConfig legacyVerificationConfig;
+        SessionConfig continuousFundingConfig;
+        EconomyConfig continuousFundingEconomy;
 
         [Serializable] sealed class PoseMeasurement
         {
@@ -66,11 +68,23 @@ namespace WorstHotel
             Application.logMessageReceived += runner.OnLog;
         }
 
-        // This opt-in historical driver verifies the original three-shift regression flow.
-        // Configure before scene Start/transport startup; ordinary production sessions never use it.
+        // Configure opt-in fixtures before scene Start/transport startup. Continuous keeps
+        // production rules with labelled capital-test funds; old flags retain historical shifts.
         void PrepareLegacyVerification(Scene scene, LoadSceneMode mode)
         {
             var current = GameSession.Instance;
+            if (continuous && current && current.gameObject.scene == scene)
+            {
+                if (continuousFundingConfig) return;
+                continuousFundingConfig = Instantiate(current.config);
+                continuousFundingEconomy = Instantiate(current.config.economy);
+                continuousFundingEconomy.startingCash = ContinuousCapitalFixtureCash;
+                continuousFundingConfig.economy = continuousFundingEconomy;
+                current.config = continuousFundingConfig; current.NewGame();
+                facts.Add("CONTINUOUS CAPITAL FIXTURE: cloned economy starting cash=" + ContinuousCapitalFixtureCash +
+                    "; production continuous calendar, service, capacity, wear and prices remain unchanged. This is funded command/accounting verification, not an affordability or natural-profit claim.");
+                return;
+            }
             if (!DevelopmentVerification.ShouldUseLegacyFixture(Environment.GetCommandLineArgs()) || legacyVerificationConfig || !current || current.gameObject.scene != scene) return;
             legacyVerificationConfig = Instantiate(current.config);
             legacyVerificationConfig.continuousOperations = false;
@@ -89,7 +103,7 @@ namespace WorstHotel
         void Update()
         {
             if (finished) return;
-            float watchdog = continuous ? 240 : services ? 330 : 140;
+            float watchdog = continuous ? 420 : services ? 330 : 140;
             if (Time.realtimeSinceStartup - began > watchdog) { Fail(watchdog + "-second internal watchdog"); return; }
             if (agency && host) MaintainAgencyFixture();
             if (services && host) MaintainServicesFixture();
@@ -454,6 +468,8 @@ namespace WorstHotel
         {
             SceneManager.sceneLoaded -= PrepareLegacyVerification;
             if (legacyVerificationConfig) Destroy(legacyVerificationConfig);
+            if (continuousFundingConfig) Destroy(continuousFundingConfig);
+            if (continuousFundingEconomy) Destroy(continuousFundingEconomy);
             Application.logMessageReceived -= OnLog;
             if (pad != null && pad.added) InputSystem.RemoveDevice(pad);
             if (layoutRegistered) InputSystem.RemoveLayout(PadLayout);

@@ -42,7 +42,9 @@ namespace WorstHotel
                 {
                     int reception = session.Simulation.Guests.Count(g => g.Agent.State == GuestAgentState.WaitingForCheckIn || g.Agent.State == GuestAgentState.WaitingAtServiceReception);
                     int arriving = session.Simulation.Guests.Count(g => g.Agent.State == GuestAgentState.Arriving);
-                    int staying = session.Simulation.Guests.Count(g => g.Agent.CheckedIn && g.Agent.State != GuestAgentState.Left && g.Agent.State != GuestAgentState.Leaving);
+                    int staying = session.Simulation.Guests.Count(g => g.Agent.CheckedIn && g.Agent.State != GuestAgentState.Left && g.Agent.State != GuestAgentState.Leaving &&
+                        (!session.Simulation.ContinuousOperations || !g.ReceiptPosted && g.Agent.State != GuestAgentState.CheckingOut &&
+                            session.Rooms.Any(room => room.GuestId == g.GuestId)));
                     Fill(new Rect(x, 152, 758, 25), new Color(.10f, .14f, .12f, .9f));
                     Label(new Rect(x + 14, 152, 730, 24), "ARRIVING " + arriving + "   /   AT RECEPTION " + reception + "   /   CHECKED IN " + staying, Small, reception > 0 ? new Color(1, .8f, .4f) : Paper);
                 }

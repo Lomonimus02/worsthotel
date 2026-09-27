@@ -28,6 +28,8 @@ namespace WorstHotel
                 "continuous LAN fixture retains production calendar timing");
             Require(session.Phase == DayPhase.Service && !session.PlanCommitted && session.Simulation.Running,
                 "hotel operates without committing a shift plan");
+            facts.Add("LANVersion=" + LanProtocol.Version + " ModelSchema=" + HotelModelSnapshot.ProtocolVersion +
+                " Compatibility=" + LanProtocol.BuildCompatibility);
         }
 
         IEnumerator RunContinuousHost()
@@ -87,7 +89,7 @@ namespace WorstHotel
             Require(target > model.Elapsed && target - model.Elapsed < session.config.hotelDaySeconds,
                 "first report fits one bounded diagnostic calendar advance");
             float advancedFrom = model.Elapsed;
-            session.AdvanceTime(target - model.Elapsed);
+            AdvanceContinuousDiagnosticTo(target, "first accounting boundary");
             Require(session.Simulation == model && session.Rooms == rooms && lan.Epoch == epoch,
                 "date/report boundary preserves host model, rooms and network epoch");
             Require(session.Day == 2 && session.Phase == DayPhase.Service && model.DayReports.Count == 1,
@@ -118,6 +120,8 @@ namespace WorstHotel
             facts.Add("PhysicalLedgerAccess=True BookingRoundtrip=True PriceEdit=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryBooking=True");
             facts.Add("HostEpoch=" + epoch + " Day=" + session.Day + " Cash=" + model.Economy.Cash + " Report=" + report.DayNumber +
                 " RemoteCommands=" + lan.AcceptedRemoteCommands + " ModelBytes=" + lan.LastModelBytes + " WorldBytes=" + lan.LastWorldBytes);
+            WriteStage("continuous-booking-roundtrip-complete");
+            yield return RunContinuousCapitalHost();
             WriteStage("continuous-host-complete");
             yield return Stage("client-complete", 20);
         }
@@ -213,9 +217,11 @@ namespace WorstHotel
             yield return ContinuousChoose("Accept booking");
             yield return Until(() => mirror.FindReservation(laterId)?.Status == ReservationStatus.Reserved, 8,
                 "post-midnight enquiry still uses live authenticated network commands");
+            yield return Stage("continuous-booking-roundtrip-complete", 10);
+            yield return RunContinuousCapitalClient();
             yield return Stage("continuous-host-complete", 10);
             float before = mirror.Elapsed; mirror.Tick(10);
-            Require(mirror.Elapsed == before && !mirror.CancelBooking(1, primaryId, mirror.FindReservation(primaryId).Revision).Success && stableClockChecks >= 10,
+            Require(mirror.Elapsed == before && !mirror.CancelBooking(1, primaryId).Success && stableClockChecks >= 10,
                 "mirror clock and reservations only change through host snapshots");
             Require(ManagementUI.Instance.IsOperationsOpen && lan.Epoch == epoch && session.Simulation == mirror,
                 "same connection and local menu remain usable throughout");

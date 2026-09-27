@@ -23,6 +23,7 @@ namespace WorstHotel.Tests
             public readonly Dictionary<string, string> Schedules = new Dictionary<string, string>();
             public readonly Dictionary<int, float> FirstFailureAt = new Dictionary<int, float>();
             public readonly Dictionary<int, int> FailuresByDay = new Dictionary<int, int>();
+            public Action<float> AdvanceHeadlessAdapters;
             public int Failures, CheckIns, Departures, Contacts, Showers, Gross, Refunds, Maintenance, Capital, Net, Receipts;
             public int MinCash, EndingCash, ReportCount;
             public float MaxLoad, MaxStress, MinOccupiedTemperature = 100, QuietSeconds, LongestQuiet, quietRun;
@@ -368,6 +369,7 @@ namespace WorstHotel.Tests
         static Run Simulate(int occupancy, SessionConfig config, Policy policy = Policy.SequentialRooms)
         {
             var run = new Run(occupancy, config, policy); var hotel = run.Hotel; var boundaries = new Boundaries(run);
+            run.AdvanceHeadlessAdapters = boundaries.Tick;
             int bookedThrough = 0;
             float until = hotel.Calendar.At(4, 11); // Third-cohort checkout tail; no fourth-day bookings.
             while (hotel.Elapsed < until)
@@ -391,6 +393,7 @@ namespace WorstHotel.Tests
         }
 
         [Test]
+        [Timeout(300000)] // Six natural three-night policies plus their earned-capital continuation.
         public void ProductionSeededThreeDayBookingStrategiesExposeBothRevenueOpportunityAndCausalCosts()
         {
             var config = AssetDatabase.LoadAssetAtPath<SessionConfig>(AssetPath);
@@ -447,6 +450,107 @@ namespace WorstHotel.Tests
                 "Successfully managing a fifth real booking should offer more net income than cautious four-room operation. " + managed);
             Assert.That(managed.MinCash, Is.GreaterThanOrEqualTo(0), "Managed five-room operation must not depend on invisible credit. " + managed);
             Assert.That(managed.Net, Is.GreaterThan(0), managed.ToString());
+            AssertEarnedUpgradeAndLaterGrowth(managed);
+        }
+
+        static void AssertEarnedUpgradeAndLaterGrowth(Run run)
+        {
+            // Continue the already measured hotel, preserving the actual staff/linen/carry
+            // adapter state. The six policy rows above still end at D4 11, before this separate
+            // investment scenario. No new matrix, cash injection or reconstructed checkpoint.
+            var hotel = run.Hotel;
+            Assert.That(hotel.Calendar.Day, Is.EqualTo(4));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(run.EndingCash));
+            int price = run.Settings.Economy.BoilerUpgradeCost;
+            Assert.That(hotel.Economy.Cash, Is.GreaterThanOrEqualTo(price + run.Settings.Economy.DailyOperatingCost),
+                "Actual settled stays must fund both the investment and the next overnight bill.");
+            var offers = hotel.BookingOffers.Where(offer => offer.ArrivalDay == 4)
+                .OrderBy(offer => offer.ArrivalAt).ToArray();
+            Assert.That(offers.Length, Is.EqualTo(8));
+            int[] warmRooms = { 102, 101, 105, 104, 103 };
+            for (int index = 0; index < 5; index++)
+                Require(hotel.AcceptBooking(0, offers[index].Id, warmRooms[index], offers[index].Application.ReferencePrice));
+            var growthOffer = offers.Last(); // A real later enquiry: its time/guest profile is never edited.
+            while (hotel.Elapsed < growthOffer.ArrivalAt - 1 &&
+                (hotel.HeatingDemands.Count(row => row.GuestId != null) < 5 || hotel.Boiler.Failed))
+                AdvanceInvestmentContinuation(run, Math.Min(1 / run.Settings.TickRate, growthOffer.ArrivalAt - 1 - hotel.Elapsed));
+            Assert.That(hotel.HeatingDemands.Count(row => row.GuestId != null), Is.EqualTo(5),
+                "Normal dated arrivals, finite key handoffs and turnover must establish five actual room owners first.");
+            Assert.That(hotel.Boiler.Failed, Is.False);
+            Assert.That(hotel.Elapsed, Is.LessThan(growthOffer.ArrivalAt));
+            Assert.That(hotel.Boiler.LoadOverride, Is.Null);
+            float beforeRatio = hotel.Boiler.LoadRatio, beforeHeat = hotel.Boiler.HeatingOutput;
+            float load = hotel.Boiler.Load, condition = hotel.Boiler.Condition, stress = hotel.Boiler.Stress01;
+            float pressure = hotel.Boiler.Pressure, capacity = hotel.Boiler.EffectiveCapacity, rated = hotel.Boiler.RatedCapacity;
+            bool patched = hotel.Boiler.EmergencyPatchActive;
+            var rows = hotel.HeatingDemands.ToArray();
+            float vacantSixth = rows.Single(row => row.RoomId == 106).Total;
+            int cash = hotel.Economy.Cash, capital = hotel.PeriodCapitalSpend;
+            Assert.That(hotel.Boiler.CapacityBand, Is.Not.EqualTo(CapacityBand.Comfortable),
+                "The actual natural five-room workload must make this upgrade relevant.");
+
+            // Authoritative model transaction; actual walking/UI purchase input has its own
+            // PlayMode test. No simulated time or customer/demand adjustment intervenes here.
+            Require(hotel.PurchaseBoilerUpgrade(0));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(cash - price));
+            Assert.That(hotel.Economy.Cash, Is.GreaterThanOrEqualTo(run.Settings.Economy.DailyOperatingCost));
+            Assert.That(hotel.PeriodCapitalSpend, Is.EqualTo(capital + price));
+            Assert.That(hotel.HeatingDemands, Is.EqualTo(rows));
+            Assert.That(hotel.Boiler.Load, Is.EqualTo(load));
+            Assert.That(hotel.Boiler.Condition, Is.EqualTo(condition));
+            Assert.That(hotel.Boiler.Stress01, Is.EqualTo(stress));
+            Assert.That(hotel.Boiler.Pressure, Is.EqualTo(pressure));
+            Assert.That(hotel.Boiler.EmergencyPatchActive, Is.EqualTo(patched));
+            Assert.That(hotel.Boiler.RatedCapacity, Is.EqualTo(rated * run.Settings.Boiler.Capacity.CapacityUpgradeMultiplier).Within(.00001f));
+            Assert.That(hotel.Boiler.EffectiveCapacity, Is.GreaterThan(capacity));
+            Assert.That(hotel.Boiler.LoadRatio, Is.LessThan(beforeRatio));
+            Assert.That(hotel.Boiler.HeatingOutput, Is.GreaterThanOrEqualTo(beforeHeat));
+            float upgradedRated = hotel.Boiler.RatedCapacity, ratioAfterPurchase = hotel.Boiler.LoadRatio;
+
+            Require(hotel.AcceptBooking(0, growthOffer.Id, 106, growthOffer.Application.ReferencePrice));
+            Assert.That(hotel.HeatingDemands.Count(row => row.GuestId != null), Is.EqualTo(5), "The enquiry itself cannot create a sixth live consumer.");
+            float reachedRoomDeadline = hotel.Calendar.At(4, 21);
+            GuestStay sixth = null;
+            while (hotel.Elapsed < reachedRoomDeadline)
+            {
+                AdvanceInvestmentContinuation(run, Math.Min(1 / run.Settings.TickRate, reachedRoomDeadline - hotel.Elapsed));
+                sixth = hotel.Guests.FirstOrDefault(guest => guest.GuestId == growthOffer.Id);
+                if (sixth?.Agent.HasReachedRoom == true && sixth.Agent.InAssignedRoom) break;
+            }
+            Assert.That(sixth, Is.Not.Null);
+            Assert.That(sixth.Agent.HasReachedRoom && sixth.Agent.InAssignedRoom, Is.True, "The additional dated guest must receive a key and reach their actual owned room.");
+            Assert.That(hotel.HeatingDemands.Count(row => row.GuestId != null), Is.EqualTo(6));
+            var sixthDemand = hotel.HeatingDemands.Single(row => row.RoomId == 106);
+            Assert.That(sixthDemand.GuestId, Is.EqualTo(growthOffer.Id));
+            Assert.That(sixthDemand.Total, Is.GreaterThan(vacantSixth));
+            float sameMomentFiveLoad = hotel.Boiler.Load - sixthDemand.Total + vacantSixth;
+            float sameMomentFiveRatio = sameMomentFiveLoad / hotel.Boiler.EffectiveCapacity;
+            float actualSixRatio = hotel.Boiler.LoadRatio;
+            Assert.That(hotel.Boiler.Load, Is.EqualTo(hotel.HeatingDemands.Sum(row => row.Total)).Within(.00001f));
+            Assert.That(actualSixRatio, Is.GreaterThan(sameMomentFiveRatio),
+                "Use the other five rooms' contemporaneous demand so unrelated natural shower timing cannot masquerade as the growth effect.");
+            Assert.That(hotel.Boiler.RatedCapacity, Is.EqualTo(upgradedRated));
+            float growthAt = hotel.Elapsed, peakRatio = actualSixRatio, peakStress = hotel.Boiler.Stress01;
+            int failuresAtGrowth = run.Failures;
+            float midnight = hotel.Calendar.At(5, .1f);
+            while (hotel.Elapsed < midnight)
+            {
+                AdvanceInvestmentContinuation(run, Math.Min(1 / run.Settings.TickRate, midnight - hotel.Elapsed));
+                peakRatio = Math.Max(peakRatio, hotel.Boiler.LoadRatio);
+                peakStress = Math.Max(peakStress, hotel.Boiler.Stress01);
+            }
+            Assert.That(hotel.Calendar.Day, Is.EqualTo(5));
+            Assert.That(hotel.Boiler.CapacityUpgradePurchased, Is.True);
+            Assert.That(hotel.Boiler.RatedCapacity, Is.EqualTo(upgradedRated), "Midnight and increased ambition cannot secretly remove purchased capacity.");
+            Assert.That(hotel.PeriodCapitalSpend, Is.EqualTo(capital + price), "No second capital debit or daily upgrade reset.");
+            TestContext.Out.WriteLine(FormattableString.Invariant(
+                $"Separate earned-capital continuation: day4 pre-purchase cash={cash}, paid={price}, ownedRooms=5, sameLoad={load:F4}, condition={condition:F3}, retainedStress={stress:F4}, ratio={beforeRatio:F4}->{ratioAfterPurchase:F4}; sixth actual arrival elapsed={growthAt:F1}, sixRatio={actualSixRatio:F4}, contemporaneous-fiveRatio={sameMomentFiveRatio:F4}; through day5 00:06 peakRatio={peakRatio:F4}, peakStress={peakStress:F4}, additionalFailures={run.Failures - failuresAtGrowth}, retainedRatedCapacity={hotel.Boiler.RatedCapacity:F3}, finalCash={hotel.Economy.Cash}. Natural pressure is measured, not a mandated failure."));
+        }
+
+        static void AdvanceInvestmentContinuation(Run run, float dt)
+        {
+            run.Hotel.Tick(dt);
+            run.AdvanceHeadlessAdapters(dt);
         }
 
         [Test]

@@ -1,0 +1,12 @@
+continuous-opening.png
+continuous-bookings.png
+continuous-day1-guests.png
+continuous-day2-preparation.png
+continuous-day2-guests.png
+continuous-day3-preparation.png
+continuous-day3-guests.png
+continuous-72-hours.png
+continuous-reports.png
+continuous-final-accounts.png
+continuous-final-boiler.png
+continuous-new-session.png

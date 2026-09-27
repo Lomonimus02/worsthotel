@@ -1,0 +1,24 @@
+Outcome=PASS Errors=0 Role=client Mode=ContinuousFixtures Checks=211
+Utc=2026-09-27T02:56:52.2912927Z
+Run=20260927-025558-e1e05778
+CONTINUOUS CAPITAL FIXTURE: cloned economy starting cash=8000; production continuous calendar, service, capacity, wear and prices remain unchanged. This is funded command/accounting verification, not an affordability or natural-profit claim.
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+LANVersion=12 ModelSchema=11 Compatibility=worst-hotel-0.4-discussions12-gzip
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+SERVICE AIM: target=(-5.000, 1.770, 2.400) actor=(-5.000, 0.035, 0.950) camera=(-5.000, 1.645, 0.985) angle=2.10 yawError=0.00 pitchError=-2.10 startAngle=3.24 bestAngle=3.24 elapsed=0.32 pulses=1 settled=True worldSequence=9 inputLook=(0.000, 0.000) intendedSurface=True maxSampleFrameMs=80.7 uiBlocked=False pickup=False caption=Hotel fixture|[A / Cross]  Open the reception ledger
+SERVICE LOOK DOSE: dose=(0.00, 2.95) world=1->9 responseAndSettle=0.30 observed=2.95 angle=2.10 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+GPU candidate=client-continuous-bookings.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-boundary.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-report.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-capital-before.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-capital-installed.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-maintenance-active.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-maintenance-complete.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-report-2.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-report-3.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+RemotePaidUpgrades=True UpgradeDoesNotRepair=True DuplicateCapitalRejected=True OtherBranchRejected=True RemotePaidMaintenance=True MaintenanceDowntime=True DuplicateMaintenanceRejected=True MaintenanceRestored=True ThreeAccountingBoundaries=True ContinuousCapitalVerified=True
+ThreeAccountingBoundaries ends after D4 06:00 from D1 08:00; bounded host diagnostic advances, not 72 hours of human play or three paid guest cohorts. All equipment choices used actual client controller through normal NGO authorization; duplicate attempts used labelled ordinary session commands.
+PhysicalLedgerAccess=True BookingRoundtrip=True PriceEdit=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryBooking=True
+ReadOnlyMirror=True SnapshotOnlyClockChecks=2409 HostEpoch=639260745624802379 Day=4 Cash=2150 Report=3; forced system faults and bounded diagnostic advance are setup, not human play or natural overload evidence.
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

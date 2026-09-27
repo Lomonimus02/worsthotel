@@ -5,19 +5,30 @@ param(
     [switch]$PresenceFixtures,
     [switch]$AgencyFixtures,
     [switch]$ServiceFixtures,
+    [switch]$ContinuousFixtures,
     [ValidateRange(60, 1800)][int]$TimeoutSeconds = 600
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+if ($ContinuousFixtures) {
+    if (-not $Solo) { throw 'ContinuousFixtures requires -Solo for its exclusive single-staff lifecycle.' }
+    if ($PresenceFixtures -or $AgencyFixtures -or $ServiceFixtures) { throw 'ContinuousFixtures cannot be combined with historical shift fixtures.' }
+    if (-not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 1200 }
+    if (-not $PSBoundParameters.ContainsKey('OutputPath')) {
+        $runId = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 8)
+        $OutputPath = 'docs/verification/core04-phase10-solo/' + $runId
+    }
+}
 $playerPath = Join-Path (Join-Path $projectRoot $BuildDirectory) 'TheWorstHotelEver.exe'
 if (-not (Test-Path -LiteralPath $playerPath)) { throw 'Build the Windows development player first.' }
 $capturePath = [IO.Path]::GetFullPath((Join-Path $projectRoot $OutputPath))
 New-Item -ItemType Directory -Path $capturePath -Force | Out-Null
-$playerLog = Join-Path $projectRoot 'Logs/player-verification.log'
+$playerLog = if ($ContinuousFixtures) { Join-Path $capturePath 'player.log' } else { Join-Path $projectRoot 'Logs/player-verification.log' }
 New-Item -ItemType Directory -Path (Split-Path -Parent $playerLog) -Force | Out-Null
 $playerArgs = @('-screen-width','1600','-screen-height','900','-screen-fullscreen','0',
     '-verifyHotel',"`"$capturePath`"",'-logFile',"`"$playerLog`"")
 if ($Solo) { $playerArgs += '-hotelSolo' }
+if ($ContinuousFixtures) { $playerArgs += '-verifyHotelContinuous' }
 if ($PresenceFixtures) {
     if (-not $Solo) { throw 'PresenceFixtures requires -Solo for its single-camera visual review.' }
     $playerArgs += '-verifyPresence'
@@ -57,17 +68,41 @@ if ($PresenceFixtures -and $reportText -notmatch 'GuestPresenceVerified=True') {
 if ($AgencyFixtures -and $reportText -notmatch 'GuestAgencyVerified=True') { throw 'Guest agency fixtures did not complete.' }
 if ($ServiceFixtures -and $reportText -notmatch 'GuestServicesVerified=True') { throw 'Guest service fixtures did not complete.' }
 if ($ServiceFixtures -and $reportText -notmatch 'NaturalContactsVerified=True') { throw 'Natural guest contact fixtures did not complete.' }
-foreach ($day in 1..3) {
+if ($ContinuousFixtures) {
+    foreach ($evidence in @('ContinuousOperationsVerified=True CashConserved=True ModelContinuity=True RoomRegistryContinuity=True ClockContinuity=True EpochContinuity=True',
+        'Reports=3 UniquePaidStays=14 CurrentPeriodReceipts=5', 'StaffSlots=1 ModelKeyHandoffs=14', 'ContinuousFreshInventoryReset=True')) {
+        if ($reportText -notmatch [regex]::Escape($evidence)) { throw "Continuous SOLO lacks $evidence. Inspect $report" }
+    }
+    foreach ($cohort in 1..3) {
+        $count = if ($cohort -eq 1) { 4 } else { 5 }
+        if ($reportText -notmatch "Cohort ${cohort}: booked=$count checkedIn=$count actualRoomArrivals=$count actualDepartures=$count paidStays=$count") {
+            throw "Continuous cohort $cohort did not complete its actual routes and once-only payments."
+        }
+    }
+    $snapshotPath = Join-Path $capturePath 'continuous-final-snapshot.json'
+    if (-not (Test-Path -LiteralPath $snapshotPath) -or (Get-Item -LiteralPath $snapshotPath).LastWriteTimeUtc -lt $startedAt) {
+        throw 'Continuous run did not preserve its original final state before NewGame.'
+    }
+}
+if (-not $ContinuousFixtures) { foreach ($day in 1..3) {
     $expectedGuests = if ($day -eq 1) { 4 } else { 6 }
     if ($reportText -notmatch "Day ${day}: booked=$expectedGuests checkedIn=$expectedGuests actualRoomArrivals=$expectedGuests.*paidStays=$expectedGuests") {
         throw "Day $day did not record $expectedGuests actual served and paid stays."
     }
-}
+} }
 $manifestPath = Join-Path $capturePath 'capture-manifest.txt'
 if (-not (Test-Path -LiteralPath $manifestPath) -or (Get-Item -LiteralPath $manifestPath).LastWriteTimeUtc -lt $startedAt) {
     throw 'No fresh current-run capture manifest was written.'
 }
 $manifest = @(Get-Content -LiteralPath $manifestPath | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+if ($manifest.Count -eq 0 -or @($manifest | Select-Object -Unique).Count -ne $manifest.Count) { throw 'Empty or duplicate capture manifest.' }
+if ($ContinuousFixtures) {
+    foreach ($required in @('continuous-opening', 'continuous-bookings', 'continuous-day1-guests', 'continuous-day2-preparation',
+        'continuous-day2-guests', 'continuous-day3-preparation', 'continuous-day3-guests', 'continuous-72-hours',
+        'continuous-reports', 'continuous-final-accounts', 'continuous-final-boiler', 'continuous-new-session')) {
+        if ($manifest -notcontains ($required + '.png')) { throw "Continuous capture missing: $required" }
+    }
+}
 if ($PresenceFixtures) {
     foreach ($requiredPresence in @('guest-sleep.png','guest-shower.png','guest-privacy.png','guest-rest.png','guest-debug.png')) {
         if ($manifest -notcontains $requiredPresence) { throw "Presence capture is missing: $requiredPresence" }
@@ -87,10 +122,10 @@ if ($ServiceFixtures) {
         if ($manifest -notcontains $requiredService) { throw "Service capture is missing: $requiredService" }
     }
 }
-foreach ($required in @('physical-sources.png', 'linen-source.png', 'planning.png', $serviceCapture, 'guest-detail.png', 'housekeeping-day2.png',
+if (-not $ContinuousFixtures) { foreach ($required in @('physical-sources.png', 'linen-source.png', 'planning.png', $serviceCapture, 'guest-detail.png', 'housekeeping-day2.png',
     'portable-heater.png', 'electrical-warning.png', 'electrical-tripped.png', 'maintenance.png', 'results.png', 'developer-panel.png', 'developer-controls.png', 'new-session.png')) {
     if ($manifest -notcontains $required) { throw "Current-run capture is missing: $required" }
-}
+} }
 Add-Type -AssemblyName System.Drawing
 $rejectedImages = @()
 foreach ($captureName in $manifest) {
@@ -117,4 +152,15 @@ if ($rejectedImages.Count -gt 0) {
     throw $limitation
 } else {
     Write-Output "Nonblank built-player image candidates: $capturePath. Inspect their layout before accepting."
+}
+if ($ContinuousFixtures) {
+    $binaryFacts = @(
+        ('Build=' + $BuildDirectory),
+        ('GameplayAssemblySHA256=' + (Get-FileHash -LiteralPath (Join-Path (Split-Path -Parent $playerPath) 'TheWorstHotelEver_Data/Managed/WorstHotel.Runtime.dll') -Algorithm SHA256).Hash),
+        ('ExecutableSHA256=' + (Get-FileHash -LiteralPath $playerPath -Algorithm SHA256).Hash),
+        'RuntimeScope=Continuous SOLO with explicitly labelled diagnostic staff actions; human controls, feel and performance require separate review.',
+        'ScreenshotLegibility=MANUAL_REVIEW_REQUIRED'
+    )
+    [IO.File]::WriteAllLines((Join-Path $capturePath 'binary-and-scope.txt'), $binaryFacts, [Text.UTF8Encoding]::new($false))
+    Write-Output "CaptureFolder=$capturePath"
 }

@@ -11,7 +11,7 @@ param(
 $ErrorActionPreference = 'Stop'
 if ((@($AgencyFixtures, $ServiceFixtures, $ContinuousFixtures) | Where-Object { $_ }).Count -gt 1) { throw 'Choose only one fixture mode per LAN run.' }
 if ($ServiceFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 345 }
-if ($ContinuousFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 255 }
+if ($ContinuousFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 480 }
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $playerPath = Join-Path (Join-Path $projectRoot $BuildDirectory) 'TheWorstHotelEver.exe'
 if (-not (Test-Path -LiteralPath $playerPath)) { throw 'Build the Windows development player with the LAN verification driver first.' }
@@ -72,7 +72,10 @@ try {
         if ($ContinuousFixtures) {
             foreach ($evidence in @('Mode=ContinuousFixtures', 'PhysicalLedgerAccess=True', 'BookingRoundtrip=True',
                 'PriceEdit=True', 'StaleRevisionRejected=True', 'Cancellation=True', 'MidnightPersistence=True',
-                'ReportOnce=True', 'PostBoundaryBooking=True')) {
+                'ReportOnce=True', 'PostBoundaryBooking=True', 'RemotePaidUpgrades=True', 'UpgradeDoesNotRepair=True',
+                'DuplicateCapitalRejected=True', 'OtherBranchRejected=True', 'RemotePaidMaintenance=True',
+                'MaintenanceDowntime=True', 'DuplicateMaintenanceRejected=True', 'MaintenanceRestored=True',
+                'ThreeAccountingBoundaries=True', 'ContinuousCapitalVerified=True')) {
                 if ($report -notmatch [regex]::Escape($evidence)) { throw "$side lacks continuous evidence $evidence. Inspect $runPath" }
             }
             if ($side -eq 'client' -and $report -notmatch 'ReadOnlyMirror=True SnapshotOnlyClockChecks=') {
@@ -102,7 +105,9 @@ try {
             $report -notmatch 'DisconnectedReadOnly=True')) { throw 'Client report lacks model roundtrip, pose agreement or read-only disconnect evidence.' }
     }
     if ($Capture) {
-        $captureNames = if ($ContinuousFixtures) { @('client-continuous-bookings.png', 'client-continuous-boundary.png', 'client-continuous-report.png') }
+        $captureNames = if ($ContinuousFixtures) { @('client-continuous-bookings.png', 'client-continuous-boundary.png', 'client-continuous-report.png',
+            'client-continuous-capital-before.png', 'client-continuous-capital-installed.png', 'client-continuous-maintenance-active.png',
+            'client-continuous-maintenance-complete.png', 'client-continuous-report-2.png', 'client-continuous-report-3.png') }
             elseif ($ServiceFixtures) { @('client-service-stock.png', 'client-service-delivered.png', 'client-service-phone.png',
             'client-natural-cold-ringing.png', 'client-natural-cold-heard.png', 'client-natural-wake-heard.png') }
             elseif ($AgencyFixtures) { @('client-agency-context.png', 'client-agency-quiet.png') }
@@ -118,6 +123,16 @@ try {
     $scenario = if ($ContinuousFixtures) { 'continuous bookings and reporting' } elseif ($ServiceFixtures) { 'physical guest services' } elseif ($AgencyFixtures) { 'guest-agency interaction' } else { 'physical-key smoke' }
     Write-Output "LAN localhost $scenario passed in two actual EXE processes. Reports: $runPath"
     Write-Output 'This verifies the local transport path, not a second computer, firewall configuration, human controls, graphics or performance.'
+    if ($ContinuousFixtures) {
+        $binaryFacts = @(
+            ('Build=' + $BuildDirectory),
+            ('GameplayAssemblySHA256=' + (Get-FileHash -LiteralPath (Join-Path (Split-Path -Parent $playerPath) 'TheWorstHotelEver_Data/Managed/WorstHotel.Runtime.dll') -Algorithm SHA256).Hash),
+            ('ExecutableSHA256=' + (Get-FileHash -LiteralPath $playerPath -Algorithm SHA256).Hash),
+            'RuntimeScope=Two actual localhost EXE processes; funds-only capital fixture and labelled host clock advances through three accounting boundaries.',
+            'ScreenshotLegibility=MANUAL_REVIEW_REQUIRED; ThreeNaturalGuestCohorts=False; SecondComputer=False'
+        )
+        [IO.File]::WriteAllLines((Join-Path $runPath 'binary-and-scope.txt'), $binaryFacts, [Text.UTF8Encoding]::new($false))
+    }
 } finally {
     # These Process objects came only from this script's Start-Process calls. Never enumerate/stop Unity or other hotel runs.
     foreach ($player in $ownedPlayers) {

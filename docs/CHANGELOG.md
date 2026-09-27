@@ -1,6 +1,6 @@
 # Changelog
 
-Latest development is Prototype 0.4 Continuous Operations: [requirements](CORE04_REQUEST.txt), [phase plan](CORE04_PLAN.md). Released version remains 0.3.2 until the new milestone passes its gates. Earlier entries retain their historical scope and test results.
+Prototype 0.4 Continuous Operations is packaged for Windows playtesting: [requirements](CORE04_REQUEST.txt), [phase plan](CORE04_PLAN.md), [verification](VERIFICATION.md). Engineering gates through phase 10 passed; human §101 design/feel acceptance remains open and the earlier Alt+Tab investigation remains explicitly deferred. Version 0.3.2 is preserved separately. Earlier entries retain their historical scope and test results.
 
 ## Prototype 0.4 — phase 0 baseline
 
@@ -41,6 +41,16 @@ Added live cash-period accounting, unpaid booking totals and room-specific load 
 ## Prototype 0.4 — phase 9 operations readability
 
 The operations board now shows current room readiness, dated arrivals/checkouts, actual boiler and circuit status, the next bill and a short factual maintenance backlog. Forecasts retain actual tripped-circuit warnings; live strained demand has a small reversible boiler-hum change. Updated Russian instructions and the eleven-question playtest guide describe the continuous hotel. Compile/build passed, relevant Play **2/3** plus corrected **1/1**; actual Windows player captured sixteen readable interface/physical-display pages with zero errors. Rejected world-only Editor captures are preserved as failed evidence. Two wording fixes were rebuilt and visually rechecked. [Evidence and scope](verification/core04-phase9.md). Full suites, natural three-day executable play, fresh LAN and packaging remain phase 10.
+
+## Prototype 0.4 — phase 10 continuous integration and Windows package
+
+27 September 2026. Full integrated EditMode **614/614** and PlayMode **75/75** passed. The extended natural six-policy comparison now continues with an upgrade funded by actual earned cash, tests identical demand before/after purchase, accepts a later sixth guest and preserves capacity through another midnight. The first full run exceeded that extended test's default timeout; only its explicit timeout changed, with assertions and tuning retained.
+
+Added a production-cash continuous Windows diagnostic with actual guest routes and one declared timed model staff adapter. The final executable passed 72 continuous hotel hours plus checkout tail: 14 actual room arrivals/departures and paid stays, three reports, conserved $3,130 cash, one naturally caused late boiler fault/paid patch, and complete explicit NewGame inventory reset. Visual review found and corrected the continuous HUD count of already checked-out guests; fresh builds and SOLO runs verify that post-suite projection change.
+
+The same final assembly then passed two-process localhost LAN **host92/client211**, client booking commands, paid capacity/maintenance, duplicate rejections and three accounting boundaries. A first LAN run exposed an absolute-target assumption in the diagnostic float-duration advance. Added a bounded observed-clock remainder, preserving all gameplay/accounting assertions; the final run directly recorded the pre-correction shortfall and successful boundary. No production clock/balance change was needed. Final client captures (nine) were visually inspected. LAN funds and clock advances are labelled diagnostic, not natural profit or human three-day network play.
+
+Packaged Windows 0.4 with the Russian guide: **280/280 archive files match SHA256**, about 70.9 MB ZIP. Added the separate «Играть 0.4» shortcut. [Exact runs, failed iterations, hashes and limitations](verification/core04-phase10.md), [all 32 acceptance criteria](verification/core04-acceptance.md), [eleven remaining human questions](CORE04_PLAYTEST.ru.md). Alt+Tab hang cause/fix, second-PC network quality, human pacing and performance are not claimed verified.
 
 ## Prototype 0.3.2 — Natural Service
 
