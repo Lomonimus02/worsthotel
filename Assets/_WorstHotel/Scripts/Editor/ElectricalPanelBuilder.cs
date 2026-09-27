@@ -10,6 +10,7 @@ namespace WorstHotel.Editor
         {
             var cabinet = Group("Room electrical panel", gameplay.transform, ServicePanelPosition, new Vector3(0, 90, 0));
             var panel = cabinet.AddComponent<ElectricalPanelPresentation>();
+            panel.lobbyReflection = GameObject.Find("Lobby reflection").GetComponent<ReflectionProbe>();
             Box("Electrical cabinet back", cabinet.transform, new Vector3(0, 1.75f, .15f), new Vector3(2.2f, 2.05f, .37f), "Boiler enamel", true);
             Box("Electrical inner mounting plate", cabinet.transform, new Vector3(0, 1.75f, -.05f), new Vector3(2.05f, 1.91f, .035f), "Gauge ivory", true, false);
             foreach (int sign in new[] { -1, 1 })
@@ -61,7 +62,8 @@ namespace WorstHotel.Editor
                 {
                     roomId = id,
                     lights = new[] { GameObject.Find("Room light " + id).GetComponent<Light>() },
-                    luminousSurfaces = room.GetComponentsInChildren<Renderer>().Where(renderer => renderer.sharedMaterial == Mat("Warm lamp") &&
+                    luminousSurfaces = room.GetComponentsInChildren<Renderer>().Where(renderer =>
+                        (renderer.sharedMaterial == Mat("Warm lamp") || renderer.sharedMaterial == Mat("Terminal glass")) &&
                         renderer.GetComponentInParent<RoomLampInteraction>() == null).ToArray()
                 };
             }
@@ -80,7 +82,7 @@ namespace WorstHotel.Editor
                         !light.transform.IsChildOf(cabinet.transform) && light.name != "Pressure warning beacon" &&
                         light.GetComponentInParent<RoomLampInteraction>() == null && (light.transform.position.x < 0) == west).ToArray(),
                     luminousSurfaces = Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None).Where(renderer =>
-                        renderer.sharedMaterial == Mat("Warm lamp") && !assignedSurfaces.Contains(renderer) &&
+                        (renderer.sharedMaterial == Mat("Warm lamp") || renderer.sharedMaterial == Mat("Terminal glass")) && !assignedSurfaces.Contains(renderer) &&
                         !renderer.transform.IsChildOf(cabinet.transform) && renderer.name != "Pressure warning beacon" && renderer.name != "Complaint lamp" &&
                         renderer.GetComponentInParent<PortableHeater>() == null &&
                         renderer.GetComponentInParent<RoomLampInteraction>() == null && (renderer.transform.position.x < 0) == west).ToArray()

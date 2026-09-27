@@ -102,25 +102,26 @@ namespace WorstHotel.Editor
             foreach (var surface in roomBed.GetComponentsInChildren<Renderer>())
                 if (surface.name == "Burgundy runner" || surface.name == "Headboard upholstery") surface.sharedMaterial = Mat(accent);
             Box("Headboard wallpaper panel", room, new Vector3(side * .6f, 2.16f, 3.29f), new Vector3(2.60f, 2.06f, .024f), accent, false, false);
-            GalleryPicture(room, new Vector3(side * .6f, 2.34f, 3.21f), 0, index % 2 == 0 ? "Gallery ochre" : "Gallery blue", index < 8 ? 1.12f : .9f);
+            GalleryPicture(room, new Vector3(side * .6f, 2.34f, 3.21f), 0, accent, index < 8 ? 1.12f : .9f, index - 6);
             if (index >= 8)
                 GalleryPicture(room, new Vector3(side * 2.7f, 2.22f, -3.28f), 180, "Gallery sage", .70f);
             Box("Room entrance brass threshold", room, new Vector3(-side * 3.0f, .015f, 0), new Vector3(.32f, .016f, 1.52f), "Aged brass", false, false);
-            // Small room-specific objects remain on the established table, clear of guest routes and luggage.
-            var tray = Group("Guest welcome tray", room, new Vector3(-side * .85f, .79f, 1.35f)).transform;
-            Box("Reading book", tray, new Vector3(.1f, .035f, 0), new Vector3(.26f, .07f, .33f), accent, true, false);
+            // Use the two ends of the writing desk: the bedside table is occupied by the service lamp,
+            // and the centre of the writing desk is reserved for the guest's notebook.
+            var tray = Group("Guest welcome tray", room, new Vector3(-side * .85f, .95f, 3.15f)).transform;
+            Box("Reading book", tray, new Vector3(.49f, .035f, -.03f), new Vector3(.22f, .07f, .30f), accent, true, false);
             if (index % 2 == 0)
             {
-                Cylinder("Small ceramic vase", tray, new Vector3(-.19f, .12f, .1f), .065f, .24f, "Cream linen");
-                Pipe("Dried flower stem", tray, new Vector3(-.19f, .20f, .1f), new Vector3(-.17f, .43f, .1f), .012f, "Plant green");
-                Sphere("Dried flower", tray, new Vector3(-.17f, .43f, .1f), Vector3.one * .13f, "Gallery ochre");
+                Cylinder("Small ceramic vase", tray, new Vector3(-.48f, .12f, -.02f), .065f, .24f, "Cream linen");
+                Pipe("Dried flower stem", tray, new Vector3(-.48f, .20f, -.02f), new Vector3(-.46f, .43f, -.02f), .012f, "Plant green");
+                Sphere("Dried flower", tray, new Vector3(-.46f, .43f, -.02f), Vector3.one * .13f, "Gallery ochre");
             }
-            else Cylinder("Tea cup", tray, new Vector3(-.19f, .07f, -.08f), .075f, .14f, "Cream linen");
+            else Cylinder("Tea cup", tray, new Vector3(-.48f, .07f, -.08f), .075f, .14f, "Cream linen");
             foreach (var surface in room.GetComponentsInChildren<Renderer>())
                 if (surface.name == "Curtain fold") surface.sharedMaterial = Mat(accent);
         }
 
-        static void GalleryPicture(Transform parent, Vector3 position, float yaw, string accent, float scale)
+        static void GalleryPicture(Transform parent, Vector3 position, float yaw, string accent, float scale, int motif = 0)
         {
             var picture = Group("Framed travel print", parent, position, new Vector3(0, yaw, 0)).transform;
             picture.localScale = Vector3.one * scale;
@@ -128,8 +129,31 @@ namespace WorstHotel.Editor
             Box("Picture brass lining", picture, new Vector3(0, 0, -.04f), new Vector3(1.02f, .77f, .02f), "Aged brass", false, false);
             Box("Picture paper", picture, new Vector3(0, 0, -.055f), new Vector3(.94f, .69f, .015f), "Cream linen", false, false);
             Box("Print distant sky", picture, new Vector3(0, .02f, -.066f), new Vector3(.81f, .50f, .01f), "Gallery blue", false, false);
-            Sphere("Print sun", picture, new Vector3(.22f, .14f, -.075f), new Vector3(.14f, .14f, .012f), "Gallery ochre");
-            Sphere("Print rolling hill", picture, new Vector3(-.16f, -.12f, -.078f), new Vector3(.49f, .24f, .012f), accent);
+            Sphere("Print sun", picture, new Vector3(motif == 1 ? -.24f : .22f, .14f, -.075f), new Vector3(.14f, .14f, .012f), "Gallery ochre");
+            if (motif == 1)
+            {
+                Box("Print distant water", picture, new Vector3(0, -.10f, -.077f), new Vector3(.81f, .19f, .01f), "Teal upholstery", false, false);
+                Box("Print sailing boat", picture, new Vector3(.08f, -.09f, -.084f), new Vector3(.30f, .055f, .012f), "Mahogany", false, false);
+                Box("Print sail", picture, new Vector3(.10f, .04f, -.084f), new Vector3(.14f, .20f, .012f), "Cream linen", false, false);
+            }
+            else if (motif == 2)
+            {
+                foreach (float x in new[] { -.23f, 0f, .23f })
+                {
+                    Box("Print tree trunk", picture, new Vector3(x, -.09f, -.079f), new Vector3(.025f, .27f, .012f), "Mahogany", false, false);
+                    Sphere("Print tree crown", picture, new Vector3(x, .03f + x * .2f, -.084f), new Vector3(.19f, .27f, .012f), "Gallery sage");
+                }
+            }
+            else if (motif == 3)
+            {
+                for (int building = 0; building < 3; building++)
+                {
+                    float x = -.25f + building * .23f, height = building == 1 ? .30f : .21f;
+                    Box("Print village house", picture, new Vector3(x, -.18f + height * .5f, -.078f), new Vector3(.18f, height, .012f), building == 1 ? accent : "Gallery ochre", false, false);
+                    Box("Print village window", picture, new Vector3(x, -.04f, -.085f), new Vector3(.045f, .065f, .01f), "Cream linen", false, false);
+                }
+            }
+            else Sphere("Print rolling hill", picture, new Vector3(-.16f, -.12f, -.078f), new Vector3(.49f, .24f, .012f), accent);
             Box("Print foreground", picture, new Vector3(0, -.19f, -.084f), new Vector3(.81f, .08f, .012f), "Gallery sage", false, false);
             DisableFixtureShadows(picture);
         }

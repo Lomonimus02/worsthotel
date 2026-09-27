@@ -35,6 +35,7 @@ namespace WorstHotel
         }
 
         public DoorInteractable cover;
+        public ReflectionProbe lobbyReflection;
         public CircuitView[] circuits = Array.Empty<CircuitView>();
         public RoomPowerBinding[] roomLights = Array.Empty<RoomPowerBinding>();
         GameSession session;
@@ -43,6 +44,7 @@ namespace WorstHotel
         AudioSource hum, effects;
         AudioClip humClip, warningClip, relayClip;
         bool paused;
+        int reflectedPowerState = -1;
 
         void Awake()
         {
@@ -87,11 +89,13 @@ namespace WorstHotel
             if (simulation?.Electrical == null) return;
             float audible = Audibility(coop);
             bool anyPower = false;
+            int powerState = 0;
             foreach (var view in circuits)
             {
                 var circuit = simulation.Electrical.Find(view.circuitId);
                 if (circuit == null) continue;
                 anyPower |= circuit.HasPower;
+                if (circuit.HasPower) powerState |= circuit.Id == "A" ? 1 : 2;
                 if (view.initialized && !paused)
                 {
                     if (view.wasTripped != circuit.Tripped) effects.PlayOneShot(relayClip, audible * .65f);
@@ -111,7 +115,8 @@ namespace WorstHotel
                 bool pulse = (circuit.Warning || severe) && !circuit.Tripped && Mathf.Sin(Time.time * 7) > 0;
                 Color signal = circuit.Tripped || severe ? new Color(.95f, .08f, .025f) : circuit.Warning || capacityWarning ?
                     new Color(1, pulse ? .65f : .28f, .02f) : new Color(.12f, .62f, .23f);
-                SetSurface(view.warningLens, signal, signal * (circuit.Tripped || pulse ? 1.3f : .35f));
+                // A tripped circuit leaves a readable red lens, not a self-powered glowing lamp.
+                SetSurface(view.warningLens, signal, circuit.HasPower ? signal * (pulse ? 1.3f : .35f) : Color.black);
                 if (view.warningLight != null)
                 {
                     view.warningLight.color = signal;
@@ -137,6 +142,13 @@ namespace WorstHotel
                     SetSurface(surface, material.GetColor("_BaseColor") * (power ? 1 : .22f),
                         power ? material.GetColor("_EmissionColor") * dim : Color.black);
                 }
+            }
+            // The former OnAwake probe retained the powered lobby in brass/glass during an outage.
+            // Refresh only on a real A/B transition, after their lights and materials have changed.
+            if (lobbyReflection && reflectedPowerState != powerState)
+            {
+                reflectedPowerState = powerState;
+                lobbyReflection.RenderProbe();
             }
             if (paused) return;
             hum.volume = Mathf.MoveTowards(hum.volume, anyPower ? audible * .055f : 0, Time.deltaTime * .4f);
@@ -222,7 +234,7 @@ namespace WorstHotel
                             binding.lastPower ? surface.sharedMaterial.GetColor("_EmissionColor") : Color.black);
                 binding.lastDim = -1;
             }
-            simulation = null; session = null; paused = false;
+            simulation = null; session = null; paused = false; reflectedPowerState = -1;
         }
 
         void OnDestroy()

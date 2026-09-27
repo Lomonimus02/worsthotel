@@ -77,6 +77,14 @@ namespace WorstHotel.Editor
                 Box("Shower back tile", shower, new Vector3(side * .65f, 1.11f, 0), new Vector3(.075f, 2.22f, 1.40f), "Utility tile", true, false);
                 Box("Shower privacy screen", shower, new Vector3(0, 1.05f, -.69f), new Vector3(1.4f, 2.10f, .065f), "Ivory moulding", true, false);
                 Box("Shower end tile", shower, new Vector3(0, 1.05f, .69f), new Vector3(1.4f, 2.10f, .065f), "Utility tile", true, false);
+                if (i >= 6)
+                {
+                    // Dress the existing partition without changing its footprint or the guest entry side.
+                    Box("Gallery shower timber facing", shower, new Vector3(0, 1.05f, -.731f), new Vector3(1.34f, 2.02f, .025f), "Mahogany", false, false);
+                    Box("Gallery shower frosted panel", shower, new Vector3(0, 1.43f, -.749f), new Vector3(1.12f, 1.05f, .016f), "Gauge ivory", false, false);
+                    Box("Gallery shower lower panel", shower, new Vector3(0, .46f, -.749f), new Vector3(1.12f, .59f, .016f), i % 2 == 0 ? "Gallery sage" : "Gallery ochre", false, false);
+                    Box("Gallery shower brass rail", shower, new Vector3(0, .83f, -.762f), new Vector3(1.18f, .035f, .015f), "Aged brass", false, false);
+                }
                 markers.showerCurtain = Box("Shower privacy curtain " + id, shower, new Vector3(-side * .68f, 1.07f, 0),
                     new Vector3(.045f, 1.95f, 1.31f), "Teal upholstery", false, false);
                 markers.showerCurtain.SetActive(false);
@@ -96,7 +104,7 @@ namespace WorstHotel.Editor
 
                 var radio = Group("Room radio " + id, room, new Vector3(side * 2.72f, .69f, -.61f)).transform;
                 Box("Television cabinet", radio, Vector3.zero, new Vector3(.72f, .48f, .33f), "Walnut panels", true, false);
-                Box("Television screen", radio, new Vector3(-.03f, 0, -.183f), new Vector3(.49f, .32f, .028f), "Window blue", true, false);
+                Box("Television screen", radio, new Vector3(-.03f, 0, -.183f), new Vector3(.49f, .32f, .028f), "Terminal glass", true, false);
                 Box("Television picture", radio, new Vector3(-.06f, -.07f, -.202f), new Vector3(.25f, .11f, .015f), "Teal upholstery", false, false);
                 Cylinder("Radio feet", radio, new Vector3(0, -.46f, 0), .10f, .54f, "Mahogany");
                 markers.loudIndicator = Sphere("Radio playing " + id, radio, new Vector3(.24f, .09f, -.18f), Vector3.one * .065f, "Signal green");

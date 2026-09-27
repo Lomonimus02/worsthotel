@@ -329,7 +329,8 @@ namespace WorstHotel.Editor
                 var rad = Place(radiator, room, new Vector3(side * 3.60f, 0, .2f), new Vector3(0, side * 90, 0));
                 rad.name = "Radiator" + number;
                 Window(room, new Vector3(side * 3.70f, 2.2f, .1f), side * 90);
-                Place(lamp, room, new Vector3(-.7f, 2.20f, 3.15f));
+                // The gallery's framed print occupies the centre above the bed.
+                Place(lamp, room, new Vector3(i >= 6 ? -side * 1.72f : -.7f, 2.20f, 3.15f));
                 Place(lamp, environment, new Vector3(side * 1.80f, 2.24f, z + 2.10f), new Vector3(0, side * 90, 0));
                 // Visible repairs differ by room, but are deliberately unrelated to simulation values here.
                 if (i == 3 || i == 5)
@@ -548,7 +549,7 @@ namespace WorstHotel.Editor
                     foreach (float y in new[] { .7f, 2.6f }) positions.Add(new Vector3(x, y, z));
             probes.probePositions = positions.ToArray();
             var reflection = Group("Lobby reflection", parent, new Vector3(0, 1.9f, .4f)).AddComponent<ReflectionProbe>();
-            reflection.mode = ReflectionProbeMode.Realtime; reflection.refreshMode = ReflectionProbeRefreshMode.OnAwake;
+            reflection.mode = ReflectionProbeMode.Realtime; reflection.refreshMode = ReflectionProbeRefreshMode.ViaScripting;
             reflection.timeSlicingMode = ReflectionProbeTimeSlicingMode.AllFacesAtOnce; reflection.resolution = 128;
             reflection.size = new Vector3(20, 4, 11); reflection.boxProjection = true; reflection.intensity = .08f;
             string path = Root + "/Settings/HotelVolume.asset";

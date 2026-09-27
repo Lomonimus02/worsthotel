@@ -37,7 +37,7 @@ namespace WorstHotel
         {
             var room = State;
             if (room == null) return;
-            IsLit = !room.LampBroken && room.HasPower;
+            IsLit = room.Operational && !room.LampBroken && room.HasPower;
             int key = (IsLit ? 1000 : 0) + (room.LampBroken ? 200 : 0) + Mathf.CeilToInt(room.LampCondition);
             if (key == previousKey) return;
             previousKey = key;
