@@ -14,6 +14,18 @@ namespace WorstHotel
         readonly List<ServiceSupplyItem> cargo = new List<ServiceSupplyItem>();
         static readonly List<LuggageCart> carts = new List<LuggageCart>();
         public static bool IsGuiding(int actor) => carts.Exists(cart => cart && cart.driver && cart.driver.ActorId == actor);
+        public static bool HasDeliveryForRoom(PlayerInteractor actor, HotelSimulation simulation, int roomId)
+        {
+            if (!actor || actor.HeldBody || simulation == null) return false;
+            foreach (var cart in carts)
+            {
+                if (!cart || cart.driver != actor || Vector3.Distance(actor.transform.position, cart.handle.position) > 2.8f) continue;
+                foreach (var bag in cart.cargo)
+                    if (bag && bag.CargoJoint && bag.CargoJoint.connectedBody == cart.body && bag.BoundSimulation == simulation &&
+                        bag.State?.Location == ServiceItemLocation.Dropped && simulation.HasLuggageStaffAccess(roomId, bag.ItemId)) return true;
+            }
+            return false;
+        }
         bool Authority => !LocalCoopBootstrap.Instance || LocalCoopBootstrap.Instance.HasWorldAuthority;
 
         void Awake()

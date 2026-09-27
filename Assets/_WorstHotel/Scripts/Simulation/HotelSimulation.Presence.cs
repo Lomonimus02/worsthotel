@@ -113,9 +113,16 @@ namespace WorstHotel
             return CommandResult.Ok("Guest returned; their existing stay and schedule continue.");
         }
 
-        public bool HasLuggageStaffAccess(int roomId) => Services != null && Services.Items.Any(item =>
-            item.Kind == ServiceItemKind.Luggage && item.RoomId == roomId && item.StaffHandling &&
-            item.Location != ServiceItemLocation.Delivered && guests.Any(guest => guest.GuestId == item.GuestId && !guest.ReceiptPosted));
+        // The scene must also establish that this particular suitcase is being delivered
+        // by the employee at the door. An outstanding job alone never unlocks a room.
+        public bool HasLuggageStaffAccess(int roomId, string itemId)
+        {
+            var item = Services?.FindItem(itemId);
+            return item != null && item.Kind == ServiceItemKind.Luggage && item.RoomId == roomId && item.StaffHandling &&
+                item.Location != ServiceItemLocation.Delivered && rooms.TryGetValue(roomId, out var room) &&
+                room.Occupied && room.GuestId == item.GuestId &&
+                guests.Any(guest => guest.GuestId == item.GuestId && !guest.ReceiptPosted);
+        }
 
         public CommandResult RequestStaffRoomAccess(int actorId, int roomId)
         {
@@ -123,7 +130,6 @@ namespace WorstHotel
             if (actorId < 0 || actorId > 1 || !rooms.TryGetValue(roomId, out var room)) return CommandResult.Fail("Unknown staff or room.");
             RefreshRoomPresence();
             if (!room.Occupied) return CommandResult.Ok("The room is vacant.");
-            if (HasLuggageStaffAccess(roomId)) return CommandResult.Ok("Staff access for accepted luggage delivery.");
             if (room.OccupancyState != RoomOccupancyState.GuestInside) return CommandResult.Fail("No answer. The guest is away; the room remains private.");
             if (room.PrivacyState == RoomPrivacyState.Private) return CommandResult.Fail("Not now, please. I need some privacy.");
             return CommandResult.Ok("Yes, you may come in.");

@@ -54,10 +54,20 @@ namespace WorstHotel
         }
         bool Inside(PlayerInteractor actor) => actor && transform.InverseTransformPoint(actor.transform.position).z > .35f;
         bool NeedsPermission(PlayerInteractor actor) => room != null && room.Occupied && !Inside(actor) &&
-            boundSimulation?.HasLuggageStaffAccess(roomId) != true;
+            !HasDeliveryAccess(actor);
+        bool HasDeliveryAccess(PlayerInteractor actor)
+        {
+            if (!actor || boundSimulation == null) return false;
+            var bag = actor.HeldBody ? actor.HeldBody.GetComponent<ServiceSupplyItem>() : null;
+            if (bag && bag.BoundSimulation == boundSimulation && bag.State?.Location == ServiceItemLocation.HeldByPlayer &&
+                bag.State.PlayerId == actor.ActorId && boundSimulation.HasLuggageStaffAccess(roomId, bag.ItemId)) return true;
+            return LuggageCart.HasDeliveryForRoom(actor, boundSimulation, roomId);
+        }
         public override string GetPrompt(PlayerInteractor actor)
         {
             BindRoom();
+            if (!IsOpen && room != null && room.Occupied && !Inside(actor) && HasDeliveryAccess(actor))
+                return "Agreed luggage delivery · Open " + displayName;
             return !IsOpen && NeedsPermission(actor) && Conversation ? Conversation.GetPrompt(actor) : (IsOpen ? "Close " : "Open ") + displayName;
         }
         public override bool AllowsHeldItem(PlayerInteractor actor) => true;
