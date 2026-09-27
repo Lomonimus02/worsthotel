@@ -145,7 +145,7 @@ namespace WorstHotel.Tests
                 guest.referencePrice = 650; room.heatLoss = 12; boiler.safeLoad = 99;
                 Assert.That(guestData.ReferencePrice, Is.EqualTo(180));
                 Assert.That(roomData.HeatLoss, Is.EqualTo(0));
-                Assert.That(boilerData.SafeLoad, Is.EqualTo(4.6f));
+                Assert.That(boilerData.SafeLoad, Is.EqualTo(4.7f));
             }
             finally
             {

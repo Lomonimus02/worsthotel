@@ -10,6 +10,8 @@ namespace WorstHotel
         string stress = "0.5", hotelHour = "6", satisfaction = "50";
         bool showHistory;
         int pendingSleepDiagnostic;
+        // Repaint positions let the opt-in player capture scroll the real layout precisely.
+        float thermalDebugTop, historyDebugTop;
 
         void DrawBoilerRhythmDebug()
         {
@@ -28,6 +30,7 @@ namespace WorstHotel
         {
             if (!Session.Simulation.TryGetRoomThermalBreakdown(room.Profile.Id, out var heat, out var demand)) return;
             GUILayout.Label("ACTUAL THERMAL STEP · room " + heat.RoomId, heading);
+            if (Event.current.type == EventType.Repaint) thermalDebugTop = GUILayoutUtility.GetLastRect().y;
             GUILayout.Label("Now " + heat.CurrentTemperature.ToString("F2") + "°C → equilibrium " + heat.TargetTemperature.ToString("F2") + "°C" +
                 "\nBase " + heat.TemperatureBase.ToString("F2") + " + central " + heat.HeatingContribution.ToString("F2") +
                 " − room loss " + heat.HeatLoss.ToString("F2") + " + powered heater " + heat.SupplementalHeat.ToString("F2") +
@@ -126,6 +129,7 @@ namespace WorstHotel
         {
             var model = Session.Simulation;
             if (Button((showHistory ? "Hide" : "Show") + " infrastructure history · " + model.InfrastructureHistory.Count + "/" + HotelSimulation.InfrastructureHistoryLimit)) showHistory = !showHistory;
+            if (Event.current.type == EventType.Repaint) historyDebugTop = GUILayoutUtility.GetLastRect().y;
             if (!showHistory) return;
             GUILayout.Label("Newest first. [F2] marks diagnostic changes. History survives reports and resets with a new hotel.", body);
             var text = new StringBuilder();

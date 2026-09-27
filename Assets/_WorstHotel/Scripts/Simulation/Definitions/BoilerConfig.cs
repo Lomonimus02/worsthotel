@@ -6,7 +6,7 @@ namespace WorstHotel
     public sealed class BoilerConfig : ScriptableObject
     {
         [Range(0, 100)] public float initialCondition = 85;
-        [Min(0.1f)] public float safeLoad = 4.6f;
+        [Min(0.1f)] public float safeLoad = 4.7f;
         public float baseWearPerMinute = 4;
         public float overloadWearPerMinute = 16;
         public float pressureBase = 40;

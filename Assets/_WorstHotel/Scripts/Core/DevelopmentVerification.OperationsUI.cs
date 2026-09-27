@@ -194,10 +194,11 @@ namespace WorstHotel
                 yield return Until(() => electricalPanel.cover.IsPassageOpen, 3, "diagnostic cabinet opening reveals physical readouts");
                 Position(coop.Players[0], new Vector3(4.9f, .1f, 32.7f), new Vector3(4.9f, 1.9f, 35.25f));
                 yield return CaptureOperationsPage("16-electrical-readout", "Physical panel / installed branch capacity and actual power state");
-                Require(captures.Count == 20 && operationsImageHashes.Count == 20, "twenty distinct fresh player capture candidates");
+                yield return CaptureRhythmReadability();
+                Require(captures.Count == 23 && operationsImageHashes.Count == 23, "twenty-three distinct fresh player capture candidates");
                 completedReports = session.Reports.ToArray(); finalCash = model.Economy.Cash; finalReputation = model.Economy.Reputation;
                 operationsUIVerified = true;
-                facts.Add("OperationsUIVerified=True AutomaticSales=True ControllerPolicyRate=True ConfirmedContracts=True ImmutableAgreedPrice=True ReassignmentPreviewAndApply=True ControllerPages=True PaidActions=True ReportsOnce=True DistinctCaptureCandidates=20 ManualVisualReview=REQUIRED ThreeDayLifecycle=False NaturalBalance=False HumanPlaytest=False");
+                facts.Add("OperationsUIVerified=True AutomaticSales=True ControllerPolicyRate=True ConfirmedContracts=True ImmutableAgreedPrice=True ReassignmentPreviewAndApply=True ControllerPages=True PaidActions=True ReportsOnce=True DistinctCaptureCandidates=23 ManualVisualReview=REQUIRED ThreeDayLifecycle=False NaturalBalance=False HumanPlaytest=False");
             }
             finally
             {

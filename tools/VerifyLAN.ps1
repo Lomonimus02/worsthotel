@@ -78,6 +78,7 @@ try {
                 'FreshUseCancels=True', 'HostFreshUseCancels=True', 'LeaseExpiryClearsSleep=True', 'LeaseRenewalDoesNotResume=True',
                 'DisconnectClearsSleep=True', 'RejoinRequiresFreshConsent=True', 'HostHotelPreservedOnRejoin=True',
                 'NewGameClearsSleep=True', 'OldEpochInputRejected=True', 'CurrentEpochInputWorks=True',
+                'CriticalWarningKeptSleep=True', 'ActualHeaterLoadTrip=True', 'CriticalWakeMirrored=True', 'TripWakeNormalSpeed=True',
                 'MorningWake=True', 'SnapshotSleepAuthority=True', 'SleepFixturesVerified=True')) {
                 if ($report -notmatch [regex]::Escape($evidence)) { throw "$side lacks sleep evidence $evidence. Inspect $runPath" }
             }
@@ -125,7 +126,7 @@ try {
     if ($Capture) {
         $captureNames = if ($SleepFixtures) { @('client-sleep-staff-room.png', 'client-sleep-host-ready.png',
             'client-sleep-both-ready.png', 'client-sleep-wake-cancelled.png', 'client-sleep-disconnected.png',
-            'client-sleep-rejoined.png', 'client-sleep-fresh-epoch.png', 'client-sleep-morning.png') }
+            'client-sleep-rejoined.png', 'client-sleep-fresh-epoch.png', 'client-sleep-morning.png', 'client-sleep-critical-wake.png') }
             elseif ($ContinuousFixtures) { @('client-continuous-sales.png', 'client-continuous-bookings.png', 'client-continuous-boundary.png', 'client-continuous-report.png',
             'client-continuous-capital-before.png', 'client-continuous-capital-installed.png', 'client-continuous-maintenance-active.png',
             'client-continuous-maintenance-complete.png', 'client-continuous-report-2.png', 'client-continuous-report-3.png') }
@@ -149,7 +150,7 @@ try {
             ('Build=' + $BuildDirectory),
             ('GameplayAssemblySHA256=' + (Get-FileHash -LiteralPath (Join-Path (Split-Path -Parent $playerPath) 'TheWorstHotelEver_Data/Managed/WorstHotel.Runtime.dll') -Algorithm SHA256).Hash),
             ('ExecutableSHA256=' + (Get-FileHash -LiteralPath $playerPath -Algorithm SHA256).Hash),
-            $(if ($SleepFixtures) { 'RuntimeScope=Two actual localhost EXE processes with distinct owned local pads; quiet hotel through normal closed room-sales policies, labelled empty-staff approaches and evening clock setup, real ordinary sleep until 06:00, actual disconnect/rejoin and constructed old-epoch negative input on the normal NGO channel.' }
+            $(if ($SleepFixtures) { 'RuntimeScope=Two actual localhost EXE processes with distinct owned local pads; closed room-sales policies, labelled empty-staff approaches and evening clock setup; separate actual guest routes with model-key/body-placement/switch/reset critical-load adapters; ordinary electrical warning/trip wake, normal sleep until 06:00 after NewGame, actual disconnect/rejoin and constructed old-epoch negative input on the normal NGO channel.' }
               else { 'RuntimeScope=Two actual localhost EXE processes; funds-only capital fixture and labelled host clock advances through three accounting boundaries.' }),
             'ScreenshotLegibility=MANUAL_REVIEW_REQUIRED; ThreeNaturalGuestCohorts=False; SecondComputer=False'
         )

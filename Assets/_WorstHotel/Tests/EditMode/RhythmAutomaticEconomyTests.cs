@@ -1,0 +1,652 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using NUnit.Framework;
+using UnityEditor;
+
+namespace WorstHotel.Tests
+{
+    /// <summary>Production automatic sales/rhythm/needs/economy. Declared 1x headless
+    /// guest travel and one employee's physical task times; not collider, sleep or EXE evidence.</summary>
+    public sealed class RhythmAutomaticEconomyTests
+    {
+        enum Policy
+        {
+            CautiousFour, AggressiveSix, SixWithObservedBasic, FiveInspectedNoBasic, FiveWithObservedBasic,
+            WarmFiveInspectedNoBasic, WarmFiveWithObservedBasic
+        }
+        static void Require(CommandResult result) => Assert.That(result.Success, Is.True, result.Message);
+        static float DoorZ(int roomId) => 10 + (roomId - 101) / 2 * 7;
+        static float Walk(float from, float to) => (Math.Abs(from - to) + 5.8f) / 3.5f + .8f;
+        const float ReceptionZ = 1.3f, StorageZ = 30.65f, BoilerZ = 29.2f;
+
+        sealed class Run
+        {
+            public readonly Policy Policy;
+            public readonly SessionSettings Settings;
+            public readonly HotelSimulation Hotel;
+            public readonly RoomState[] Rooms;
+            public readonly int SalePrice;
+            public readonly int AdditionalPatchReserve;
+            readonly bool collectFirstNight;
+            readonly List<string> firstNightReadings = new List<string>();
+            readonly Dictionary<CapacityBand, float> firstNightBandSeconds = new Dictionary<CapacityBand, float>();
+            int firstNightReadingIndex;
+            public bool UsesWarmFive => Policy == Policy.WarmFiveInspectedNoBasic || Policy == Policy.WarmFiveWithObservedBasic;
+            public int OpenRoomCount => Policy == Policy.CautiousFour ? 4 :
+                Policy == Policy.FiveInspectedNoBasic || Policy == Policy.FiveWithObservedBasic || UsesWarmFive ? 5 : 6;
+            public bool InspectsBoiler => Policy == Policy.SixWithObservedBasic ||
+                Policy == Policy.FiveInspectedNoBasic || Policy == Policy.FiveWithObservedBasic || UsesWarmFive;
+            public bool PurchasesBasic => Policy == Policy.SixWithObservedBasic || Policy == Policy.FiveWithObservedBasic ||
+                Policy == Policy.WarmFiveWithObservedBasic;
+            public readonly Dictionary<string, string> Itineraries = new Dictionary<string, string>();
+            public readonly Dictionary<string, int> BookedPrices = new Dictionary<string, int>();
+            public readonly Dictionary<string, float> SettledPhysicalExits = new Dictionary<string, float>();
+            public readonly List<string> FailureTimes = new List<string>(), BasicTimes = new List<string>();
+            public readonly List<string> BasicOutcomes = new List<string>();
+            public int Failures, CheckIns, RoomArrivals, Departures, Showers, Contacts, Blankets, ValveResets, BasicServices, Patches;
+            public int Inspections, BasicCompleted;
+            public int Gross, Refunds, Maintenance, Receipts, Early, Net, MinCash, EndingCash;
+            public float MaxLoad, MaxStress, LowestCondition = 100, MinOccupiedTemperature = 100;
+            public float OwnedGuestSeconds, InRoomSeconds, AwaySeconds, HotWaterSeconds, OverloadSeconds, FailureSeconds, StaffSeconds;
+            public float QuietSeconds, LongestQuiet, quietRun;
+            public int FirstReportReceipts, FirstReportCash;
+            bool basicPending, basicWasPatched;
+            float basicStartedAt, basicEndsAt, basicConditionBefore, basicStressBefore, basicOffSeconds;
+            public Run(SessionConfig config, Policy policy, int additionalPatchReserve = 0, bool collectFirstNight = false)
+            {
+                Policy = policy; Settings = config.ToData(); SalePrice = config.roomSalePrice;
+                AdditionalPatchReserve = additionalPatchReserve; this.collectFirstNight = collectFirstNight;
+                Rooms = Settings.Rooms.Select(item => new RoomState(item)).ToArray();
+                Hotel = new HotelSimulation(Settings, Rooms, config.living.ToData(), config.needs.ToData(), config.noise.ToData(),
+                    config.heater.ToData(), config.electricity.ToData(), config.housekeeping.ToData(), config.services.ToData(),
+                    config.infrastructure.ToData(), config.OperationsData());
+                Hotel.Boiler.ConfigureSoloAssist(config.soloAssist.ToData());
+                MinCash = Settings.Economy.StartingCash;
+                Hotel.Boiler.OnFailureStarted += () =>
+                { Failures++; FailureTimes.Add(Hotel.Elapsed.ToString("F2", CultureInfo.InvariantCulture)); };
+                Require(Hotel.StartOperations());
+                // Real room-sales policy, not manual approvals or changed production demand.
+                // The cautious plan excludes the documented cold room and keeps four rooms for sale.
+                var cautious = new[] { 101, 103, 104, 105 };
+                // The warm-five pair changes only which fifth room is sold.
+                // Room102 remains closed; neither guest preferences nor valve/heat history is overridden.
+                var warmFive = new[] { 101, 103, 104, 105, 106 };
+                foreach (var room in Hotel.RoomSalesPolicies)
+                    Require(Hotel.SetRoomSalesPolicy(0, room.RoomId, policy == Policy.CautiousFour ? cautious.Contains(room.RoomId) :
+                        UsesWarmFive ? warmFive.Contains(room.RoomId) : room.RoomId < 101 + OpenRoomCount,
+                        config.roomSalePrice, room.Revision));
+                Assert.That(Hotel.Reservations, Is.Empty, "Opening supply cannot instantly fill it.");
+            }
+
+            public void Sample(float dt)
+            {
+                var hotel = Hotel; var boiler = hotel.Boiler;
+                MaxLoad = Math.Max(MaxLoad, boiler.Load); MaxStress = Math.Max(MaxStress, boiler.Stress01);
+                LowestCondition = Math.Min(LowestCondition, boiler.Condition); MinCash = Math.Min(MinCash, hotel.Economy.Cash);
+                var owned = hotel.Guests.Where(item => item.Agent.CheckedIn && !item.ReceiptPosted).ToArray();
+                OwnedGuestSeconds += owned.Length * dt;
+                InRoomSeconds += owned.Count(item => item.Agent.InAssignedRoom) * dt;
+                AwaySeconds += owned.Count(item => item.Agent.State == GuestAgentState.GuestAway) * dt;
+                if (owned.Length > 0) MinOccupiedTemperature = Math.Min(MinOccupiedTemperature,
+                    Rooms.Where(room => owned.Any(item => item.GuestId == room.GuestId)).Select(room => room.Temperature).DefaultIfEmpty(100).Min());
+                if (hotel.HeatingDemands.Any(row => row.HotWater > 0)) HotWaterSeconds += dt;
+                if (boiler.LoadRatio > 1) OverloadSeconds += dt;
+                if (boiler.Failed) FailureSeconds += dt;
+                ObserveBasicCompletion(dt);
+                if (collectFirstNight) ObserveFirstNight(dt);
+                bool quiet = owned.Length > 0 && !boiler.Failed && !boiler.MaintenanceInProgress && boiler.LoadRatio < 1 &&
+                    hotel.HeatingDemands.All(row => row.HotWater == 0) && hotel.Noise.Sources.All(source => source.NoiseOutput <= .2f);
+                quietRun = quiet ? quietRun + dt : 0; if (quiet) QuietSeconds += dt;
+                LongestQuiet = Math.Max(LongestQuiet, quietRun);
+                foreach (var booking in hotel.Reservations)
+                {
+                    Assert.That(booking.IsAutomatic, Is.True); Assert.That(booking.Price, Is.EqualTo(SalePrice),
+                        "The authored $180 selling rate, not archetype reference revenue, funds this trace.");
+                    if (!BookedPrices.ContainsKey(booking.Id)) BookedPrices.Add(booking.Id, booking.Price);
+                }
+                if (hotel.DayReports.Count == 1)
+                { FirstReportReceipts = hotel.DayReports[0].Receipts.Count; FirstReportCash = hotel.DayReports[0].Cash; }
+                int carried = hotel.Keys.Items.Count(item => item.Location == RoomKeyLocation.HeldByPlayer) +
+                    hotel.Housekeeping.Linens.Count(item => item.Location == LinenLocation.HeldByPlayer) +
+                    hotel.Services.Items.Count(item => item.Location == ServiceItemLocation.HeldByPlayer);
+                Assert.That(carried, Is.LessThanOrEqualTo(1), "The sole employee cannot carry linen, a key and a blanket at once.");
+                Assert.That(hotel.Keys.Items.Where(item => item.Location == RoomKeyLocation.HeldByPlayer).All(item => item.PlayerId == 0) &&
+                    hotel.Housekeeping.Linens.Where(item => item.Location == LinenLocation.HeldByPlayer).All(item => item.PlayerId == 0) &&
+                    hotel.Services.Items.Where(item => item.Location == ServiceItemLocation.HeldByPlayer).All(item => item.PlayerId == 0), Is.True,
+                    "There is no invisible actor1 performing work in this SOLO model trace.");
+            }
+
+            public void Finish()
+            {
+                var current = Hotel.CaptureSnapshot(84109, 1).Operations.PeriodReceipts;
+                var reported = Hotel.DayReports.SelectMany(report => report.Receipts).ToArray();
+                var ids = reported.Select(item => item.GuestId).Concat(current.Select(item => item.GuestId)).ToArray();
+                Assert.That(ids.Distinct().Count(), Is.EqualTo(ids.Length), "Exactly one settlement per real stay.");
+                Assert.That(ids.All(id => BookedPrices.ContainsKey(id)), Is.True);
+                Receipts = ids.Length; Early = reported.Count(item => item.EarlyCheckout) + current.Count(item => item.EarlyCheckout);
+                Gross = reported.Sum(item => item.Price) + current.Sum(item => item.Price);
+                Refunds = reported.Sum(item => item.Compensation) + current.Sum(item => item.Compensation);
+                Maintenance = Hotel.DayReports.Sum(item => item.MaintenanceSpend) + Hotel.PeriodMaintenanceSpend;
+                int capital = Hotel.DayReports.Sum(item => item.CapitalSpend) + Hotel.PeriodCapitalSpend;
+                int bills = Hotel.DayReports.Sum(item => item.OperatingCost);
+                EndingCash = Hotel.Economy.Cash; Net = Gross - Refunds - bills - Maintenance - capital;
+                TestContext.WriteLine(ToString()); // Preserve each completed strategy even if a later strategy/assertion fails.
+                if (collectFirstNight)
+                {
+                    TestContext.WriteLine("diagnosticFirstNight policy=" + Policy + "; ratedCapacity=" +
+                        Settings.Boiler.SafeLoad.ToString("F2", CultureInfo.InvariantCulture) + "; additionalPatchReserve=" +
+                        AdditionalPatchReserve + "; bandSeconds=[" + string.Join(",", firstNightBandSeconds.OrderBy(pair => pair.Key.ToString())
+                            .Select(pair => pair.Key + ":" + pair.Value.ToString("F2", CultureInfo.InvariantCulture))) + "]");
+                    foreach (string reading in firstNightReadings) TestContext.WriteLine(reading);
+                }
+                Assert.That(capital, Is.Zero); Assert.That(EndingCash, Is.EqualTo(Settings.Economy.StartingCash + Net));
+                Assert.That(Maintenance, Is.EqualTo(BasicServices * Settings.Economy.BasicMaintenanceCost + Patches * Settings.Economy.CheapPatchCost));
+                Assert.That(BasicCompleted, Is.EqualTo(BasicServices), "Each actual preventive purchase completes its one ordinary timed job.");
+                foreach (var report in Hotel.DayReports)
+                    Assert.That(report.Cash, Is.EqualTo(report.OpeningCash + report.Net), "Reports do not debit paid work twice.");
+                foreach (var id in ids)
+                {
+                    // Completed day1 bodies may legitimately be pruned at the day4 report.
+                    // Their immutable receipt survives; the adapter recorded the actual exit
+                    // and posted receipt while that body still existed, below.
+                    Assert.That(SettledPhysicalExits.ContainsKey(id), Is.True,
+                        "The checkout tail includes a measured, paid, physically completed departure for " + id);
+                }
+                CollectionAssert.AreEquivalent(ids, SettledPhysicalExits.Keys,
+                    "Every paid physical exit has exactly one retained ledger receipt, including pruned old bodies.");
+            }
+
+            public void RecordPhysicalExit(GuestStay stay)
+            {
+                Assert.That(stay.Agent.HasReachedRoom && stay.ReceiptPosted, Is.True,
+                    "Observe actual room arrival and posted payment before the completed body's normal retention cleanup.");
+                Assert.That(stay.Agent.State, Is.EqualTo(GuestAgentState.Left));
+                Assert.That(SettledPhysicalExits.ContainsKey(stay.GuestId), Is.False, "The adapter cannot count the same departure twice.");
+                SettledPhysicalExits.Add(stay.GuestId, Hotel.Elapsed); Departures++;
+            }
+
+            void ObserveFirstNight(float dt)
+            {
+                float start = Hotel.Calendar.At(1, 18), end = Hotel.Calendar.At(2, 10), now = Hotel.Elapsed;
+                float overlap = Math.Max(0, Math.Min(now, end) - Math.Max(now - dt, start));
+                var boiler = Hotel.Boiler;
+                if (overlap > 0)
+                {
+                    firstNightBandSeconds.TryGetValue(boiler.CapacityBand, out float previous);
+                    firstNightBandSeconds[boiler.CapacityBand] = previous + overlap;
+                }
+                float sampleAt = start + firstNightReadingIndex * Hotel.Operations.SecondsPerDay / 12;
+                if (firstNightReadingIndex > 8 || now < sampleAt) return;
+                firstNightReadings.Add(string.Format(CultureInfo.InvariantCulture,
+                    "diagnosticNight policy={0}; at={1:F2}; D{2} {3}; load={4:F3}; ratio={5:F3}; band={6}; stress={7:F3}; " +
+                    "condition={8:F2}; output={9:F3}; hotWater={10:F3}; valves=[{11}]; owned={12}; cash={13}",
+                    Policy, now, Hotel.Calendar.Day, Hotel.Calendar.DisplayTime, boiler.Load, boiler.LoadRatio, boiler.CapacityBand,
+                    boiler.Stress01, boiler.Condition, boiler.HeatingOutput, Hotel.HeatingDemands.Sum(row => row.HotWater),
+                    string.Join(",", Rooms.Select(room => room.Profile.Id + ":" + room.RadiatorSetting)),
+                    Hotel.Guests.Count(guest => guest.Agent.CheckedIn && !guest.ReceiptPosted), Hotel.Economy.Cash));
+                firstNightReadingIndex++;
+            }
+
+            public void RecordBasicStart(float condition, float stress, bool patched)
+            {
+                Assert.That(basicPending, Is.False);
+                Assert.That(Hotel.Boiler.ActiveServiceKind, Is.EqualTo(BoilerServiceKind.Basic));
+                Assert.That(Hotel.Boiler.HeatingOutput, Is.Zero, "Paid Basic actually removes central heat during its downtime.");
+                basicPending = true; basicWasPatched = patched; basicConditionBefore = condition; basicStressBefore = stress;
+                basicStartedAt = Hotel.Elapsed; basicEndsAt = Hotel.Boiler.MaintenanceEndsAt; basicOffSeconds = 0;
+                Assert.That(basicEndsAt - basicStartedAt,
+                    Is.EqualTo(Settings.Boiler.Capacity.BasicMaintenanceHours * Hotel.Operations.SecondsPerDay / 24).Within(.001f));
+                BasicServices++; BasicTimes.Add(Hotel.Elapsed.ToString("F2", CultureInfo.InvariantCulture));
+            }
+
+            void ObserveBasicCompletion(float dt)
+            {
+                if (!basicPending) return;
+                var boiler = Hotel.Boiler;
+                if (boiler.MaintenanceInProgress)
+                {
+                    Assert.That(boiler.ActiveServiceKind, Is.EqualTo(BoilerServiceKind.Basic));
+                    Assert.That(boiler.HeatingOutput, Is.Zero); basicOffSeconds += dt; return;
+                }
+                var tuning = Settings.Boiler.Capacity;
+                float expectedCondition = Math.Max(basicConditionBefore,
+                    Math.Min(tuning.BasicMaintenanceConditionCap, basicConditionBefore + tuning.BasicMaintenanceConditionGain));
+                float expectedStress = Math.Max(0, basicStressBefore - tuning.BasicMaintenanceStressReduction);
+                Assert.That(Hotel.Elapsed, Is.GreaterThanOrEqualTo(basicEndsAt));
+                Assert.That(basicOffSeconds, Is.GreaterThanOrEqualTo(basicEndsAt - basicStartedAt - dt - .001f),
+                    "The natural multi-day scenario really experiences all the paid downtime, not an immediate diagnostic repair.");
+                Assert.That(boiler.Condition, Is.EqualTo(expectedCondition).Within(.01f));
+                Assert.That(boiler.Stress01, Is.EqualTo(expectedStress).Within(.001f));
+                Assert.That(boiler.EmergencyPatchActive, Is.EqualTo(basicWasPatched), "Basic does not secretly become Full repair.");
+                BasicOutcomes.Add(string.Format(CultureInfo.InvariantCulture,
+                    "{0:F2}->{1:F2}:condition{2:F2}->{3:F2},stress{4:F3}->{5:F3},heatOff{6:F2}s,patch{7}",
+                    basicStartedAt, Hotel.Elapsed, basicConditionBefore, boiler.Condition, basicStressBefore, boiler.Stress01, basicOffSeconds, basicWasPatched));
+                BasicCompleted++; basicPending = false;
+            }
+
+            public override string ToString() => string.Format(CultureInfo.InvariantCulture,
+                "policy={0}; booked={1}; checkIns={2}; roomArrivals={3}; departed={4}; receipts={5}; early={6}; gross={7}; refunds={8}; " +
+                "maintenance={9}; basic={10}; patches={11}; net={12}; cash={13}; minCash={14}; reports={15}; firstReportReceipts={16}; firstReportCash={17}; " +
+                "failures={18}; failureAt=[{19}]; basicAt=[{20}]; peakLoad={21:F3}; peakStress={22:F3}; minCondition={23:F2}; minOwnedC={24:F2}; " +
+                "ownedGuestHours={25:F2}; inRoomHours={26:F2}; awayHours={27:F2}; hotWaterSeconds={28:F1}; overloadSeconds={29:F1}; " +
+                "failureSeconds={30:F1}; staffSeconds={31:F1}; quietSeconds={32:F1}; longestQuiet={33:F1}; showers={34}; contacts={35}; blankets={36}; valveResets={37}; " +
+                "inspections={38}; basicCompleted={39}; basicOutcomes=[{40}]",
+                Policy, BookedPrices.Count, CheckIns, RoomArrivals, Departures, Receipts, Early, Gross, Refunds, Maintenance, BasicServices, Patches,
+                Net, EndingCash, MinCash, Hotel.DayReports.Count, FirstReportReceipts, FirstReportCash, Failures,
+                string.Join(",", FailureTimes), string.Join(",", BasicTimes), MaxLoad, MaxStress, LowestCondition, MinOccupiedTemperature,
+                OwnedGuestSeconds * 24 / Hotel.Operations.SecondsPerDay, InRoomSeconds * 24 / Hotel.Operations.SecondsPerDay,
+                AwaySeconds * 24 / Hotel.Operations.SecondsPerDay, HotWaterSeconds, OverloadSeconds, FailureSeconds, StaffSeconds,
+                QuietSeconds, LongestQuiet, Showers, Contacts, Blankets, ValveResets, Inspections, BasicCompleted, string.Join(";", BasicOutcomes));
+        }
+
+        sealed class Route
+        { public string Signature; public float Due, VacateAt, NextAnchor; public bool Vacated; }
+        enum Work { None, Setup, CheckIn, Contact, Blanket, Linen, Inspect, Patch, CloseSales, Return }
+
+        /// <summary>Exactly one actor0 task occupies the employee until return to reception.
+        /// Guest movement/gestures have separate declared delays and cannot perform staff work.</summary>
+        sealed class Adapter
+        {
+            readonly Run run; readonly HotelSimulation hotel;
+            readonly Dictionary<string, Route> routes = new Dictionary<string, Route>();
+            readonly HashSet<string> blanketVisits = new HashSet<string>();
+            readonly HashSet<int> inspections = new HashSet<int>();
+            readonly RepairSequence repair;
+            Work work = Work.Setup;
+            string guestId, itemId, responseId; int roomId, phase;
+            float due = 6, giveUpAt, lastHold;
+            bool closedSales;
+            public Adapter(Run run)
+            { this.run = run; hotel = run.Hotel; repair = new RepairSequence(hotel.Boiler, run.Settings.Boiler, hotel.EmergencyPatchBoiler); }
+
+            public void Tick(float dt)
+            {
+                float now = hotel.Elapsed;
+                AdvanceGuests(now);
+                // Physical latch time is explicitly real 1x time, never accelerated hotel time.
+                hotel.Boiler.AdvanceSoloLatch(dt);
+                if (work != Work.None)
+                {
+                    run.StaffSeconds += dt;
+                    if (now >= due) AdvanceWork(now, dt);
+                    return;
+                }
+                if (!closedSales && hotel.Calendar.Day >= 3)
+                { work = Work.CloseSales; due = now + 6; return; }
+                var waiting = hotel.Guests.FirstOrDefault(stay => stay.Agent.State == GuestAgentState.WaitingForCheckIn && Ready(stay.RoomId));
+                if (waiting != null)
+                { work = Work.CheckIn; guestId = waiting.GuestId; due = now + hotel.LivingSettings.KeyRetrievalEstimateSeconds; return; }
+                if (hotel.Boiler.Failed && hotel.Economy.Cash >= run.Settings.Economy.CheapPatchCost)
+                { work = Work.Patch; phase = 0; due = now + Walk(ReceptionZ, BoilerZ); return; }
+                var incoming = hotel.Services.IncomingCall;
+                var reception = hotel.Services.Responses.FirstOrDefault(item => item.Phase == GuestResponsePhase.Contacting &&
+                    item.Channel == GuestContactChannel.Reception && item.AttemptStartedAt >= 0);
+                if (incoming != null || reception != null)
+                {
+                    var response = incoming ?? reception;
+                    work = Work.Contact; guestId = response.GuestId; responseId = response.Id;
+                    phase = incoming != null ? 0 : 1; due = now + 1.2f; return;
+                }
+                // Inspect twice at bounded, known daytime rounds. Actual condition/stress are
+                // read only after the employee reaches the boiler, not inspected every tick.
+                if (run.InspectsBoiler && hotel.Calendar.Day <= 3)
+                {
+                    int day = hotel.Calendar.Day;
+                    foreach (int halfHour in new[] { 21, 25 })
+                    {
+                        int key = day * 100 + halfHour;
+                        float at = hotel.Calendar.At(day, halfHour * .5f);
+                        if (now >= at && now < at + hotel.Operations.SecondsPerDay / 24 && inspections.Add(key))
+                        { work = Work.Inspect; due = now + Walk(ReceptionZ, BoilerZ); return; }
+                    }
+                }
+                var dirty = hotel.Housekeeping.Tasks.FirstOrDefault(task => task.Step == RoomPreparationStep.DirtyLinenOnBed && Vacant(task.RoomId));
+                if (dirty != null)
+                { work = Work.Linen; roomId = dirty.RoomId; itemId = dirty.DirtyLinenId; phase = 0; due = now + Walk(ReceptionZ, DoorZ(roomId)); return; }
+                var coldGuest = hotel.Guests.FirstOrDefault(stay => stay.Application.Archetype.Kind == GuestKind.ColdSensitive &&
+                    stay.Agent.CheckedIn && !stay.ReceiptPosted && (stay.Agent.State == GuestAgentState.GoingToRoom || stay.Agent.InAssignedRoom) &&
+                    stay.Memory.BlanketsDelivered == 0 && !blanketVisits.Contains(stay.GuestId));
+                if (coldGuest != null && hotel.Services.Items.Any(item => item.Kind == ServiceItemKind.Blanket && item.Location == ServiceItemLocation.OnShelf))
+                { work = Work.Blanket; guestId = coldGuest.GuestId; roomId = coldGuest.RoomId; blanketVisits.Add(guestId); phase = 0; due = now + Walk(ReceptionZ, StorageZ); }
+            }
+
+            bool Vacant(int id) => run.Rooms.Any(room => room.Profile.Id == id && !room.Occupied && room.DepartingGuestId == null);
+            bool Ready(int id) => Vacant(id) && run.Rooms.Single(room => room.Profile.Id == id).Cleanliness == Cleanliness.Clean;
+            void ReturnFrom(float from) { work = Work.Return; due = hotel.Elapsed + Walk(from, ReceptionZ); }
+
+            void AdvanceWork(float now, float dt)
+            {
+                switch (work)
+                {
+                    case Work.Setup: case Work.Return: work = Work.None; return;
+                    case Work.CloseSales:
+                        foreach (var policy in hotel.RoomSalesPolicies)
+                            Require(hotel.SetRoomSalesPolicy(0, policy.RoomId, false, policy.Price, policy.Revision));
+                        closedSales = true; work = Work.None; return;
+                    case Work.CheckIn:
+                        var waiting = hotel.Guests.FirstOrDefault(stay => stay.GuestId == guestId);
+                        if (waiting?.Agent.State == GuestAgentState.WaitingForCheckIn && Ready(waiting.RoomId))
+                        { Require(ModelKeyHandoff.CheckIn(hotel, 0, guestId)); run.CheckIns++; }
+                        work = Work.None; return;
+                    case Work.Contact:
+                        var heard = phase == 0 ? hotel.AnswerIncomingServiceCall(0, responseId) : hotel.TalkToServiceGuest(0, guestId, responseId);
+                        if (heard.Success)
+                        {
+                            run.Contacts++;
+                            // No free promises or credit: decline only this actual conversation.
+                            foreach (var item in hotel.Services.Cases.Where(item => item.GuestId == guestId && item.Active && item.IsKnownToHotel).ToArray())
+                                Require(hotel.RespondToService(0, item.Id, false));
+                            if (hotel.Services.Intents.Any(item => item.GuestId == guestId && item.Active && item.Purpose == ServiceIntentPurpose.CompensationDiscussion))
+                                Require(hotel.AcceptConsequences(0, guestId));
+                        }
+                        work = Work.Return; due = now + 1.2f; return;
+                    case Work.Inspect:
+                        run.Inspections++;
+                        // Matched five-room control makes the same inspection trips and
+                        // reads the same real display; it declines the preventive purchase.
+                        if (run.PurchasesBasic && !hotel.Boiler.Failed && !hotel.Boiler.MaintenanceInProgress &&
+                            (hotel.Boiler.Condition <= 75 || hotel.Boiler.Stress01 >= .25f) &&
+                            hotel.Economy.Cash >= run.Settings.Economy.BasicMaintenanceCost + run.Settings.Economy.DailyOperatingCost + run.AdditionalPatchReserve &&
+                            hotel.CanBeginBoilerMaintenance(0, BoilerServiceKind.Basic).Success)
+                        {
+                            float beforeCondition = hotel.Boiler.Condition, beforeStress = hotel.Boiler.Stress01;
+                            bool wasPatched = hotel.Boiler.EmergencyPatchActive;
+                            Require(hotel.BeginBoilerMaintenance(0, BoilerServiceKind.Basic, hotel.Boiler.MaintenanceRevision));
+                            run.RecordBasicStart(beforeCondition, beforeStress, wasPatched);
+                        }
+                        ReturnFrom(BoilerZ); return;
+                    case Work.Blanket: AdvanceBlanket(now); return;
+                    case Work.Linen: AdvanceLinen(now); return;
+                    case Work.Patch: AdvancePatch(now, dt); return;
+                }
+            }
+
+            void AdvanceBlanket(float now)
+            {
+                if (phase == 0)
+                {
+                    var item = hotel.Services.Items.FirstOrDefault(candidate => candidate.Kind == ServiceItemKind.Blanket && candidate.Location == ServiceItemLocation.OnShelf);
+                    if (item == null) { ReturnFrom(StorageZ); return; }
+                    itemId = item.Id; Require(hotel.TakeServiceItem(0, itemId));
+                    phase = 1; due = now + Walk(StorageZ, DoorZ(roomId)) + 3; giveUpAt = due + 10; return;
+                }
+                if (phase == 1)
+                {
+                    var stay = hotel.Guests.FirstOrDefault(item => item.GuestId == guestId);
+                    bool available = stay?.Agent.InAssignedRoom == true && stay.Agent.ActivityStaged &&
+                        stay.Agent.State != GuestAgentState.Sleeping && stay.Agent.Activity != GuestActivity.Shower && !stay.Agent.IsRelocating && !stay.ReceiptPosted;
+                    if (available && stay.Memory.BlanketsDelivered == 0 && hotel.RequestStaffRoomAccess(0, roomId).Success)
+                    { Require(hotel.DeliverBlanket(0, guestId)); run.Blankets++; ReturnFrom(DoorZ(roomId)); return; }
+                    if (now < giveUpAt) return;
+                    phase = 2; due = now + Walk(DoorZ(roomId), StorageZ); return;
+                }
+                if (hotel.Services.HeldBy(0)?.Id == itemId) Require(hotel.ReturnServiceItem(0, itemId));
+                ReturnFrom(StorageZ);
+            }
+
+            void AdvanceLinen(float now)
+            {
+                switch (phase)
+                {
+                    case 0:
+                        Assert.That(Vacant(roomId), Is.True);
+                        Require(hotel.RequestStaffRoomAccess(0, roomId));
+                        Require(hotel.PickUpLinen(0, itemId)); phase = 1; due = now + Walk(DoorZ(roomId), StorageZ); return;
+                    case 1:
+                        Require(hotel.DepositDirtyLinen(0, itemId)); phase = 2; due = now + 1.2f; return;
+                    case 2:
+                        var clean = hotel.Housekeeping.Linens.FirstOrDefault(item => item.Kind == LinenKind.Clean && item.Location == LinenLocation.OnShelf);
+                        if (clean == null) return; // Actual finite stock: employee cannot spawn another bundle.
+                        itemId = clean.Id; Require(hotel.PickUpLinen(0, itemId));
+                        phase = 3; due = now + Walk(StorageZ, DoorZ(roomId)) + 3; return;
+                    case 3:
+                        Assert.That(Vacant(roomId), Is.True);
+                        Require(hotel.RequestStaffRoomAccess(0, roomId));
+                        var room = run.Rooms.Single(item => item.Profile.Id == roomId);
+                        if (room.RadiatorSetting != 1) { Require(hotel.SetRadiatorSetting(0, roomId, 1)); run.ValveResets++; }
+                        Require(hotel.BeginMakeBed(0, roomId, itemId)); phase = 4; lastHold = now; due = now + .1f; return;
+                    case 4:
+                        while (now - lastHold >= .09999f && hotel.Housekeeping.Find(roomId) != null)
+                        { Require(hotel.AdvanceMakeBed(0, roomId, .1f)); lastHold += .1f; }
+                        if (hotel.Housekeeping.Find(roomId) == null) ReturnFrom(DoorZ(roomId));
+                        return;
+                }
+            }
+
+            void AdvancePatch(float now, float dt)
+            {
+                var boiler = hotel.Boiler;
+                if (!boiler.Failed) { ReturnFrom(BoilerZ); return; }
+                if (phase == 0)
+                { Require(boiler.SetRelief(0, true)); repair.ResetForFailure(); phase = 1; return; }
+                if (phase == 1)
+                {
+                    if (!boiler.InRepairBand) return;
+                    Require(boiler.HoldSoloValve(0, dt));
+                    if (!boiler.SoloValveLatched) return;
+                    Require(boiler.SetRelief(0, false)); phase = 2; due = now + 1.2f; return;
+                }
+                if (!boiler.SoloValveLatched)
+                { phase = 0; due = now + 1.2f; return; }
+                repair.Refresh();
+                switch (repair.Step)
+                {
+                    case RepairStep.Panel: Require(repair.Press(RepairControlKind.Panel, 0)); due = now + .6f; break;
+                    case RepairStep.Breaker: Require(repair.Press(RepairControlKind.Breaker, 0)); due = now + .6f; break;
+                    case RepairStep.LatchA:
+                        Require(repair.Press(RepairControlKind.LatchA, 0)); Require(repair.HoldLatch(RepairControlKind.LatchA, 0, dt)); break;
+                    case RepairStep.LatchB:
+                        Require(repair.Press(RepairControlKind.LatchB, 0)); Require(repair.HoldLatch(RepairControlKind.LatchB, 0, dt)); break;
+                    case RepairStep.Restart:
+                        Require(repair.Press(RepairControlKind.Restart, 0)); run.Patches++; ReturnFrom(BoilerZ); break;
+                }
+            }
+
+            void AdvanceGuests(float now)
+            {
+                foreach (var stay in hotel.Guests.ToArray())
+                {
+                    var agent = stay.Agent;
+                    if (!routes.TryGetValue(stay.GuestId, out var route))
+                    {
+                        routes.Add(stay.GuestId, route = new Route());
+                        run.Itineraries.Add(stay.GuestId, string.Join("|", agent.Schedule.Activities.Select(item => item.Activity + ":" +
+                            item.Duration.ToString("R", CultureInfo.InvariantCulture))));
+                        Require(hotel.RegisterGuestPhysicalStaging(stay.GuestId));
+                    }
+                    string signature = agent.State + ":" + agent.Activity + ":" + agent.StateChangedAt + ":" + agent.ResponseActionId + ":" + agent.ResponseActionVersion;
+                    if (signature != route.Signature)
+                    {
+                        route.Signature = signature; route.Vacated = false; route.NextAnchor = now;
+                        float hallway = (DoorZ(stay.RoomId) + 10) / 1.35f + .8f;
+                        route.Due = now + (agent.State == GuestAgentState.Arriving ? 7 :
+                            agent.State == GuestAgentState.GoingToRoom || agent.State == GuestAgentState.LeavingRoom ||
+                            agent.State == GuestAgentState.ReturningToRoom || agent.IsServiceReceptionTrip ? hallway : 1.2f);
+                        route.VacateAt = now + 5;
+                    }
+                    if (agent.State == GuestAgentState.Arriving && now >= route.Due) Require(hotel.SignalGuestReachedReception(stay.GuestId));
+                    else if (agent.State == GuestAgentState.GoingToRoom && now >= route.Due)
+                    { Require(hotel.SignalGuestReachedRoom(stay.GuestId)); run.RoomArrivals++; }
+                    else if (agent.State == GuestAgentState.LeavingRoom && now >= route.Due) Require(hotel.SignalGuestLeftRoom(stay.GuestId));
+                    else if (agent.State == GuestAgentState.ReturningToRoom && now >= route.Due) Require(hotel.SignalGuestReturnedRoom(stay.GuestId));
+                    else if (agent.State == GuestAgentState.Leaving)
+                    {
+                        if (!route.Vacated && now >= route.VacateAt)
+                        {
+                            foreach (var room in run.Rooms.Where(item => item.DepartingGuestId == stay.GuestId))
+                                Require(hotel.SignalGuestVacatedRoom(stay.GuestId, room.Profile.Id));
+                            route.Vacated = true;
+                        }
+                        if (route.Vacated && now >= route.VacateAt + (DoorZ(stay.RoomId) + 5) / 1.35f)
+                        { Require(hotel.SignalGuestLeft(stay.GuestId)); run.RecordPhysicalExit(stay); }
+                    }
+                    if (agent.ResponseActionId != null && now >= route.NextAnchor)
+                    {
+                        var response = hotel.Services.FindResponse(agent.ResponseActionId);
+                        GuestResponseAnchor? anchor = agent.State == GuestAgentState.ReturningFromServiceReception && now >= route.Due ? GuestResponseAnchor.AssignedRoom :
+                            agent.State == GuestAgentState.GoingToServiceReception && now >= route.Due ? GuestResponseAnchor.Reception :
+                            agent.InAssignedRoom && agent.Activity == GuestActivity.AdjustRadiator && now >= route.Due ? GuestResponseAnchor.Radiator :
+                            agent.InAssignedRoom && agent.Activity == GuestActivity.CallReception && now >= route.Due && response?.AttemptStartedAt < 0 ? GuestResponseAnchor.RoomPhone : (GuestResponseAnchor?)null;
+                        if (anchor.HasValue)
+                        {
+                            // Real cause recovery or a busy line can reject the acknowledgement.
+                            hotel.SignalGuestResponseAnchorReached(stay.GuestId, agent.ResponseActionId, agent.ResponseActionVersion, anchor.Value);
+                            route.NextAnchor = now + 1;
+                        }
+                    }
+                    else if (agent.ResponseActionId == null && agent.InAssignedRoom && !agent.ActivityStaged && now >= route.Due)
+                    {
+                        Require(hotel.SignalGuestActivityReady(stay.GuestId, agent.State, agent.Activity));
+                        if (agent.Activity == GuestActivity.Shower) run.Showers++;
+                    }
+                }
+            }
+        }
+
+        static Run Simulate(SessionConfig config, Policy policy, int additionalPatchReserve = 0, bool collectFirstNight = false)
+        {
+            var run = new Run(config, policy, additionalPatchReserve, collectFirstNight); var hotel = run.Hotel; var adapter = new Adapter(run);
+            float end = hotel.Calendar.At(4, 11); // Three complete cohorts, three06:00 reports plus final morning checkout tail.
+            while (hotel.Elapsed < end)
+            {
+                float dt = Math.Min(.25f, end - hotel.Elapsed);
+                adapter.Tick(dt); hotel.Tick(dt); run.Sample(dt);
+            }
+            run.Finish(); return run;
+        }
+
+        [Test, Timeout(400000)]
+        public void ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies()
+        {
+            var config = AssetDatabase.LoadAssetAtPath<SessionConfig>("Assets/_WorstHotel/ScriptableObjects/PrototypeSession.asset");
+            Assert.That(config.automaticBookings && config.continuousOperations, Is.True);
+            Assert.That(config.living.ToData().Rhythm.Enabled && config.needs.ToData().EarlyCheckout.Enabled, Is.True);
+            Assert.That(config.roomSalePrice, Is.EqualTo(180)); Assert.That(config.ToData().Economy.StartingCash, Is.EqualTo(750));
+            // The historical 4.6/$450-only reserve trace reached -$10 after a later
+            // genuine patch. Prospectively retain one configured patch as well as the
+            // next bill before buying optional Basic; this changes only staff policy.
+            int patchReserve = config.ToData().Economy.CheapPatchCost;
+            TestContext.WriteLine("PRODUCTION POLICY: Basic retains the next operating bill plus one configured $" +
+                patchReserve + " emergency-patch reserve. Historical attempt4 retains the old reserve's negative result.");
+            var cautious = Simulate(config, Policy.CautiousFour, patchReserve);
+            var aggressive = Simulate(config, Policy.AggressiveSix, patchReserve);
+            var preventive = Simulate(config, Policy.SixWithObservedBasic, patchReserve);
+            var five = Simulate(config, Policy.FiveInspectedNoBasic, patchReserve);
+            var fivePreventive = Simulate(config, Policy.FiveWithObservedBasic, patchReserve);
+            var warmFive = Simulate(config, Policy.WarmFiveInspectedNoBasic, patchReserve);
+            var warmFivePreventive = Simulate(config, Policy.WarmFiveWithObservedBasic, patchReserve);
+            foreach (var run in new[] { cautious, aggressive, preventive, five, fivePreventive, warmFive, warmFivePreventive })
+            {
+                int expected = run.OpenRoomCount * 3;
+                Assert.That(run.BookedPrices.Count, Is.EqualTo(expected));
+                Assert.That(run.Receipts, Is.EqualTo(expected)); Assert.That(run.RoomArrivals, Is.EqualTo(expected));
+                Assert.That(run.Departures, Is.EqualTo(expected)); Assert.That(run.Hotel.DayReports.Count, Is.EqualTo(3));
+                Assert.That(run.Gross, Is.EqualTo(expected * 180));
+                Assert.That(run.Showers, Is.GreaterThan(0)); Assert.That(run.HotWaterSeconds, Is.GreaterThan(0));
+                Assert.That(run.AwaySeconds, Is.GreaterThan(0)); Assert.That(run.LongestQuiet, Is.GreaterThan(10));
+            }
+            Assert.That(cautious.Failures, Is.Zero, "A bounded cautious hotel must avoid catastrophic boiler failure without paid daily service.");
+            Assert.That(cautious.BasicServices, Is.Zero); Assert.That(cautious.Patches, Is.Zero);
+            Assert.That(cautious.MinCash, Is.GreaterThanOrEqualTo(0)); Assert.That(cautious.Net, Is.GreaterThan(0));
+            Assert.That(aggressive.Gross, Is.GreaterThan(cautious.Gross));
+            Assert.That(aggressive.OverloadSeconds, Is.GreaterThan(cautious.OverloadSeconds), "Extra real consumers, not daily injected faults, create risk.");
+            CollectionAssert.AreEquivalent(aggressive.BookedPrices.Keys, preventive.BookedPrices.Keys);
+            foreach (var id in aggressive.Itineraries.Keys) Assert.That(preventive.Itineraries[id], Is.EqualTo(aggressive.Itineraries[id]), id);
+            Assert.That(preventive.BasicServices, Is.GreaterThan(0));
+            Assert.That(preventive.MinCash, Is.GreaterThanOrEqualTo(0));
+            // Historical six-room runs remain recorded capacity-deficit counterexamples:
+            // Basic really buys downtime/condition/stress relief (asserted above), not a
+            // guarantee that continuous overload disappears. Its complete costs/outcomes
+            // stay printed beside the original six-room trace; no fault is scripted.
+            AssertMatchedInspectionPair(five, fivePreventive);
+            AssertMatchedInspectionPair(warmFive, warmFivePreventive);
+            CollectionAssert.AreEquivalent(five.BookedPrices.Keys, warmFive.BookedPrices.Keys,
+                "Warm-room selection changes rooms, not the accepted enquiries or their agreed $180 rate.");
+            foreach (var id in five.Itineraries.Keys) Assert.That(warmFive.Itineraries[id], Is.EqualTo(five.Itineraries[id]), id);
+            // Prospective §88.11 gate: a real extra sold room must improve NET after all
+            // refunds/paid work, while producing more measured pressure. A failure is not
+            // required to manufacture danger, and higher gross alone is insufficient.
+            Assert.That(warmFive.Net, Is.GreaterThan(cautious.Net),
+                "Prospective warm-five policy must earn more net than cautious four at the same rate.");
+            Assert.That(warmFive.OverloadSeconds, Is.GreaterThan(cautious.OverloadSeconds),
+                "The additional real room must expose greater measured boiler pressure, not an injected disaster.");
+            Assert.That(warmFive.MinCash, Is.GreaterThanOrEqualTo(0));
+        }
+
+        [TestCase(4.7f), Explicit("Opt-in capacity calibration using in-memory config clones; does not change authored production tuning."), Timeout(300000)]
+        public void DiagnosticCapacityTrialUsesActualAutomaticCohorts(float ratedCapacity)
+        {
+            var production = AssetDatabase.LoadAssetAtPath<SessionConfig>("Assets/_WorstHotel/ScriptableObjects/PrototypeSession.asset");
+            string unchangedProductionBoiler = EditorJsonUtility.ToJson(production.boiler);
+            var trial = UnityEngine.Object.Instantiate(production);
+            var trialBoiler = UnityEngine.Object.Instantiate(production.boiler);
+            try
+            {
+                trial.boiler = trialBoiler;
+                trialBoiler.safeLoad = ratedCapacity;
+                Assert.That(trial.automaticBookings && trial.continuousOperations, Is.True);
+                Assert.That(trial.living.ToData().Rhythm.Enabled && trial.needs.ToData().EarlyCheckout.Enabled, Is.True);
+                Assert.That(trial.roomSalePrice, Is.EqualTo(180)); Assert.That(trial.ToData().Economy.StartingCash, Is.EqualTo(750));
+                int patchReserve = trial.ToData().Economy.CheapPatchCost;
+                Assert.That(patchReserve, Is.EqualTo(200));
+                TestContext.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                    "DIAGNOSTIC ONLY: cloned rated capacity {0:F2}->{1:F2}; identical production seed/rates/schedules/heat/wear; " +
+                    "Basic requires its $350 purchase plus the $450 bill AND one configured ${2} emergency-patch reserve. " +
+                    "Staff task durations and reserve match the current seven-run production comparison; the capacity override is clone-only.",
+                    production.boiler.safeLoad, ratedCapacity, patchReserve));
+                var cautious = Simulate(trial, Policy.CautiousFour, patchReserve, true);
+                var five = Simulate(trial, Policy.WarmFiveInspectedNoBasic, patchReserve, true);
+                var fivePreventive = Simulate(trial, Policy.WarmFiveWithObservedBasic, patchReserve, true);
+                var six = Simulate(trial, Policy.AggressiveSix, patchReserve, true);
+                foreach (var run in new[] { cautious, five, fivePreventive, six })
+                {
+                    int expected = run.OpenRoomCount * 3;
+                    Assert.That(run.BookedPrices.Count, Is.EqualTo(expected)); Assert.That(run.Receipts, Is.EqualTo(expected));
+                    Assert.That(run.RoomArrivals, Is.EqualTo(expected)); Assert.That(run.Departures, Is.EqualTo(expected));
+                    Assert.That(run.Hotel.DayReports.Count, Is.EqualTo(3)); Assert.That(run.Gross, Is.EqualTo(expected * 180));
+                    Assert.That(run.Showers, Is.GreaterThan(0)); Assert.That(run.HotWaterSeconds, Is.GreaterThan(0));
+                    Assert.That(run.AwaySeconds, Is.GreaterThan(0)); Assert.That(run.LongestQuiet, Is.GreaterThan(10));
+                }
+                Assert.That(cautious.Failures, Is.Zero); Assert.That(cautious.Patches, Is.Zero); Assert.That(cautious.BasicServices, Is.Zero);
+                Assert.That(cautious.MinCash, Is.GreaterThanOrEqualTo(0)); Assert.That(cautious.Net, Is.GreaterThan(0));
+                AssertMatchedInspectionPair(five, fivePreventive);
+                Assert.That(five.MinCash, Is.GreaterThanOrEqualTo(0));
+                Assert.That(five.Net, Is.GreaterThan(cautious.Net), "The prospective capacity trial must make warm five genuinely more profitable at identical rates.");
+                Assert.That(five.OverloadSeconds, Is.GreaterThan(cautious.OverloadSeconds), "More occupancy must retain causal pressure.");
+                Assert.That(six.OverloadSeconds, Is.GreaterThan(cautious.OverloadSeconds), "The capacity trial cannot erase aggressive-load pressure.");
+                // Actual Basic purchases retain the existing strict job/receipt checks;
+                // no service is manufactured merely to give this diagnostic a benefit.
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(trial);
+                UnityEngine.Object.DestroyImmediate(trialBoiler);
+                Assert.That(EditorJsonUtility.ToJson(production.boiler), Is.EqualTo(unchangedProductionBoiler),
+                    "The opt-in experiment must not write capacity or any other field to the authored asset.");
+            }
+        }
+
+        static void AssertMatchedInspectionPair(Run control, Run treatment)
+        {
+            CollectionAssert.AreEquivalent(control.BookedPrices.Keys, treatment.BookedPrices.Keys);
+            foreach (var id in control.Itineraries.Keys) Assert.That(treatment.Itineraries[id], Is.EqualTo(control.Itineraries[id]), id);
+            Assert.That(control.BasicServices, Is.Zero);
+            Assert.That(control.Inspections, Is.GreaterThan(0)); Assert.That(treatment.Inspections, Is.GreaterThan(0));
+            Assert.That(treatment.MinCash, Is.GreaterThanOrEqualTo(0),
+                "Preventive work cannot be funded by injected money or unseen debt.");
+            // The historical 4.6 cold-five trace could not afford a job under its reserve policy.
+            // Keep that negative result: identical inspections without a purchase cannot
+            // earn a fabricated mechanical/economic benefit. Every actual purchase in any
+            // run is still checked for complete downtime and its exact configured outcome.
+            if (treatment.BasicServices == 0)
+            {
+                Assert.That(treatment.Failures, Is.EqualTo(control.Failures));
+                Assert.That(treatment.FailureSeconds, Is.EqualTo(control.FailureSeconds));
+                Assert.That(treatment.Early, Is.EqualTo(control.Early));
+                Assert.That(treatment.Net, Is.EqualTo(control.Net));
+            }
+        }
+    }
+}

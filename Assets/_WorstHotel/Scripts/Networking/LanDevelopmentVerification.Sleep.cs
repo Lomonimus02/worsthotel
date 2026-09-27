@@ -105,6 +105,7 @@ namespace WorstHotel
             WriteStage("sleep-host-rejoined");
             yield return Stage("sleep-client-rejoin-aimed", 30);
             facts.Add("DisconnectClearsSleep=True RejoinRequiresFreshConsent=True HostHotelPreservedOnRejoin=True");
+            yield return RunSleepCriticalHost();
 
             yield return TapButton(GamepadButton.South);
             yield return SleepUntil(() => SleepPending(0), 5, "physical pending vote exists before NewGame");
@@ -267,6 +268,7 @@ namespace WorstHotel
             if (capture) yield return Capture("client-sleep-rejoined");
             WriteStage("sleep-client-rejoin-aimed");
             facts.Add("DisconnectClearsSleep=True DisconnectedReadOnly=True RejoinRequiresFreshConsent=True HostHotelPreservedOnRejoin=True");
+            yield return RunSleepCriticalClient();
 
             yield return Stage("sleep-before-reset-pending", 12);
             yield return SleepUntil(() => SleepPending(0), 8, "client actually sees pending consent before NewGame");

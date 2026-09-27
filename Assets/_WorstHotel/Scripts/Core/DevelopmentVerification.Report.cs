@@ -56,6 +56,7 @@ namespace WorstHotel
         void WriteReport(string outcome)
         {
             if (string.IsNullOrEmpty(output)) return;
+            if (soloSleepFixture) { WriteSoloSleepReport(outcome); return; }
             if (continuousTour) { WriteContinuousReport(outcome); return; }
             var text = new StringBuilder();
             text.AppendLine((operationsUI ? "Built-player operations UI diagnostic only / " : "Built-player living-hotel diagnostic tour / ") + (soloTour ? "SOLO" : "local development"));

@@ -138,7 +138,7 @@ namespace WorstHotel.Tests
             try
             {
                 var data = config.ToData();
-                Assert.That(data.SafeLoad, Is.EqualTo(4.6f));
+                Assert.That(data.SafeLoad, Is.EqualTo(4.7f));
                 Assert.That(data.Capacity.BusyLoadRatio, Is.EqualTo(.70f));
                 Assert.That(data.Capacity.MaximumStrainedHeatLoss, Is.EqualTo(.10f));
                 Assert.That(data.Capacity.StrainedStressGainPerHotelHour, Is.EqualTo(.015f));

@@ -60,11 +60,21 @@ namespace WorstHotel.Tests
             yield return WaitForCondition(() => heater.State != null && heater.State.RoomId == 105, 4,
                 "Physical heater placement was not recognised by its whole-body room volume.");
             Assert.That(Vector3.Distance(bootstrap.Players[0].PlayerCamera.transform.position, heater.transform.position), Is.GreaterThan(heaterAudio.audibleRange));
+            var heaterCircuit = simulation.Electrical.CircuitForRoom(heater.State.RoomId.Value);
+            Assert.That(heaterCircuit.Id, Is.EqualTo("B"));
+            Assert.That(heater.State.SwitchedOn, Is.False);
+            string prompt = heater.GetPrompt(bootstrap.Players[1].Interactor);
+            Assert.That(prompt, Does.Contain("Switch on").And.Contain("Room 105").And.Contain("Circuit B"));
+            Assert.That(prompt, Does.Contain("+" + heater.State.Settings.ElectricalLoad.ToString("0.##")),
+                "The placed, off tool must preview its configured electrical demand before switching.");
             Assert.That(session.SetHeaterSwitch(1, heater.heaterId, true).Success, Is.True);
             yield return WaitForCondition(() => fan.volume > .02f, 2, "Player2 proximity must make the actually powered fan audible in the shared mix.");
             Assert.That(heater.State.EffectiveHeatOutput, Is.GreaterThan(0));
-            Assert.That(heater.GetPrompt(bootstrap.Players[1].Interactor), Does.Contain("manual heat"));
-            Assert.That(heater.GetPrompt(bootstrap.Players[1].Interactor).Split('\n'), Has.Length.EqualTo(2));
+            prompt = heater.GetPrompt(bootstrap.Players[1].Interactor);
+            Assert.That(prompt, Does.Contain("Switch off").And.Contain("Heating room 105").And.Contain("Circuit B"));
+            Assert.That(prompt, Does.Contain("Load " + heaterCircuit.RequestedLoad.ToString("0.##") + "/" + heaterCircuit.Capacity.ToString("0.##")),
+                "The powered prompt must report the actual registered branch's current request and capacity.");
+            Assert.That(prompt.Split('\n'), Has.Length.EqualTo(2));
             simulation.Clock.SetSpeed(8);
             yield return null; yield return null;
             Assert.That(fan.pitch, Is.EqualTo(1), "WAIT must not pitch-shift the heater fan.");
@@ -101,6 +111,9 @@ namespace WorstHotel.Tests
             yield return null; yield return null;
             Assert.That(circuit.Tripped, Is.True);
             Assert.That(heater.State.EffectiveHeatOutput, Is.Zero);
+            Assert.That(heater.GetPrompt(bootstrap.Players[1].Interactor),
+                Does.Contain("Switch off").And.Contain("No power in room 105").And.Contain("Circuit B"),
+                "A tripped line stops delivered heat without pretending the physical switch turned off.");
             Assert.That(fan.volume, Is.Zero, "Power loss must stop fan delivery immediately.");
             Assert.That(bLight.enabled, Is.False); Assert.That(aLight.enabled, Is.True);
             panel.enabled = false; yield return null;

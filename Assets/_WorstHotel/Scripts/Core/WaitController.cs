@@ -152,8 +152,10 @@ namespace WorstHotel
                 Stop(simulation.LastEvent);
                 return;
             }
-            // Request patience can expire without creating another request/event. Abort that same tick.
-            if (IsWaiting || HasConsentInProgress)
+            // Patience and manual-work guards can change without another event. Apply them
+            // to diagnostic acceleration too; real bed consent already used its own observer above.
+            // Speed alone must not manufacture WAIT consent or a replicated Wait mode.
+            if (IsWaiting || HasConsentInProgress || simulation.Clock.Speed > 1)
             {
                 var coop = LocalCoopBootstrap.Instance;
                 if (coop && coop.Players[0] != null && (coop.IsSolo || coop.Players[1] != null))

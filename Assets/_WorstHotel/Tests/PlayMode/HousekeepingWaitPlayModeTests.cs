@@ -38,6 +38,9 @@ namespace WorstHotel.Tests
             Assert.That(Waiter.Reason, Does.Contain("linen"));
             // The public preparation-time diagnostic uses the actual GameSession tick path.
             simulation.Clock.SetSpeed(8);
+            Assert.That(Waiter.Mode, Is.EqualTo(HotelAdvanceMode.None));
+            Assert.That(Waiter.IsWaiting || Waiter.HasSleepConsent(0) || Waiter.HasSleepConsent(1), Is.False,
+                "A diagnostic speed cannot manufacture WAIT or bed consent.");
             session.AdvanceTime(120);
             Assert.That(simulation.Clock.Speed, Is.EqualTo(1), "WAIT guards must also stop diagnostic acceleration during manual-only preparation.");
             Assert.That(session.Rooms.All(room => room.Cleanliness == Cleanliness.Dirty), Is.True);

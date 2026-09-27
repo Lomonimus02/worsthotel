@@ -53,6 +53,7 @@ namespace WorstHotel
             runner.serviceFixtures = Array.IndexOf(arguments, "-verifyServices") >= 0;
             runner.operationsUI = Array.IndexOf(arguments, "-verifyOperationsUI") >= 0;
             runner.continuousTour = Array.IndexOf(arguments, "-verifyHotelContinuous") >= 0;
+            runner.soloSleepFixture = Array.IndexOf(arguments, "-verifySoloSleep") >= 0;
             Directory.CreateDirectory(runner.output);
             File.WriteAllText(Path.Combine(runner.output, "capture-manifest.txt"), string.Empty);
             DontDestroyOnLoad(runner.gameObject);
@@ -72,6 +73,7 @@ namespace WorstHotel
         // This opt-in historical driver verifies the original three-shift regression flow.
         // Configure before scene Start/transport startup; ordinary production sessions never use it.
         public static bool ShouldUseLegacyFixture(string[] arguments) => arguments != null &&
+            Array.IndexOf(arguments, "-verifySoloSleep") < 0 &&
             Array.IndexOf(arguments, "-verifyLanSleep") < 0 &&
             Array.IndexOf(arguments, "-verifyLanContinuous") < 0 && Array.IndexOf(arguments, "-verifyOperationsUI") < 0 &&
             Array.IndexOf(arguments, "-verifyHotelContinuous") < 0;
@@ -119,7 +121,8 @@ namespace WorstHotel
             }
             finished = true;
             WriteReport(errors == 0 ? "PASS" : "FAIL");
-            Debug.Log("VERIFY: " + (operationsUI ? "operations UI verification complete" : "living three-day tour complete") + "; errors=" + errors);
+            Debug.Log("VERIFY: " + (soloSleepFixture ? "SOLO physical sleep verification complete" :
+                operationsUI ? "operations UI verification complete" : "living three-day tour complete") + "; errors=" + errors);
             Application.Quit(errors == 0 ? 0 : 2);
         }
 
@@ -128,6 +131,7 @@ namespace WorstHotel
             if (finished) return;
             float watchdog = 570 + (agencyFixtures ? 530 : 0) + (serviceFixtures ? 600 : 0);
             if (continuousTour) watchdog = 720;
+            if (soloSleepFixture) watchdog = 420;
             if (Time.realtimeSinceStartup - began > watchdog)
             {
                 Debug.LogError("VERIFY: internal " + watchdog + "-second watchdog expired.");
@@ -136,6 +140,16 @@ namespace WorstHotel
             if (!initialized || session == null || coop == null) return;
             BindSyntheticStaff();
             if (coop.IsPaused) return;
+            if (soloSleepFixture)
+            {
+                try { ObserveSoloSleepVerification(); }
+                catch (Exception exception)
+                {
+                    Debug.LogError("VERIFY SOLO sleep: " + exception);
+                    finished = true; WriteReport("FAIL"); Application.Quit(2);
+                }
+                return; // Actual bed consent owns speed, even while capturing.
+            }
             if (session.Phase == DayPhase.Planning || session.Phase == DayPhase.Service)
                 session.Simulation.Clock.SetSpeed(capturing ? 1 : driveSpeed);
             if (continuousTour)
@@ -189,6 +203,7 @@ namespace WorstHotel
         void LateUpdate()
         {
             if (finished || !initialized || session == null || coop == null || coop.IsPaused) return;
+            if (soloSleepFixture) return; // Never restore diagnostic8x after a real sleep wake/cancel.
             // The early Update binds our exact synthetic devices before gameplay input. GameSession
             // can reset diagnostic speed on an event during its later Update. Reapply after that,
             // before the default-order guest LateUpdates consume their travel budgets.
@@ -211,11 +226,20 @@ namespace WorstHotel
             Require(FindAnyObjectByType<HousekeeperPresentation>() == null && !session.Simulation.Housekeeping.WorkerAvailable,
                 "the hotel starts without an automatic employee");
             coop.SendMessage("OnApplicationFocus", true); coop.SetPaused(false);
-            // Explicitly NOT human WAIT. Normal GameSession.Update still advances fixed hotel ticks.
-            session.Wait.Stop("Developer lifecycle driver; not human WAIT"); session.Wait.enabled = false;
+            if (soloSleepFixture)
+            {
+                session.Wait.enabled = true;
+                soloSleepFixedStep = Time.fixedDeltaTime;
+            }
+            else
+            {
+                // Explicitly NOT human WAIT. Normal GameSession.Update still advances fixed hotel ticks.
+                session.Wait.Stop("Developer lifecycle driver; not human WAIT"); session.Wait.enabled = false;
+            }
             observedSimulation = session.Simulation;
             observedSimulation.Housekeeping.Changed += ObserveCleaning;
             initialized = true;
+            if (soloSleepFixture) { yield return VerifySoloSleep(); yield break; }
             if (continuousTour) { yield return VerifyContinuousHotel(); yield break; }
             if (operationsUI) { yield return VerifyOperationsUI(); yield break; }
             facts.Add("The three-day lifecycle uses no forced failure, temperature override, activity override or synthetic route-completion callback. " +
