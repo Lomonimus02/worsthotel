@@ -120,7 +120,7 @@ namespace WorstHotel
                 foreach (var report in available.Skip(operationsListPage * 5).Take(5))
                 {
                     int number = report.DayNumber;
-                    AddOperationsChoice(42, 394 + row++ * 54, 705, 47, "Operating report " + number + " · net $" + report.Net +
+                    AddOperationsChoice(42, 394 + row++ * 54, 705, 50, "Operating report " + number + " · net $" + report.Net +
                         "\n" + report.Receipts.Count + " stays settled · cash $" + report.Cash,
                         () => { operationsReportNumber = number; operationsReceiptPage = 0; operationsPage = OperationsPage.Report; selectedReview = null; focus = 0; });
                 }
@@ -187,33 +187,8 @@ namespace WorstHotel
             else if (operationsPage == OperationsPage.Upgrades) DrawOperationsUpgrades();
             else if (operationsPage == OperationsPage.Forecast) DrawBookingForecast();
             if (operationsPage != OperationsPage.Overview)
-                Label(new Rect(42, 699, 705, 41), Session.LastMessage, Small, Wine);
+                Label(new Rect(42, 699, 705, 41), string.IsNullOrEmpty(Session.LastMessage) ? "" : "Last update: " + Session.LastMessage, Small, Wine);
             foreach (var choice in operationsChoices) ButtonAt(choice.rect, choice.title, choice.action, choice.enabled);
-        }
-
-        void DrawOperationsOverview()
-        {
-            var simulation = Session.Simulation;
-            Label(new Rect(42, 258, 342, 28), "ROOMS NOW", Heading, Teal);
-            Label(new Rect(405, 258, 342, 28), "NEXT ARRIVALS / CHECKOUTS", Heading, Teal);
-            for (int i = 0; i < Session.Rooms.Length; i++)
-            {
-                var room = Session.Rooms[i];
-                Label(new Rect(42, 298 + i * 43, 342, 39), room.Profile.Id + " · " + PreparationStatus(room, simulation.Housekeeping?.Find(room.Profile.Id)) +
-                    " · " + room.Temperature.ToString("F1") + "°C", Small, room.Cleanliness == Cleanliness.Clean ? Ink : Wine);
-            }
-            var next = new List<(float time, string label)>();
-            foreach (var reservation in simulation.Reservations.Where(item => item.Status == ReservationStatus.Reserved))
-                next.Add((reservation.Offer.ArrivalAt, "IN · " + reservation.RoomId + " · " + reservation.Offer.Application.GuestName));
-            foreach (var guest in simulation.Guests.Where(item => item.Agent?.CheckedIn == true && item.Agent.State != GuestAgentState.Left && item.Agent.State != GuestAgentState.Leaving))
-                next.Add((guest.Agent.CheckoutTime, "OUT · " + guest.RoomId + " · " + guest.Name));
-            int row = 0;
-            foreach (var item in next.OrderBy(item => item.time).Take(5))
-                Label(new Rect(405, 296 + row++ * 52, 342, 49), item.label + "\n" + GuestLabels.HotelMoment(simulation, item.time), Small);
-            if (row == 0) Label(new Rect(405, 300, 342, 66), "No arrivals booked yet.\nReview today's or tomorrow's applications.", Small, Muted);
-            var boiler = simulation.Boiler;
-            Label(new Rect(42, 564, 705, 56), "HEATING · " + BoilerMaintenanceLabels.State(simulation) + " · condition " + boiler.Condition.ToString("F0") + "%\n" +
-                "Next report " + GuestLabels.HotelMoment(simulation, simulation.NextReportAt) + " · " + Session.Reports.Count + " available", Small, boiler.Failed ? Red : Muted);
         }
 
         void DrawOperationsOffer()

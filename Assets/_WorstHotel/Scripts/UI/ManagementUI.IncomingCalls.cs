@@ -109,6 +109,7 @@ namespace WorstHotel
             }
             bool incoming = services.IncomingCall != null;
             Label(new Rect(42, 188, 705, 31), incoming ? "INCOMING CALL · a guest is calling reception" :
+                Session.Simulation.ContinuousOperations ? "WAKE-UP CALLS · agreed hotel dates and times" :
                 "WAKE-UP CALLS · agreed times are measured from shift start", Small, Teal);
             if (incoming) Label(new Rect(42, 286, 705, 29), "PROMISED WAKE-UP CALLS", Small, Teal);
             if (!services.Promises.Any(p => p.Status == PromiseStatus.Accepted))

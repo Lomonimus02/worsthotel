@@ -11,6 +11,64 @@ namespace WorstHotel.Tests
     public sealed partial class Phase1PlayModeTests
     {
         [UnityTest, Category("ContinuousOperations")]
+        public IEnumerator ActualOwnedRoomDemandChangesBoilerHumBeforeFailureAndReducingDemandRestoresIt()
+        {
+            var session = GameSession.Instance; var model = session.Simulation;
+            Assert.That(model.ContinuousOperations, Is.True);
+            ManagementUI.Instance.Close();
+            yield return PositionEmptyActorForLinen(0, new Vector3(0, .08f, 34), new Vector3(-.52f, 2.15f, 36.12f));
+            session.AdvanceTime(60); // Let actual empty-building pressure settle before comparing capacity bands.
+            var feedback = HotelFeedback.Instance;
+            var hum = feedback.transform.Find("Boiler hum").GetComponent<AudioSource>();
+            feedback.SendMessage("Update");
+            Assert.That(model.Boiler.CapacityBand, Is.EqualTo(CapacityBand.Comfortable));
+            Assert.That(hum.volume, Is.GreaterThan(0), "The source must be audible at this physical boiler-room position.");
+            float comfortablePitch = hum.pitch;
+
+            // Explicit initial-occupancy adapter: real dated diagnostic bookings, owned room
+            // keys and room-arrival acknowledgements isolate the sound from travel timing.
+            // No load override, pressure assignment, forced fault or paused schedule is used.
+            var kinds = new[] { GuestKind.Budget, GuestKind.ColdSensitive, GuestKind.Business,
+                GuestKind.Budget, GuestKind.ColdSensitive };
+            for (int index = 0; index < kinds.Length; index++)
+                Assert.That(model.DebugSpawnGuest(kinds[index], 101 + index).Success, Is.True);
+            session.AdvanceTime(1.4f);
+            foreach (var guest in model.Guests)
+            {
+                Assert.That(session.ReportGuestReachedReception(guest.GuestId).Success, Is.True);
+                Assert.That(CheckInWithModelKeyFixture(session, 0, guest.GuestId).Success, Is.True);
+                Assert.That(session.ReportGuestReachedRoom(guest.GuestId).Success, Is.True);
+            }
+            Assert.That(model.HeatingDemands.Count(row => row.GuestId != null), Is.EqualTo(5));
+            Assert.That(model.Boiler.LoadOverride, Is.Null);
+            Assert.That(model.Boiler.CapacityBand, Is.EqualTo(CapacityBand.Strained));
+            Assert.That(model.Boiler.LoadRatio, Is.LessThan(1), "This cue precedes actual overload.");
+            Assert.That(model.Boiler.Failed, Is.False);
+            Assert.That(model.Boiler.Pressure, Is.LessThan(session.BoilerSettings.WarningPressure));
+            string beforePresentation = JsonUtility.ToJson(model.CaptureSnapshot(909, 1));
+            feedback.SendMessage("Update");
+            Assert.That(JsonUtility.ToJson(model.CaptureSnapshot(909, 1)), Is.EqualTo(beforePresentation),
+                "Playing the capacity cue cannot manufacture pressure, stress, faults or guest state changes.");
+            float strainedPitch = hum.pitch;
+            Assert.That(strainedPitch, Is.GreaterThan(comfortablePitch + .04f), "Quiet near-capacity operation needs an audible change before the pressure alarm.");
+            feedback.SendMessage("Update");
+            Assert.That(hum.pitch, Is.EqualTo(strainedPitch), "Repeated presentation updates must not accumulate pitch.");
+
+            // Actual room valves remove their attributed heat demand; occupancy remains five.
+            Assert.That(model.RequestStaffRoomAccess(0, 101).Success, Is.True);
+            Assert.That(model.RequestStaffRoomAccess(0, 102).Success, Is.True);
+            Assert.That(model.SetRadiatorSetting(0, 101, 0).Success, Is.True);
+            Assert.That(model.SetRadiatorSetting(0, 102, 0).Success, Is.True);
+            Assert.That(model.Boiler.CapacityBand, Is.EqualTo(CapacityBand.Comfortable));
+            feedback.SendMessage("Update");
+            Assert.That(hum.pitch, Is.LessThan(strainedPitch - .04f));
+            Assert.That(hum.pitch, Is.EqualTo(comfortablePitch).Within(.01f));
+            Assert.That(model.Boiler.Failed, Is.False);
+            Assert.That(model.Guests.Count(guest => guest.Agent.CheckedIn), Is.EqualTo(5));
+            LogAssert.NoUnexpectedReceived();
+        }
+
+        [UnityTest, Category("ContinuousOperations")]
         public IEnumerator ContinuousPhysicalRadiatorChangesOnlyItsAttributedSpaceDemandAndCapacityDisplay()
         {
             var session = GameSession.Instance; var model = session.Simulation; var actor = bootstrap.Players[0];

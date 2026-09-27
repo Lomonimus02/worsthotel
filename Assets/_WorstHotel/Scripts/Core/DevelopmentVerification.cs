@@ -51,6 +51,7 @@ namespace WorstHotel
             runner.presenceFixtures = Array.IndexOf(arguments, "-verifyPresence") >= 0;
             runner.agencyFixtures = Array.IndexOf(arguments, "-verifyAgency") >= 0;
             runner.serviceFixtures = Array.IndexOf(arguments, "-verifyServices") >= 0;
+            runner.operationsUI = Array.IndexOf(arguments, "-verifyOperationsUI") >= 0;
             Directory.CreateDirectory(runner.output);
             File.WriteAllText(Path.Combine(runner.output, "capture-manifest.txt"), string.Empty);
             DontDestroyOnLoad(runner.gameObject);
@@ -70,7 +71,7 @@ namespace WorstHotel
         // This opt-in historical driver verifies the original three-shift regression flow.
         // Configure before scene Start/transport startup; ordinary production sessions never use it.
         public static bool ShouldUseLegacyFixture(string[] arguments) => arguments != null &&
-            Array.IndexOf(arguments, "-verifyLanContinuous") < 0;
+            Array.IndexOf(arguments, "-verifyLanContinuous") < 0 && Array.IndexOf(arguments, "-verifyOperationsUI") < 0;
 
         void PrepareLegacyVerification(Scene scene, LoadSceneMode mode)
         {
@@ -115,7 +116,7 @@ namespace WorstHotel
             }
             finished = true;
             WriteReport(errors == 0 ? "PASS" : "FAIL");
-            Debug.Log("VERIFY: living three-day tour complete; errors=" + errors);
+            Debug.Log("VERIFY: " + (operationsUI ? "operations UI verification complete" : "living three-day tour complete") + "; errors=" + errors);
             Application.Quit(errors == 0 ? 0 : 2);
         }
 
@@ -201,6 +202,7 @@ namespace WorstHotel
             observedSimulation = session.Simulation;
             observedSimulation.Housekeeping.Changed += ObserveCleaning;
             initialized = true;
+            if (operationsUI) { yield return VerifyOperationsUI(); yield break; }
             facts.Add("The three-day lifecycle uses no forced failure, temperature override, activity override or synthetic route-completion callback. " +
                 "Optional presence/agency fixtures use separate preliminary sessions and are explicitly reset before day1.");
             facts.Add("Diagnostic commands: clock8x, model rack-key pickup and giving after retrieval-time estimate, planning/move/switch/reset, physical heater repositioning for the electrical case.");

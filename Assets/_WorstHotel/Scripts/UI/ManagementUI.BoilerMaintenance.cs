@@ -28,7 +28,7 @@ namespace WorstHotel
             Label(new Rect(58, 297, 673, 31), "EMERGENCY PATCH · $" + Session.Economy.CheapPatchCost, Heading);
             Label(new Rect(58, 340, 673, 85), "Use the physical boiler controls after a failure. Restart restores " + tuning.EmergencyPatchCondition.ToString("F0") +
                 "% condition.\nThe patch leaves overload stress building " + tuning.EmergencyPatchStressMultiplier.ToString("0.##") +
-                "× faster until proper maintenance. Rooms still need time to warm.", Small, Muted);
+                "× faster until proper maintenance or the next failure. Rooms still need time to warm.", Small, Muted);
             Fill(new Rect(42, 453, 705, 173), LightPaper);
             Label(new Rect(58, 464, 673, 31), "PROPER MAINTENANCE · $" + Session.Economy.ProperRepairCost, Heading);
             Label(new Rect(58, 506, 673, 107), "Heating shuts down for " + tuning.MaintenanceHours.ToString("0.##") +

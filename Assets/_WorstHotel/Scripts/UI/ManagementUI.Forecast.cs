@@ -10,6 +10,17 @@ namespace WorstHotel
             (operationsPage == OperationsPage.Offer || operationsPage == OperationsPage.Forecast) ?
             Session.Simulation.ForecastBookingLoad(operationsOfferId, selectedRoom) : null;
         public int DisplayedBookingPrice => operationsPrice;
+        public string DisplayedForecastCircuitState
+        {
+            get
+            {
+                var forecast = DisplayedBookingForecast;
+                if (forecast?.Available != true) return "Forecast unavailable";
+                var circuit = Session.Simulation.Electrical?.Find(forecast.CircuitId);
+                return "CIRCUIT " + forecast.CircuitId + " · NOW " + (circuit?.Tripped == true ?
+                    "TRIPPED · reset required" : circuit?.HasPower == true ? "POWER ON · " + OverviewCircuit(circuit) : "POWER OFF");
+            }
+        }
 
         string BookingForecastChoiceTitle()
         {
@@ -38,9 +49,10 @@ namespace WorstHotel
                 "\nTypical " + forecast.TypicalDemand.ToString("F2") + " u · " + CapacityLabels.Band(forecast.TypicalBand) + " · " + CapacityLabels.Percent(forecast.TypicalRatio) +
                 "\nWith one shower " + forecast.OneShowerPeakDemand.ToString("F2") + " u · " + CapacityLabels.Percent(forecast.PeakRatio) +
                 "\nCurrent effective capacity " + forecast.EffectiveCapacity.ToString("F2") + " u · up to " + forecast.MaxConcurrentGuests + " overlapping stays", Small);
-            Label(new Rect(42, 504, 705, 69), "CIRCUIT " + forecast.CircuitId + " · typical request " + forecast.TypicalCircuitDemand.ToString("F2") +
+            Label(new Rect(42, 500, 705, 27), DisplayedForecastCircuitState, Body, Session.Simulation.Electrical?.Find(forecast.CircuitId)?.Tripped == true ? Wine : Teal);
+            Label(new Rect(42, 534, 705, 49), "Typical request " + forecast.TypicalCircuitDemand.ToString("F2") +
                 " / " + forecast.CircuitCapacity.ToString("F2") + " u · reserve " + CapacityLabels.Reserve(forecast.CircuitReserve) + " u\n" +
-                "Room price $" + operationsPrice + " · paid at checkout; credits or refunds may reduce income.", Body);
+                "Room price $" + operationsPrice + " · paid at checkout; credits or refunds may reduce income.", Small);
             Label(new Rect(42, 586, 705, 105), "Estimate uses the present boiler condition, radiator settings and heater switches. Future guest activities, changed settings and repairs are not predicted." +
                 "\nPrice changes income and expectations; it does not change this physical load estimate.", Small, Muted);
         }

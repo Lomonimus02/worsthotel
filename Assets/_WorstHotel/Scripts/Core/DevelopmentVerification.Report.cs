@@ -57,16 +57,18 @@ namespace WorstHotel
         {
             if (string.IsNullOrEmpty(output)) return;
             var text = new StringBuilder();
-            text.AppendLine("Built-player living-hotel diagnostic tour / " + (soloTour ? "SOLO" : "local development"));
+            text.AppendLine((operationsUI ? "Built-player operations UI diagnostic only / " : "Built-player living-hotel diagnostic tour / ") + (soloTour ? "SOLO" : "local development"));
             text.AppendLine("ApplicationVersion=" + Application.version + " UnityVersion=" + Application.unityVersion +
                 " InputBackgroundPolicy=" + UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior +
                 " VerificationPadLayout=" + VerificationPadLayout);
             text.AppendLine("Outcome=" + outcome + " Errors=" + errors + " ResetVerified=" + resetVerified);
             text.AppendLine("Mode=" + (soloTour ? "Solo" : "LocalDevelopment") + " SyntheticPads=" + ActiveActors);
+            text.AppendLine("OperationsUIOnly=" + operationsUI + " OperationsUIVerified=" + operationsUIVerified);
+            if (operationsUI) text.AppendLine("This run verifies operations controller state and records real player UI candidates for separate visual review; it does not verify a three-day lifecycle or natural pacing.");
             text.AppendLine("PresenceFixturesRequested=" + presenceFixtures + " GuestPresenceVerified=" + presenceVerified);
             text.AppendLine("ServiceFixturesRequested=" + serviceFixtures + " GuestServicesVerified=" + serviceVerified);
-            text.AppendLine("Owned synthetic input; diagnostic8x clock is NOT player WAIT. Production GameSession.Update, guest schedules, doors and routes remain active. No starting housekeeper.");
-            text.AppendLine("Diagnostic model key pickup/giving follows a rack-retrieval time estimate at real reception; physical rack grab and instant handoff are tested separately in PlayMode. There is no check-in hold timer.");
+            if (!operationsUI) text.AppendLine("Owned synthetic input; diagnostic8x clock is NOT player WAIT. Production GameSession.Update, guest schedules, doors and routes remain active. No starting housekeeper.");
+            if (!operationsUI) text.AppendLine("Diagnostic model key pickup/giving follows a rack-retrieval time estimate at real reception; physical rack grab and instant handoff are tested separately in PlayMode. There is no check-in hold timer.");
             text.AppendLine("Graphics=" + SystemInfo.graphicsDeviceName + " Resolution=" + Screen.width + "x" + Screen.height +
                 " RuntimeSeconds=" + (Time.realtimeSinceStartup - began).ToString("F1"));
             text.AppendLine("Hidden-window player-loop timing is NOT a rendered-performance benchmark. GPU captures require manual visual review.");

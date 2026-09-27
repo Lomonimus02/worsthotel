@@ -38,6 +38,10 @@ Added one permanent boiler capacity purchase (+25%, $1,800) and one electrical b
 
 Added live cash-period accounting, unpaid booking totals and room-specific load forecasts using actual equipment/valves, overlapping stay intervals and a one-shower peak estimate. Opening working cash is $750, and rated boiler capacity is 4.6 after natural three-night comparisons: cautious four returns $1,980 net without failures; managed five returns $2,405 with two failures; unmanaged six earns higher gross but retains $101 after costs. Finite compensation conversations now hold the guest coherently at the room, phone or desk and require actual staff authority plus an exact decision revision; patch penalty ends at the next actual failure without erasing paid expenses. Compile passed; full Edit **612/614** followed by corrected relevant **20/20**, actual-session Play **6/6** followed by final **5/5**. [Measurements, failed iterations, adapters and limits](verification/core04-phase8.md). Model schema 11 / LAN protocol 12. Final full suites and actual SOLO/LAN remain phase 10.
 
+## Prototype 0.4 — phase 9 operations readability
+
+The operations board now shows current room readiness, dated arrivals/checkouts, actual boiler and circuit status, the next bill and a short factual maintenance backlog. Forecasts retain actual tripped-circuit warnings; live strained demand has a small reversible boiler-hum change. Updated Russian instructions and the eleven-question playtest guide describe the continuous hotel. Compile/build passed, relevant Play **2/3** plus corrected **1/1**; actual Windows player captured sixteen readable interface/physical-display pages with zero errors. Rejected world-only Editor captures are preserved as failed evidence. Two wording fixes were rebuilt and visually rechecked. [Evidence and scope](verification/core04-phase9.md). Full suites, natural three-day executable play, fresh LAN and packaging remain phase 10.
+
 ## Prototype 0.3.2 — Natural Service
 
 26 September 2026. Natural Service implemented and packaged as Windows 0.3.2; the pause investigation remains explicitly deferred.

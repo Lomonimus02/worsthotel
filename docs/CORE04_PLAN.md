@@ -15,7 +15,7 @@ Each phase requires a successful compile, relevant tests and gameplay checks, an
 | 6 | Emergency patch versus proper maintenance and downtime | Passed: compile, relevant Edit 64/64, physical SOLO repair and reception maintenance/WAIT Play 2/2; verification/core04-phase6.md |
 | 7 | One persistent boiler upgrade and one electrical upgrade | Passed: compile, relevant Edit 85/85, actual ledger purchases/physical breaker Play 1/1; verification/core04-phase7.md |
 | 8 | Income, expenses, load forecasts and tradeoffs | Passed: compile, full Edit 612/614 plus final relevant 20/20, physical Play 6/6 plus final 5/5; natural economic comparisons and finite compensation corrections; verification/core04-phase8.md |
-| 9 | Operations board, physical feedback, player instructions | Pending |
+| 9 | Operations board, physical feedback, player instructions | Passed: compile/build, relevant Play 2/3 plus corrected 1/1, actual EXE sixteen-page visual review and corrected rerun, zero errors; verification/core04-phase9.md |
 | 10 | Three continuous days, safe/ambitious/upgrade comparisons, SOLO then LAN, package | Pending |
 
 ## Shared design contract

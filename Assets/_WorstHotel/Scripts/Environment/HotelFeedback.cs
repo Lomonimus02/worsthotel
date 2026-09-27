@@ -116,7 +116,12 @@ namespace WorstHotel
             bool overloaded = active && !maintaining && simulation.Boiler.CapacityModelEnabled && simulation.Boiler.CapacityBand >= CapacityBand.Overloaded;
             float audibility = Audibility(steamAnchor ? steamAnchor.position : new Vector3(0, 1.5f, 37), 31);
             float output = active ? simulation.Boiler.HeatingOutput : 0;
-            SetLoop(hum, active && !maintaining ? (.13f + output * .16f) * audibility * masterVolume : 0, .87f + pressure * .22f);
+            // Near-capacity operation already has a distinct note before overload raises
+            // pressure. One band offset, recomputed from live state, never stacks or changes
+            // the pressure model; failure/maintenance retain their own existing sound cues.
+            float strainNote = strained && !failed ? .065f : 0;
+            SetLoop(hum, active && !maintaining ? (.13f + output * .16f) * audibility * masterVolume : 0,
+                .87f + pressure * .22f + strainNote);
             SetLoop(hiss, failed || relief ? (.11f + pressure * .25f) * audibility * masterVolume : 0, relief ? 1.12f : .93f);
             SetEmission(steam, active && (failed || relief) ? (relief ? 19 : 8 + pressure * 12) : 0);
             SetEmission(drops, failed ? 3.5f : 0);
