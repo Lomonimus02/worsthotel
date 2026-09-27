@@ -35,8 +35,8 @@ namespace WorstHotel
                     agent.Activity == GuestActivity.LoudRoom || agent.Activity == GuestActivity.WatchTV ? "Radio / RestAnchor" : "RestAnchor";
             if (guest.Route != null && guest.Waypoint < guest.Route.Points.Count)
                 destination += " " + guest.Route.Points[guest.Waypoint].ToString("F1");
-            string next = agent.State == GuestAgentState.Sleeping ?
-                (agent.TemporarySleep ? "QuietRest (resume schedule)" : "Checkout") : agent.NextPlannedActivity.ToString();
+            string next = agent.State == GuestAgentState.Sleeping && agent.TemporarySleep ?
+                "QuietRest (resume schedule)" : agent.NextActivity;
             snapshot = new GuestVisualDebugSnapshot(agent.State.ToString(),
                 agent.State == GuestAgentState.Sleeping ? "Sleep" : agent.Activity.ToString(), destination,
                 guest.Stay.RoomId, guest.ModelRoom != null ? guest.ModelRoom.PrivacyState.ToString() : "Public",

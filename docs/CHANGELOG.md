@@ -1,3 +1,7 @@
+## Prototype 0.4.1 — phase 6 natural daily rhythm
+
+Production stays now return from optional afternoon outings, wind down at staggered bedtimes and wake to one actual morning shower; finite morning activities never restart unpacking or leave again. Demand remains attributed to real room consumers with no hourly multiplier. Schema15/LAN17 atomically preserve dated timing and itinerary boundaries.803 Edit cases passed across full+corrected economic retry,110 focused and2 physical routes passed. Genuine early departures exposed an obsolete fault-count comparison; strict retention/refund/total-cost and unchanged profit/earned-upgrade gates passed without production retuning. [Measured evidence and limitations](verification/rhythm041-phase6.md).
+
 ## Prototype 0.4.1 — phase 5 automatic room sales
 
 Ordinary bookings now convert at scheduled enquiry times from real advertised capacity, prices and configured demand. Reception staff manage six room policies and confirmed stays; future reassignment preserves agreed prices/dates, and closing sales preserves existing contracts. Stale drafts and invalid/duplicate network changes are guarded; schema14/LAN16 replicate consumed demand and automatic origin atomically. Full Edit778/778 and five physical/controller cases passed, including a sold/reassigned guest's actual key handoff and room arrival. SOLO/LAN executable drivers now observe real automatic cohorts; their fresh binary runs remain the final gate. [Evidence and fixture correction](verification/rhythm041-phase5.md).

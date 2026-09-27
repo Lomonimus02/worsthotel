@@ -56,6 +56,17 @@ namespace WorstHotel
                         "A response action cannot be a scheduled leisure activity.");
                 }
                 Require(a.Schedule.Length>0,"Missing scheduled activities.");
+                Require(a.MorningActivityIndex == -1 ? a.OutingReturnAt == -1 :
+                    continuous && a.HasWakeTime && a.MorningActivityIndex >= 1 && a.MorningActivityIndex < a.Schedule.Length &&
+                    a.Schedule[a.MorningActivityIndex].Activity == GuestActivity.Shower &&
+                    a.ActivityIndex <= a.Schedule.Length && Number.IsFinite(a.OutingReturnAt) &&
+                    a.OutingReturnAt > a.ArrivalTime && a.OutingReturnAt < a.SleepTime,
+                    "Invalid dated activity blocks or outing return time.");
+                if (a.MorningActivityIndex >= 1)
+                    Require(a.Schedule.Count(entry => entry.Activity == GuestActivity.LeaveHotel) <= 1 &&
+                        a.Schedule.Skip(a.MorningActivityIndex + 1).All(entry =>
+                        entry.Activity != GuestActivity.Unpack && entry.Activity != GuestActivity.LeaveHotel && entry.Activity != GuestActivity.Shower),
+                        "Dated itinerary cannot repeat outings or restart arrival/shower activities in its morning tail.");
             }
             Unique(gs.Select(g=>g.Application.Id));var guestIds=new HashSet<string>(gs.Select(g=>g.Application.Id));
             foreach(var g in gs)GuestAgency(g,roomIds,guestIds);

@@ -41,7 +41,10 @@ namespace WorstHotel
         internal float PendingActivityDuration;
         internal bool TemporarySleep;
         internal float AwayReturnTime = float.PositiveInfinity;
-        public GuestActivity NextPlannedActivity => Schedule.Activities[ActivityIndex % Schedule.Activities.Count].Activity;
+        public GuestActivity NextPlannedActivity => State == GuestAgentState.Sleeping && !TemporarySleep && Schedule.HasDailyRhythm &&
+            ActivityIndex < Schedule.MorningActivityIndex ? GuestActivity.Shower :
+            Schedule.Activities[Schedule.HasDailyRhythm ? Math.Min(ActivityIndex, Schedule.Activities.Count - 1) :
+                ActivityIndex % Schedule.Activities.Count].Activity;
         public bool IsRoomState => State == GuestAgentState.InRoom || State == GuestAgentState.PerformingActivity || State == GuestAgentState.Sleeping;
         // GoingToRoom / ReturningToRoom become room states only after a physical arrival.
         // Moving between anchors inside that room still exposes the guest to its conditions.
@@ -56,7 +59,7 @@ namespace WorstHotel
             State == GuestAgentState.CheckingOut || State == GuestAgentState.Leaving ? "Checkout" : Activity.ToString();
         public string NextActivity => State == GuestAgentState.GuestAway || State == GuestAgentState.LeavingRoom ? "ReturnToHotel" :
             IsServiceReceptionTrip ? "Return to assigned room" :
-            State == GuestAgentState.Sleeping && !TemporarySleep ? "Pack / Checkout" : NextPlannedActivity.ToString();
+            State == GuestAgentState.Sleeping && !TemporarySleep && !Schedule.HasDailyRhythm ? "Pack / Checkout" : NextPlannedActivity.ToString();
         internal float WaitingPatience { get; }
         internal int ActivityIndex;
         internal bool PatienceEventSent;

@@ -88,7 +88,11 @@ namespace WorstHotel
             guest.Memory.PromisesKept = Count(guest.Memory.PromisesKept);
             bool onTime = now <= promise.DueTime + Settings.WakeToleranceSeconds;
             Finish(FindCase(promise.Id), guest, ServiceStatus.Fulfilled, onTime ? Settings.FulfilledBonus : -Settings.DeclinedPenalty, true);
-            if (guest.Agent.State == GuestAgentState.Sleeping) simulation.ForceActivity(guest.GuestId, GuestActivity.QuietRest);
+            if (guest.Agent.State == GuestAgentState.Sleeping)
+            {
+                if (guest.Agent.Schedule.HasDailyRhythm) simulation.BeginGuestMorningRoutine(guest, now);
+                else simulation.ForceActivity(guest.GuestId, GuestActivity.QuietRest);
+            }
             return CommandResult.Ok(onTime ? "Wake-up call completed on time. Thank you." : "The guest answered the late wake-up call.");
         }
 

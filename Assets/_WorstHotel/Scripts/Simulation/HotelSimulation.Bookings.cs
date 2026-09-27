@@ -14,11 +14,13 @@ namespace WorstHotel
         int offersThroughDay;
         int operatingServiceDay;
 
-        float ScheduledWakeAt(int arrivalDay)
+        GuestDailyTiming BookingTiming(BookingApplication application, int arrivalDay, float arrivalAt)
         {
+            if (Schedules != null) return Schedules.DatedTimingFor(application, arrivalDay, arrivalAt, Calendar);
             float sleep = Calendar.At(arrivalDay, Operations.SleepHour);
             float checkout = Calendar.At(arrivalDay + 1, Operations.CheckoutHour);
-            return Math.Max(sleep + (checkout - sleep) * .5f, checkout - Operations.SecondsPerDay / 12);
+            return new GuestDailyTiming(sleep, Math.Max(sleep + (checkout - sleep) * .5f,
+                checkout - Operations.SecondsPerDay / 12), -1);
         }
 
         internal void SyncReservationRoom(GuestStay guest)
@@ -42,8 +44,9 @@ namespace WorstHotel
             int price = Math.Max(settings.Economy.MinPrice, Math.Min(gridMax,
                 settings.Economy.MinPrice + (int)Math.Round((profile.ReferencePrice - settings.Economy.MinPrice) / (double)priceStep) * priceStep));
             var application = new BookingApplication("stay-" + day + "-debug" + (++debugGuestCounter), profile.Label + " walk-in", profile, profile.ReferencePrice);
-            var offer = new ScheduledBookingOffer(application, day, arrival, sleep,
-                ScheduledWakeAt(day), Calendar.At(day + 1, Operations.CheckoutHour));
+            var timing = BookingTiming(application, day, arrival);
+            var offer = new ScheduledBookingOffer(application, day, arrival, timing.SleepAt,
+                timing.WakeAt, Calendar.At(day + 1, Operations.CheckoutHour));
             bookingOffers.Add(offer);
             var result = CommitBooking(offer, roomId, price, 0, false);
             bookingOffers.Remove(offer);
@@ -198,8 +201,9 @@ namespace WorstHotel
                     float arrivalHour = Operations.ArrivalStartHour + (Operations.ArrivalEndHour - Operations.ArrivalStartHour) * index / Math.Max(1, offers.Length - 1);
                     float arrival = Calendar.At(offerDay, arrivalHour);
                     if (arrival <= now) continue;
+                    var timing = BookingTiming(offers[index], offerDay, arrival);
                     bookingOffers.Add(new ScheduledBookingOffer(offers[index], offerDay, arrival,
-                        Calendar.At(offerDay, Operations.SleepHour), ScheduledWakeAt(offerDay),
+                        timing.SleepAt, timing.WakeAt,
                         Calendar.At(offerDay + 1, Operations.CheckoutHour)));
                 }
                 offersThroughDay = offerDay;
@@ -210,7 +214,8 @@ namespace WorstHotel
                 var stay = new GuestStay(reservation.Offer.Application, reservation.RoomId, reservation.Price);
                 guests.Add(stay);
                 if (LivingEnabled) Schedules.AttachStay(stay, reservation.Offer.ArrivalDay, reservation.Offer.ArrivalAt,
-                    reservation.Offer.SleepAt, reservation.Offer.CheckoutAt, reservation.Offer.WakeAt);
+                    reservation.Offer.SleepAt, reservation.Offer.CheckoutAt, reservation.Offer.WakeAt,
+                    BookingTiming(reservation.Offer.Application, reservation.Offer.ArrivalDay, reservation.Offer.ArrivalAt).OutingReturnAt);
                 else rooms[stay.RoomId].GuestId = stay.GuestId;
                 reservation.Status = ReservationStatus.Arrived; reservation.Revision++;
                 SignalEvent(stay.Name + " is arriving for room " + stay.RoomId);

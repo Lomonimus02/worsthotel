@@ -34,3 +34,14 @@ MonoBehaviour:
   waitingPatienceMultiplier: 1
   noisyLoudProbability: 0.75
   normalLoudProbability: 0.35
+  naturalDailyRhythm: 1
+  sleepJitterHours: 0.35
+  businessSleepAdvanceHours: 0.5
+  wakeJitterHours: 0.5
+  businessWakeAdvanceHours: 1
+  outingReturnHour: 19
+  outingReturnJitterHours: 0.35
+  outingTravelAllowanceSeconds: 12
+  businessOutingProbability: 0.25
+  budgetOutingProbability: 0.65
+  coldSensitiveOutingProbability: 0.4

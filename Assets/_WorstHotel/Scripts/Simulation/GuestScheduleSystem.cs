@@ -19,9 +19,15 @@ namespace WorstHotel
         public float WakeTime { get; }
         public float CheckoutTime { get; internal set; }
         public IReadOnlyList<GuestScheduleEntry> Activities { get; }
+        public int MorningActivityIndex { get; }
+        public float OutingReturnAt { get; }
+        public bool HasDailyRhythm => MorningActivityIndex >= 0;
         internal GuestSchedule(string id, float arrival, float sleep, float checkout, GuestScheduleEntry[] activities,
-            float wake = float.PositiveInfinity)
-        { GuestId = id; ArrivalTime = arrival; SleepTime = sleep; WakeTime = wake; CheckoutTime = checkout; Activities = Array.AsReadOnly(activities); }
+            float wake = float.PositiveInfinity, int morningActivityIndex = -1, float outingReturnAt = -1)
+        {
+            GuestId = id; ArrivalTime = arrival; SleepTime = sleep; WakeTime = wake; CheckoutTime = checkout;
+            Activities = Array.AsReadOnly(activities); MorningActivityIndex = morningActivityIndex; OutingReturnAt = outingReturnAt;
+        }
     }
 
     public sealed partial class GuestScheduleSystem
@@ -62,18 +68,21 @@ namespace WorstHotel
 
         /// <summary>Attach one dated stay without changing any other guest or the hotel clock.</summary>
         public GuestAgent AttachStay(GuestStay guest, int arrivalDay, float arrivalAt, float sleepAt,
-            float checkoutAt, float wakeAt = float.PositiveInfinity)
+            float checkoutAt, float wakeAt = float.PositiveInfinity, float outingReturnAt = -1)
         {
             if (ReadOnlyMirror) throw new InvalidOperationException(HotelSimulation.MirrorMessage);
             if (guest == null || arrivalDay < 1 || !Number.IsFinite(arrivalAt) || arrivalAt < 0 ||
                 !Number.IsFinite(sleepAt) || !Number.IsFinite(checkoutAt) || sleepAt < arrivalAt || checkoutAt <= sleepAt ||
-                (!float.IsPositiveInfinity(wakeAt) && (!Number.IsFinite(wakeAt) || wakeAt <= sleepAt || wakeAt >= checkoutAt)))
+                (!float.IsPositiveInfinity(wakeAt) && (!Number.IsFinite(wakeAt) || wakeAt <= sleepAt || wakeAt >= checkoutAt)) ||
+                (outingReturnAt != -1 && (!Number.IsFinite(outingReturnAt) || outingReturnAt <= arrivalAt || outingReturnAt >= sleepAt)))
                 throw new ArgumentException("A dated stay needs ordered absolute arrival, sleep, optional wake and checkout times.");
             if (guest.Agent != null || schedules.Any(item => item.GuestId == guest.GuestId))
                 throw new InvalidOperationException("This stay already owns a schedule.");
             uint random = Seed(Settings.Seed, arrivalDay, guest.GuestId);
+            bool rhythm = Settings.Rhythm.Enabled && Number.IsFinite(wakeAt) && outingReturnAt >= 0;
             var schedule = new GuestSchedule(guest.GuestId, arrivalAt, sleepAt, checkoutAt,
-                BuildActivities(guest, ref random), wakeAt);
+                rhythm ? BuildRhythmActivities(guest, ref random) : BuildActivities(guest, ref random), wakeAt,
+                rhythm ? MorningIndex : -1, rhythm ? outingReturnAt : -1);
             schedules.Add(schedule);
             return guest.Agent = new GuestAgent(guest.GuestId, schedule,
                 guest.Application.Archetype.Needs.PatienceSeconds * Settings.WaitingPatienceMultiplier);

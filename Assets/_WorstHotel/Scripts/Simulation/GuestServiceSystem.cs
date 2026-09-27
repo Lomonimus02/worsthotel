@@ -209,7 +209,7 @@ namespace WorstHotel
                     if (!agent.InAssignedRoom || (!debug && (agent.SleepStarted || guest.Application.Archetype.Kind != GuestKind.Business)) ||
                         (!debug && now < agent.Schedule.SleepTime - Settings.ReplySeconds) ||
                         agent.CheckoutTime - now < Settings.WakeLeadSeconds + Settings.ReplySeconds * .5f) return false;
-                    due = agent.CheckoutTime - Settings.WakeLeadSeconds;
+                    due = agent.Schedule.HasDailyRhythm ? agent.Schedule.WakeTime : agent.CheckoutTime - Settings.WakeLeadSeconds;
                     if (due <= agent.Schedule.SleepTime || due <= now + Settings.WakeToleranceSeconds) return false;
                     source = "schedule/" + guest.GuestId + "/departure";
                     reason = "I have an early departure. Could you give me a wake-up call?"; return true;

@@ -157,10 +157,7 @@ namespace WorstHotel
             if (guest == null || !guest.Agent.IsRoomState) return CommandResult.Fail("Guest has no room activity to skip.");
             if (Services?.DirectIntent(guestId) != null) return CommandResult.Fail("Finish or cancel the direct service before changing the guest's activity.");
             if (!string.IsNullOrEmpty(guest.Agent.ResponseActionId)) return CommandResult.Fail("Let the current guest response finish or cancel it first.");
-            var entries = guest.Agent.Schedule.Activities;
-            var entry = entries[guest.Agent.ActivityIndex % entries.Count];
-            guest.Agent.ActivityIndex++;
-            SetActivity(guest, entry.Activity, Elapsed, entry.Duration);
+            StartNextScheduledActivity(guest, Elapsed);
             RefreshGuestLoad();
             RefreshElectrical();
             return CommandResult.Ok("Advanced to the next scheduled activity.");
@@ -171,6 +168,7 @@ namespace WorstHotel
             foreach (var guest in guests)
             {
                 var agent = guest.Agent;
+                NormalizeRhythmCursor(agent, now);
                 if (agent.State == GuestAgentState.Left || agent.State == GuestAgentState.Leaving) continue;
                 if (agent.State == GuestAgentState.WaitingForCheckIn)
                 {
@@ -225,22 +223,26 @@ namespace WorstHotel
                 {
                     // Morning resumes ordinary life. SleepStarted remains true, so the past
                     // bedtime cannot immediately send this one-night guest back to sleep.
-                    SetActivity(guest, GuestActivity.QuietRest, now, LivingSettings.QuietDurationMin);
+                    BeginGuestMorningRoutine(guest, now);
+                    continue;
+                }
+                if (agent.Schedule.HasDailyRhythm && !agent.TemporarySleep && now >= agent.Schedule.WakeTime &&
+                    agent.ActivityIndex < agent.Schedule.MorningActivityIndex)
+                {
+                    BeginGuestMorningRoutine(guest, now);
                     continue;
                 }
                 if (now >= agent.Schedule.SleepTime && !agent.SleepStarted)
                 {
                     agent.SleepStarted = true;
                     bool alreadyMorning = now >= agent.Schedule.WakeTime;
-                    SetActivity(guest, GuestActivity.QuietRest, now, alreadyMorning ? LivingSettings.QuietDurationMin : float.PositiveInfinity);
+                    if (alreadyMorning) BeginGuestMorningRoutine(guest, now);
+                    else SetActivity(guest, GuestActivity.QuietRest, now, float.PositiveInfinity);
                     if (!alreadyMorning) Transition(guest, GuestAgentState.Sleeping, now, null);
                     continue;
                 }
                 if (agent.State == GuestAgentState.Sleeping || now < agent.NextActivityTime) continue;
-                var entries = agent.Schedule.Activities;
-                var entry = entries[agent.ActivityIndex % entries.Count];
-                agent.ActivityIndex++;
-                SetActivity(guest, entry.Activity, now, entry.Duration);
+                StartNextScheduledActivity(guest, now);
             }
         }
 
@@ -251,9 +253,13 @@ namespace WorstHotel
             {
                 // Never depart on a new excursion so late that the planned stay ends outside.
                 // Explicit developer ForceLeaveRoom still supports testing an away checkout.
-                if (now + duration + LivingSettings.ActivityDurationMin >= agent.Schedule.SleepTime)
+                bool missed = agent.Schedule.HasDailyRhythm ?
+                    agent.ActivityIndex >= agent.Schedule.MorningActivityIndex ||
+                    now + LivingSettings.AwayDurationMin + LivingSettings.Rhythm.OutingTravelAllowanceSeconds >= agent.Schedule.OutingReturnAt :
+                    now + duration + LivingSettings.ActivityDurationMin >= agent.Schedule.SleepTime;
+                if (missed)
                 { activity = GuestActivity.QuietRest; duration = LivingSettings.QuietDurationMin; }
-                else { StartGuestHotelTrip(guest, duration); return; }
+                else { StartGuestHotelTrip(guest, duration, agent.Schedule.HasDailyRhythm ? agent.Schedule.OutingReturnAt : -1); return; }
             }
             agent.Activity = activity;
             agent.TemporarySleep = false;
@@ -270,6 +276,47 @@ namespace WorstHotel
         { guest.Agent.State = state; guest.Agent.StateChangedAt = now; RefreshRoomPresence(); if (!string.IsNullOrEmpty(message)) SignalEvent(message); }
         private static string ActivityLabel(GuestActivity activity) => activity == GuestActivity.Shower ? "using hot water" :
             activity == GuestActivity.LoudRoom ? "loud room activity" : "quiet rest";
+
+        void NormalizeRhythmCursor(GuestAgent agent, float now)
+        {
+            if (!agent.Schedule.HasDailyRhythm) return;
+            agent.ActivityIndex = Math.Min(agent.ActivityIndex, agent.Schedule.Activities.Count - 1);
+            if (agent.ActivityIndex < agent.Schedule.MorningActivityIndex &&
+                agent.Schedule.Activities[agent.ActivityIndex].Activity == GuestActivity.LeaveHotel &&
+                now + LivingSettings.AwayDurationMin + LivingSettings.Rhythm.OutingTravelAllowanceSeconds >= agent.Schedule.OutingReturnAt)
+                agent.ActivityIndex++;
+        }
+
+        void StartNextScheduledActivity(GuestStay guest, float now)
+        {
+            var agent = guest.Agent;
+            NormalizeRhythmCursor(agent, now);
+            var schedule = agent.Schedule;
+            int index = schedule.HasDailyRhythm ? Math.Min(agent.ActivityIndex, schedule.Activities.Count - 1) :
+                agent.ActivityIndex % schedule.Activities.Count;
+            var entry = schedule.Activities[index];
+            if (!schedule.HasDailyRhythm) agent.ActivityIndex++;
+            else if (index < schedule.MorningActivityIndex - 1 || index >= schedule.MorningActivityIndex && index < schedule.Activities.Count - 1)
+                agent.ActivityIndex++;
+            // The finite quiet evening/morning tails never wrap into unpacking or a second morning.
+            SetActivity(guest, entry.Activity, now, entry.Duration);
+        }
+
+        internal void BeginGuestMorningRoutine(GuestStay guest, float now)
+        {
+            var agent = guest.Agent;
+            if (!agent.InAssignedRoom || agent.IsRelocating || now >= agent.CheckoutTime ||
+                Services?.DirectIntent(guest.GuestId) != null || !string.IsNullOrEmpty(agent.ResponseActionId)) return;
+            if (agent.Schedule.HasDailyRhythm && agent.ActivityIndex < agent.Schedule.MorningActivityIndex)
+            {
+                int index = agent.Schedule.MorningActivityIndex;
+                agent.ActivityIndex = index + 1;
+                agent.SleepStarted = true;
+                var morning = agent.Schedule.Activities[index];
+                SetActivity(guest, morning.Activity, now, morning.Duration);
+            }
+            else SetActivity(guest, GuestActivity.QuietRest, now, LivingSettings.QuietDurationMin);
+        }
     }
 }
 

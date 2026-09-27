@@ -36,6 +36,17 @@ namespace WorstHotel
         [Range(0, 1)] public float phoneNoiseOutput = .38f;
         [Range(0, 1)] public float noisyPhoneNoiseOutput = .68f;
         [Range(0, 1)] public float quietTVNoiseOutput = .18f;
+        public bool naturalDailyRhythm = true;
+        [Min(0)] public float sleepJitterHours = .35f;
+        [Min(0)] public float businessSleepAdvanceHours = .5f;
+        [Min(0)] public float wakeJitterHours = .5f;
+        [Min(0)] public float businessWakeAdvanceHours = 1;
+        [Range(0, 24)] public float outingReturnHour = 19;
+        [Min(0)] public float outingReturnJitterHours = .35f;
+        [Min(0)] public float outingTravelAllowanceSeconds = 12;
+        [Range(0, 1)] public float businessOutingProbability = .25f;
+        [Range(0, 1)] public float budgetOutingProbability = .65f;
+        [Range(0, 1)] public float coldSensitiveOutingProbability = .4f;
 
         public LivingHotelSettings ToData() => new LivingHotelSettings(seed, firstArrivalSeconds, arrivalSpacingSeconds,
             arrivalJitterSeconds, keyRetrievalEstimateSeconds, firstActivityDelay, activityDurationMin, activityDurationMax,
@@ -43,6 +54,9 @@ namespace WorstHotel
             quietNoiseOutput, showerNoiseOutput, loudNoiseOutput, sleepStartFraction, checkoutFraction,
             checkoutInteractionSeconds, waitingPatienceMultiplier, noisyLoudProbability, normalLoudProbability,
             awayDurationMin, awayDurationMax, coldShowerDurationMultiplier, businessSleepAdvanceFraction,
-            phoneNoiseOutput, noisyPhoneNoiseOutput, quietTVNoiseOutput);
+            phoneNoiseOutput, noisyPhoneNoiseOutput, quietTVNoiseOutput,
+            new GuestRhythmSettings(naturalDailyRhythm, sleepJitterHours, businessSleepAdvanceHours,
+                wakeJitterHours, businessWakeAdvanceHours, outingReturnHour, outingReturnJitterHours,
+                outingTravelAllowanceSeconds, businessOutingProbability, budgetOutingProbability, coldSensitiveOutingProbability));
     }
 }

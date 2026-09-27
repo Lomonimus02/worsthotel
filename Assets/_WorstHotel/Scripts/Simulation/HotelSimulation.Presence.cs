@@ -67,10 +67,11 @@ namespace WorstHotel
             return CommandResult.Ok("Guest will leave through the lobby, keeping their room and key until returning.");
         }
 
-        void StartGuestHotelTrip(GuestStay guest, float duration)
+        void StartGuestHotelTrip(GuestStay guest, float duration, float plannedReturnAt = -1)
         {
             guest.Agent.Activity = GuestActivity.LeaveHotel;
             guest.Agent.PendingActivityDuration = duration;
+            guest.Agent.AwayReturnTime = plannedReturnAt >= 0 ? plannedReturnAt : float.PositiveInfinity;
             guest.Agent.ActivityStaged = false;
             guest.Agent.HeatingDemandMultiplier = guest.Agent.NoiseOutput = 0;
             guest.Agent.NextActivityTime = guest.Agent.ActivityEndsAt = float.PositiveInfinity;
@@ -85,7 +86,8 @@ namespace WorstHotel
             var guest = FindLivingGuest(guestId);
             if (guest?.Agent == null || guest.Agent.State != GuestAgentState.LeavingRoom)
                 return CommandResult.Fail("Guest is not leaving their room.");
-            guest.Agent.AwayReturnTime = Elapsed + Math.Max(1, guest.Agent.PendingActivityDuration);
+            guest.Agent.AwayReturnTime = Number.IsFinite(guest.Agent.AwayReturnTime) ?
+                Math.Max(Elapsed, guest.Agent.AwayReturnTime) : Elapsed + Math.Max(1, guest.Agent.PendingActivityDuration);
             Transition(guest, GuestAgentState.GuestAway, Elapsed, null);
             return CommandResult.Ok("Guest reached the exterior hotel exit and is now away.");
         }

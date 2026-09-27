@@ -14,7 +14,8 @@ namespace WorstHotel
             GUILayout.Space(8);
             GUILayout.Label("LIVING GUESTS", heading);
             var guests = simulation.Guests;
-            if (guests.Count == 0) { GUILayout.Label("Commit a plan to inspect its guest schedules.", body); return; }
+            if (guests.Count == 0) { GUILayout.Label(simulation.ContinuousOperations ?
+                "Guest schedules appear when dated reservations arrive." : "Commit a plan to inspect its guest schedules.", body); return; }
             livingGuestIndex = Mathf.Clamp(livingGuestIndex, 0, guests.Count - 1);
             GUILayout.BeginHorizontal();
             if (Button("‹ Guest")) livingGuestIndex = (livingGuestIndex + guests.Count - 1) % guests.Count;
@@ -40,7 +41,7 @@ namespace WorstHotel
                     "\nNextScheduledActivity: " + visual.NextScheduledActivity +
                     "\nAt anchor: " + visual.AtActivityAnchor + " / body visible: " + visual.BodyVisible, body);
             else GUILayout.Label("No physical guest body yet. State: " + agent.State +
-                " / next scheduled activity: " + GuestLabels.Activity(agent.NextPlannedActivity), body);
+                " / next scheduled activity: " + agent.NextActivity, body);
             GUILayout.BeginHorizontal();
             if (Button("Force Sleep", agent.InAssignedRoom)) Apply(() => simulation.ForceSleep(guest.GuestId));
             if (Button("Force Shower", agent.InAssignedRoom)) Apply(() => simulation.ForceActivity(guest.GuestId, GuestActivity.Shower));

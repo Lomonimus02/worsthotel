@@ -51,7 +51,7 @@ namespace WorstHotel
             try
             {
                 SnapshotValidation.Model(snapshot,rooms.Keys.ToArray(),LivingEnabled,Housekeeping?.Linens.Count??0,Electrical?.Circuits.Select(c=>c.Id)??Enumerable.Empty<string>());
-                SnapshotValidation.OperationsModel(snapshot, Operations, settings.Economy, rooms.Keys.ToArray());
+                SnapshotValidation.OperationsModel(snapshot, Operations, settings.Economy, rooms.Keys.ToArray(), Schedules);
                 SnapshotValidation.SalesModel(snapshot, Operations?.Sales, settings.Economy, rooms.Keys.ToArray(), SalesDecisionAt);
                 if (snapshot.Boiler.CapacityUpgradePurchased)
                 {

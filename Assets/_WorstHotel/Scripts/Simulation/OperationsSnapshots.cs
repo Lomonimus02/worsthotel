@@ -81,7 +81,8 @@ namespace WorstHotel
 
     internal static partial class SnapshotValidation
     {
-        internal static void OperationsModel(HotelModelSnapshot model, OperationsSettings expected, EconomySettings economy, int[] roomIds)
+        internal static void OperationsModel(HotelModelSnapshot model, OperationsSettings expected, EconomySettings economy, int[] roomIds,
+            GuestScheduleSystem schedules)
         {
             var data = model.HasOperations ? model.Operations : null;
             Require(!model.HasOperations || data != null, "Missing continuous operations state.");
@@ -113,11 +114,11 @@ namespace WorstHotel
             Require(receipts.Sum(item => (long)item.Price) <= int.MaxValue && receipts.Sum(item => (long)item.Compensation) <= int.MaxValue,
                 "Operating receipt totals overflow.");
             var offers = Array(data.Offers, 16); Unique(offers.Select(item => item.Application?.Id));
-            foreach (var offer in offers) ValidateScheduledOffer(offer, calendar);
+            foreach (var offer in offers) ValidateScheduledOffer(offer, calendar, schedules);
             var reservations = Array(data.Reservations, 128); Unique(reservations.Select(item => item.Offer?.Application?.Id));
             foreach (var reservation in reservations)
             {
-                ValidateScheduledOffer(reservation.Offer, calendar); EnumValue(reservation.Status);
+                ValidateScheduledOffer(reservation.Offer, calendar, schedules); EnumValue(reservation.Status);
                 Require(roomIds.Contains(reservation.RoomId) && reservation.ActorId >= (reservation.IsAutomatic ? -1 : 0) && reservation.ActorId <= 1 && reservation.Revision >= 1 &&
                     reservation.Price >= economy.MinPrice && reservation.Price <= economy.MaxPrice &&
                     (reservation.Price - economy.MinPrice) % economy.PriceStep == 0, "Invalid dated reservation.");
@@ -139,6 +140,14 @@ namespace WorstHotel
                         agent.SleepTime == reservation.Offer.SleepAt && agent.HasWakeTime && agent.WakeTime == reservation.Offer.WakeAt &&
                         agent.CheckoutTime >= reservation.Offer.CheckoutAt && calendar.DayAt(agent.CheckoutTime) == reservation.Offer.ArrivalDay + 1,
                         "Dated reservation and guest schedule differ.");
+                    if (schedules != null)
+                    {
+                        var timing = schedules.DatedTimingFor(SnapshotData.Booking(reservation.Offer.Application),
+                            reservation.Offer.ArrivalDay, reservation.Offer.ArrivalAt, calendar);
+                        Require(agent.OutingReturnAt == timing.OutingReturnAt &&
+                            (agent.MorningActivityIndex >= 1) == (timing.OutingReturnAt >= 0),
+                            "Dated guest rhythm differs from its immutable timing.");
+                    }
                     bool terminal = agent.State == GuestAgentState.CheckingOut || agent.State == GuestAgentState.Leaving || agent.State == GuestAgentState.Left;
                     Require(guest.ReceiptPosted == terminal, "Stay receipt and departure state differ.");
                 }
@@ -158,17 +167,24 @@ namespace WorstHotel
                 Require(model.Guests.Any(guest => guest.Application.Id == receipt.GuestId && guest.ReceiptPosted), "Unposted checkout receipt.");
         }
 
-        static void ValidateScheduledOffer(ScheduledOfferSnapshot offer, HotelCalendar calendar)
+        static void ValidateScheduledOffer(ScheduledOfferSnapshot offer, HotelCalendar calendar, GuestScheduleSystem schedules)
         {
             Require(offer != null, "Missing dated offer."); Booking(offer.Application);
             var value = SnapshotData.Offer(offer);
+            float expectedSleep = calendar.At(value.ArrivalDay, calendar.Settings.SleepHour);
+            float expectedWake = Math.Max(expectedSleep + (value.CheckoutAt - expectedSleep) * .5f,
+                value.CheckoutAt - calendar.Settings.SecondsPerDay / 12);
+            if (schedules != null)
+            {
+                var timing = schedules.DatedTimingFor(value.Application, value.ArrivalDay, value.ArrivalAt, calendar);
+                expectedSleep = timing.SleepAt; expectedWake = timing.WakeAt;
+            }
             Require(value.ArrivalAt / (double)calendar.Settings.SecondsPerDay < 1000000 &&
                 value.CheckoutAt / (double)calendar.Settings.SecondsPerDay < 1000001, "Offer time exceeds the supported calendar range.");
             Require(value.ArrivalDay <= 1000000 && calendar.DayAt(value.ArrivalAt) == value.ArrivalDay &&
                 calendar.DayAt(value.CheckoutAt) == value.ArrivalDay + 1 &&
-                Math.Abs(value.SleepAt - calendar.At(value.ArrivalDay, calendar.Settings.SleepHour)) < .01f &&
-                Math.Abs(value.WakeAt - Math.Max(value.SleepAt + (value.CheckoutAt - value.SleepAt) * .5f,
-                    value.CheckoutAt - calendar.Settings.SecondsPerDay / 12)) < .01f &&
+                Math.Abs(value.SleepAt - expectedSleep) < .01f &&
+                Math.Abs(value.WakeAt - expectedWake) < .01f &&
                 Math.Abs(value.CheckoutAt - calendar.At(value.ArrivalDay + 1, calendar.Settings.CheckoutHour)) < .01f,
                 "Dated offer is not a single-night stay.");
         }

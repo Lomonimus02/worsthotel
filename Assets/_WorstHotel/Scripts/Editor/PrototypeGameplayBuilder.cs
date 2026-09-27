@@ -91,7 +91,7 @@ namespace WorstHotel.Editor
             // Extend older scene definitions without replacing any designer-tuned 0.1 field.
             if (!session.living)
             {
-                session.living = Asset<LivingHotelConfig>(root + "LivingHotel.asset", _ => { });
+                session.living = Asset<LivingHotelConfig>(root + "LivingHotel.asset", living => { living.naturalDailyRhythm = true; });
                 EditorUtility.SetDirty(session);
             }
             if (!session.needs)

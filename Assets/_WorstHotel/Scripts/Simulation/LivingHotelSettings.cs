@@ -34,6 +34,7 @@ namespace WorstHotel
         public float PhoneNoiseOutput { get; }
         public float NoisyPhoneNoiseOutput { get; }
         public float QuietTVNoiseOutput { get; }
+        public GuestRhythmSettings Rhythm { get; }
 
         public LivingHotelSettings(int seed = 1947, float firstArrivalSeconds = 8, float arrivalSpacingSeconds = 14,
             float arrivalJitterSeconds = 4, float keyRetrievalEstimateSeconds = 5, float firstActivityDelay = 8,
@@ -45,7 +46,7 @@ namespace WorstHotel
             float noisyLoudProbability = 0.75f, float normalLoudProbability = 0.35f,
             float awayDurationMin = 28, float awayDurationMax = 48, float coldShowerDurationMultiplier = 1.35f,
             float businessSleepAdvanceFraction = .06f, float phoneNoiseOutput = .38f,
-            float noisyPhoneNoiseOutput = .68f, float quietTVNoiseOutput = .18f)
+            float noisyPhoneNoiseOutput = .68f, float quietTVNoiseOutput = .18f, GuestRhythmSettings rhythm = null)
         {
             var values = new[] { firstArrivalSeconds, arrivalSpacingSeconds, arrivalJitterSeconds, keyRetrievalEstimateSeconds,
                 firstActivityDelay, activityDurationMin, activityDurationMax, quietDurationMin, quietDurationMax,
@@ -76,6 +77,7 @@ namespace WorstHotel
             AwayDurationMin = awayDurationMin; AwayDurationMax = awayDurationMax;
             ColdShowerDurationMultiplier = coldShowerDurationMultiplier; BusinessSleepAdvanceFraction = businessSleepAdvanceFraction;
             PhoneNoiseOutput = phoneNoiseOutput; NoisyPhoneNoiseOutput = noisyPhoneNoiseOutput; QuietTVNoiseOutput = quietTVNoiseOutput;
+            Rhythm = rhythm ?? new GuestRhythmSettings();
         }
     }
 }

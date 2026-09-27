@@ -17,7 +17,8 @@ namespace WorstHotel
             if(!new[]{x.HeatingDemand,x.ColdThreshold,x.ColdPenaltyWeight,x.PriceSensitivity,x.Patience,x.NoiseTolerance,xn.PreferredTemperatureMin,xn.PreferredTemperatureMax,xn.ToleranceTemperatureMin,xn.ToleranceTemperatureMax,xn.PreferredNoise,xn.NoiseTolerance,xn.PatienceSeconds}
                 .SequenceEqual(new[]{y.HeatingDemand,y.ColdThreshold,y.ColdPenaltyWeight,y.PriceSensitivity,y.Patience,y.NoiseTolerance,yn.PreferredTemperatureMin,yn.PreferredTemperatureMax,yn.ToleranceTemperatureMin,yn.ToleranceTemperatureMax,yn.PreferredNoise,yn.NoiseTolerance,yn.PatienceSeconds}))return false;
             if(a.Agent==null)return true;
-            return a.Agent.WaitingPatience==b.Agent.WaitingPatience && a.Agent.ArrivalTime==b.Agent.ArrivalTime && a.Agent.Schedule.SleepTime==b.Agent.Schedule.SleepTime && a.Agent.Schedule.WakeTime==b.Agent.Schedule.WakeTime && a.Agent.Schedule.Activities.SequenceEqual(b.Agent.Schedule.Activities);
+            return a.Agent.WaitingPatience==b.Agent.WaitingPatience && a.Agent.ArrivalTime==b.Agent.ArrivalTime && a.Agent.Schedule.SleepTime==b.Agent.Schedule.SleepTime && a.Agent.Schedule.WakeTime==b.Agent.Schedule.WakeTime &&
+                a.Agent.Schedule.MorningActivityIndex==b.Agent.Schedule.MorningActivityIndex && a.Agent.Schedule.OutingReturnAt==b.Agent.Schedule.OutingReturnAt && a.Agent.Schedule.Activities.SequenceEqual(b.Agent.Schedule.Activities);
         }
         internal static ProfileSnapshot Capture(GuestProfile p) => new ProfileSnapshot
         {
@@ -45,6 +46,7 @@ namespace WorstHotel
         {
             State=a.State,Activity=a.Activity,ArrivalTime=a.ArrivalTime,SleepTime=a.Schedule.SleepTime,CheckoutTime=a.CheckoutTime,
             HasWakeTime=Number.IsFinite(a.Schedule.WakeTime),WakeTime=Number.IsFinite(a.Schedule.WakeTime)?a.Schedule.WakeTime:0,
+            MorningActivityIndex=a.Schedule.MorningActivityIndex,OutingReturnAt=a.Schedule.OutingReturnAt,
             StateChangedAt=a.StateChangedAt,WaitingSeconds=a.WaitingSeconds,WaitingPatience=a.WaitingPatience,
             HeatingDemandMultiplier=a.HeatingDemandMultiplier,NoiseOutput=a.NoiseOutput,QuietUntil=a.QuietUntil,
             HasNextActivityTime=Number.IsFinite(a.NextActivityTime),NextActivityTime=Number.IsFinite(a.NextActivityTime)?a.NextActivityTime:0,
@@ -81,7 +83,8 @@ namespace WorstHotel
             {
                 var a=s.Agent;
                 g.Agent=new GuestAgent(g.GuestId,new GuestSchedule(g.GuestId,a.ArrivalTime,a.SleepTime,a.CheckoutTime,
-                    a.Schedule.Select(x=>new GuestScheduleEntry(x.Activity,x.Duration)).ToArray(),a.HasWakeTime?a.WakeTime:float.PositiveInfinity),a.WaitingPatience);
+                    a.Schedule.Select(x=>new GuestScheduleEntry(x.Activity,x.Duration)).ToArray(),a.HasWakeTime?a.WakeTime:float.PositiveInfinity,
+                    a.MorningActivityIndex,a.OutingReturnAt),a.WaitingPatience);
             }
             Restore(g,s);
             return g;
