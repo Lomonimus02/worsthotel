@@ -1,0 +1,113 @@
+diff --git a/Assets/_WorstHotel/Scripts/Environment/PortableHeater.cs b/Assets/_WorstHotel/Scripts/Environment/PortableHeater.cs
+index 1db2471..eb9a001 100644
+--- a/Assets/_WorstHotel/Scripts/Environment/PortableHeater.cs
++++ b/Assets/_WorstHotel/Scripts/Environment/PortableHeater.cs
+@@ -81,6 +81,26 @@ namespace WorstHotel
+             var state = State;
+             if (state == null) return "Heater unavailable";
+             if (!state.SwitchedOn && session.Phase != DayPhase.Service) return "Switched off · Power available during service\nCarry to move";
++            if (HasAuthority && IsCarried) return "Carried · Heat paused\nPut down fully inside a room";
++            if (!state.RoomId.HasValue)
++                return (state.SwitchedOn ? "Switch off" : "Switch on") + " · Outside a room\nNo local heat or room circuit load";
++            // The host's registered placement also feeds LAN captions; never sample replica physics.
++            var circuit = simulation.Electrical?.CircuitForRoom(state.RoomId.Value);
++            if (circuit != null)
++            {
++                string load = "Load " + circuit.RequestedLoad.ToString("0.##") + "/" + circuit.Capacity.ToString("0.##");
++                if (!state.SwitchedOn)
++                {
++                    float added = state.Settings.ElectricalLoad;
++                    string effect = circuit.LoadOverride.HasValue ? " actual; test load" :
++                        (double)circuit.RequestedLoad + added > circuit.Capacity ? " would overload" : " within limit";
++                    return "Switch on · Room " + state.RoomId.Value + " · Circuit " + circuit.Id + "\n" +
++                        (circuit.Tripped ? "No power · " : "") + load + " · +" + added.ToString("0.##") + effect;
++                }
++                return "Switch off · " + (state.Powered ? "Heating room " : "No power in room ") + state.RoomId.Value + "\n" +
++                    "Circuit " + circuit.Id + " · " + load + (circuit.LoadOverride.HasValue ? " · test load" :
++                        circuit.RequestedLoad > circuit.Capacity ? " · overloaded" : "");
++            }
+             string status = IsCarried ? "Carried · Heat paused" : !state.SwitchedOn ? "Switched off" :
+                 !state.RoomId.HasValue ? "Outside a room · No local heat" : !state.Powered ? "No electrical power" :
+                 "Heating " + state.RoomId.Value + (placedRoom != null ? " · " + placedRoom.Temperature.ToString("F1") + "°C" : "") + " · manual heat";
+diff --git a/Assets/_WorstHotel/Scripts/Infrastructure/RepairControl.cs b/Assets/_WorstHotel/Scripts/Infrastructure/RepairControl.cs
+index a58a69a..9524e36 100644
+--- a/Assets/_WorstHotel/Scripts/Infrastructure/RepairControl.cs
++++ b/Assets/_WorstHotel/Scripts/Infrastructure/RepairControl.cs
+@@ -36,7 +36,7 @@ namespace WorstHotel
+             if (!controller || !controller.CanUseControls) return "No active service fault. Restore wear with between-day maintenance.";
+             if (controller.SoloAssistEnabled && kind == RepairControlKind.ReliefValve)
+                 return controller.SoloLatchSecondsRemaining > 0 ?
+-                    "Valve catch secured · " + Mathf.CeilToInt(controller.SoloLatchSecondsRemaining) + "s left\nRelease and complete panel → breaker → A → B → restart" :
++                    "Valve catch secured · " + Mathf.CeilToInt(controller.SoloLatchSecondsRemaining) + "s left\nPanel → boiler isolation → A → B → restart" :
+                     "Hold relief in green for " + controller.SoloValveRequiredHoldSeconds.ToString("0.#") + "s to secure catch\nSafe hold " + Mathf.RoundToInt(controller.SoloValveHoldProgress * 100) + "% · temporary SOLO support";
+             if (!controller.SoloAssistEnabled && kind != RepairControlKind.ReliefValve && actor != null && controller.ReliefActorId == actor.ActorId)
+                 return "Keep holding relief; your partner operates these controls";
+@@ -44,7 +44,7 @@ namespace WorstHotel
+             {
+                 case RepairControlKind.ReliefValve: return "Hold relief valve — keep pressure inside the green band";
+                 case RepairControlKind.Panel: return "Open hinged service panel";
+-                case RepairControlKind.Breaker: return "Isolate red breaker (after panel)";
++                case RepairControlKind.Breaker: return "Isolate boiler with red lever\nRoom circuits A/B stay unchanged";
+                 case RepairControlKind.LatchA: return "Turn latch A fully (hold); an unseated latch springs back";
+                 case RepairControlKind.LatchB: return "Turn latch B fully (hold); keep relief supported";
+                 case RepairControlKind.Restart:
+diff --git a/Assets/_WorstHotel/Scripts/Editor/PrototypeRepairBuilder.cs b/Assets/_WorstHotel/Scripts/Editor/PrototypeRepairBuilder.cs
+index 60e7f01..a780ba3 100644
+--- a/Assets/_WorstHotel/Scripts/Editor/PrototypeRepairBuilder.cs
++++ b/Assets/_WorstHotel/Scripts/Editor/PrototypeRepairBuilder.cs
+@@ -38,6 +38,7 @@ namespace WorstHotel.Editor
+                 var anchor = GameObject.Find(name);
+                 var control = anchor.AddComponent<RepairControl>();
+                 control.controller = controller; control.kind = kind;
++                if (kind == RepairControlKind.Breaker) control.displayName = "BOILER ISOLATION";
+                 control.movingPart = moving ? moving : anchor.transform;
+                 controls.Add(control);
+             }
+diff --git a/Assets/_WorstHotel/Scripts/Editor/PrototypeSceneBuilder.cs b/Assets/_WorstHotel/Scripts/Editor/PrototypeSceneBuilder.cs
+index 3db0bfe..98cf65e 100644
+--- a/Assets/_WorstHotel/Scripts/Editor/PrototypeSceneBuilder.cs
++++ b/Assets/_WorstHotel/Scripts/Editor/PrototypeSceneBuilder.cs
+@@ -379,7 +379,7 @@ namespace WorstHotel.Editor
+             var breaker = Group("BreakerAnchor", gameplay, new Vector3(3.13f, 2.08f, 36.48f)).transform;
+             Box("Breaker backing", breaker, new Vector3(0, 0, .13f), new Vector3(.64f, 1.04f, .28f), "Ivory moulding", true);
+             Box("Breaker handle", breaker, new Vector3(0, 0, -.12f), new Vector3(.37f, .54f, .28f), "Safety red", true);
+-            Sign(utility, "3  BREAKER", new Vector3(3.13f, 2.81f, 36.63f), 1.31f, .30f, .12f);
++            Sign(utility, "3  BOILER\nISOLATION", new Vector3(3.13f, 2.81f, 36.63f), 1.31f, .50f, .10f);
+ 
+             foreach (int index in new[] { 0, 1 })
+             {
+@@ -414,7 +414,7 @@ namespace WorstHotel.Editor
+             Box("Workbench top", bench, new Vector3(0, 1.0f, 0), new Vector3(2.25f, .18f, 1.02f), "Walnut panels", true);
+             for (int i = -1; i <= 1; i += 2) Box("Workbench legs", bench, new Vector3(i * .89f, .48f, 0), new Vector3(.18f, .97f, .78f), "Pipe iron");
+             Box("New repair sheet", utility, new Vector3(6.76f, 2.18f, 35), new Vector3(.03f, 1.5f, 2.2f), "New plaster patch", false, false);
+-            Sign(utility, "REPAIR ORDER\nVALVE > PANEL > BREAKER\nLATCH A > LATCH B > RESTART", new Vector3(4.8f, 2.15f, 39.61f), 3.1f, 1.05f, .13f);
++            Sign(utility, "BOILER REPAIR\nVALVE > PANEL > ISOLATION\nLATCH A > LATCH B > RESTART", new Vector3(4.8f, 2.15f, 39.61f), 3.1f, 1.05f, .13f);
+         }
+ 
+         static void Sign(Transform parent, string words, Vector3 position, float width, float height, float letterSize = .13f, float yaw = 0)
+diff --git a/Assets/_WorstHotel/Scripts/Simulation/RepairSequence.cs b/Assets/_WorstHotel/Scripts/Simulation/RepairSequence.cs
+index c056c64..d6258a9 100644
+--- a/Assets/_WorstHotel/Scripts/Simulation/RepairSequence.cs
++++ b/Assets/_WorstHotel/Scripts/Simulation/RepairSequence.cs
+@@ -68,7 +68,7 @@ namespace WorstHotel
+             if (control == RepairControlKind.ReliefValve) return Fail("Relief is the other staff member's job.");
+             if (control != ExpectedControl())
+             {
+-                ResetAttempt("Wrong order. Reopen panel, isolate breaker, turn latch A, latch B, then restart.");
++                ResetAttempt("Wrong order. Reopen panel, isolate boiler, turn latch A, latch B, then restart.");
+                 return CommandResult.Fail(Status);
+             }
+             if (OperatorActorId < 0) OperatorActorId = actorId;
+@@ -76,10 +76,10 @@ namespace WorstHotel
+             {
+                 case RepairControlKind.Panel:
+                     Step = RepairStep.Breaker;
+-                    return Success("Panel open. Isolate the red breaker; keep relief supported.");
++                    return Success("Panel open. Use the red boiler isolation lever; keep relief supported.");
+                 case RepairControlKind.Breaker:
+                     Step = RepairStep.LatchA;
+-                    return Success("Breaker isolated. Turn latch A fully, then latch B.");
++                    return Success("Boiler isolated. Turn latch A fully, then latch B.");
+                 case RepairControlKind.LatchA:
+                 case RepairControlKind.LatchB:
+                     heldLatch = control;

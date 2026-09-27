@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="75" result="Passed" total="75" passed="75" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 10:15:56Z" end-time="2026-09-27 10:30:41Z" duration="884.685347">
+  <test-suite type="TestSuite" id="1083" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="75" result="Passed" start-time="2026-09-27 10:15:56Z" end-time="2026-09-27 10:30:41Z" duration="884.685347" total="75" passed="75" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1080" name="WorstHotel.PlayModeTests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="75" result="Passed" start-time="2026-09-27 10:15:56Z" end-time="2026-09-27 10:30:41Z" duration="884.678490" total="75" passed="75" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="25228" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1081" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="75" result="Passed" start-time="2026-09-27 10:15:56Z" end-time="2026-09-27 10:30:41Z" duration="884.677979" total="75" passed="75" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1082" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="75" result="Passed" start-time="2026-09-27 10:15:56Z" end-time="2026-09-27 10:30:41Z" duration="884.677543" total="75" passed="75" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="75" result="Passed" start-time="2026-09-27 10:15:56Z" end-time="2026-09-27 10:30:41Z" duration="884.675906" total="75" passed="75" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1044" name="AcceptedLuggageUsesItsActualSuitcaseCarryAndShortPlacementInReceptionStorage" fullname="WorstHotel.Tests.Phase1PlayModeTests.AcceptedLuggageUsesItsActualSuitcaseCarryAndShortPlacementInReceptionStorage" methodname="AcceptedLuggageUsesItsActualSuitcaseCarryAndShortPlacementInReceptionStorage" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="298528053" result="Passed" start-time="2026-09-27 10:15:56Z" end-time="2026-09-27 10:16:11Z" duration="14.656287" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1021" name="ActualAnsweredPhoneBindsCompensationToThatGuestAndFinishesOnlyTheDiscussion" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualAnsweredPhoneBindsCompensationToThatGuestAndFinishesOnlyTheDiscussion" methodname="ActualAnsweredPhoneBindsCompensationToThatGuestAndFinishesOnlyTheDiscussion" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1560775534" result="Passed" start-time="2026-09-27 10:16:11Z" end-time="2026-09-27 10:16:23Z" duration="11.506465" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1041" name="ActualBlanketShelfCarryAndInstantBedDeliveryConsumesOneStockAndShowsTheSameGuestComfort" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualBlanketShelfCarryAndInstantBedDeliveryConsumesOneStockAndShowsTheSameGuestComfort" methodname="ActualBlanketShelfCarryAndInstantBedDeliveryConsumesOneStockAndShowsTheSameGuestComfort" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="880749446" result="Passed" start-time="2026-09-27 10:16:23Z" end-time="2026-09-27 10:16:39Z" duration="16.198718" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1024" name="ActualCarriedSuitcaseSurvivesOwnerExitAndCanBePlacedAsLostPropertyWithoutServiceCredit" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualCarriedSuitcaseSurvivesOwnerExitAndCanBePlacedAsLostPropertyWithoutServiceCredit" methodname="ActualCarriedSuitcaseSurvivesOwnerExitAndCanBePlacedAsLostPropertyWithoutServiceCredit" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1317430356" result="Passed" start-time="2026-09-27 10:16:39Z" end-time="2026-09-27 10:17:04Z" duration="25.307570" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1062" name="ActualColdRoomAdvancesToComplaintStopsWaitAndRecoversFromRestoredTemperature" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualColdRoomAdvancesToComplaintStopsWaitAndRecoversFromRestoredTemperature" methodname="ActualColdRoomAdvancesToComplaintStopsWaitAndRecoversFromRestoredTemperature" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2094597974" result="Passed" start-time="2026-09-27 10:17:04Z" end-time="2026-09-27 10:17:33Z" duration="28.447335" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1069" name="ActualDoorRaycastKnocksRequestsPermissionRefusesPrivateEntryAndRequiresDeliberateEmergencyHold" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualDoorRaycastKnocksRequestsPermissionRefusesPrivateEntryAndRequiresDeliberateEmergencyHold" methodname="ActualDoorRaycastKnocksRequestsPermissionRefusesPrivateEntryAndRequiresDeliberateEmergencyHold" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="994259845" result="Passed" start-time="2026-09-27 10:17:33Z" end-time="2026-09-27 10:17:40Z" duration="7.364754" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1028" name="ActualExteriorBlanketCarryWaitsForAbsentGuestThenReceivesTheSameParcelOnce" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualExteriorBlanketCarryWaitsForAbsentGuestThenReceivesTheSameParcelOnce" methodname="ActualExteriorBlanketCarryWaitsForAbsentGuestThenReceivesTheSameParcelOnce" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="455855024" result="Passed" start-time="2026-09-27 10:17:40Z" end-time="2026-09-27 10:17:52Z" duration="12.387298" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1017" name="ActualOwnedRoomDemandChangesBoilerHumBeforeFailureAndReducingDemandRestoresIt" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualOwnedRoomDemandChangesBoilerHumBeforeFailureAndReducingDemandRestoresIt" methodname="ActualOwnedRoomDemandChangesBoilerHumBeforeFailureAndReducingDemandRestoresIt" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="735907735" result="Passed" start-time="2026-09-27 10:17:52Z" end-time="2026-09-27 10:17:53Z" duration="0.844036" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1020" name="ActualReceptionCompensationKeepsFiniteWaitAcrossCloseAndRejectsStaleOrAbsentStaff" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualReceptionCompensationKeepsFiniteWaitAcrossCloseAndRejectsStaleOrAbsentStaff" methodname="ActualReceptionCompensationKeepsFiniteWaitAcrossCloseAndRejectsStaleOrAbsentStaff" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1159087752" result="Passed" start-time="2026-09-27 10:17:53Z" end-time="2026-09-27 10:18:17Z" duration="23.621361" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1052" name="AllDirtyPlanningRequiresManualLinenAndNewGameResetsClaimsAndStock" fullname="WorstHotel.Tests.Phase1PlayModeTests.AllDirtyPlanningRequiresManualLinenAndNewGameResetsClaimsAndStock" methodname="AllDirtyPlanningRequiresManualLinenAndNewGameResetsClaimsAndStock" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="721292103" result="Passed" start-time="2026-09-27 10:18:17Z" end-time="2026-09-27 10:18:19Z" duration="2.050937" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1067" name="AllSixGuestsPhysicallyReachReceptionWithSolidLuggageStorageEnabled" fullname="WorstHotel.Tests.Phase1PlayModeTests.AllSixGuestsPhysicallyReachReceptionWithSolidLuggageStorageEnabled" methodname="AllSixGuestsPhysicallyReachReceptionWithSolidLuggageStorageEnabled" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="212952311" result="Passed" start-time="2026-09-27 10:18:19Z" end-time="2026-09-27 10:18:29Z" duration="10.493413" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1029" name="CancelledUnreceivedBlanketRemainsAtItsPointAndCanBePhysicallyReclaimedAndReturned" fullname="WorstHotel.Tests.Phase1PlayModeTests.CancelledUnreceivedBlanketRemainsAtItsPointAndCanBePhysicallyReclaimedAndReturned" methodname="CancelledUnreceivedBlanketRemainsAtItsPointAndCanBePhysicallyReclaimedAndReturned" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1249631114" result="Passed" start-time="2026-09-27 10:18:29Z" end-time="2026-09-27 10:18:52Z" duration="22.484836" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1078" name="CarriedSuitcaseAndRealRepairHoldPreventWaiting" fullname="WorstHotel.Tests.Phase1PlayModeTests.CarriedSuitcaseAndRealRepairHoldPreventWaiting" methodname="CarriedSuitcaseAndRealRepairHoldPreventWaiting" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2014012696" result="Passed" start-time="2026-09-27 10:18:52Z" end-time="2026-09-27 10:19:00Z" duration="8.292832" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1064" name="ClosedDoorKnockAndSeparateAskReduceRealNeighbourNoiseThenMeasuredComplaintRecovers" fullname="WorstHotel.Tests.Phase1PlayModeTests.ClosedDoorKnockAndSeparateAskReduceRealNeighbourNoiseThenMeasuredComplaintRecovers" methodname="ClosedDoorKnockAndSeparateAskReduceRealNeighbourNoiseThenMeasuredComplaintRecovers" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1284070290" result="Passed" start-time="2026-09-27 10:19:00Z" end-time="2026-09-27 10:19:13Z" duration="12.948986" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1031" name="ClosingServiceBoardPreservesDirectDecisionAndControllerAcceptanceReleasesOnlyTheWait" fullname="WorstHotel.Tests.Phase1PlayModeTests.ClosingServiceBoardPreservesDirectDecisionAndControllerAcceptanceReleasesOnlyTheWait" methodname="ClosingServiceBoardPreservesDirectDecisionAndControllerAcceptanceReleasesOnlyTheWait" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="397824779" result="Passed" start-time="2026-09-27 10:19:13Z" end-time="2026-09-27 10:19:14Z" duration="1.049721" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1019" name="ContinuousActualShowerAnchorAddsHotWaterAndTrippedPanelRetainsRequestedLoad" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousActualShowerAnchorAddsHotWaterAndTrippedPanelRetainsRequestedLoad" methodname="ContinuousActualShowerAnchorAddsHotWaterAndTrippedPanelRetainsRequestedLoad" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="221571790" result="Passed" start-time="2026-09-27 10:19:14Z" end-time="2026-09-27 10:19:27Z" duration="12.987078" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1027" name="ContinuousOperationsControllerPagesReflectCurrentStatusAndDoNotRepeatCharges" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousOperationsControllerPagesReflectCurrentStatusAndDoNotRepeatCharges" methodname="ContinuousOperationsControllerPagesReflectCurrentStatusAndDoNotRepeatCharges" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1437424885" result="Passed" start-time="2026-09-27 10:19:27Z" end-time="2026-09-27 10:19:33Z" duration="6.296357" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1033" name="ContinuousPhysicalLedgerUpgradesPreserveRealLoadAndNeedActualBreakerReset" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousPhysicalLedgerUpgradesPreserveRealLoadAndNeedActualBreakerReset" methodname="ContinuousPhysicalLedgerUpgradesPreserveRealLoadAndNeedActualBreakerReset" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="483223201" result="Passed" start-time="2026-09-27 10:19:33Z" end-time="2026-09-27 10:19:39Z" duration="5.184590" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1018" name="ContinuousPhysicalRadiatorChangesOnlyItsAttributedSpaceDemandAndCapacityDisplay" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousPhysicalRadiatorChangesOnlyItsAttributedSpaceDemandAndCapacityDisplay" methodname="ContinuousPhysicalRadiatorChangesOnlyItsAttributedSpaceDemandAndCapacityDisplay" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="85270855" result="Passed" start-time="2026-09-27 10:19:39Z" end-time="2026-09-27 10:19:40Z" duration="1.880085" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1022" name="ContinuousReceptionForecastTracksCandidateRoomAndBookingsWithoutPricingInventingDemand" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousReceptionForecastTracksCandidateRoomAndBookingsWithoutPricingInventingDemand" methodname="ContinuousReceptionForecastTracksCandidateRoomAndBookingsWithoutPricingInventingDemand" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1634227123" result="Passed" start-time="2026-09-27 10:19:40Z" end-time="2026-09-27 10:19:46Z" duration="5.463459" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1026" name="ContinuousReceptionMaintenanceDebitsOnceKeepsHeatOffAndAllowsRealWaitUntilCompletion" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousReceptionMaintenanceDebitsOnceKeepsHeatOffAndAllowsRealWaitUntilCompletion" methodname="ContinuousReceptionMaintenanceDebitsOnceKeepsHeatOffAndAllowsRealWaitUntilCompletion" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="473818627" result="Passed" start-time="2026-09-27 10:19:46Z" end-time="2026-09-27 10:19:56Z" duration="10.198743" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1013" name="ContinuousReportLeavesExistingLedgerOwnerAndPartnerAccessUnchanged" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousReportLeavesExistingLedgerOwnerAndPartnerAccessUnchanged" methodname="ContinuousReportLeavesExistingLedgerOwnerAndPartnerAccessUnchanged" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="437454376" result="Passed" start-time="2026-09-27 10:19:56Z" end-time="2026-09-27 10:19:59Z" duration="2.765054" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1016" name="ContinuousSessionDeveloperAdvancesRemainBoundedAndSynchronizeReports" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousSessionDeveloperAdvancesRemainBoundedAndSynchronizeReports" methodname="ContinuousSessionDeveloperAdvancesRemainBoundedAndSynchronizeReports" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1459965261" result="Passed" start-time="2026-09-27 10:19:59Z" end-time="2026-09-27 10:20:00Z" duration="0.782725" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1010" name="ContinuousSessionMirrorPreservesCalendarBookingsAndOpenMenuAcrossMidnight" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousSessionMirrorPreservesCalendarBookingsAndOpenMenuAcrossMidnight" methodname="ContinuousSessionMirrorPreservesCalendarBookingsAndOpenMenuAcrossMidnight" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1371339184" result="Passed" start-time="2026-09-27 10:20:00Z" end-time="2026-09-27 10:20:01Z" duration="1.201791" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1014" name="ContinuousSessionPauseFreezesCalendarAndResumesWithoutWallClockCatchUp" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousSessionPauseFreezesCalendarAndResumesWithoutWallClockCatchUp" methodname="ContinuousSessionPauseFreezesCalendarAndResumesWithoutWallClockCatchUp" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2107154501" result="Passed" start-time="2026-09-27 10:20:01Z" end-time="2026-09-27 10:20:06Z" duration="5.007642" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1015" name="ContinuousSessionRealWaitStopsAtReportWithoutAcceleratingPhysicsOrReusingHeldVotes" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousSessionRealWaitStopsAtReportWithoutAcceleratingPhysicsOrReusingHeldVotes" methodname="ContinuousSessionRealWaitStopsAtReportWithoutAcceleratingPhysicsOrReusingHeldVotes" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2124048988" result="Passed" start-time="2026-09-27 10:20:06Z" end-time="2026-09-27 10:20:10Z" duration="4.390959" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1012" name="ContinuousSessionUpdatesThroughReportWithoutClosingHotelOrOpeningLedger" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousSessionUpdatesThroughReportWithoutClosingHotelOrOpeningLedger" methodname="ContinuousSessionUpdatesThroughReportWithoutClosingHotelOrOpeningLedger" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="325852052" result="Passed" start-time="2026-09-27 10:20:10Z" end-time="2026-09-27 10:20:13Z" duration="2.987606" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1025" name="ContinuousSoloPhysicalRepairPaysOnceAndLeavesEmergencyPatchState" fullname="WorstHotel.Tests.Phase1PlayModeTests.ContinuousSoloPhysicalRepairPaysOnceAndLeavesEmergencyPatchState" methodname="ContinuousSoloPhysicalRepairPaysOnceAndLeavesEmergencyPatchState" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1021030871" result="Passed" start-time="2026-09-27 10:20:13Z" end-time="2026-09-27 10:20:36Z" duration="22.673354" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1009" name="ControllerReadsPublishedReportWithoutPostingCostsAgainOrClosingHotel" fullname="WorstHotel.Tests.Phase1PlayModeTests.ControllerReadsPublishedReportWithoutPostingCostsAgainOrClosingHotel" methodname="ControllerReadsPublishedReportWithoutPostingCostsAgainOrClosingHotel" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="398273167" result="Passed" start-time="2026-09-27 10:20:36Z" end-time="2026-09-27 10:20:40Z" duration="3.679641" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1030" name="DelayedPartnerCancellationCannotCancelANewerRoomMoveForTheSameGuest" fullname="WorstHotel.Tests.Phase1PlayModeTests.DelayedPartnerCancellationCannotCancelANewerRoomMoveForTheSameGuest" methodname="DelayedPartnerCancellationCannotCancelANewerRoomMoveForTheSameGuest" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="198397694" result="Passed" start-time="2026-09-27 10:20:40Z" end-time="2026-09-27 10:20:40Z" duration="0.799827" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1007" name="DeliberatelyAcceptedFailureAllowsFreshTwoPlayerWaitWithoutRestoringHeat" fullname="WorstHotel.Tests.Phase1PlayModeTests.DeliberatelyAcceptedFailureAllowsFreshTwoPlayerWaitWithoutRestoringHeat" methodname="DeliberatelyAcceptedFailureAllowsFreshTwoPlayerWaitWithoutRestoringHeat" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2089784918" result="Passed" start-time="2026-09-27 10:20:40Z" end-time="2026-09-27 10:20:43Z" duration="2.979726" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1075" name="DropBlockAndDisableRestoreBodyPropertiesAndPreexistingCollisionPairs" fullname="WorstHotel.Tests.Phase1PlayModeTests.DropBlockAndDisableRestoreBodyPropertiesAndPreexistingCollisionPairs" methodname="DropBlockAndDisableRestoreBodyPropertiesAndPreexistingCollisionPairs" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="234984969" result="Passed" start-time="2026-09-27 10:20:43Z" end-time="2026-09-27 10:20:52Z" duration="9.028427" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1066" name="EachVirtualPadMovesOnlyItsOwnGroundedActor" fullname="WorstHotel.Tests.Phase1PlayModeTests.EachVirtualPadMovesOnlyItsOwnGroundedActor" methodname="EachVirtualPadMovesOnlyItsOwnGroundedActor" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1014262072" result="Passed" start-time="2026-09-27 10:20:52Z" end-time="2026-09-27 10:20:54Z" duration="1.696219" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1035" name="ElectricalWarningAndTripEachStopFreshIndependentWaitConsent" fullname="WorstHotel.Tests.Phase1PlayModeTests.ElectricalWarningAndTripEachStopFreshIndependentWaitConsent" methodname="ElectricalWarningAndTripEachStopFreshIndependentWaitConsent" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="55417426" result="Passed" start-time="2026-09-27 10:20:54Z" end-time="2026-09-27 10:20:59Z" duration="4.852075" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1036" name="EnvironmentFeedbackFollowsRealDeliveryWarningComplaintPauseAndFreshSession" fullname="WorstHotel.Tests.Phase1PlayModeTests.EnvironmentFeedbackFollowsRealDeliveryWarningComplaintPauseAndFreshSession" methodname="EnvironmentFeedbackFollowsRealDeliveryWarningComplaintPauseAndFreshSession" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="317582939" result="Passed" start-time="2026-09-27 10:20:59Z" end-time="2026-09-27 10:21:02Z" duration="2.812493" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1057" name="GuestReachesActualRadiatorBeforeTurningItThenUsesRoomPhoneBeforeReceptionRings" fullname="WorstHotel.Tests.Phase1PlayModeTests.GuestReachesActualRadiatorBeforeTurningItThenUsesRoomPhoneBeforeReceptionRings" methodname="GuestReachesActualRadiatorBeforeTurningItThenUsesRoomPhoneBeforeReceptionRings" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1968908845" result="Passed" start-time="2026-09-27 10:21:02Z" end-time="2026-09-27 10:21:54Z" duration="52.194011" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1058" name="GuestServiceReceptionVisitKeepsRoomAndKeyThenCancellationReturnsThroughTheDoor" fullname="WorstHotel.Tests.Phase1PlayModeTests.GuestServiceReceptionVisitKeepsRoomAndKeyThenCancellationReturnsThroughTheDoor" methodname="GuestServiceReceptionVisitKeepsRoomAndKeyThenCancellationReturnsThroughTheDoor" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="983709741" result="Passed" start-time="2026-09-27 10:21:54Z" end-time="2026-09-27 10:22:55Z" duration="60.663704" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1037" name="GuestUsesRealBedAndEnclosedShowerThenLeavesAndReturnsThroughClosingDoor" fullname="WorstHotel.Tests.Phase1PlayModeTests.GuestUsesRealBedAndEnclosedShowerThenLeavesAndReturnsThroughClosingDoor" methodname="GuestUsesRealBedAndEnclosedShowerThenLeavesAndReturnsThroughClosingDoor" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="302095562" result="Passed" start-time="2026-09-27 10:22:55Z" end-time="2026-09-27 10:24:02Z" duration="67.831027" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1056" name="GuestWalksToReceptionReceivesPhysicalKeyThenWalksThroughDoorAndUsesRoom" fullname="WorstHotel.Tests.Phase1PlayModeTests.GuestWalksToReceptionReceivesPhysicalKeyThenWalksThroughDoorAndUsesRoom" methodname="GuestWalksToReceptionReceivesPhysicalKeyThenWalksThroughDoorAndUsesRoom" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2020631236" result="Passed" start-time="2026-09-27 10:24:02Z" end-time="2026-09-27 10:24:34Z" duration="31.212730" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1073" name="HeldSuitcaseRapidLookRotationDampsToItsCarryOrientation" fullname="WorstHotel.Tests.Phase1PlayModeTests.HeldSuitcaseRapidLookRotationDampsToItsCarryOrientation" methodname="HeldSuitcaseRapidLookRotationDampsToItsCarryOrientation" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="797847233" result="Passed" start-time="2026-09-27 10:24:34Z" end-time="2026-09-27 10:24:42Z" duration="8.052565" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Rapid camera rotation: mass=2.50, early peak speed=3.8263, late RMS speed=0.0000, early peak angular=2.2902, late RMS angular=0.0000, late maximum COM error=0.0199, late maximum angle error=0.000
+]]></output>
+            </test-case>
+            <test-case id="1072" name="HeldSuitcaseSidewaysShakeDecaysAcrossLightNormalAndHeavyMasses" fullname="WorstHotel.Tests.Phase1PlayModeTests.HeldSuitcaseSidewaysShakeDecaysAcrossLightNormalAndHeavyMasses" methodname="HeldSuitcaseSidewaysShakeDecaysAcrossLightNormalAndHeavyMasses" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1698350587" result="Passed" start-time="2026-09-27 10:24:42Z" end-time="2026-09-27 10:25:04Z" duration="22.379492" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Sideways shake: mass=0.50, early peak speed=3.3242, late RMS speed=0.0000, early peak angular=0.3680, late RMS angular=0.0000, late maximum COM error=0.0199, late maximum angle error=0.000
+Sideways shake: mass=2.50, early peak speed=3.3253, late RMS speed=0.0000, early peak angular=0.3681, late RMS angular=0.0000, late maximum COM error=0.0199, late maximum angle error=0.000
+Sideways shake: mass=12.00, early peak speed=3.3251, late RMS speed=0.0000, early peak angular=0.3681, late RMS angular=0.0000, late maximum COM error=0.0199, late maximum angle error=0.000
+]]></output>
+            </test-case>
+            <test-case id="1074" name="HeldSuitcaseTouchesWallWithoutTunnellingOrUnboundedEnergyThenSettles" fullname="WorstHotel.Tests.Phase1PlayModeTests.HeldSuitcaseTouchesWallWithoutTunnellingOrUnboundedEnergyThenSettles" methodname="HeldSuitcaseTouchesWallWithoutTunnellingOrUnboundedEnergyThenSettles" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1279668224" result="Passed" start-time="2026-09-27 10:25:04Z" end-time="2026-09-27 10:25:13Z" duration="9.162764" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[After physical wall contact: mass=2.50, early peak speed=2.4445, late RMS speed=0.0000, early peak angular=0.4649, late RMS angular=0.0000, late maximum COM error=0.0199, late maximum angle error=0.000
+Wall contact count=74, peak speed=3.209, peak angular=4.060
+]]></output>
+            </test-case>
+            <test-case id="1032" name="InvalidContinuousHostFramesAreAtomicAndDoNotConsumeTheNextSequence" fullname="WorstHotel.Tests.Phase1PlayModeTests.InvalidContinuousHostFramesAreAtomicAndDoNotConsumeTheNextSequence" methodname="InvalidContinuousHostFramesAreAtomicAndDoNotConsumeTheNextSequence" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1947754209" result="Passed" start-time="2026-09-27 10:25:13Z" end-time="2026-09-27 10:25:14Z" duration="0.811267" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1023" name="LaterDatedArrivalsReuseFreePhysicalSlotsWithoutChangingAnExistingGuestOrSuitcase" fullname="WorstHotel.Tests.Phase1PlayModeTests.LaterDatedArrivalsReuseFreePhysicalSlotsWithoutChangingAnExistingGuestOrSuitcase" methodname="LaterDatedArrivalsReuseFreePhysicalSlotsWithoutChangingAnExistingGuestOrSuitcase" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="955249617" result="Passed" start-time="2026-09-27 10:25:14Z" end-time="2026-09-27 10:25:47Z" duration="33.443424" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1046" name="LookingAwayReleasesValveEvenWhileItsUseButtonRemainsHeld" fullname="WorstHotel.Tests.Phase1PlayModeTests.LookingAwayReleasesValveEvenWhileItsUseButtonRemainsHeld" methodname="LookingAwayReleasesValveEvenWhileItsUseButtonRemainsHeld" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="838845562" result="Passed" start-time="2026-09-27 10:25:47Z" end-time="2026-09-27 10:25:49Z" duration="1.917687" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1077" name="MeaningfulEventStopsImmediatelyAndHeldVotesCannotSkipNextEvent" fullname="WorstHotel.Tests.Phase1PlayModeTests.MeaningfulEventStopsImmediatelyAndHeldVotesCannotSkipNextEvent" methodname="MeaningfulEventStopsImmediatelyAndHeldVotesCannotSkipNextEvent" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2025136084" result="Passed" start-time="2026-09-27 10:25:49Z" end-time="2026-09-27 10:25:56Z" duration="6.304448" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1060" name="NaturalGuestWalksToReceptionThenControllerConversationDisclosesTheConcern" fullname="WorstHotel.Tests.Phase1PlayModeTests.NaturalGuestWalksToReceptionThenControllerConversationDisclosesTheConcern" methodname="NaturalGuestWalksToReceptionThenControllerConversationDisclosesTheConcern" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1636209277" result="Passed" start-time="2026-09-27 10:25:56Z" end-time="2026-09-27 10:26:11Z" duration="15.402357" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1059" name="NaturalIncomingPhoneHidesPrivateCaseUntilControllerAnswersAndDoesNotAcceptOrDeliverForThem" fullname="WorstHotel.Tests.Phase1PlayModeTests.NaturalIncomingPhoneHidesPrivateCaseUntilControllerAnswersAndDoesNotAcceptOrDeliverForThem" methodname="NaturalIncomingPhoneHidesPrivateCaseUntilControllerAnswersAndDoesNotAcceptOrDeliverForThem" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1929142542" result="Passed" start-time="2026-09-27 10:26:11Z" end-time="2026-09-27 10:26:12Z" duration="1.170981" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1061" name="NaturalRoomKnockDisclosesOnlyAfterActualSecondUseAndKeepsPermissionSeparate" fullname="WorstHotel.Tests.Phase1PlayModeTests.NaturalRoomKnockDisclosesOnlyAfterActualSecondUseAndKeepsPermissionSeparate" methodname="NaturalRoomKnockDisclosesOnlyAfterActualSecondUseAndKeepsPermissionSeparate" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1988058476" result="Passed" start-time="2026-09-27 10:26:12Z" end-time="2026-09-27 10:26:13Z" duration="1.067143" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1048" name="NewGameClearsOldHoldAndBindsRepairToTheReplacementSimulation" fullname="WorstHotel.Tests.Phase1PlayModeTests.NewGameClearsOldHoldAndBindsRepairToTheReplacementSimulation" methodname="NewGameClearsOldHoldAndBindsRepairToTheReplacementSimulation" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1653912405" result="Passed" start-time="2026-09-27 10:26:13Z" end-time="2026-09-27 10:26:14Z" duration="0.983043" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1050" name="OldGuestPhysicallyVacatesAfterNextDayStartsBeforeOwnersCanRemoveDirtyLinen" fullname="WorstHotel.Tests.Phase1PlayModeTests.OldGuestPhysicallyVacatesAfterNextDayStartsBeforeOwnersCanRemoveDirtyLinen" methodname="OldGuestPhysicallyVacatesAfterNextDayStartsBeforeOwnersCanRemoveDirtyLinen" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1157824763" result="Passed" start-time="2026-09-27 10:26:14Z" end-time="2026-09-27 10:26:40Z" duration="25.825265" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1051" name="OwnersCarryDirtyLinenToHamperFetchFiniteCleanStockAndMakeBedBeforeKeyHandoff" fullname="WorstHotel.Tests.Phase1PlayModeTests.OwnersCarryDirtyLinenToHamperFetchFiniteCleanStockAndMakeBedBeforeKeyHandoff" methodname="OwnersCarryDirtyLinenToHamperFetchFiniteCleanStockAndMakeBedBeforeKeyHandoff" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="315514329" result="Passed" start-time="2026-09-27 10:26:40Z" end-time="2026-09-27 10:27:46Z" duration="66.131081" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Linen segment dirty:101: destination=(-4.1800, 0.0000, 10.0000); actor=(-4.2943, 0.0350, 10.0243); camera=(-4.2602, 1.6450, 10.0165); body=(-3.0931, 1.6088, 9.7476); COM=(-3.0931, 1.6088, 9.7476); grabTarget=(-3.0980, 1.6287, 9.7483); velocity=(0.0953, -0.0001, -0.0224); angularVelocity=(-0.0218, 0.0108, -0.0376); cameraDistance=1.1982; targetError=0.0205; held=True
+Linen segment dirty:101: destination=(-3.2500, 0.0000, 10.0000); actor=(-3.3633, 0.0350, 10.0026); camera=(-3.3283, 1.6450, 10.0014); body=(-2.6924, 1.6156, 9.9783); COM=(-2.6924, 1.6156, 9.9783); grabTarget=(-2.6927, 1.6354, 9.9782); velocity=(-0.0057, -0.0005, -0.0009); angularVelocity=(-0.0038, -0.0038, -0.0185); cameraDistance=0.6370; targetError=0.0198; held=True
+Linen segment dirty:101: destination=(-1.1500, 0.0000, 10.0000); actor=(-1.2694, 0.0350, 10.0001); camera=(-1.2344, 1.6450, 9.9997); body=(-0.0368, 1.6087, 9.9831); COM=(-0.0368, 1.6087, 9.9831); grabTarget=(-0.0433, 1.6286, 9.9831); velocity=(0.1070, 0.0001, -0.0002); angularVelocity=(-0.0004, -0.0004, -0.0705); cameraDistance=1.1983; targetError=0.0210; held=True
+Linen segment dirty:101: destination=(-0.3200, 0.0000, 10.0000); actor=(-0.4337, 0.0350, 10.0000); camera=(-0.3987, 1.6450, 9.9995); body=(0.7993, 1.6087, 9.9829); COM=(0.7993, 1.6087, 9.9829); grabTarget=(0.7935, 1.6286, 9.9829); velocity=(0.0937, -0.0001, 0.0000); angularVelocity=(0.0002, 0.0001, -0.0907); cameraDistance=1.1987; targetError=0.0208; held=True
+Linen segment dirty:101: destination=(-0.3200, 0.0000, 30.1000); actor=(-0.3206, 0.0350, 29.9855); camera=(-0.3199, 1.6450, 30.0205); body=(-0.2624, 1.4743, 30.3959); COM=(-0.2624, 1.4743, 30.3959); grabTarget=(-0.3073, 1.6368, 30.6121); velocity=(0.1318, -0.3162, 0.1812); angularVelocity=(-1.0604, -0.4489, -0.0077); cameraDistance=0.4164; targetError=0.2741; held=True
+Linen segment dirty:101: destination=(-4.4500, 0.0000, 30.0000); actor=(-4.3306, 0.0350, 29.9890); camera=(-4.3656, 1.6450, 29.9898); body=(-5.5626, 1.6087, 30.0154); COM=(-5.5626, 1.6087, 30.0154); grabTarget=(-5.5561, 1.6286, 30.0155); velocity=(-0.1158, 0.0000, 0.0002); angularVelocity=(-0.0019, 0.0016, 0.0650); cameraDistance=1.1978; targetError=0.0210; held=True
+Linen segment clean:0: destination=(-0.3200, 0.0000, 30.1000); actor=(-0.4335, 0.0350, 30.0884); camera=(-0.3987, 1.6450, 30.0925); body=(0.7912, 1.6064, 30.2318); COM=(0.7912, 1.6064, 30.2318); grabTarget=(0.7851, 1.6264, 30.2312); velocity=(0.0983, 0.0003, 0.0101); angularVelocity=(0.0037, -0.0009, -0.0487); cameraDistance=1.1987; targetError=0.0209; held=True
+Linen segment clean:0: destination=(-0.3200, 0.0000, 10.0000); actor=(-0.3206, 0.0350, 10.1127); camera=(-0.3200, 1.6450, 10.0777); body=(-0.3032, 1.6099, 9.1527); COM=(-0.3032, 1.6099, 9.1527); grabTarget=(-0.3031, 1.6298, 9.1541); velocity=(0.0005, 0.0004, 0.0187); angularVelocity=(-0.0044, -0.0045, 0.0058); cameraDistance=0.9258; targetError=0.0200; held=True
+Linen segment clean:0: destination=(-1.1500, 0.0000, 10.0000); actor=(-1.0313, 0.0350, 10.0161); camera=(-1.0659, 1.6450, 10.0108); body=(-2.2487, 1.6064, 9.8290); COM=(-2.2487, 1.6064, 9.8290); grabTarget=(-2.2427, 1.6264, 9.8297); velocity=(-0.1190, 0.0000, -0.0169); angularVelocity=(-0.0236, 0.0000, 0.0921); cameraDistance=1.1974; targetError=0.0209; held=True
+Linen segment clean:0: destination=(-3.2500, 0.0000, 10.0000); actor=(-3.1380, 0.0350, 10.0008); camera=(-3.1730, 1.6450, 9.9999); body=(-4.3709, 1.6064, 9.9701); COM=(-4.3709, 1.6064, 9.9701); grabTarget=(-4.3649, 1.6264, 9.9701); velocity=(-0.0923, 0.0003, -0.0007); angularVelocity=(0.0003, -0.0011, 0.0489); cameraDistance=1.1989; targetError=0.0208; held=True
+Linen segment clean:0: destination=(-4.1800, 0.0000, 10.0000); actor=(-4.0671, 0.0350, 10.0001); camera=(-4.1021, 1.6450, 10.0000); body=(-5.3002, 1.6064, 9.9956); COM=(-5.3002, 1.6064, 9.9956); grabTarget=(-5.2945, 1.6264, 9.9956); velocity=(-0.0938, 0.0002, -0.0003); angularVelocity=(0.0009, 0.0012, 0.0781); cameraDistance=1.1987; targetError=0.0208; held=True
+Linen segment clean:0: destination=(-4.6500, 0.0000, 10.1000); actor=(-4.5320, 0.0350, 10.0798); camera=(-4.5665, 1.6450, 10.0852); body=(-5.7483, 1.6065, 10.2710); COM=(-5.7483, 1.6065, 10.2710); grabTarget=(-5.7429, 1.6264, 10.2699); velocity=(-0.1234, -0.0001, 0.0196); angularVelocity=(0.0136, 0.0010, 0.0766); cameraDistance=1.1969; targetError=0.0207; held=True
+Actual linen route plus concurrent reception and cancellation: 59.14 real seconds; this automated route is not a human pacing/fun measurement.
+]]></output>
+            </test-case>
+            <test-case id="1047" name="PartnersServiceTerminalBlocksOnlyItsOwnerAndKeepsLiveValveSupport" fullname="WorstHotel.Tests.Phase1PlayModeTests.PartnersServiceTerminalBlocksOnlyItsOwnerAndKeepsLiveValveSupport" methodname="PartnersServiceTerminalBlocksOnlyItsOwnerAndKeepsLiveValveSupport" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="240270797" result="Passed" start-time="2026-09-27 10:27:46Z" end-time="2026-09-27 10:27:48Z" duration="1.221433" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1079" name="PauseAndControllerLossClearConsentAndReturnHotelClockToNormal" fullname="WorstHotel.Tests.Phase1PlayModeTests.PauseAndControllerLossClearConsentAndReturnHotelClockToNormal" methodname="PauseAndControllerLossClearConsentAndReturnHotelClockToNormal" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="835895131" result="Passed" start-time="2026-09-27 10:27:48Z" end-time="2026-09-27 10:27:52Z" duration="4.127429" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1034" name="PhysicalBreakerRetripsWithHeaterLoadThenStaysPoweredAfterActualHeaterSwitchOff" fullname="WorstHotel.Tests.Phase1PlayModeTests.PhysicalBreakerRetripsWithHeaterLoadThenStaysPoweredAfterActualHeaterSwitchOff" methodname="PhysicalBreakerRetripsWithHeaterLoadThenStaysPoweredAfterActualHeaterSwitchOff" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1851438958" result="Passed" start-time="2026-09-27 10:27:52Z" end-time="2026-09-27 10:28:00Z" duration="8.744419" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1063" name="PhysicalGuestConversationCancelsWithoutChangingNoiseThenSelectedQuietResponseLowersSource" fullname="WorstHotel.Tests.Phase1PlayModeTests.PhysicalGuestConversationCancelsWithoutChangingNoiseThenSelectedQuietResponseLowersSource" methodname="PhysicalGuestConversationCancelsWithoutChangingNoiseThenSelectedQuietResponseLowersSource" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1084676061" result="Passed" start-time="2026-09-27 10:28:00Z" end-time="2026-09-27 10:28:06Z" duration="5.971299" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1040" name="PhysicalPhoneControllerCallCanCancelThenCompleteExactlyOnce" fullname="WorstHotel.Tests.Phase1PlayModeTests.PhysicalPhoneControllerCallCanCancelThenCompleteExactlyOnce" methodname="PhysicalPhoneControllerCallCanCancelThenCompleteExactlyOnce" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1042664655" result="Passed" start-time="2026-09-27 10:28:06Z" end-time="2026-09-27 10:28:10Z" duration="3.675092" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1043" name="PhysicalRadiatorValveShowsZeroThroughThreeAndRaisesCentralDemandWithoutElectricity" fullname="WorstHotel.Tests.Phase1PlayModeTests.PhysicalRadiatorValveShowsZeroThroughThreeAndRaisesCentralDemandWithoutElectricity" methodname="PhysicalRadiatorValveShowsZeroThroughThreeAndRaisesCentralDemandWithoutElectricity" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1146233103" result="Passed" start-time="2026-09-27 10:28:10Z" end-time="2026-09-27 10:28:12Z" duration="1.890990" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1008" name="PhysicalReceptionControllerBooksEditsAndCancelsFutureStayWhileHotelKeepsRunning" fullname="WorstHotel.Tests.Phase1PlayModeTests.PhysicalReceptionControllerBooksEditsAndCancelsFutureStayWhileHotelKeepsRunning" methodname="PhysicalReceptionControllerBooksEditsAndCancelsFutureStayWhileHotelKeepsRunning" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="665282582" result="Passed" start-time="2026-09-27 10:28:12Z" end-time="2026-09-27 10:28:15Z" duration="2.870594" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1011" name="ProductionClientCanMirrorAnExplicitLegacyFixtureWithoutActivatingItsCalendar" fullname="WorstHotel.Tests.Phase1PlayModeTests.ProductionClientCanMirrorAnExplicitLegacyFixtureWithoutActivatingItsCalendar" methodname="ProductionClientCanMirrorAnExplicitLegacyFixtureWithoutActivatingItsCalendar" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1640275053" result="Passed" start-time="2026-09-27 10:28:15Z" end-time="2026-09-27 10:28:16Z" duration="0.786394" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1042" name="RealBurntLampRequiresShelfBulbAndPowerLossIsNotMistakenForASecondBurntBulb" fullname="WorstHotel.Tests.Phase1PlayModeTests.RealBurntLampRequiresShelfBulbAndPowerLossIsNotMistakenForASecondBurntBulb" methodname="RealBurntLampRequiresShelfBulbAndPowerLossIsNotMistakenForASecondBurntBulb" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="82794171" result="Passed" start-time="2026-09-27 10:28:16Z" end-time="2026-09-27 10:28:37Z" duration="21.654414" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1005" name="RealHeaterCanBeCarriedThroughDoorPlacedAndSwitchedToChangeRoomHeat" fullname="WorstHotel.Tests.Phase1PlayModeTests.RealHeaterCanBeCarriedThroughDoorPlacedAndSwitchedToChangeRoomHeat" methodname="RealHeaterCanBeCarriedThroughDoorPlacedAndSwitchedToChangeRoomHeat" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1675599387" result="Passed" start-time="2026-09-27 10:28:37Z" end-time="2026-09-27 10:28:44Z" duration="6.520790" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1055" name="RealReceptionArrivalStopsBothPlayersWaitWhenStaffCanActuallyCheckIn" fullname="WorstHotel.Tests.Phase1PlayModeTests.RealReceptionArrivalStopsBothPlayersWaitWhenStaffCanActuallyCheckIn" methodname="RealReceptionArrivalStopsBothPlayersWaitWhenStaffCanActuallyCheckIn" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="512247903" result="Passed" start-time="2026-09-27 10:28:44Z" end-time="2026-09-27 10:28:49Z" duration="4.741765" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1006" name="RelocationUsesBothRealDoorsAndCheckoutMidTransferExitsItsPhysicalOrigin" fullname="WorstHotel.Tests.Phase1PlayModeTests.RelocationUsesBothRealDoorsAndCheckoutMidTransferExitsItsPhysicalOrigin" methodname="RelocationUsesBothRealDoorsAndCheckoutMidTransferExitsItsPhysicalOrigin" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="964517334" result="Passed" start-time="2026-09-27 10:28:49Z" end-time="2026-09-27 10:29:22Z" duration="33.891884" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1054" name="RemoteBedHoldUsesHostTimeAndDisconnectReleasesPhysicalLinenAndClaim" fullname="WorstHotel.Tests.Phase1PlayModeTests.RemoteBedHoldUsesHostTimeAndDisconnectReleasesPhysicalLinenAndClaim" methodname="RemoteBedHoldUsesHostTimeAndDisconnectReleasesPhysicalLinenAndClaim" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2053455610" result="Passed" start-time="2026-09-27 10:29:22Z" end-time="2026-09-27 10:29:24Z" duration="1.360789" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1053" name="RemotePressBurstPhysicallyTakesRackKeyOnceAndExpiredInputDropsIt" fullname="WorstHotel.Tests.Phase1PlayModeTests.RemotePressBurstPhysicallyTakesRackKeyOnceAndExpiredInputDropsIt" methodname="RemotePressBurstPhysicallyTakesRackKeyOnceAndExpiredInputDropsIt" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="559565092" result="Passed" start-time="2026-09-27 10:29:24Z" end-time="2026-09-27 10:29:25Z" duration="1.609865" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1039" name="ServiceBoardControllerAcceptsBlanketWithoutCreatingOrDeliveringAnItem" fullname="WorstHotel.Tests.Phase1PlayModeTests.ServiceBoardControllerAcceptsBlanketWithoutCreatingOrDeliveringAnItem" methodname="ServiceBoardControllerAcceptsBlanketWithoutCreatingOrDeliveringAnItem" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1847895684" result="Passed" start-time="2026-09-27 10:29:25Z" end-time="2026-09-27 10:29:26Z" duration="0.962471" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1071" name="SoloRepairsUsingOnePhysicalValveCatchWalkAndAllFiveRemainingControls" fullname="WorstHotel.Tests.Phase1PlayModeTests.SoloRepairsUsingOnePhysicalValveCatchWalkAndAllFiveRemainingControls" methodname="SoloRepairsUsingOnePhysicalValveCatchWalkAndAllFiveRemainingControls" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1036961655" result="Passed" start-time="2026-09-27 10:29:26Z" end-time="2026-09-27 10:29:59Z" duration="32.424165" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1070" name="SoloUsesOneActualRigAndOneWaitConsentAndKeepsModeOnReset" fullname="WorstHotel.Tests.Phase1PlayModeTests.SoloUsesOneActualRigAndOneWaitConsentAndKeepsModeOnReset" methodname="SoloUsesOneActualRigAndOneWaitConsentAndKeepsModeOnReset" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1571346718" result="Passed" start-time="2026-09-27 10:29:59Z" end-time="2026-09-27 10:30:02Z" duration="3.030441" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1045" name="TwoActorsRestartByUsingTheActualSixRaycastControls" fullname="WorstHotel.Tests.Phase1PlayModeTests.TwoActorsRestartByUsingTheActualSixRaycastControls" methodname="TwoActorsRestartByUsingTheActualSixRaycastControls" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1847419565" result="Passed" start-time="2026-09-27 10:30:02Z" end-time="2026-09-27 10:30:19Z" duration="16.924984" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1038" name="TwoAuthoredHeatersOverloadProductionCircuitAndActualResetRetripsUntilOneIsSwitchedOff" fullname="WorstHotel.Tests.Phase1PlayModeTests.TwoAuthoredHeatersOverloadProductionCircuitAndActualResetRetripsUntilOneIsSwitchedOff" methodname="TwoAuthoredHeatersOverloadProductionCircuitAndActualResetRetripsUntilOneIsSwitchedOff" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="188375229" result="Passed" start-time="2026-09-27 10:30:19Z" end-time="2026-09-27 10:30:24Z" duration="5.311553" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1065" name="TwoStaffHaveSeparateCamerasAndOnlyOneAudioListener" fullname="WorstHotel.Tests.Phase1PlayModeTests.TwoStaffHaveSeparateCamerasAndOnlyOneAudioListener" methodname="TwoStaffHaveSeparateCamerasAndOnlyOneAudioListener" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2115693897" result="Passed" start-time="2026-09-27 10:30:24Z" end-time="2026-09-27 10:30:25Z" duration="0.778009" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1049" name="VirtualDisconnectPausesCancelsValveAndKeepsTheOtherPadsActor" fullname="WorstHotel.Tests.Phase1PlayModeTests.VirtualDisconnectPausesCancelsValveAndKeepsTheOtherPadsActor" methodname="VirtualDisconnectPausesCancelsValveAndKeepsTheOtherPadsActor" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1888567525" result="Passed" start-time="2026-09-27 10:30:25Z" end-time="2026-09-27 10:30:26Z" duration="0.978510" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1076" name="WaitNeedsBothIndependentVotesAndAcceleratesOnlyHotelTime" fullname="WorstHotel.Tests.Phase1PlayModeTests.WaitNeedsBothIndependentVotesAndAcceleratesOnlyHotelTime" methodname="WaitNeedsBothIndependentVotesAndAcceleratesOnlyHotelTime" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="690344010" result="Passed" start-time="2026-09-27 10:30:26Z" end-time="2026-09-27 10:30:29Z" duration="3.308951" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1068" name="WrongRoomKeyDoesNotCheckInAndDropRegrabAndNewGamePreserveUniquePhysicalKeys" fullname="WorstHotel.Tests.Phase1PlayModeTests.WrongRoomKeyDoesNotCheckInAndDropRegrabAndNewGamePreserveUniquePhysicalKeys" methodname="WrongRoomKeyDoesNotCheckInAndDropRegrabAndNewGamePreserveUniquePhysicalKeys" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="529722304" result="Passed" start-time="2026-09-27 10:30:29Z" end-time="2026-09-27 10:30:41Z" duration="11.992554" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

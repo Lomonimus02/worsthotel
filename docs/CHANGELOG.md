@@ -1,3 +1,7 @@
+## Prototype 0.4.1 — phase 0 baseline
+
+Fresh existing-project checkpoint: compilation and full Edit 614/614, Play 75/75, continuous Windows SOLO and subsequent same-binary localhost LAN all passed. Existing 0.4 DLL and package hashes are unchanged; user pause-diagnostic edits are preserved. No runtime change yet. Read-only audits identify the missing sub-capacity boiler effects, actual staff-heater electrical cascade, booking/sleep authority boundaries and early-departure lifecycle risks. [Exact evidence and limitations](verification/rhythm041-phase0.md); [ordered milestone](RHYTHM041_PLAN.md).
+
 # Changelog
 
 Prototype 0.4 Continuous Operations is packaged for Windows playtesting: [requirements](CORE04_REQUEST.txt), [phase plan](CORE04_PLAN.md), [verification](VERIFICATION.md). Engineering gates through phase 10 passed; human §101 design/feel acceptance remains open and the earlier Alt+Tab investigation remains explicitly deferred. Version 0.3.2 is preserved separately. Earlier entries retain their historical scope and test results.

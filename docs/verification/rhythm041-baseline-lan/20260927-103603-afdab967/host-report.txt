@@ -1,0 +1,27 @@
+Outcome=PASS Errors=0 Role=host Mode=ContinuousFixtures Checks=92
+Utc=2026-09-27T10:36:58.0862574Z
+Run=20260927-103603-afdab967
+CONTINUOUS CAPITAL FIXTURE: cloned economy starting cash=8000; production continuous calendar, service, capacity, wear and prices remain unchanged. This is funded command/accounting verification, not an affordability or natural-profit claim.
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+LANVersion=12 ModelSchema=11 Compatibility=worst-hotel-0.4-discussions12-gzip
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+DIAGNOSTIC: empty remote employee placed before the authored reception terminal; actual client look/use and the normal physical ledger grant perform all access.
+PRODUCTION CONTINUOUS: 720-second day, opens08:00, report06:00; no legacy clone, synthetic guest arrival or fabricated transport state.
+DIAGNOSTIC: ForceFailure + DebugTripCircuit(B) + DebugMarkRoomDirty(106) create persistence conditions. Rack key stays on rack; no physical carry is claimed.
+DIAGNOSTIC ADVANCE first accounting boundary: before=24.20002 target=660.4 requested=636.2 tickRate=5
+DIAGNOSTIC ADVANCE RESULT first accounting boundary: correction=0 actual=660.4014 shortfall=-0.00140380859 report=1 count=1 nextReport=1380 phase=Service modelSame=True roomsSame=True expectedEpoch=639261021679325247 actualEpoch=639261021679325247 message=Future booking cancelled.
+DIAGNOSTIC CLOCK: 24.20 -> 660.40; normal fixed-tick AdvanceTime crosses midnight/report; not a human-duration or arrival-route test.
+PhysicalLedgerAccess=True BookingRoundtrip=True PriceEdit=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryBooking=True
+HostEpoch=639261021679325247 Day=2 Cash=7550 Report=1 RemoteCommands=6 ModelBytes=22869 WorldBytes=14092
+DIAGNOSTIC CLOCK: bounded advance to paid maintenance deadline; actual model completion and replicated condition are checked, not elapsed human work time.
+DIAGNOSTIC ADVANCE accounting boundary 2: before=741.4062 target=1380.2 requested=638.793762 tickRate=5
+DIAGNOSTIC ADVANCE RESULT accounting boundary 2: correction=0 actual=1380.10974 shortfall=0.09020996 report=2 count=2 nextReport=2100 phase=Service modelSame=True roomsSame=True expectedEpoch=639261021679325247 actualEpoch=639261021679325247 message=The boiler is already offline for maintenance.
+DIAGNOSTIC ADVANCE RESULT accounting boundary 2: correction=1 actual=1380.30969 shortfall=-0.109741211 report=2 count=2 nextReport=2100 phase=Service modelSame=True roomsSame=True expectedEpoch=639261021679325247 actualEpoch=639261021679325247 message=The boiler is already offline for maintenance.
+DIAGNOSTIC ACCOUNTING BOUNDARY 2: clock 741.41 -> 1380.31; Day=3 cash=2600. Production guest travel may continue, but no guest check-in or three played LAN days is claimed.
+DIAGNOSTIC ADVANCE accounting boundary 3: before=1383.309 target=2100.2 requested=716.891 tickRate=5
+DIAGNOSTIC ADVANCE RESULT accounting boundary 3: correction=0 actual=2099.99976 shortfall=0.200195313 report=2 count=2 nextReport=2100 phase=Service modelSame=True roomsSame=True expectedEpoch=639261021679325247 actualEpoch=639261021679325247 message=The boiler is already offline for maintenance.
+DIAGNOSTIC ADVANCE RESULT accounting boundary 3: correction=1 actual=2100.2 shortfall=0 report=3 count=3 nextReport=2820 phase=Service modelSame=True roomsSame=True expectedEpoch=639261021679325247 actualEpoch=639261021679325247 message=The boiler is already offline for maintenance.
+DIAGNOSTIC ACCOUNTING BOUNDARY 3: clock 1383.31 -> 2100.20; Day=4 cash=2150. Production guest travel may continue, but no guest check-in or three played LAN days is claimed.
+RemotePaidUpgrades=True UpgradeDoesNotRepair=True DuplicateCapitalRejected=True OtherBranchRejected=True RemotePaidMaintenance=True MaintenanceDowntime=True DuplicateMaintenanceRejected=True MaintenanceRestored=True ThreeAccountingBoundaries=True ContinuousCapitalVerified=True
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.
