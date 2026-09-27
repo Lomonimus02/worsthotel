@@ -26,6 +26,7 @@ namespace WorstHotel
             // Both guards above are pure. No callback can intervene between payment and commit.
             PeriodMaintenanceSpend += cost;
             var result = Boiler.ApplyEmergencyPatch(actorId);
+            ObserveInfrastructureChanges();
             SignalEvent("Emergency boiler patch: $" + cost + ". Reduced condition and patch penalty remain.");
             return result;
         }
@@ -54,6 +55,7 @@ namespace WorstHotel
             if (!paid.Success) return paid;
             PeriodMaintenanceSpend += cost;
             var result = Boiler.BeginMaintenance(Elapsed, kind);
+            ObserveInfrastructureChanges();
             SignalEvent(kind + " boiler service started: $" + cost + ". Heating is off until the work finishes.");
             return result;
         }

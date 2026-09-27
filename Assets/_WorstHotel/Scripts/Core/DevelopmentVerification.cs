@@ -72,6 +72,7 @@ namespace WorstHotel
         // This opt-in historical driver verifies the original three-shift regression flow.
         // Configure before scene Start/transport startup; ordinary production sessions never use it.
         public static bool ShouldUseLegacyFixture(string[] arguments) => arguments != null &&
+            Array.IndexOf(arguments, "-verifyLanSleep") < 0 &&
             Array.IndexOf(arguments, "-verifyLanContinuous") < 0 && Array.IndexOf(arguments, "-verifyOperationsUI") < 0 &&
             Array.IndexOf(arguments, "-verifyHotelContinuous") < 0;
 

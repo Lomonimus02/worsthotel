@@ -18,7 +18,7 @@ namespace WorstHotel
     {
         const string PadLayout = "WorstHotelLanVerificationGamepad";
         string output, side;
-        bool host, finished, layoutRegistered, clockTracking, capture, agency, services, continuous;
+        bool host, finished, layoutRegistered, clockTracking, capture, agency, services, continuous, sleep;
         int errors, checks, stableClockChecks;
         float began, serviceClockStart, lastClientClock;
         long lastClientSequence;
@@ -54,15 +54,17 @@ namespace WorstHotel
             runner.agency = Array.IndexOf(args, "-verifyLanAgency") >= 0;
             runner.services = Array.IndexOf(args, "-verifyLanServices") >= 0;
             runner.continuous = Array.IndexOf(args, "-verifyLanContinuous") >= 0;
+            runner.sleep = Array.IndexOf(args, "-verifyLanSleep") >= 0;
             runner.side = isHost ? "host" : "client"; runner.began = Time.realtimeSinceStartup;
             Directory.CreateDirectory(runner.output);
             DontDestroyOnLoad(runner.gameObject);
             Application.runInBackground = true; Application.targetFrameRate = 60;
-            if (isClient)
+            if (isClient || runner.sleep)
             {
                 InputSystem.RegisterLayout("{\"extend\":\"Gamepad\",\"runInBackground\":\"enabled\"}", PadLayout);
                 runner.layoutRegistered = true;
-                runner.pad = (Gamepad)InputSystem.AddDevice(PadLayout, "LANVerificationOwnedClientPad");
+                runner.pad = (Gamepad)InputSystem.AddDevice(PadLayout,
+                    isHost ? "LANVerificationOwnedHostPad" : "LANVerificationOwnedClientPad");
             }
             SceneManager.sceneLoaded += runner.PrepareLegacyVerification;
             Application.logMessageReceived += runner.OnLog;
@@ -103,15 +105,16 @@ namespace WorstHotel
         void Update()
         {
             if (finished) return;
-            float watchdog = continuous ? 420 : services ? 330 : 140;
+            float watchdog = sleep || continuous ? 420 : services ? 330 : 140;
             if (Time.realtimeSinceStartup - began > watchdog) { Fail(watchdog + "-second internal watchdog"); return; }
             if (agency && host) MaintainAgencyFixture();
             if (services && host) MaintainServicesFixture();
-            if (host || !coop || pad == null || coop.LanRole != LanRole.Client || !coop.Players[1]) return;
+            if ((!sleep && host) || !coop || pad == null ||
+                coop.LanRole != (host ? LanRole.Host : LanRole.Client) || !coop.Players[coop.LocalActorId]) return;
             // This hidden-process fixture owns only this virtual device. It does not enable,
             // disable, remove or queue input to any physical device on the user's computer.
             coop.SendMessage("OnApplicationFocus", true, SendMessageOptions.DontRequireReceiver);
-            var input = coop.Players[1].Input;
+            var input = coop.Players[coop.LocalActorId].Input;
             if (!ReferenceEquals(input.Gamepad, pad)) input.Bind(pad, null, null);
         }
 
@@ -162,7 +165,8 @@ namespace WorstHotel
             Require(key && key.rackAnchor, "real authored room101 key exists");
             facts.Add("Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.");
             facts.Add("Stage files coordinate waits and compare measured poses; they never apply hotel state or input.");
-            if (continuous) { if (host) yield return RunContinuousHost(); else yield return RunContinuousClient(); }
+            if (sleep) { if (host) yield return RunSleepHost(); else yield return RunSleepClient(); }
+            else if (continuous) { if (host) yield return RunContinuousHost(); else yield return RunContinuousClient(); }
             else if (services) { if (host) yield return RunServicesHost(); else yield return RunServicesClient(); }
             else if (agency) { if (host) yield return RunAgencyHost(); else yield return RunAgencyClient(); }
             else { if (host) yield return RunHost(); else yield return RunClient(); }
@@ -459,7 +463,7 @@ namespace WorstHotel
         void WriteReport(string outcome)
         {
             WriteText(side + "-report.txt", "Outcome=" + outcome + " Errors=" + errors + " Role=" + side +
-                " Mode=" + (continuous ? "ContinuousFixtures" : services ? "ServiceFixtures" : agency ? "AgencyFixtures" : "PhysicalKeys") +
+                " Mode=" + (sleep ? "SleepFixtures" : continuous ? "ContinuousFixtures" : services ? "ServiceFixtures" : agency ? "AgencyFixtures" : "PhysicalKeys") +
                 " Checks=" + checks + "\nUtc=" + DateTime.UtcNow.ToString("O") + "\nRun=" + Path.GetFileName(output) +
                 "\n" + string.Join("\n", facts) +
                 "\nScope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.\n");

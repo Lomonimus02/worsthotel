@@ -63,6 +63,7 @@ namespace WorstHotel
                 Apply(() => simulation.RequestQuiet(0, guest.GuestId));
             DrawGuestNeedsDebug(guest);
             DrawGuestServicesDebug(guest);
+            DrawGuestRhythmDebug(guest);
             if (Button("Move to selected room " + Session.Rooms[roomIndex].Profile.Id, agent.InAssignedRoom))
                 Apply(() => simulation.MoveGuest(0, guest.GuestId, Session.Rooms[roomIndex].Profile.Id));
             if (Button("Accept this guest's current consequences", agent.InAssignedRoom))

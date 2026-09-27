@@ -23,6 +23,7 @@ namespace WorstHotel
         {
             room.RadiatorSetting = setting;
             RefreshGuestLoad();
+            ObserveInfrastructureChanges();
         }
 
         public CommandResult BreakRoomLamp(int roomId)

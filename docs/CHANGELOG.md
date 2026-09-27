@@ -1,3 +1,7 @@
+## Prototype 0.4.1 — phase 8 thermal feedback and diagnostics
+
+Room temperature ticks and diagnostic views share one measured thermal calculation. Normal room/radiator feedback shows actual warming/cooling and source availability, including central heat continuing during a circuit trip. A bounded64-entry infrastructure history records coherent causal changes without generating gameplay events. F2 adds guarded stress, paid service, forward calendar, sales/demand, satisfaction-history/early-eligibility and SOLO-bed diagnostic controls. Compile,34 focused model cases and5 physical/UI scenarios passed across the documented floating-point and stale-test corrections. Final EXE/pixel gates remain pending. [Evidence](verification/rhythm041-phase8.md).
+
 ## Prototype 0.4.1 — phase 7 staff room and sleep
 
 Added a compact two-cot staff niche and real bed consent. SOLO needs one employee; co-op needs two distinct beds. Only the hotel clock accelerates8× until06:00 or a real critical condition; minor events and paid service completion continue normally. Held/released activation, fresh cancellation, pause/device/focus/lease loss, reconnect and session resets have separate safeguards. LAN18 validates sleep state atomically before model mutation. Scene/compile and all15 physical/network/WAIT/pause cases passed, including real branch-trip wake and ordinary Rigidbody gravity. Actual two-EXE sleep and pixel review remain final gates. [Evidence](verification/rhythm041-phase7.md).

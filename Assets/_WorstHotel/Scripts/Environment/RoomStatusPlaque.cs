@@ -59,8 +59,13 @@ namespace WorstHotel
             string status = room.Occupied ? "OCCUPIED" : room.DepartingGuestId != null ? "GUEST LEAVING" :
                 room.TurnoverState == HousekeepingState.Cleaning ? "CLEANING" : room.Cleanliness == Cleanliness.Dirty ?
                 (reserved ? "WAIT CLEAN" : "DIRTY") : reserved ? "RESERVED" : "READY";
-            label.text = roomId.ToString(CultureInfo.InvariantCulture) + " / " + room.CircuitId + "\n" + status + "\n" +
-                (room.HasPower ? room.Temperature.ToString("0.0", CultureInfo.InvariantCulture) + " °C" : "POWER OFF");
+            string reading = room.Temperature.ToString("0.0", CultureInfo.InvariantCulture) + "°C";
+            if (session.Simulation != null && session.Simulation.TryGetRoomThermalBreakdown(roomId, out var thermal, out _))
+                reading += " " + ThermalLabels.Trend(thermal).ToLowerInvariant();
+            // OFF belongs to this electrical branch. The thermometer still reads the
+            // real room, including any central heating that continues during a power cut.
+            label.text = roomId.ToString(CultureInfo.InvariantCulture) + " / " + room.CircuitId + (room.HasPower ? "" : " OFF") +
+                "\n" + status + "\n" + reading;
             label.color = !room.HasPower ? new Color(1, .52f, .26f) : room.Occupied ? new Color(.96f, .88f, .66f) :
                 reserved ? new Color(1f, .77f, .38f) : new Color(.67f, .88f, .74f);
         }

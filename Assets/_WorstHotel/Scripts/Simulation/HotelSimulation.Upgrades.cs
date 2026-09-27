@@ -15,6 +15,7 @@ namespace WorstHotel
             if (!paid.Success) return paid;
             PeriodCapitalSpend += cost;
             var result = Boiler.InstallCapacityUpgrade();
+            ObserveInfrastructureChanges();
             SignalEvent("Boiler capacity upgraded for $" + cost + ". Current condition and repair state remain.");
             return result;
         }

@@ -83,6 +83,8 @@ namespace WorstHotel
             while (TryGetNextSalesDecision(out float at, out int arrivalDay, out int offerIndex) && at <= now)
             {
                 var cursor = salesDays.First(item => item.ArrivalDay == arrivalDay);
+                bool forceDemand = debugNextBookingDemand;
+                debugNextBookingDemand = false; // One due enquiry, even if no room/offer remains eligible.
                 cursor.NextOfferIndex++; // Consumed even if demand, room supply or ledger space is absent.
                 string id = "stay-" + arrivalDay + "-" + (offerIndex + 1);
                 var offer = bookingOffers.FirstOrDefault(item => item.Id == id);
@@ -91,7 +93,7 @@ namespace WorstHotel
                 foreach (var policy in roomSalesPolicies.Where(item => item.OpenForSale).OrderBy(item => item.Price).ThenBy(item => item.RoomId))
                 {
                     if (!CanReserveInterval(policy.RoomId, offer.ArrivalAt, offer.CheckoutAt).Success ||
-                        roll >= Operations.Sales.DemandProbability(offer.Application.ReferencePrice, policy.Price)) continue;
+                        !forceDemand && roll >= Operations.Sales.DemandProbability(offer.Application.ReferencePrice, policy.Price)) continue;
                     // Same validated reservation/physical arrival pipeline, with explicit automatic origin.
                     var result = CommitBooking(offer, policy.RoomId, policy.Price, -1, true);
                     if (result.Success || reservations.Count >= 128) break;

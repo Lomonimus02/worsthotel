@@ -16,7 +16,7 @@ Follow the requested order. Freeze runtime sources while Unity is compiling/test
 | 5 | Automatic scheduled normal bookings, per-room sales policy/prices, adjustable actual assignment | PASS:778 full Edit,5 physical. [Evidence and executable-driver limits](verification/rhythm041-phase5.md). |
 | 6 | Natural morning/afternoon/evening/night guest activity and demand; no hard phases/load multipliers | PASS:803 Edit across full+corrected economic retry,110 focused,2 physical. [Measured day, economic comparison correction and earned upgrade](verification/rhythm041-phase6.md). |
 | 7 | Small modular staff room, physical beds, event-aware model-clock sleep, two-player agreement/critical wake | PASS:Scene/compile,15 physical/network/WAIT/pause scenarios. [Evidence and final EXE limits](verification/rhythm041-phase7.md). |
-| 8 | Operations/thermal/debug history and physical feedback readability | Pending |
+| 8 | Operations/thermal/debug history and physical feedback readability | PASS:compile,34 focused Edit,5 physical/UI scenarios across corrected attempts. [Evidence](verification/rhythm041-phase8.md). Final rendered pixel review remains phase9. |
 | 9 | Fresh full suites, several continuous days of safe/aggressive/service/sleep/sales play, SOLO then LAN, verified Windows package | Pending |
 
 ## Integration contract

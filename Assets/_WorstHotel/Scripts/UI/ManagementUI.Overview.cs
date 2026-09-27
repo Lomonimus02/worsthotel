@@ -21,15 +21,20 @@ namespace WorstHotel
         static bool OverviewRoomReady(RoomState room) => !room.Occupied && string.IsNullOrEmpty(room.DepartingGuestId) &&
             room.Cleanliness == Cleanliness.Clean && room.TurnoverState != HousekeepingState.Moving && room.TurnoverState != HousekeepingState.Cleaning;
 
-        string OverviewRoomLine(RoomState room)
+        string OverviewRoomState(RoomState room)
         {
             string state = room.Occupied ? "Occupied" : !string.IsNullOrEmpty(room.DepartingGuestId) ? "Guest leaving" :
                 OverviewRoomReady(room) ? "Ready" : "Needs linen";
             var task = Session.Simulation.Housekeeping?.Find(room.Profile.Id);
             if (!room.Occupied && string.IsNullOrEmpty(room.DepartingGuestId) && task?.Step == RoomPreparationStep.MakingBed)
                 state = "Bed making " + Mathf.RoundToInt(task.Progress01 * 100) + "%";
-            return room.Profile.Id + " · " + state + " · " + room.Temperature.ToString("F1") + "°C";
+            return room.Profile.Id + " · " + state;
         }
+
+        string OverviewRoomThermal(RoomState room) => Session.Simulation.TryGetRoomThermalBreakdown(room.Profile.Id, out var thermal, out _) ?
+            ThermalLabels.Reading(thermal) : room.Temperature.ToString("F1") + "°C";
+
+        string OverviewRoomLine(RoomState room) => OverviewRoomState(room) + " · " + OverviewRoomThermal(room);
 
         IEnumerable<(float time, string label)> OverviewMovements()
         {
@@ -99,8 +104,10 @@ namespace WorstHotel
             for (int index = 0; index < Session.Rooms.Length; index++)
             {
                 var room = Session.Rooms[index];
-                Label(new Rect(42, (automatic ? 331 : 312) + index * (automatic ? 25 : 28), 342, 25), OverviewRoomLine(room), Small,
+                float top = (automatic ? 331 : 312) + index * (automatic ? 25 : 28);
+                Label(new Rect(42, top, 178, 25), OverviewRoomState(room), Small,
                     !room.Occupied && !OverviewRoomReady(room) ? Wine : Ink);
+                Label(new Rect(222, top, 162, 25), OverviewRoomThermal(room), Small, Muted);
             }
             int row = 0;
             if (automatic) Label(new Rect(405, 283, 342, 25), OverviewConfirmed, Small, Muted);

@@ -101,8 +101,15 @@ namespace WorstHotel.Tests
             var valve = Object.FindObjectsByType<RadiatorValveInteraction>(FindObjectsSortMode.None).Single(value => value.roomId == 106);
             var gauge = Object.FindAnyObjectByType<BoilerReadout>();
             Assert.That(gauge.capacityReadout && gauge.capacityDisplay, Is.True, "The authored boiler must have its separate capacity display.");
-            Assert.That(gauge.capacityDisplay.GetComponentsInChildren<Collider>(true), Is.Empty,
-                "A presentation plaque must not obstruct the existing physical repair controls.");
+            // Phase3 deliberately made this plate the real inspection/service surface.
+            // Preserve the no-obstruction requirement without forbidding its required hitbox.
+            var plateShapes = gauge.capacityDisplay.GetComponentsInChildren<Collider>(true);
+            Assert.That(plateShapes.Length, Is.EqualTo(1));
+            Assert.That(plateShapes[0].GetComponent<BoilerServiceInteraction>(), Is.SameAs(BoilerServiceInteraction.Instance));
+            foreach (var control in Object.FindObjectsByType<RepairControl>(FindObjectsSortMode.None))
+                foreach (var shape in control.GetComponentsInChildren<Collider>(true).Where(value => value.enabled))
+                    Assert.That(plateShapes[0].bounds.Intersects(shape.bounds), Is.False,
+                        "The inspection plate must leave emergency control " + control.kind + " clear.");
             yield return PositionEmptyActorForLinen(0, new Vector3(8, .08f, valve.transform.position.z), valve.transform.position);
             yield return AimAtKeyScenarioPoint(actor, padA, () => valve.transform.position);
             Assert.That(actor.Interactor.Focused, Is.SameAs(valve), "Controller input must hit the real radiator valve.");

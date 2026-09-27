@@ -28,6 +28,7 @@ namespace WorstHotel
         {
             NoisePropagationDebug.Visible = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            pendingSleepDiagnostic = 0;
             if (!visible) return;
             visible = false;
             requestedClockSpeed = 1;
@@ -48,6 +49,7 @@ namespace WorstHotel
 
         void Update()
         {
+            if (RunPendingSleepDiagnostic()) return;
             if (Keyboard.current != null && Keyboard.current.f2Key.wasPressedThisFrame) Toggle();
             if (visible && LocalCoopBootstrap.Instance && !LocalCoopBootstrap.Instance.IsPaused)
                 LocalCoopBootstrap.Instance.SetPaused(true);
@@ -69,7 +71,11 @@ namespace WorstHotel
 
         void Apply(Func<CommandResult> operation)
         {
-            try { message = operation().Message; Session.RefreshDebugState(); }
+            try
+            {
+                using (Session.Simulation.BeginDiagnosticInfrastructureChange()) message = operation().Message;
+                Session.RefreshDebugState();
+            }
             catch (ArgumentException exception) { message = exception.Message; }
         }
 
@@ -122,12 +128,13 @@ namespace WorstHotel
             GUILayout.Label("Day " + Session.Day + "  /  " + Session.Phase + "  /  " + simulation.Elapsed.ToString("F1") + " seconds\nCash $" + simulation.Economy.Cash + "  •  Reputation " + simulation.Economy.Reputation.ToString("F1") +
                 "\nCondition " + boiler.Condition.ToString("F1") + "  •  Load " + boiler.Load.ToString("F2") + "  •  Pressure " + boiler.Pressure.ToString("F1") + (boiler.LoadOverride.HasValue ? "  [LOAD OVERRIDE]" : ""), body);
             DrawHeatingCapacityDebug();
+            DrawBoilerRhythmDebug();
             NumericRow("Cash", ref cash, "Set cash", value => simulation.DebugSetCash(value));
             NumericRow("Boiler condition", ref condition, "Set condition", value => { boiler.SetCondition(value); return CommandResult.Ok("Condition updated; an active fault still needs repair."); });
             NumericRow("Forced demand", ref load, "Override load", value => { boiler.OverrideLoad(value); return CommandResult.Ok("Load override set; reset it to restore guest demand."); });
             GUILayout.BeginHorizontal();
             if (Button("Reset demand override")) Apply(() => { boiler.OverrideLoad(null); return CommandResult.Ok("Load now follows actual guests."); });
-            if (Button("Force overpressure", Session.Phase == DayPhase.Service)) Apply(() => { boiler.ForceFailure(); return CommandResult.Ok("Failure forced for repair testing."); });
+            if (Button("Force boiler failure", Session.Phase == DayPhase.Service && !boiler.MaintenanceInProgress)) Apply(() => { boiler.ForceFailure(); return CommandResult.Ok("Failure forced for repair testing."); });
             GUILayout.EndHorizontal();
             GUILayout.Space(9);
             GUILayout.BeginHorizontal();
@@ -137,6 +144,7 @@ namespace WorstHotel
             if (Button("Room ›")) roomIndex = (roomIndex + 1) % Session.Rooms.Length;
             GUILayout.EndHorizontal();
             NumericRow("Room temperature", ref temperature, "Set temperature", value => simulation.SetRoomTemperature(room.Profile.Id, value));
+            DrawThermalDebug(room);
             NumericRow("Room noise (0–1)", ref noise, "Set noise", value => simulation.SetRoomNoise(room.Profile.Id, value));
             DrawRoomNoiseDebug(room);
             DrawRoomServicesDebug(room);
@@ -148,11 +156,14 @@ namespace WorstHotel
                 Apply(() => simulation.DebugSpawnGuest(guestKind, room.Profile.Id));
             NumericRow("Advance seconds", ref advance, "Advance simulation", value => { if (value <= 0 || (Session.Phase != DayPhase.Service && Session.Phase != DayPhase.Planning)) return CommandResult.Fail("Use preparation or service and enter positive seconds."); Session.AdvanceTime(value); return CommandResult.Ok("Simulation advanced in fixed ticks; physical travel still needs rendered frames."); });
             DrawClockDebug();
+            DrawRhythmClockDebug();
+            DrawSalesRhythmDebug();
             DrawGuestDebug();
             DrawServiceDebug();
             DrawHeaterDebug();
             DrawElectricityDebug();
             DrawHousekeepingDebug();
+            DrawInfrastructureHistory();
             GUILayout.BeginHorizontal();
             if (Button("Start shift", Session.Phase == DayPhase.Planning))
                 Apply(() =>
@@ -181,6 +192,7 @@ namespace WorstHotel
 
         void OnDisable()
         {
+            pendingSleepDiagnostic = 0;
             if (visible && LocalCoopBootstrap.Instance) LocalCoopBootstrap.Instance.SetPaused(wasPaused);
             visible = false;
         }

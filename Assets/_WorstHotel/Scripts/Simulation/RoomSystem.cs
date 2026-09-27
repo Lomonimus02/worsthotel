@@ -64,22 +64,28 @@ namespace WorstHotel
             }
         }
 
+        public RoomThermalBreakdown ThermalBreakdownForRoom(RoomState room, float heatingOutput, float supplement = 0,
+            bool boilerFailed = false, bool boilerMaintenance = false)
+        {
+            if (room == null || !Number.IsFinite(room.Temperature))
+                throw new ArgumentException("Thermal state must contain real rooms with finite temperatures.");
+            if (!Number.IsFinite(heatingOutput)) throw new ArgumentOutOfRangeException(nameof(heatingOutput));
+            if (!Number.IsFinite(supplement) || supplement < 0)
+                throw new ArgumentException("Supplemental room heat must be finite and nonnegative.");
+            return new RoomThermalBreakdown(room, settings.TemperatureBase, settings.HeatTemperatureGain, heatingOutput,
+                Infrastructure.HeatMultiplier(room.RadiatorSetting), supplement, settings.TemperatureTimeConstant,
+                boilerFailed, boilerMaintenance);
+        }
+
         public void TickTemperature(IEnumerable<RoomState> rooms, float heatingOutput, float dt, Func<int, float> supplementalHeat = null)
         {
             if (rooms == null) throw new ArgumentNullException(nameof(rooms));
             if (!Number.IsFinite(dt) || dt < 0 || !Number.IsFinite(heatingOutput)) throw new ArgumentOutOfRangeException(nameof(dt));
-            float blend = 1 - (float)Math.Exp(-dt / settings.TemperatureTimeConstant);
             foreach (var room in rooms)
             {
                 if (room == null || !Number.IsFinite(room.Temperature)) throw new ArgumentException("Thermal state must contain real rooms with finite temperatures.");
                 float supplement = supplementalHeat != null ? supplementalHeat(room.Profile.Id) : 0;
-                if (!Number.IsFinite(supplement) || supplement < 0) throw new ArgumentException("Supplemental room heat must be finite and nonnegative.");
-                float baselineTarget = settings.TemperatureBase + settings.HeatTemperatureGain * Number.Clamp(heatingOutput, 0, 1) *
-                    Infrastructure.HeatMultiplier(room.RadiatorSetting) - room.Profile.HeatLoss;
-                if (supplement == 0) { room.Temperature += (baselineTarget - room.Temperature) * blend; continue; }
-                double target = baselineTarget + (double)supplement;
-                double temperature = room.Temperature + (target - room.Temperature) * blend;
-                room.Temperature = (float)Math.Max(-float.MaxValue, Math.Min(float.MaxValue, temperature));
+                room.Temperature = ThermalBreakdownForRoom(room, heatingOutput, supplement).TemperatureAfter(dt);
             }
         }
     }

@@ -9,6 +9,7 @@ namespace WorstHotel
             if (Electrical == null) return;
             Electrical.Tick(guests, rooms.Values, Heaters, 0);
             Noise.Tick(guests, rooms.Values, Elapsed);
+            ObserveInfrastructureChanges();
         }
 
         public CommandResult ResetCircuit(int actorId, string circuitId)

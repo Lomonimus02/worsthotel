@@ -15,12 +15,18 @@ namespace WorstHotel
                 var result = new List<RoomHeatingDemand>(rooms.Count);
                 foreach (var room in rooms.Values.OrderBy(item => item.Profile.Id))
                 {
-                    var occupant = room.Occupied ? guests.FirstOrDefault(guest => guest.GuestId == room.GuestId &&
-                        guest.RoomId == room.Profile.Id && !guest.ReceiptPosted) : null;
-                    result.Add(roomSystem.HeatingDemandForRoom(room, occupant, LivingSettings));
+                    result.Add(ActualHeatingDemand(room));
                 }
                 return result.AsReadOnly();
             }
+        }
+
+        RoomHeatingDemand ActualHeatingDemand(RoomState room)
+        {
+            if (!LivingEnabled) return new RoomHeatingDemand(room.Profile.Id, null, 0, 0);
+            var occupant = room.Occupied ? guests.FirstOrDefault(guest => guest.GuestId == room.GuestId &&
+                guest.RoomId == room.Profile.Id && !guest.ReceiptPosted) : null;
+            return roomSystem.HeatingDemandForRoom(room, occupant, LivingSettings);
         }
     }
 }

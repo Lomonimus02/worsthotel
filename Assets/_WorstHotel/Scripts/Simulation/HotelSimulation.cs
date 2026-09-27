@@ -110,6 +110,7 @@ namespace WorstHotel
             InitializeDecisionResponses();
             roomSystem = new RoomSystem(settings, infrastructure);
             InitializeServices(services);
+            InitializeInfrastructureHistory();
         }
 
         public CommandResult StartShift(IEnumerable<BookingAssignment> assignments, IEnumerable<BookingApplication> applications)
@@ -172,43 +173,50 @@ namespace WorstHotel
 
         private void TickStep(float step)
         {
-            if (LivingEnabled) TickLivingGuests(Elapsed + step, step);
-            if (LivingEnabled)
+            BeginInfrastructureTick();
+            bool infrastructureStepCompleted = false;
+            try
             {
-                Housekeeping.Tick(step);
-                UpdateQuietRequests(Elapsed + step);
-                Electrical.Tick(guests, rooms.Values, Heaters, step);
-                Noise.Tick(guests, rooms.Values, Elapsed + step);
+                if (LivingEnabled) TickLivingGuests(Elapsed + step, step);
+                if (LivingEnabled)
+                {
+                    Housekeeping.Tick(step);
+                    UpdateQuietRequests(Elapsed + step);
+                    Electrical.Tick(guests, rooms.Values, Heaters, step);
+                    Noise.Tick(guests, rooms.Values, Elapsed + step);
+                }
+                RefreshGuestLoad();
+                bool wasWarning = Boiler.Pressure >= settings.Boiler.WarningPressure;
+                Boiler.Tick(step);
+                if (!wasWarning && Boiler.Pressure >= settings.Boiler.WarningPressure)
+                    SignalEvent("Boiler pressure warning");
+                roomSystem.TickTemperature(rooms.Values, Boiler.HeatingOutput, step, supplementalHeat);
+                if (LivingEnabled)
+                {
+                    roomSystem.TickInfrastructure(rooms.Values, step);
+                    foreach (var guest in guests)
+                        NeedEvaluator.Tick(guest, rooms[guest.RoomId], step, Requests.HasExpiredRoomRequest(guest.GuestId));
+                    Incidents.TickLiving(guests, rooms.Values, step);
+                    Requests.Tick();
+                    Services?.Tick(Elapsed + step, step);
+                    foreach (var guest in guests) Satisfaction.AccumulateLiving(guest, rooms[guest.RoomId], step);
+                }
+                else
+                {
+                    Incidents.Tick(guests, rooms.Values, step);
+                    Requests.Tick();
+                    foreach (var guest in guests) Satisfaction.Accumulate(guest, rooms[guest.RoomId], step, Requests.HasExpiredRequest(guest.GuestId));
+                }
+                Clock.Advance(step);
+                var completedService = Boiler.ActiveServiceKind;
+                if (ContinuousOperations && Boiler.CompleteMaintenance(Elapsed))
+                    SignalEvent(completedService == BoilerServiceKind.Basic ?
+                        "Basic boiler service complete — condition improved and stress reduced. Any emergency patch penalty remains." :
+                        "Full boiler service complete — condition restored and patch penalty removed.");
+                if (IsServiceComplete) SignalEvent("Shift complete");
+                infrastructureStepCompleted = true;
             }
-            RefreshGuestLoad();
-            bool wasWarning = Boiler.Pressure >= settings.Boiler.WarningPressure;
-            Boiler.Tick(step);
-            if (!wasWarning && Boiler.Pressure >= settings.Boiler.WarningPressure)
-                SignalEvent("Boiler pressure warning");
-            roomSystem.TickTemperature(rooms.Values, Boiler.HeatingOutput, step, supplementalHeat);
-            if (LivingEnabled)
-            {
-                roomSystem.TickInfrastructure(rooms.Values, step);
-                foreach (var guest in guests)
-                    NeedEvaluator.Tick(guest, rooms[guest.RoomId], step, Requests.HasExpiredRoomRequest(guest.GuestId));
-                Incidents.TickLiving(guests, rooms.Values, step);
-                Requests.Tick();
-                Services?.Tick(Elapsed + step, step);
-                foreach (var guest in guests) Satisfaction.AccumulateLiving(guest, rooms[guest.RoomId], step);
-            }
-            else
-            {
-                Incidents.Tick(guests, rooms.Values, step);
-                Requests.Tick();
-                foreach (var guest in guests) Satisfaction.Accumulate(guest, rooms[guest.RoomId], step, Requests.HasExpiredRequest(guest.GuestId));
-            }
-            Clock.Advance(step);
-            var completedService = Boiler.ActiveServiceKind;
-            if (ContinuousOperations && Boiler.CompleteMaintenance(Elapsed))
-                SignalEvent(completedService == BoilerServiceKind.Basic ?
-                    "Basic boiler service complete — condition improved and stress reduced. Any emergency patch penalty remains." :
-                    "Full boiler service complete — condition restored and patch penalty removed.");
-            if (IsServiceComplete) SignalEvent("Shift complete");
+            finally { EndInfrastructureTick(infrastructureStepCompleted); }
         }
 
         public CommandResult OfferCompensation(string guestId)

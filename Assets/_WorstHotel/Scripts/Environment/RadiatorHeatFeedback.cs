@@ -35,8 +35,10 @@ namespace WorstHotel
             }
             if (simulation == null || room == null) return;
             if (LocalCoopBootstrap.Instance != null && LocalCoopBootstrap.Instance.IsPaused) return;
-            float gain = Mathf.Max(.01f, session.Settings.HeatTemperatureGain);
-            float warmth = Mathf.Clamp01(simulation.Boiler.HeatingOutput * simulation.InfrastructureSettings.HeatMultiplier(room.RadiatorSetting) - room.Profile.HeatLoss / gain);
+            if (!simulation.TryGetRoomThermalBreakdown(roomId, out var thermal, out _)) return;
+            // The radiator itself can still deliver central heat while the air cools.
+            // A local electric heater must not make a closed/cold radiator look warm.
+            float warmth = ThermalLabels.RadiatorWarmth01(thermal, session.Settings.HeatTemperatureGain);
             int key = Mathf.RoundToInt(warmth * 100);
             if (key == previousKey) return;
             previousKey = key;

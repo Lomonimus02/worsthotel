@@ -14,6 +14,16 @@ namespace WorstHotel
         /// <summary>Signed unused capacity in the same demand units as Load. A negative reserve means overload.</summary>
         public float Reserve => EffectiveCapacity - Load;
         public float Stress01 { get; private set; }
+        internal CommandResult DebugSetStress(float value)
+        {
+            if (ReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
+            if (!CapacityModelEnabled || !Number.IsFinite(value) || value < 0 || value > 1)
+                return CommandResult.Fail("Continuous boiler stress must be finite and between 0 and 1.");
+            // No time passes, no failure/repair is manufactured, and pressure/condition/history
+            // remain untouched. The next ordinary capacity tick evaluates actual demand.
+            Stress01 = value;
+            return CommandResult.Ok("Diagnostic boiler stress changed. Actual load and ordinary ticks still determine failure or recovery.");
+        }
         public CapacityBand CapacityBand => Failed || Stress01 >= settings.Capacity.CriticalStress ? CapacityBand.Critical :
             CapacityBands.ForLoad(LoadRatio, settings.Capacity.BusyLoadRatio, settings.Capacity.StrainedLoadRatio);
         private float CapacityHeatOutput
