@@ -39,6 +39,7 @@ namespace WorstHotel
         public int PlayerId, LastPlayerId, RoomId, Generation;
         public ServiceItemKind Kind;
         public ServiceItemLocation Location;
+        public bool StaffHandling, LuggageOfferAnswered;
     }
 
     public sealed partial class GuestServiceSystem
@@ -59,7 +60,8 @@ namespace WorstHotel
                 Status = p.Status, DueNotified = p.DueNotified }).ToArray(),
             Items = items.Select(i => new ServiceItemSnapshot { Id = i.Id, GuestId = SnapshotData.OptionalId(i.GuestId),
                 PlayerId = i.PlayerId ?? -1, LastPlayerId = i.LastPlayerId ?? -1, RoomId = i.RoomId ?? 0,
-                Generation = i.Generation, Kind = i.Kind, Location = i.Location }).ToArray()
+                Generation = i.Generation, Kind = i.Kind, Location = i.Location,
+                StaffHandling = i.StaffHandling, LuggageOfferAnswered = i.LuggageOfferAnswered }).ToArray()
         };
 
         internal void RestoreSnapshot(ServiceLayerSnapshot data)
@@ -74,7 +76,8 @@ namespace WorstHotel
                 { Status = p.Status, DueNotified = p.DueNotified, CompletedAt = p.CompletedAt });
             foreach (var i in data.Items) items.Add(new ServiceItemState(i.Id, i.Kind, i.Generation, SnapshotData.OptionalId(i.GuestId))
                 { Location = i.Location, PlayerId = i.PlayerId < 0 ? (int?)null : i.PlayerId,
-                  LastPlayerId = i.LastPlayerId < 0 ? (int?)null : i.LastPlayerId, RoomId = i.RoomId == 0 ? (int?)null : i.RoomId });
+                  LastPlayerId = i.LastPlayerId < 0 ? (int?)null : i.LastPlayerId, RoomId = i.RoomId == 0 ? (int?)null : i.RoomId,
+                  StaffHandling = i.StaffHandling, LuggageOfferAnswered = i.LuggageOfferAnswered });
             RestoreResponses(data);
             RestoreIntents(data);
         }
@@ -107,7 +110,7 @@ namespace WorstHotel
             var cases = Array(s.Cases, continuous ? 256 : 32);
             var promises = Array(s.Promises, continuous ? 128 : 6);
             // One luggage identity per retained guest and at most six slots of each stock kind.
-            var items = Array(s.Items, continuous ? 140 : 18);
+            var items = Array(s.Items, continuous ? 160 : 24);
             Unique(cases.Select(c => c.Id)); Unique(cases.Select(c => c.GuestId + "/" + c.Kind));
             Unique(cases.Where(c => c.Status == ServiceStatus.Requested || c.Status == ServiceStatus.Acknowledged ||
                 c.Status == ServiceStatus.InProgress).Select(c => c.GuestId));
@@ -159,7 +162,8 @@ namespace WorstHotel
                 Require((i.Location == ServiceItemLocation.HeldByPlayer) == (i.PlayerId >= 0), "Invalid service item ownership.");
                 Require(string.IsNullOrEmpty(i.GuestId) || guests.Contains(i.GuestId), "Unknown service item guest.");
                 if (i.Kind == ServiceItemKind.Luggage)
-                    Require(!string.IsNullOrEmpty(i.GuestId) && i.Id == "luggage:" + i.GuestId, "Invalid luggage identity.");
+                    Require(!string.IsNullOrEmpty(i.GuestId) && (i.Id == "luggage:" + i.GuestId ||
+                        i.Id == "luggage:" + i.GuestId + ":2"), "Invalid luggage identity.");
                 else
                 {
                     string prefix = i.Kind == ServiceItemKind.Blanket ? "blanket:" : "bulb:";

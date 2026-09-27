@@ -13,10 +13,14 @@ namespace WorstHotel
         {
             var simulation = GameSession.Instance ? GameSession.Instance.Simulation : null;
             if (!summary || simulation?.Services == null) return;
-            int active = 0, promises = 0;
+            int active = 0, promises = 0, luggage = 0, ready = 0;
             foreach (var item in simulation.Services.Cases) if (GuestLabels.IsKnownOpenService(item)) active++;
             foreach (var item in simulation.Services.Promises) if (item.Status == PromiseStatus.Accepted) promises++;
-            summary.text = "GUEST SERVICES\n" + active + " REQUESTS  /  " + promises + " CALLS\nOPEN FOR NOW + UPCOMING";
+            foreach (var item in simulation.Services.Items)
+                if (item.Kind == ServiceItemKind.Luggage && item.StaffHandling && item.Location != ServiceItemLocation.Delivered)
+                { luggage++; if (simulation.Services.LuggageRoomReady(item.GuestId)) ready++; }
+            summary.text = "GUEST SERVICES\n" + active + " REQUESTS  /  " + promises + " CALLS\n" +
+                luggage + " BAGS  /  " + ready + " READY TO DELIVER";
         }
     }
 }

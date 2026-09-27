@@ -245,7 +245,7 @@ namespace WorstHotel
             // End that decision atomically, before GoingToRoom can expose an unrelated action
             // in a snapshot. Already held/dropped suitcases remain the same physical items.
             foreach (var request in cases.Where(item => item.GuestId == guest.GuestId &&
-                item.Kind == ServiceKind.LuggageStorage && item.Active).ToArray())
+                item.Kind == ServiceKind.LuggageStorage && item.Active && item.Status != ServiceStatus.InProgress).ToArray())
                 Finish(request, guest, ServiceStatus.Expired, 0);
             var response = FindResponse(guest.Agent.ResponseActionId);
             if (response == null || FindCase(response.ServiceCaseId)?.Kind != ServiceKind.LuggageStorage) return;

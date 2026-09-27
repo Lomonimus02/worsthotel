@@ -29,6 +29,10 @@ namespace WorstHotel
         bool shownVisible;
         GuestPresentation presentation;
         static readonly List<ServiceSupplyItem> luggageBodies = new List<ServiceSupplyItem>();
+        LuggageDeliveryZone[] deliveryZones;
+        float luggageRest;
+        public FixedJoint CargoJoint { get; set; }
+        public bool OnCart => CargoJoint;
         bool HasAuthority => !LocalCoopBootstrap.Instance || LocalCoopBootstrap.Instance.HasWorldAuthority;
 
         void Awake()
@@ -36,6 +40,7 @@ namespace WorstHotel
             Body = GetComponent<Rigidbody>(); PlacementCollider = GetComponent<Collider>();
             visuals = GetComponentsInChildren<Renderer>(true); shapes = GetComponentsInChildren<Collider>(true);
             presentation = FindAnyObjectByType<GuestPresentation>();
+            deliveryZones = FindObjectsByType<LuggageDeliveryZone>(FindObjectsSortMode.None);
             if (luggageSlot >= 0) luggageBodies.Add(this);
         }
 
@@ -50,25 +55,15 @@ namespace WorstHotel
             }
             if (luggageSlot >= 0)
             {
-                string nextId = simulation?.ContinuousOperations == true ? ContinuousLuggageId() :
-                    simulation != null && luggageSlot < simulation.Guests.Count ? "luggage:" + simulation.Guests[luggageSlot].GuestId : null;
-                if (itemId != nextId) { itemId = nextId; shownLocation = null; shownGeneration = -1; }
+                string nextId = simulation != null ? ContinuousLuggageId() : null;
+                if (itemId != nextId) { DetachCart(); itemId = nextId; shownLocation = null; shownGeneration = -1; luggageRest = 0; }
             }
             // Replicas get physical visibility and pose from the host; local model must not move a replica body.
             if (!HasAuthority) return;
             var state = State;
             if (state == null) { SetVisible(false); Body.isKinematic = true; return; }
+            if (state.Kind == ServiceItemKind.Luggage) { TickLuggage(state); return; }
             bool visible = state.Location != ServiceItemLocation.Delivered;
-            GuestStay guest = null;
-            if (state.Kind == ServiceItemKind.Luggage)
-            {
-                foreach (var candidate in simulation.Guests) if (candidate.GuestId == state.GuestId) { guest = candidate; break; }
-                if (state.Location == ServiceItemLocation.OnShelf)
-                    visible = guest?.Agent != null && (guest.Agent.State == GuestAgentState.Arriving || guest.Agent.State == GuestAgentState.WaitingForCheckIn);
-                // A departed owner cannot erase the suitcase staff are still carrying or
-                // have put down. A stored suitcase is safe to recycle for a later arrival.
-                if (guest?.Agent?.State == GuestAgentState.Left && state.Location == ServiceItemLocation.OnShelf) visible = false;
-            }
             if (shownLocation != state.Location || shownGeneration != state.Generation || shownVisible != visible)
             {
                 if (state.Location != ServiceItemLocation.HeldByPlayer && carrier && carrier.HeldBody == Body) carrier.ReleaseGrab();
@@ -78,13 +73,9 @@ namespace WorstHotel
                 Body.isKinematic = !visible;
                 Body.useGravity = visible && !docked;
                 Body.constraints = docked ? RigidbodyConstraints.FreezeAll : RigidbodyConstraints.None;
-                if (docked) PlaceAtDock(state, guest);
+                if (docked) PlaceAtDock(state, null);
                 shownLocation = state.Location; shownGeneration = state.Generation;
             }
-            if (visible && state.Kind == ServiceItemKind.Luggage && state.Location == ServiceItemLocation.OnShelf)
-                PlaceAtDock(state, guest);
-            if (identityLabel && state.Kind == ServiceItemKind.Luggage && guest != null)
-                identityLabel.text = "LUGGAGE\n" + guest.RoomId;
             if (state.Location == ServiceItemLocation.Dropped && Body.position.y < -3 && sourceAnchor)
             {
                 Body.linearVelocity = Body.angularVelocity = Vector3.zero;
@@ -99,17 +90,20 @@ namespace WorstHotel
             {
                 // A roster prune or new arrival must never rebind a physical suitcase held
                 // or put down by staff. Its stable item identity outlives the guest body.
-                if (current.Location == ServiceItemLocation.HeldByPlayer || current.Location == ServiceItemLocation.Dropped)
+                if (current.Location == ServiceItemLocation.HeldByPlayer || current.Location == ServiceItemLocation.Dropped || current.Location == ServiceItemLocation.Stored)
                     return itemId;
                 foreach (var guest in simulation.Guests)
                     if (guest.GuestId == current.GuestId && guest.Agent?.State != GuestAgentState.Left) return itemId;
             }
-            foreach (var guest in simulation.Guests)
+            foreach (var item in simulation.Services.Items)
             {
+                if (item.Kind != ServiceItemKind.Luggage) continue;
+                GuestStay guest = null;
+                foreach (var stay in simulation.Guests) if (stay.GuestId == item.GuestId) { guest = stay; break; }
+                if (guest == null) continue;
                 if (guest.Agent == null || guest.Agent.State != GuestAgentState.Arriving && guest.Agent.State != GuestAgentState.WaitingForCheckIn)
                     continue;
-                string candidate = "luggage:" + guest.GuestId;
-                if (simulation.Services?.FindItem(candidate) == null) continue;
+                string candidate = item.Id;
                 bool assigned = false;
                 foreach (var body in luggageBodies)
                     if (body && body != this && body.gameObject.scene == gameObject.scene && body.simulation == simulation && body.itemId == candidate)
@@ -117,6 +111,66 @@ namespace WorstHotel
                 if (!assigned) return candidate;
             }
             return current?.Location == ServiceItemLocation.Stored ? itemId : null;
+        }
+
+        void TickLuggage(ServiceItemState state)
+        {
+            GuestStay guest = null;
+            foreach (var stay in simulation.Guests) if (stay.GuestId == state.GuestId) { guest = stay; break; }
+            bool ownCarry = state.Location == ServiceItemLocation.OnShelf;
+            bool visible = guest?.Agent != null && (guest.Agent.State != GuestAgentState.Left ||
+                state.Location == ServiceItemLocation.Dropped || state.Location == ServiceItemLocation.HeldByPlayer || state.Location == ServiceItemLocation.Stored);
+            if (ownCarry) visible &= presentation && presentation.TryGetGuestTransform(state.GuestId, out _);
+            if (shownLocation != state.Location || shownGeneration != state.Generation || shownVisible != visible)
+            {
+                SetVisible(visible);
+                Body.isKinematic = !visible;
+                Body.useGravity = visible && !ownCarry;
+                Body.constraints = ownCarry ? RigidbodyConstraints.FreezeAll : RigidbodyConstraints.None;
+                Body.mass = state.Id.EndsWith(":2", StringComparison.Ordinal) ? 8 : 5;
+                Body.linearDamping = .5f; Body.angularDamping = 2.2f;
+                shownLocation = state.Location; shownGeneration = state.Generation;
+            }
+            if (!visible) return;
+            if (ownCarry && presentation.TryGetGuestTransform(state.GuestId, out var owner))
+            {
+                float side = LuggageCountForOwner(state.GuestId) > 1 ? (state.Id.EndsWith(":2", StringComparison.Ordinal) ? -.38f : .38f) : .15f;
+                Body.position = owner.position - owner.forward * .58f + owner.right * side + Vector3.up * .39f;
+                Body.rotation = owner.rotation;
+                Body.linearVelocity = Body.angularVelocity = Vector3.zero;
+                if (guest.Agent.InAssignedRoom)
+                    simulation.Services.SettleOwnLuggage(state.Id);
+            }
+            string status = state.Location == ServiceItemLocation.Stored ? "STORED" : state.Location == ServiceItemLocation.Delivered ? "DELIVERED" :
+                state.StaffHandling ? "TO ROOM " + guest.RoomId : "WITH GUEST";
+            if (identityLabel) identityLabel.text = guest.Name.Split(' ')[0] + " · " + guest.RoomId + "\n" + status;
+            GetComponent<PhysicsPickup>().itemName = guest.Name + " · room " + guest.RoomId + "\n" + status +
+                (state.StaffHandling ? "" : " · offer help to the owner");
+            if (ownCarry || state.Location == ServiceItemLocation.HeldByPlayer || state.Location == ServiceItemLocation.Delivered || OnCart) { luggageRest = 0; return; }
+            if (LocalCoopBootstrap.Instance && LocalCoopBootstrap.Instance.IsPaused) return;
+            luggageRest = Body.linearVelocity.sqrMagnitude < .08f && Body.angularVelocity.sqrMagnitude < .3f ? luggageRest + Time.deltaTime : 0;
+            if (luggageRest < .45f) return;
+            if (storageZone && storageZone.Contains(Body.worldCenterOfMass))
+            {
+                if (state.Location != ServiceItemLocation.Stored && simulation.Services.PlaceLuggage(itemId, true).Success)
+                    GameSession.Instance.RaiseChanged();
+            }
+            else
+            {
+                if (state.Location == ServiceItemLocation.Stored)
+                { state.Location = ServiceItemLocation.Dropped; GameSession.Instance.RaiseChanged(); }
+                foreach (var zone in deliveryZones)
+                    if (zone && zone.roomId == guest.RoomId && zone.Contains(Body.worldCenterOfMass) &&
+                        simulation.Services.PlaceLuggage(itemId, false).Success)
+                    { GameSession.Instance.RaiseChanged(); break; }
+            }
+        }
+
+        static int LuggageCountForOwner(string id) => GuestServiceSystem.LuggageCount(id);
+        public void DetachCart()
+        {
+            if (CargoJoint) Destroy(CargoJoint);
+            CargoJoint = null;
         }
 
         void PlaceAtDock(ServiceItemState state, GuestStay guest)
@@ -156,6 +210,7 @@ namespace WorstHotel
             if (!HasAuthority || !session || !player || session.Simulation != simulation ||
                 !session.TakeServiceItem(player.ActorId, this).Success) return false;
             Body.constraints = RigidbodyConstraints.None; Body.useGravity = true;
+            DetachCart(); luggageRest = 0;
             carrier = player; LastCarrierId = player.ActorId; shownLocation = ServiceItemLocation.HeldByPlayer;
             return true;
         }
@@ -165,7 +220,7 @@ namespace WorstHotel
             if (carrier != player) return;
             carrier = null;
             var session = GameSession.Instance;
-            if (HasAuthority && session && session.Simulation == simulation && (State?.Location == ServiceItemLocation.Stored || State?.Location == ServiceItemLocation.AwaitingReceipt))
+            if (HasAuthority && session && session.Simulation == simulation && State?.Kind != ServiceItemKind.Luggage && (State?.Location == ServiceItemLocation.Stored || State?.Location == ServiceItemLocation.AwaitingReceipt))
             {
                 // The short placement uses the actual body after its physics joint is released.
                 // Do it before a later calendar prune or arrival can recycle the authored slot.

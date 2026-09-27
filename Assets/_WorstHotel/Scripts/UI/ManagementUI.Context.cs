@@ -93,6 +93,16 @@ namespace WorstHotel
             string discussionId = discussion?.Id;
             int discussionRevision = discussion?.Revision ?? -1;
             var service = CurrentGuestService(guest);
+            if (canTalk && Session.Simulation.Services?.CanOfferLuggage(guest.GuestId, false) == true)
+            {
+                contextChoices.Add(("OFFER LUGGAGE HELP", () =>
+                { contextHasResponse = true; Session.OfferLuggage(owner, guest.GuestId, false); }));
+                if (Session.Simulation.Services.CanOfferLuggage(guest.GuestId, true))
+                    contextChoices.Add(("OFFER LUGGAGE STORAGE · room not ready", () =>
+                    { contextHasResponse = true; Session.OfferLuggage(owner, guest.GuestId, true); }));
+                contextChoices.Add(("Cancel / end conversation", Close));
+                return;
+            }
             if (canTalk && service != null && (cases.All(value => value.Stage < SituationStage.Complaint) || Session.Simulation.ContinuousOperations && service.Kind == ServiceKind.ExtraBlanket) && !noisy)
             {
                 if (service.Status != ServiceStatus.InProgress)

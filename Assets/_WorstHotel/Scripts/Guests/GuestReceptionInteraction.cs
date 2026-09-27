@@ -30,7 +30,7 @@ namespace WorstHotel
             target = GetComponent<CapsuleCollider>();
             if (target == null) target = gameObject.AddComponent<CapsuleCollider>();
             target.radius = .34f; target.height = 2.05f; target.center = new Vector3(0, 1.025f, 0);
-            target.enabled = false;
+            target.enabled = true;
         }
 
         void IgnoreStaffCollision()
@@ -39,7 +39,7 @@ namespace WorstHotel
             if (coop != null)
                 foreach (var player in coop.Players)
                     if (player != null && player.BodyCollider != null)
-                        Physics.IgnoreCollision(target, player.BodyCollider, true);
+                        Physics.IgnoreCollision(target, player.BodyCollider, false);
         }
 
         bool IsWaiting => session != null && session.Phase == DayPhase.Service && stay?.Agent != null &&
@@ -64,7 +64,7 @@ namespace WorstHotel
                 assignedRoom = System.Array.Find(session.Rooms, room => room.Profile.Id == displayedRoom);
                 displayName = stay.Name + " · Room " + displayedRoom;
             }
-            bool visibleTarget = PresentationTargetVisible && (IsWaiting || IsInRoom || AtServiceDesk);
+            bool visibleTarget = PresentationTargetVisible;
             if (target != null && target.enabled != visibleTarget)
             {
                 target.enabled = visibleTarget;

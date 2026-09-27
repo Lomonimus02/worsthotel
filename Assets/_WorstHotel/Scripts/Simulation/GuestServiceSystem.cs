@@ -96,8 +96,12 @@ namespace WorstHotel
         void EnsureLuggage(GuestStay guest)
         {
             if (simulation.ContinuousOperations && Departed(guest)) return;
-            if (FindItem("luggage:" + guest.GuestId) == null)
-                items.Add(new ServiceItemState("luggage:" + guest.GuestId, ServiceItemKind.Luggage, day, guest.GuestId));
+            for (int bag = 0; bag < LuggageCount(guest.GuestId); bag++)
+            {
+                string id = "luggage:" + guest.GuestId + (bag == 0 ? "" : ":2");
+                if (FindItem(id) == null)
+                    items.Add(new ServiceItemState(id, ServiceItemKind.Luggage, day, guest.GuestId) { RoomId = guest.RoomId });
+            }
         }
         GuestStay Guest(string id) => simulation.Guests.FirstOrDefault(guest => guest.GuestId == id);
         bool Departed(GuestStay guest) => guest.Agent == null || guest.Agent.State == GuestAgentState.CheckingOut ||
@@ -124,6 +128,12 @@ namespace WorstHotel
                 request.RoomId = guest.RoomId;
             }
             foreach (var promise in promises.Where(item => item.GuestId == guest.GuestId)) promise.RoomId = guest.RoomId;
+            foreach (var bag in items.Where(item => item.Kind == ServiceItemKind.Luggage && item.GuestId == guest.GuestId))
+            {
+                if (bag.RoomId != guest.RoomId && bag.StaffHandling && bag.Location == ServiceItemLocation.Delivered)
+                    bag.Location = ServiceItemLocation.Dropped;
+                bag.RoomId = guest.RoomId;
+            }
             foreach (var blanket in items.Where(item => item.Kind == ServiceItemKind.Blanket &&
                 item.Location == ServiceItemLocation.Delivered && item.GuestId == guest.GuestId)) blanket.RoomId = guest.RoomId;
         }
@@ -199,6 +209,7 @@ namespace WorstHotel
                     source = noise.Cause.SourceEntityId; sourceRoom = noise.Cause.SourceRoomId;
                     reason = "I can hear noise nearby and cannot rest comfortably."; return true;
                 case ServiceKind.LuggageStorage:
+                    if (!items.Any(item => item.Kind == ServiceItemKind.Luggage && item.GuestId == guest.GuestId && !item.StaffHandling)) return false;
                     if (agent.State != GuestAgentState.WaitingForCheckIn || (!debug && agent.WaitingSeconds < Settings.ObservationSeconds) ||
                         (!room.Occupied && room.Cleanliness == Cleanliness.Clean && room.DepartingGuestId == null &&
                         simulation.Housekeeping?.Find(room.Profile.Id) == null)) return false;
@@ -265,6 +276,7 @@ namespace WorstHotel
                 if (source != null) item.SourceRoomId = source.SourceRoomId;
             }
             if (item.Kind == ServiceKind.WakeUpCall && item.Status == ServiceStatus.InProgress) return;
+            if (item.Kind == ServiceKind.LuggageStorage && item.Status == ServiceStatus.InProgress) return;
             if (item.Kind == ServiceKind.ExtraBlanket || item.Kind == ServiceKind.AskNeighborsQuiet)
             {
                 IncidentReason reason = item.Kind == ServiceKind.ExtraBlanket ? IncidentReason.Temperature : IncidentReason.Noise;
@@ -286,7 +298,7 @@ namespace WorstHotel
                     }
                 }
             }
-            if (item.Kind == ServiceKind.LuggageStorage && guest.Agent.CheckedIn)
+            if (item.Kind == ServiceKind.LuggageStorage && guest.Agent.CheckedIn && item.Status != ServiceStatus.InProgress)
             { Finish(item, guest, ServiceStatus.Expired, 0); return; }
             float expiry = item.Kind == ServiceKind.WakeUpCall ? item.DueTime :
                 item.Kind == ServiceKind.LateCheckout ? guest.Agent.CheckoutTime : item.DueTime;

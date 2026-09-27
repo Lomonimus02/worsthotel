@@ -40,6 +40,7 @@ namespace WorstHotel.Editor
             bootstrap.spawn2 = p2.transform;
             BuildGameplay(gameplay);
             AddEnvironmentFeedback(gameplay, environment);
+            AddElectricalPanel(gameplay);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
@@ -287,9 +288,7 @@ namespace WorstHotel.Editor
             foreach (float lampX in new[] { -8.6f, -1.5f })
                 Place(lamp, lobby, new Vector3(lampX, 2.25f, 5.60f));
             Place(lamp, lobby, new Vector3(8.7f, 2.25f, 5.6f));
-            BuildLuggage(lobby, new Vector3(-8.2f, 0, -.7f));
-            for (int i = 0; i < 2; i++)
-                LooseSuitcase(gameplay, new Vector3(-3.4f + i * 1.1f, .42f, -.7f), i == 0 ? "Luggage mustard" : "Burgundy velvet");
+            BuildLuggage(lobby, new Vector3(-6.5f, .02f, -.4f));
             Box("Decades of paint patch", lobby, new Vector3(9.8f, 1.78f, 4.2f), new Vector3(.015f, .8f, 1.12f), "New plaster patch", false, false);
         }
 
@@ -457,16 +456,28 @@ namespace WorstHotel.Editor
         static void BuildLuggage(Transform parent, Vector3 position)
         {
             var cart = Group("Brass luggage cart", parent, position).transform;
-            Box("Cart platform", cart, new Vector3(0, .29f, 0), new Vector3(1.44f, .18f, .94f), "Burgundy velvet", true);
+            var body = cart.gameObject.AddComponent<Rigidbody>(); body.mass = 80;
+            body.linearDamping = 1.4f; body.angularDamping = 3;
+            body.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            body.interpolation = RigidbodyInterpolation.Interpolate; body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            var controls = cart.gameObject.AddComponent<LuggageCart>(); controls.displayName = "Brass luggage cart";
+            Box("Cart platform", cart, new Vector3(0, .28f, 0), new Vector3(1.50f, .18f, 1.12f), "Burgundy velvet", true);
+            Box("Brass platform rim", cart, new Vector3(0, .20f, 0), new Vector3(1.55f, .08f, 1.17f), "Aged brass", true, false);
+            var ground = cart.gameObject.AddComponent<BoxCollider>(); ground.center = new Vector3(0, .17f, 0); ground.size = new Vector3(1.40f, .32f, 1.0f);
             foreach (int side in new[] { -1, 1 })
             {
-                Pipe("Cart upright", cart, new Vector3(side * .66f, .22f, .34f), new Vector3(side * .66f, 1.88f, .34f), .055f, "Aged brass");
+                Pipe("Cart upright", cart, new Vector3(side * .66f, .22f, -.47f), new Vector3(side * .66f, 1.92f, -.47f), .085f, "Aged brass");
+                Pipe("Cart front upright", cart, new Vector3(side * .66f, .22f, .47f), new Vector3(side * .66f, 1.92f, .47f), .085f, "Aged brass");
+                Pipe("Cart roof side", cart, new Vector3(side * .66f, 1.92f, -.47f), new Vector3(side * .66f, 1.92f, .47f), .085f, "Aged brass");
                 Cylinder("Cart wheel", cart, new Vector3(side * .54f, .16f, -.3f), .15f, .09f, "Ink", new Vector3(0, 0, 90));
                 Cylinder("Cart wheel", cart, new Vector3(side * .54f, .16f, .3f), .15f, .09f, "Ink", new Vector3(0, 0, 90));
             }
-            Pipe("Cart top rail", cart, new Vector3(-.66f, 1.88f, .34f), new Vector3(.66f, 1.88f, .34f), .055f, "Aged brass");
-            Box("Stacked suitcase", cart, new Vector3(-.15f, .64f, .1f), new Vector3(.96f, .58f, .62f), "Luggage mustard", true);
-            Box("Small case", cart, new Vector3(.2f, 1.06f, .1f), new Vector3(.70f, .25f, .55f), "Burgundy velvet", true);
+            Pipe("Cart top rail", cart, new Vector3(-.66f, 1.92f, -.47f), new Vector3(.66f, 1.92f, -.47f), .085f, "Aged brass");
+            Pipe("Cart handle", cart, new Vector3(-.58f, 1.15f, -.65f), new Vector3(.58f, 1.15f, -.65f), .09f, "Aged brass");
+            controls.handle = Group("Cart handle position", cart, new Vector3(0, 1.15f, -.65f)).transform;
+            var handleHit = controls.handle.gameObject.AddComponent<BoxCollider>(); handleHit.size = new Vector3(1.28f, .30f, .20f);
+            Text("Cart handle instructions", cart, "LUGGAGE SERVICE\nUSE HANDLE · PUSH · STEER", new Vector3(0, 1.38f, -.54f), .065f, Lettering);
+            foreach (var child in cart.GetComponentsInChildren<Transform>()) GameObjectUtility.SetStaticEditorFlags(child.gameObject, 0);
         }
 
         static void LooseSuitcase(Transform parent, Vector3 position, string material)
@@ -489,7 +500,9 @@ namespace WorstHotel.Editor
             sun.type = LightType.Directional; sun.color = new Color(1, .94f, .84f); sun.intensity = .55f; sun.shadows = LightShadows.None;
             RenderSettings.sun = sun;
             for (int i = 0; i < 3; i++) PointLight(parent, "Lobby warm fill", new Vector3(-6 + i * 6, 3.18f, .3f), new Color(1, .77f, .48f), 4, 8);
-            for (int i = 0; i < 4; i++) PointLight(parent, "Hall warm fill", new Vector3(0, 3.15f, 8 + i * 6), new Color(1, .79f, .53f), 2.3f, 6);
+            for (int i = 0; i < 4; i++)
+                foreach (float side in new[] { -1.45f, 1.45f })
+                    PointLight(parent, "Hall warm fill", new Vector3(side, 3.15f, 8 + i * 6), new Color(1, .79f, .53f), 1.5f, 4.5f);
             for (int i = 0; i < 6; i++) PointLight(parent, "Room light " + (101 + i), new Vector3(i % 2 == 0 ? -6 : 6, 3.25f, 10 + i / 2 * 7), new Color(1, .82f, .59f), 3.0f, 6.0f);
             PointLight(parent, "Boiler work light", new Vector3(-2, 3.28f, 35.5f), new Color(.82f, .90f, 1), 3.3f, 8);
             PointLight(parent, "Panel work light", new Vector3(4, 3.20f, 36), new Color(1, .85f, .61f), 3.0f, 6);

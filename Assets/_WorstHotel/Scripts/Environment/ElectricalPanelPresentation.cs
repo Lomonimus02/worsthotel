@@ -24,6 +24,7 @@ namespace WorstHotel
         public sealed class RoomPowerBinding
         {
             public int roomId;
+            public string circuitId;
             public Light[] lights;
             public Renderer[] luminousSurfaces;
             [NonSerialized] internal RoomState room;
@@ -71,7 +72,7 @@ namespace WorstHotel
                 {
                     binding.initialized = false;
                     binding.room = session != null ? Array.Find(session.Rooms, room => room.Profile.Id == binding.roomId) : null;
-                    binding.circuit = simulation?.Electrical?.CircuitForRoom(binding.roomId);
+                    binding.circuit = string.IsNullOrEmpty(binding.circuitId) ? simulation?.Electrical?.CircuitForRoom(binding.roomId) : simulation?.Electrical?.Find(binding.circuitId);
                     binding.lastDim = -1;
                 }
             }
@@ -119,8 +120,8 @@ namespace WorstHotel
             }
             foreach (var binding in roomLights)
             {
-                if (binding.room == null) continue;
-                bool power = binding.room.HasPower;
+                if (binding.circuit == null) continue;
+                bool power = binding.circuit.HasPower;
                 bool warning = power && binding.circuit != null && binding.circuit.Warning && !binding.circuit.Tripped;
                 // Gentle 18% sag every2.4 real seconds. It never fabricates a blackout or accelerates in WAIT.
                 float dim = warning ? 1 - .18f * (.5f + .5f * Mathf.Sin(Time.time * Mathf.PI * 2 / 2.4f)) : 1;

@@ -84,6 +84,7 @@ namespace WorstHotel
             if (!ServiceTarget(actor, target, out var player) || HeldServiceItem(player)?.State.Kind != ServiceItemKind.Luggage)
                 return CommandResult.Fail("Carry the suitcase to luggage storage.");
             var item = HeldServiceItem(player);
+            if (!target.Contains(item.Body.worldCenterOfMass)) return GuestCommand(CommandResult.Fail("Lower the suitcase into the storage area first."));
             var result = Simulation.StoreLuggage(actor, item.State.GuestId);
             if (result.Success) player.ReleaseGrab();
             return GuestCommand(result);
@@ -98,6 +99,12 @@ namespace WorstHotel
             if (ForwardLan(LanCommandKind.RespondService, caseId, amount: accept ? 1 : 0)) return CommandResult.Ok(LastMessage);
             if (actor < 0 || actor > 1 || Phase != DayPhase.Service) return CommandResult.Fail("Service decisions require an active stay.");
             return GuestCommand(Simulation.RespondToService(actor, caseId, accept));
+        }
+        public CommandResult OfferLuggage(int actor, string guestId, bool storage)
+        {
+            if (ForwardLan(LanCommandKind.OfferLuggage, guestId, amount: storage ? 1 : 0)) return CommandResult.Ok(LastMessage);
+            if (!HasGuestConversation(actor, guestId)) return GuestCommand(CommandResult.Fail("Speak with the arriving guest first."));
+            return GuestCommand(Simulation.Services.OfferLuggage(actor, guestId, storage));
         }
         public CommandResult AcknowledgeService(int actor, string caseId)
         {

@@ -235,6 +235,7 @@ namespace WorstHotel
             guest.Root.position = new Vector3(arrivalSpawn.position.x, .01f, arrivalSpawn.position.z);
             BuildAppearance(guest, stay.Application.Archetype.Kind, appearance);
             guest.Root.gameObject.AddComponent<GuestReceptionInteraction>().Initialize(session, stay);
+            guest.Root.gameObject.AddComponent<GuestPhysicalReaction>().Initialize(guest.Body);
             guests.Add(stay.GuestId, guest);
             simulation.RegisterGuestPhysicalStaging(stay.GuestId);
             var reception = receptionPlaces[receptionSlot];
@@ -322,6 +323,7 @@ namespace WorstHotel
             {
                 if (guest.Root == null || guest.Stay.Agent == null) continue;
                 SynchronizeState(guest);
+                if (guest.Root.GetComponent<GuestPhysicalReaction>().AnimateRecovery(Time.deltaTime)) continue;
                 // Get out of the bed before starting another walk. This blend is real time so WAIT
                 // does not turn a visible wake-up into a single-frame teleport.
                 if (guest.State != GuestAgentState.Sleeping && guest.PoseBlend > 0)
@@ -455,7 +457,7 @@ namespace WorstHotel
                 Vector3 offset = destination - guest.Root.position;
                 float distance = offset.magnitude;
                 if (distance < .015f) { guest.Waypoint++; continue; }
-                float step = Mathf.Min(distance, remaining);
+                float step = Mathf.Min(distance, remaining, .15f);
                 if (BlockedByEnvironment(guest, destination, step))
                 {
                     RecoverRoute(guest, delta);
@@ -463,13 +465,16 @@ namespace WorstHotel
                 }
                 guest.BlockedSeconds = 0; guest.PathStatus = "Following authored route";
                 guest.Root.rotation = Quaternion.RotateTowards(guest.Root.rotation, Quaternion.LookRotation(offset), 280 * delta);
-                guest.Root.position = Vector3.MoveTowards(guest.Root.position, destination, step);
+                var nextPosition = Vector3.MoveTowards(guest.Root.position, destination, step);
+                if (!GuestPhysicalReaction.TryWalk(guest.Root, nextPosition, out nextPosition))
+                { guest.PathStatus = "Waiting for a person / cart to pass"; return moved; }
+                guest.Root.position = nextPosition;
                 if (guest.Purpose == RoutePurpose.Room || guest.Purpose == RoutePurpose.Transfer || guest.Purpose == RoutePurpose.Exit ||
                     guest.Purpose == RoutePurpose.Away || guest.Purpose == RoutePurpose.Return ||
                     guest.Purpose == RoutePurpose.ServiceReception || guest.Purpose == RoutePurpose.ServiceReturn)
                     guest.InsideRoom = AuthoredGuestRoute.IsOnRoomSide(guest.Root.position, guest.Room);
                 remaining -= step; moved = true;
-                if (step >= distance) guest.Waypoint++;
+                if (Vector3.Distance(guest.Root.position, destination) < .015f) guest.Waypoint++;
                 ClosePassedDoor(guest);
             }
             guest.RouteComplete = guest.Waypoint >= guest.Route.Points.Count;

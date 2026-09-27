@@ -15,13 +15,12 @@ namespace WorstHotel
         {
             var allowed = CanHandle(actor); if (!allowed.Success) return allowed;
             var item = FindItem(id);
-            if (item == null || (item.Location != ServiceItemLocation.OnShelf && item.Location != ServiceItemLocation.Dropped))
+            if (item == null || (item.Location != ServiceItemLocation.OnShelf && item.Location != ServiceItemLocation.Dropped &&
+                !(item.Kind == ServiceItemKind.Luggage && (item.Location == ServiceItemLocation.Stored || item.Location == ServiceItemLocation.Delivered))))
                 return CommandResult.Fail("This physical item is not available to take.");
             if (HeldBy(actor) != null) return CommandResult.Fail("Put down the service item already being carried.");
-            if (item.Kind == ServiceItemKind.Luggage && item.Location == ServiceItemLocation.OnShelf &&
-                (Guest(item.GuestId)?.Agent.CheckedIn != false ||
-                !cases.Any(request => request.GuestId == item.GuestId && request.Kind == ServiceKind.LuggageStorage && request.Status == ServiceStatus.InProgress)))
-                return CommandResult.Fail("Accept the guest's luggage storage request before taking their suitcase.");
+            if (item.Kind == ServiceItemKind.Luggage && !item.StaffHandling && !IsDepartedLuggage(id))
+                return CommandResult.Fail("Talk to the owner and offer luggage help first.");
             item.Location = ServiceItemLocation.HeldByPlayer; item.PlayerId = item.LastPlayerId = actor;
             ItemChanged?.Invoke(item); return CommandResult.Ok("Picked up " + item.Kind + ".");
         }
@@ -83,6 +82,7 @@ namespace WorstHotel
             if (guest == null || item == null || item.Kind != ServiceItemKind.Luggage || item.GuestId != guestId)
                 return CommandResult.Fail("Carry this guest's actual suitcase to luggage storage.");
             if (Departed(guest)) return CommandResult.Ok("Place the departed guest's suitcase in lost-property storage.");
+            if (item.StaffHandling) return CommandResult.Ok();
             var request = cases.FirstOrDefault(request => request.GuestId == guestId && request.Kind == ServiceKind.LuggageStorage);
             if (request == null) return CommandResult.Fail("There is no luggage storage agreement for this suitcase.");
             if (NaturalCommunicationEnabled && (!request.IsKnownToHotel || request.Status != ServiceStatus.InProgress))
@@ -94,10 +94,10 @@ namespace WorstHotel
         {
             var allowed = CanStoreLuggage(actor, guestId); if (!allowed.Success) return allowed;
             var guest = Guest(guestId); var item = HeldBy(actor);
-            item.Location = ServiceItemLocation.Stored; item.PlayerId = null; item.RoomId = null; ItemChanged?.Invoke(item);
+            item.Location = ServiceItemLocation.Stored; item.PlayerId = null; item.RoomId = guest.RoomId; ItemChanged?.Invoke(item);
             if (Departed(guest)) return CommandResult.Ok("The departed guest's suitcase is in lost-property storage.");
-            var request = cases.First(request => request.GuestId == guestId && request.Kind == ServiceKind.LuggageStorage);
-            if (request.Active)
+            var request = cases.FirstOrDefault(request => request.GuestId == guestId && request.Kind == ServiceKind.LuggageStorage);
+            if (request?.Active == true)
             { guest.Memory.LuggageStored = Count(guest.Memory.LuggageStored); Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true); }
             return CommandResult.Ok("The suitcase is stored beside reception.");
         }

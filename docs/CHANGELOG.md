@@ -1,3 +1,9 @@
+## Prototype 0.4.2 — physical hotel and luggage operations
+
+Added guest collision and brief impact recovery; owner-labelled arrival luggage, proactive assistance/storage, physical storage and doorstep delivery; a heavy brass cart with detachable cargo stabilization. Circuit A now powers the west side (101/103/105), B the east (102/104/106), including corridor/lobby/utility lamps. Existing host authority carries luggage/cart poses, guest recovery and service state. No new automated tests or harnesses.
+
+Windows build and normal startup passed without recorded managed exceptions. Interactive smoke and two-player gameplay remain unverified: Computer Use failed to initialize (missing kernel-assets path).
+
 ## Prototype 0.4.1 — phase 8 thermal feedback and diagnostics
 
 Room temperature ticks and diagnostic views share one measured thermal calculation. Normal room/radiator feedback shows actual warming/cooling and source availability, including central heat continuing during a circuit trip. A bounded64-entry infrastructure history records coherent causal changes without generating gameplay events. F2 adds guarded stress, paid service, forward calendar, sales/demand, satisfaction-history/early-eligibility and SOLO-bed diagnostic controls. Compile,34 focused model cases and5 physical/UI scenarios passed across the documented floating-point and stale-test corrections. Final EXE/pixel gates remain pending. [Evidence](verification/rhythm041-phase8.md).

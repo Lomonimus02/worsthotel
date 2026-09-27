@@ -28,8 +28,8 @@ namespace WorstHotel
                 throw new ArgumentException("The authored electrical panel requires unique room IDs from 101 through 106.");
             var circuits = new[]
             {
-                new ElectricalCircuit("A", ids.Where(id => id <= 103).ToArray(), this),
-                new ElectricalCircuit("B", ids.Where(id => id >= 104).ToArray(), this)
+                new ElectricalCircuit("A", ids.Where(id => id % 2 == 1).ToArray(), this),
+                new ElectricalCircuit("B", ids.Where(id => id % 2 == 0).ToArray(), this)
             };
             Circuits = Array.AsReadOnly(circuits);
             foreach (var circuit in circuits)

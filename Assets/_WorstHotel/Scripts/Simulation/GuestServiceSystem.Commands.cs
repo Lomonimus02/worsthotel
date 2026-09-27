@@ -54,6 +54,7 @@ namespace WorstHotel
                 promises.Add(new PromiseWakeUp(item.Id, guest.GuestId, guest.RoomId, item.DueTime));
             }
             ReleaseDecisionIntent(item);
+            if (item.Kind == ServiceKind.LuggageStorage) AcceptLuggageResponsibility(guest);
             item.Status = ServiceStatus.InProgress; Notify(item, "accepted");
             if (IntentBehaviorEnabled && item.Kind == ServiceKind.ExtraBlanket)
                 return CommandResult.Ok("Extra blanket promised. Carry one to this room's delivery point; the guest will receive it when available.");

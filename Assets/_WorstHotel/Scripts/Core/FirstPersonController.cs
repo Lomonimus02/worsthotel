@@ -129,6 +129,7 @@ namespace WorstHotel
             if (body.isGrounded && verticalSpeed < 0) verticalSpeed = -2;
             else verticalSpeed = Mathf.Max(verticalSpeed - 22 * Time.deltaTime, -30);
             float speed = walkSpeed * (Input.SprintHeld && !IsUIBlocked ? 1.25f : 1);
+            if (LuggageCart.IsGuiding(ActorId)) speed = Input.SprintHeld ? 2.7f : 1.75f;
             Vector3 velocity = (transform.right * movement.x + transform.forward * movement.y) * speed;
             velocity.y = verticalSpeed;
             body.Move(velocity * Time.deltaTime);
@@ -137,8 +138,12 @@ namespace WorstHotel
 
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
+            var guest = hit.collider.GetComponentInParent<GuestPhysicalReaction>();
+            if (guest && HasWorldAuthority && Input.SprintHeld && Input.Move.sqrMagnitude > .6f && Mathf.Abs(hit.normal.y) < .65f &&
+                Vector3.ProjectOnPlane(PresentationVelocity, Vector3.up).magnitude > 3.7f)
+                guest.Impact(75, walkSpeed * 1.25f, hit.moveDirection, true);
             var rigidbody = hit.rigidbody;
-            if (rigidbody && !rigidbody.isKinematic && rigidbody.mass <= 45 && hit.moveDirection.y > -0.4f)
+            if (rigidbody && !rigidbody.isKinematic && (rigidbody.mass <= 45 || rigidbody.GetComponent<LuggageCart>()) && hit.moveDirection.y > -0.4f)
                 pushes[rigidbody] = new Vector3(hit.moveDirection.x, 0, hit.moveDirection.z);
         }
 
@@ -146,7 +151,7 @@ namespace WorstHotel
         {
             if (!HasWorldAuthority) { pushes.Clear(); return; }
             foreach (var entry in pushes)
-                if (entry.Key) entry.Key.AddForce(entry.Value * 18, ForceMode.Force);
+                if (entry.Key) entry.Key.AddForce(entry.Value * (entry.Key.GetComponent<LuggageCart>() ? 90 : 18), ForceMode.Force);
             pushes.Clear();
         }
 

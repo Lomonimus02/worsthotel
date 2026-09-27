@@ -7,6 +7,7 @@ namespace WorstHotel
     {
         public Transform[] storageAnchors = Array.Empty<Transform>();
         public BoxCollider storageBounds;
+        public bool Contains(Vector3 point) => storageBounds && storageBounds.bounds.Contains(point);
         public Transform StorageAnchor(int slot) => storageAnchors.Length == 0 ? transform : storageAnchors[Mathf.Clamp(slot, 0, storageAnchors.Length - 1)];
         public override bool AllowsHeldItem(PlayerInteractor actor) => true;
         public override bool CanInteract(PlayerInteractor actor)
@@ -20,7 +21,7 @@ namespace WorstHotel
             if (!CanInteract(actor)) return "LUGGAGE STORAGE\nCarry agreed luggage or a departed guest's suitcase here";
             var item = actor.HeldBody.GetComponent<ServiceSupplyItem>();
             return GameSession.Instance.Simulation.Services.IsDepartedLuggage(item.ItemId) ?
-                "Place departed guest's suitcase in lost-property storage" : "Place guest luggage in storage";
+                "Lower suitcase here, then put it down" : "Lower luggage onto this platform, then put it down";
         }
         public override void Interact(PlayerInteractor actor)
         { if (CanInteract(actor)) GameSession.Instance.StoreLuggage(actor.ActorId, this); }

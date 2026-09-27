@@ -32,12 +32,12 @@ namespace WorstHotel.Editor
             {
                 float x = i == 0 ? -.52f : .52f;
                 string id = i == 0 ? "A" : "B";
-                Text("Circuit " + id + " room label", cabinet.transform, id + "  /  " + (i == 0 ? "101–103" : "104–106"), new Vector3(x, 2.49f, -.105f), .105f, Mat("Ink").color);
+                Text("Circuit " + id + " room label", cabinet.transform, id + "  /  " + (i == 0 ? "WEST 101/103/105" : "EAST 102/104/106"), new Vector3(x, 2.49f, -.105f), .065f, Mat("Ink").color);
                 var station = Group("Electrical breaker " + id, cabinet.transform, new Vector3(x, 1.80f, -.23f));
                 Box("Breaker body", station.transform, Vector3.zero, new Vector3(.71f, .99f, .23f), "Pipe iron", true, false);
                 var collider = station.AddComponent<BoxCollider>(); collider.size = new Vector3(.76f, 1.05f, .38f);
                 var control = station.AddComponent<ElectricalBreakerControl>(); control.circuitId = id; control.panel = panel;
-                control.displayName = "Electrical circuit " + id + " · rooms " + (i == 0 ? "101–103" : "104–106");
+                control.displayName = "Electrical circuit " + id + (i == 0 ? " · WEST 101 / 103 / 105" : " · EAST 102 / 104 / 106");
                 var lever = Group("Electrical lever " + id, station.transform, new Vector3(0, 0, -.15f)).transform;
                 Box("Large breaker grip", lever, new Vector3(0, .02f, -.07f), new Vector3(.43f, .51f, .19f), "Safety red", true, false);
                 Text("Breaker on marking", station.transform, "ON", new Vector3(0, .38f, -.124f), .075f, Lettering);
@@ -52,7 +52,7 @@ namespace WorstHotel.Editor
                 panel.circuits[i] = new ElectricalPanelPresentation.CircuitView
                     { circuitId = id, lever = lever, readout = readout, consumers = consumers, warningLens = lens.GetComponent<Renderer>(), warningLight = light };
             }
-            panel.roomLights = new ElectricalPanelPresentation.RoomPowerBinding[6];
+            panel.roomLights = new ElectricalPanelPresentation.RoomPowerBinding[8];
             for (int i = 0; i < 6; i++)
             {
                 int id = 101 + i;
@@ -61,7 +61,29 @@ namespace WorstHotel.Editor
                 {
                     roomId = id,
                     lights = new[] { GameObject.Find("Room light " + id).GetComponent<Light>() },
-                    luminousSurfaces = room.GetComponentsInChildren<Renderer>().Where(renderer => renderer.sharedMaterial == Mat("Warm lamp")).ToArray()
+                    luminousSurfaces = room.GetComponentsInChildren<Renderer>().Where(renderer => renderer.sharedMaterial == Mat("Warm lamp") &&
+                        renderer.GetComponentInParent<RoomLampInteraction>() == null).ToArray()
+                };
+            }
+            // Rooms alternate across the hall: odd numbers west, even numbers east.
+            // Include the corresponding lobby, hall sconces and utility luminaires.
+            var assignedLights = panel.roomLights.Take(6).SelectMany(binding => binding.lights).ToHashSet();
+            var assignedSurfaces = panel.roomLights.Take(6).SelectMany(binding => binding.luminousSurfaces).ToHashSet();
+            for (int side = 0; side < 2; side++)
+            {
+                bool west = side == 0;
+                panel.roomLights[6 + side] = new ElectricalPanelPresentation.RoomPowerBinding
+                {
+                    circuitId = west ? "A" : "B",
+                    lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None).Where(light =>
+                        light.type != LightType.Directional && !assignedLights.Contains(light) &&
+                        !light.transform.IsChildOf(cabinet.transform) && light.name != "Pressure warning beacon" &&
+                        light.GetComponentInParent<RoomLampInteraction>() == null && (light.transform.position.x < 0) == west).ToArray(),
+                    luminousSurfaces = Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None).Where(renderer =>
+                        renderer.sharedMaterial == Mat("Warm lamp") && !assignedSurfaces.Contains(renderer) &&
+                        !renderer.transform.IsChildOf(cabinet.transform) && renderer.name != "Pressure warning beacon" && renderer.name != "Complaint lamp" &&
+                        renderer.GetComponentInParent<PortableHeater>() == null &&
+                        renderer.GetComponentInParent<RoomLampInteraction>() == null && (renderer.transform.position.x < 0) == west).ToArray()
                 };
             }
         }

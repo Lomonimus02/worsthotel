@@ -22,7 +22,6 @@ namespace WorstHotel.Editor
             AddBoilerReadout(gameplay);
             AddRepairControls(gameplay);
             AddPortableHeater(gameplay);
-            AddElectricalPanel(gameplay);
             AddStaffRoom(gameplay);
             var grabConfig = EnsureGrabConfiguration();
             foreach (var pickup in UnityEngine.Object.FindObjectsByType<PhysicsPickup>(FindObjectsSortMode.None))

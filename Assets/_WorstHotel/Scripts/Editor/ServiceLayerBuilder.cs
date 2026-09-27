@@ -75,21 +75,21 @@ namespace WorstHotel.Editor
             Box("Luggage area platform", area.transform, new Vector3(0, .12f, 0), new Vector3(2.05f, .24f, 1.87f), "Mahogany", true);
             Box("Luggage storage signpost", area.transform, new Vector3(-.97f, 1.05f, .92f), new Vector3(.09f, 1.90f, .09f), "Aged brass", true);
             Box("Luggage storage sign backing", area.transform, new Vector3(0, 1.9f, .92f), new Vector3(2.08f, .47f, .065f), "Teal upholstery", true, false);
-            Text("Luggage storage sign", area.transform, "LUGGAGE STORAGE\nACCEPT · CARRY · PLACE", new Vector3(0, 1.9f, .875f), .106f, Lettering);
-            var interact = area.AddComponent<BoxCollider>(); interact.center = new Vector3(0, .60f, 0); interact.size = new Vector3(2.07f, 1.20f, 1.89f);
+            Text("Luggage storage sign", area.transform, "LUGGAGE STORAGE\nPUT DOWN HERE · COLLECT LATER", new Vector3(0, 1.9f, .875f), .075f, Lettering);
+            var interact = area.AddComponent<BoxCollider>(); interact.center = new Vector3(0, .85f, 0); interact.size = new Vector3(2.30f, 1.65f, 2.10f); interact.isTrigger = true;
             // The whole platform is a use target; placement is a short deliberate action while carrying.
-            zone.storageBounds = interact; zone.storageAnchors = new Transform[6];
-            for (int i = 0; i < 6; i++)
+            zone.storageBounds = interact; zone.storageAnchors = new Transform[24];
+            for (int i = 0; i < 24; i++)
             {
                 zone.storageAnchors[i] = Group("StoredLuggageAnchor" + i, area.transform,
                     new Vector3(i % 2 == 0 ? -.47f : .47f, .62f, -.61f + (i / 2) * .61f)).transform;
                 var source = Group("LuggageRecoveryAnchor" + i, root,
                     new Vector3(-2.0f + (i % 2) * .8f, .43f, -.50f + (i / 2) * .8f)).transform;
                 var obj = Group("Guest service suitcase slot " + i, items, source.position);
-                var body = obj.AddComponent<Rigidbody>(); body.mass = 2.2f; body.useGravity = false; body.constraints = RigidbodyConstraints.FreezeAll;
+                var body = obj.AddComponent<Rigidbody>(); body.mass = 5; body.useGravity = false; body.constraints = RigidbodyConstraints.FreezeAll;
                 body.interpolation = RigidbodyInterpolation.Interpolate; body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                 var shape = obj.AddComponent<BoxCollider>(); shape.size = new Vector3(.71f, .68f, .38f);
-                var pickup = obj.AddComponent<PhysicsPickup>(); pickup.itemName = "Guest luggage · storage request"; pickup.holdDistance = 1.30f; pickup.grabConfig = EnsureGrabConfiguration();
+                var pickup = obj.AddComponent<PhysicsPickup>(); pickup.itemName = "Guest luggage · offer help to the owner"; pickup.holdDistance = 1.30f; pickup.grabConfig = EnsureGrabConfiguration();
                 Box("Guest luggage case", obj.transform, Vector3.zero, new Vector3(.70f, .64f, .37f), i % 2 == 0 ? "Luggage mustard" : "Burgundy velvet", true, false);
                 Box("Luggage handle", obj.transform, new Vector3(0, .365f, 0), new Vector3(.29f, .105f, .09f), "Aged brass", true, false);
                 foreach (int side in new[] { -1, 1 })
@@ -121,6 +121,10 @@ namespace WorstHotel.Editor
 
         static void BuildRoomServiceControls(Transform root, int roomId, int side, float z)
         {
+            var luggageMat = Group("Room luggage mat " + roomId, root, new Vector3(side * 1.23f, .015f, z + 2.05f));
+            var luggageZone = luggageMat.AddComponent<LuggageDeliveryZone>(); luggageZone.roomId = roomId;
+            Box("Luggage delivery mat", luggageMat.transform, Vector3.zero, new Vector3(1.13f, .025f, 1.70f), "Teal upholstery", false, false);
+            Text("Luggage mat number", luggageMat.transform, "LUGGAGE " + roomId, new Vector3(0, .021f, 0), .09f, Lettering, new Vector3(90, side * 90, 0));
             // The knocker is on door-local +X. Mirror the whole shelf onto the other jamb;
             // using the same world -Z side put right-room shelves behind their knockers.
             // The shelf also stays outside the solid leaf's full +/-105-degree sweep.

@@ -7,7 +7,7 @@ namespace WorstHotel
     [ExecuteAlways]
     public sealed class HotelAmbientLighting : MonoBehaviour
     {
-        public Color ambientFill = new Color(.80f, .82f, .83f);
+        public Color ambientFill = new Color(.48f, .52f, .57f);
         void OnEnable() => Apply();
         void OnValidate() => Apply();
 

@@ -120,6 +120,7 @@ namespace WorstHotel
                 case LanCommandKind.CloseGuestConversation: CloseGuestConversation(playerId, command.subject); break;
                 case LanCommandKind.RespondService: if (command.amount <= 1) RespondToService(playerId, command.subject, command.amount == 1); break;
                 case LanCommandKind.AcknowledgeService: AcknowledgeService(playerId, command.subject); break;
+                case LanCommandKind.OfferLuggage: if (command.amount <= 1) OfferLuggage(playerId, command.subject, command.amount == 1); break;
                 case LanCommandKind.CompleteWakeUp: CompleteWakeUpCall(playerId, command.subject); break;
                 case LanCommandKind.CloseWakePhone: CloseWakePhone(playerId); break;
                 case LanCommandKind.EndServicePhoneConversation: EndServicePhoneConversation(playerId, command.subject); break;
