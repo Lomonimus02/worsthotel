@@ -30,7 +30,8 @@ namespace WorstHotel
             var situations = Session.Simulation.Incidents.Items.Where(s => s.GuestId == guest.GuestId && GuestLabels.IsActionable(s)).OrderByDescending(s => s.Stage).ToArray();
             float relief = Session.Simulation.Incidents.Items.Where(s => s.GuestId == guest.GuestId && GuestLabels.IsKnownToHotel(s))
                 .Select(s => s.ResponseReliefRemainingSeconds).DefaultIfEmpty(0).Max();
-            Label(new Rect(42, 471, 700, 27), "REPORTED CONCERNS", Small, Muted);
+            string departureWarning = GuestLabels.KnownEarlyDepartureWarning(guest, Session.Simulation);
+            Label(new Rect(42, 471, 700, 27), departureWarning ?? "REPORTED CONCERNS", Small, departureWarning != null ? Red : Muted);
             if (situations.Length == 0) Label(new Rect(42, 499, 700, 36), relief > 0 ?
                 "Credit relief · " + Mathf.CeilToInt(relief) + " hotel seconds left" : guest.Compensated ?
                 "Credit accepted. Continuing problems can cause new complaints." : "No active complaint reported.", Body, Teal);
@@ -41,7 +42,8 @@ namespace WorstHotel
                             " / credit; cause remains") : situations[i].AttentionAcknowledged ? " / ignored" :
                         " / " + GuestLabels.Situation(situations[i].Stage)), Small, situations[i].Stage >= SituationStage.Escalated ? Red : Ink);
             DrawGuestResponseActions(guest, situations);
-            Label(new Rect(42, 680, 700, 53), "Room rate $" + guest.Price + (guest.Compensated ? " / credit reserved $" + guest.CompensationCredit : "") + "\n" +
+            Label(new Rect(42, 680, 700, 53), "Room rate $" + guest.Price + (guest.Compensated && !guest.ReceiptPosted ? " / credit reserved $" + guest.CompensationCredit :
+                guest.ReceiptPosted ? " / settled once · see operating report" : "") + "\n" +
                 (GuestLabels.GuestIntentStatus(guest, Session.Simulation) ?? (guest.Agent?.PendingMoveRoomId.HasValue == true ? "Bring key " + guest.Agent.PendingMoveRoomId + " to this guest to exchange rooms." :
                  situations.Length > 0 ? "The guest has described a problem. How you help is your decision." : "Talk to guests at reception or by their room.")), Small, Muted);
             ButtonAt(new Rect(42, 746, 342, 42), "Back to all guests", () => { selectedServiceGuest = null; focus = 0; });

@@ -32,6 +32,9 @@ namespace WorstHotel
             if (!IntentBehaviorEnabled) return true;
             var current = DirectIntent(guest.GuestId);
             if (current != null && (request == null || current.CaseId != request.Id)) return false;
+            bool newDirect = request != null && request.Active && request.Kind != ServiceKind.ExtraBlanket &&
+                request.Kind != ServiceKind.AskNeighborsQuiet && FindIntent(request.Id + "/intent") == null;
+            if (newDirect && simulation.EarlyCheckoutDecisionPending(guest)) return false;
             return request == null || !request.Active || request.Kind == ServiceKind.AskNeighborsQuiet ||
                 FindIntent(request.Id + "/intent") != null || intents.Count < 1024;
         }
@@ -57,6 +60,8 @@ namespace WorstHotel
         {
             if (!IntentBehaviorEnabled) return CommandResult.Ok();
             var current = DirectIntent(guest.GuestId);
+            if (current?.Purpose != ServiceIntentPurpose.RoomMove && simulation.EarlyCheckoutDecisionPending(guest))
+                return CommandResult.Fail("The guest's departure decision is pending. A new room proposal cannot restart the wait.");
             if (current != null && current.Purpose != ServiceIntentPurpose.RoomMove && current.Purpose != ServiceIntentPurpose.CompensationDiscussion)
                 return CommandResult.Fail("Finish the guest's current direct service decision before proposing another.");
             if (guest.Agent.State == GuestAgentState.Sleeping || guest.Agent.Activity == GuestActivity.Shower ||

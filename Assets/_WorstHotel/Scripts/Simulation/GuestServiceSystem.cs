@@ -315,7 +315,13 @@ namespace WorstHotel
             EndGuestIntents(guest);
             EndGuestResponses(guest);
             foreach (var promise in promises.Where(item => item.GuestId == guest.GuestId && item.Status == PromiseStatus.Accepted).ToArray())
-                MissPromise(promise, guest);
+            {
+                // Ending a stay before the call's opportunity expires is cancellation, not
+                // a broken promise. Preserve the same strict deadline as the normal call tick.
+                if (simulation.ContinuousOperations && simulation.Elapsed <= promise.DueTime + Settings.WakeMissSeconds)
+                    promise.Status = PromiseStatus.Cancelled;
+                else MissPromise(promise, guest);
+            }
             foreach (var item in cases.Where(item => item.GuestId == guest.GuestId && item.Active).ToArray()) Finish(item, guest, ServiceStatus.Expired, 0);
         }
         internal void SettleShift()

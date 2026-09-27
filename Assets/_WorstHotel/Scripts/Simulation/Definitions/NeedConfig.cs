@@ -31,12 +31,29 @@ namespace WorstHotel
         [Range(0.1f, 1)] public float minimumRepeatPatienceMultiplier = 0.5f;
         [Range(1, 10000)] public int memoryCountLimit = 32;
         [Range(4, 128)] public int historyCapacity = 12;
+        [Header("Rare early checkout — continuous operations only")]
+        public bool earlyCheckoutEnabled = true;
+        [Range(0, 1)] public float earlyCheckoutSevereThreshold = .5f;
+        [Range(0, 1)] public float earlyCheckoutRecoveryThreshold = .35f;
+        [Min(.01f)] public float earlyCheckoutSevereHours = 3;
+        [Min(.01f)] public float earlyCheckoutGraceHours = 1;
+        [Min(.01f)] public float earlyCheckoutRecoveryHours = .25f;
+        [Min(0)] public float earlyCheckoutMinimumRemainingStayHours = 1;
+        [Min(.01f)] public float earlyCheckoutReferencePatienceSeconds = 65;
+        [Min(.01f)] public float earlyCheckoutPatientMultiplier = 1.15f;
+        [Min(.01f)] public float earlyCheckoutImpatientMultiplier = .9f;
+        [Min(.01f)] public float earlyCheckoutMinimumPatienceMultiplier = .75f;
+        [Min(.01f)] public float earlyCheckoutMaximumPatienceMultiplier = 1.75f;
 
         public NeedSettings ToData() => new NeedSettings(temperatureSevereDelta, tolerableSeverity, buildupPerSecond,
             recoveryPerSecond, dirtySeverity, degradedSeverity, brokenSeverity, serviceExpiredSeverity,
             complaintDissatisfaction, escalatedDissatisfaction, criticalDissatisfaction, complaintExposureSeconds,
             escalatedExposureSeconds, criticalExposureSeconds, recoverySeconds, recoverySeverityThreshold,
             reopenCooldownSeconds, noiseBuildupMultiplier, compensationReliefSeconds, compensationDissatisfactionReduction,
-            repeatPatienceReduction, minimumRepeatPatienceMultiplier, memoryCountLimit, historyCapacity);
+            repeatPatienceReduction, minimumRepeatPatienceMultiplier, memoryCountLimit, historyCapacity,
+            new EarlyCheckoutSettings(earlyCheckoutEnabled, earlyCheckoutSevereThreshold, earlyCheckoutRecoveryThreshold,
+                earlyCheckoutSevereHours, earlyCheckoutGraceHours, earlyCheckoutRecoveryHours, earlyCheckoutMinimumRemainingStayHours,
+                earlyCheckoutReferencePatienceSeconds, earlyCheckoutPatientMultiplier, earlyCheckoutImpatientMultiplier,
+                earlyCheckoutMinimumPatienceMultiplier, earlyCheckoutMaximumPatienceMultiplier));
     }
 }

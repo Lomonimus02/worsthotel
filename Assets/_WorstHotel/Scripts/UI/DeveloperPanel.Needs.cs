@@ -32,6 +32,14 @@ namespace WorstHotel
                 "\nResolved " + memory.ProblemsResolvedSuccessfully + " / ignored " + memory.ProblemsIgnored +
                 " / previous noise warnings " + memory.PreviousNoiseWarnings + "\nRepeated problems: " +
                 string.Join(" / ", memory.RepeatedProblemCount.Select(pair => pair.Key + " " + pair.Value)), body);
+            var departure = guest.EarlyCheckout;
+            if (departure != null)
+                GUILayout.Label("EARLY CHECKOUT (debug): " + departure.State + " / known warning " + Session.Simulation.IsEarlyCheckoutWarningKnown(guest) +
+                    "\nCause " + departure.IncidentId + " / episode " + departure.IncidentEpisode + " / room " + departure.RoomId + " / " + departure.Reason +
+                    "\nSevere room exposure " + departure.SevereExposureSeconds.ToString("F1") + "s / recovery " + departure.RecoverySeconds.ToString("F1") +
+                    "s / remaining severe-exposure grace " + departure.GraceRemainingSeconds.ToString("F1") + "s" +
+                    "\nWarning at " + departure.WarningAt.ToString("F1") + " / committed at " + departure.CommittedAt.ToString("F1") +
+                    "\nCaptured terminal cause: " + (departure.CauseDescription ?? "none"), body);
             foreach (var situation in Session.Simulation.Incidents.Items.Where(s => s.GuestId == guest.GuestId))
             {
                 GUILayout.Label("CASE " + situation.Id + "\nAffected " + situation.GuestName + " (" + situation.GuestId + ") / room " +

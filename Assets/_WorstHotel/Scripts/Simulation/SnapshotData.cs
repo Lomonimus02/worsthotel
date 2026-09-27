@@ -71,7 +71,7 @@ namespace WorstHotel
             RoomCondition=g.Needs!=null?Capture(g.Needs.RoomCondition):null,Service=g.Needs!=null?Capture(g.Needs.Service):null,
             CombinedRoomDeficit=g.Needs?.CombinedRoomDeficit??0,ServiceIntegral=g.Needs?.ServiceIntegral??0,
             ExpiredRoomComplaint=g.Needs?.ExpiredRoomComplaint??false,Agent=Capture(g.Agent),
-            Memory=Capture(g.Memory),Perception=Capture(g.Perception),
+            Memory=Capture(g.Memory),Perception=Capture(g.Perception),EarlyCheckout=Capture(g.EarlyCheckout),
             BlanketComfortBonus=g.BlanketComfortBonus,ServiceSatisfactionAdjustment=g.ServiceSatisfactionAdjustment
         };
         internal static GuestStay Guest(GuestSnapshot s)
@@ -89,6 +89,7 @@ namespace WorstHotel
         internal static void Restore(GuestStay g, GuestSnapshot s)
         {
             Restore(g.Memory,s.Memory);Restore(g.Perception,s.Perception);
+            Restore(g.EarlyCheckout,s.EarlyCheckout);
             g.RoomId=s.RoomId;g.CompensationCredit=s.CompensationCredit;g.Compensated=s.Compensated;
             g.ReceiptPosted=s.ReceiptPosted;
             g.BlanketComfortBonus=s.BlanketComfortBonus;g.ServiceSatisfactionAdjustment=s.ServiceSatisfactionAdjustment;
@@ -141,10 +142,9 @@ namespace WorstHotel
         internal static ReportSnapshot Capture(DayReport r) => new ReportSnapshot
         {
             Day=r.DayNumber,OpeningCash=r.OpeningCash,OperatingCost=r.OperatingCost,Cash=r.Cash,Reputation=r.Reputation,ServiceSeconds=r.ServiceSeconds,MaintenanceSpend=r.MaintenanceSpend,CapitalSpend=r.CapitalSpend,
-            Receipts=r.Receipts.Select(x=>new ReceiptSnapshot{GuestId=x.GuestId,Name=x.Name,RoomId=x.RoomId,Price=x.Price,
-                Satisfaction=x.Satisfaction,Compensation=x.Compensation,Review=x.Review}).ToArray()
+            Receipts=r.Receipts.Select(Capture).ToArray()
         };
-        internal static DayReport Report(ReportSnapshot r) => new DayReport(r.Day,r.Receipts.Select(x=>new GuestReceipt(x.GuestId,x.Name,x.RoomId,
-            x.Price,x.Satisfaction,x.Compensation,x.Review)),r.OpeningCash,r.OperatingCost,r.Cash,r.Reputation,r.ServiceSeconds,r.MaintenanceSpend,r.CapitalSpend);
+        internal static DayReport Report(ReportSnapshot r) => new DayReport(r.Day,r.Receipts.Select(Receipt),
+            r.OpeningCash,r.OperatingCost,r.Cash,r.Reputation,r.ServiceSeconds,r.MaintenanceSpend,r.CapitalSpend);
     }
 }

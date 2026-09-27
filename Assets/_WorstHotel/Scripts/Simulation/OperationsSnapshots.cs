@@ -31,9 +31,11 @@ namespace WorstHotel
     {
         internal static ReceiptSnapshot Capture(GuestReceipt receipt) => new ReceiptSnapshot
         { GuestId=receipt.GuestId,Name=receipt.Name,RoomId=receipt.RoomId,Price=receipt.Price,
-            Compensation=receipt.Compensation,Satisfaction=receipt.Satisfaction,Review=receipt.Review };
+            Compensation=receipt.Compensation,Satisfaction=receipt.Satisfaction,Review=receipt.Review,
+            EarlyCheckout=receipt.EarlyCheckout,CheckoutAt=receipt.CheckoutAt,DepartureReason=receipt.DepartureReason };
         internal static GuestReceipt Receipt(ReceiptSnapshot receipt) => new GuestReceipt(receipt.GuestId,receipt.Name,
-            receipt.RoomId,receipt.Price,receipt.Satisfaction,receipt.Compensation,receipt.Review);
+            receipt.RoomId,receipt.Price,receipt.Satisfaction,receipt.Compensation,receipt.Review,
+            receipt.EarlyCheckout,receipt.CheckoutAt,receipt.DepartureReason);
         internal static ScheduledOfferSnapshot Capture(ScheduledBookingOffer o) => new ScheduledOfferSnapshot
         { Application = Capture(o.Application), ArrivalDay = o.ArrivalDay, ArrivalAt = o.ArrivalAt,
             SleepAt = o.SleepAt, WakeAt = o.WakeAt, CheckoutAt = o.CheckoutAt };
@@ -103,7 +105,7 @@ namespace WorstHotel
                 "Operating report sequence differs from retained history.");
             foreach (var report in model.Reports) Require(report.Day <= data.ReportSequence, "Future report in history.");
             var receipts = Array(data.PeriodReceipts, 128); Unique(receipts.Select(item => item.GuestId));
-            foreach (var receipt in receipts) ValidateOperatingReceipt(receipt, roomIds);
+            foreach (var receipt in receipts) { ValidateOperatingReceipt(receipt, roomIds); DepartureReceipt(receipt, model.Time); }
             Require(receipts.Sum(item => (long)item.Price) <= int.MaxValue && receipts.Sum(item => (long)item.Compensation) <= int.MaxValue,
                 "Operating receipt totals overflow.");
             var offers = Array(data.Offers, 16); Unique(offers.Select(item => item.Application?.Id));

@@ -144,7 +144,11 @@ namespace WorstHotel
                 ServiceStatus expected = p.Status == PromiseStatus.Accepted ? ServiceStatus.InProgress :
                     p.Status == PromiseStatus.Completed ? ServiceStatus.Fulfilled :
                     p.Status == PromiseStatus.Missed ? ServiceStatus.Expired : ServiceStatus.Declined;
-                Require(agreement.Status == expected, "Promise and service completion disagree.");
+                var owner = snapshot.Guests.FirstOrDefault(guest => guest.Application.Id == p.GuestId);
+                bool cancelledAtDeparture = p.Status == PromiseStatus.Cancelled && agreement.Status == ServiceStatus.Expired &&
+                    owner?.Agent != null && (owner.Agent.State == GuestAgentState.CheckingOut ||
+                        owner.Agent.State == GuestAgentState.Leaving || owner.Agent.State == GuestAgentState.Left);
+                Require(agreement.Status == expected || cancelledAtDeparture, "Promise and service completion disagree.");
                 Require((p.Status == PromiseStatus.Completed) == (p.CompletedAt >= 0), "Invalid promise completion.");
             }
             foreach (var i in items)

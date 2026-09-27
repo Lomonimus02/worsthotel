@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="4" result="Passed" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 12:04:13Z" end-time="2026-09-27 12:06:00Z" duration="106.7755416">
+  <test-suite type="TestSuite" id="1088" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="80" result="Passed" start-time="2026-09-27 12:04:13Z" end-time="2026-09-27 12:06:00Z" duration="106.775542" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1085" name="WorstHotel.PlayModeTests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="80" result="Passed" start-time="2026-09-27 12:04:13Z" end-time="2026-09-27 12:06:00Z" duration="106.767733" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="5800" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1086" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="80" result="Passed" start-time="2026-09-27 12:04:13Z" end-time="2026-09-27 12:06:00Z" duration="106.766453" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1087" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="80" result="Passed" start-time="2026-09-27 12:04:13Z" end-time="2026-09-27 12:06:00Z" duration="106.765370" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="80" result="Passed" start-time="2026-09-27 12:04:13Z" end-time="2026-09-27 12:06:00Z" duration="106.763533" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1024" name="ActualAnsweredPhoneBindsCompensationToThatGuestAndFinishesOnlyTheDiscussion" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualAnsweredPhoneBindsCompensationToThatGuestAndFinishesOnlyTheDiscussion" methodname="ActualAnsweredPhoneBindsCompensationToThatGuestAndFinishesOnlyTheDiscussion" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1127150400" result="Passed" start-time="2026-09-27 12:04:13Z" end-time="2026-09-27 12:04:25Z" duration="12.135336" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1023" name="ActualReceptionCompensationKeepsFiniteWaitAcrossCloseAndRejectsStaleOrAbsentStaff" fullname="WorstHotel.Tests.Phase1PlayModeTests.ActualReceptionCompensationKeepsFiniteWaitAcrossCloseAndRejectsStaleOrAbsentStaff" methodname="ActualReceptionCompensationKeepsFiniteWaitAcrossCloseAndRejectsStaleOrAbsentStaff" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1677868203" result="Passed" start-time="2026-09-27 12:04:25Z" end-time="2026-09-27 12:04:49Z" duration="23.661277" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1032" name="CancelledUnreceivedBlanketRemainsAtItsPointAndCanBePhysicallyReclaimedAndReturned" fullname="WorstHotel.Tests.Phase1PlayModeTests.CancelledUnreceivedBlanketRemainsAtItsPointAndCanBePhysicallyReclaimedAndReturned" methodname="CancelledUnreceivedBlanketRemainsAtItsPointAndCanBePhysicallyReclaimedAndReturned" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="304279495" result="Passed" start-time="2026-09-27 12:04:49Z" end-time="2026-09-27 12:05:11Z" duration="22.513412" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1038" name="WarnedEarlyGuestPaysOnceButRoomWaitsForActualDoorLobbyAndExteriorExit" fullname="WorstHotel.Tests.Phase1PlayModeTests.WarnedEarlyGuestPaysOnceButRoomWaitsForActualDoorLobbyAndExteriorExit" methodname="WarnedEarlyGuestPaysOnceButRoomWaitsForActualDoorLobbyAndExteriorExit" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1106151141" result="Passed" start-time="2026-09-27 12:05:11Z" end-time="2026-09-27 12:06:00Z" duration="48.427633" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

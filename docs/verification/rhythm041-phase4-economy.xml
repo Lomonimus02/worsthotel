@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 12:00:36Z" end-time="2026-09-27 12:03:14Z" duration="158.7911324">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="734" result="Passed" start-time="2026-09-27 12:00:36Z" end-time="2026-09-27 12:03:14Z" duration="158.791132" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1880" name="WorstHotel.Tests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="734" result="Passed" start-time="2026-09-27 12:00:36Z" end-time="2026-09-27 12:03:14Z" duration="158.779776" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="14388" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1881" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="734" result="Passed" start-time="2026-09-27 12:00:36Z" end-time="2026-09-27 12:03:14Z" duration="158.768755" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1882" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="734" result="Passed" start-time="2026-09-27 12:00:36Z" end-time="2026-09-27 12:03:14Z" duration="158.755109" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1205" name="ContinuousEconomyComparisonTests" fullname="WorstHotel.Tests.ContinuousEconomyComparisonTests" classname="WorstHotel.Tests.ContinuousEconomyComparisonTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-27 12:00:36Z" end-time="2026-09-27 12:03:14Z" duration="158.744298" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1206" name="ProductionSeededThreeDayBookingStrategiesExposeBothRevenueOpportunityAndCausalCosts" fullname="WorstHotel.Tests.ContinuousEconomyComparisonTests.ProductionSeededThreeDayBookingStrategiesExposeBothRevenueOpportunityAndCausalCosts" methodname="ProductionSeededThreeDayBookingStrategiesExposeBothRevenueOpportunityAndCausalCosts" classname="WorstHotel.Tests.ContinuousEconomyComparisonTests" runstate="Runnable" seed="244039303" result="Passed" start-time="2026-09-27 12:00:36Z" end-time="2026-09-27 12:03:14Z" duration="158.733742" asserts="0">
+              <properties>
+                <property name="Timeout" value="300000" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Production seed=1947; natural schedules; D1 08 to D4 08 + D4 11 checkout tail; no day4 bookings. Headless two-staff key/linen/repair adapters; optional services declined, no comp credit or upgrades. Quiet requires an occupied hotel with spare heat capacity and no active shower/loud emitter.
+Proactive counterfactuals: same five offers/prices, cold-sensitive guests in 101/103; optional welcome blankets use real finite stock, shared staff, 3.5m/s storage/room travel + 3s permission + max10s wait + return. One visit per cold-sensitive stay. Managed turnover also spends3s inspecting each vacant used room's radiator and returns it to1 through the normal staff command before the bed is ready; never overrides an occupied guest or changes their schedule.
+N=3; receipts=9; gross=2790; refunds=0; maintenance=0; capital=0; net=1440; cash=2190; minCash=300; peakLoad=4.427; peakStress=0.008; failures=0; minOccupiedC=20.60; quietSeconds=1351.0; longestQuiet=302.2; showers=9; contacts=8; reportCount=3; firstReportCash=300; firstReportReceipts=0; policy=SequentialRooms; blankets=0; blanketVisits=0; blanketStaffSeconds=0.0; valveInspections=0; valveAdjustments=0; peakOccupiedValve=2; firstFailureElapsedAndCountByDay=; earlyReceipts=0; earlyCheckoutElapsed=; firstReportEarlyCheckoutElapsed=
+N=4; receipts=12; gross=3330; refunds=0; maintenance=0; capital=0; net=1980; cash=2730; minCash=300; peakLoad=5.294; peakStress=0.211; failures=0; minOccupiedC=20.05; quietSeconds=1254.8; longestQuiet=286.8; showers=7; contacts=17; reportCount=3; firstReportCash=300; firstReportReceipts=0; policy=SequentialRooms; blankets=0; blanketVisits=0; blanketStaffSeconds=0.0; valveInspections=0; valveAdjustments=0; peakOccupiedValve=3; firstFailureElapsedAndCountByDay=; earlyReceipts=0; earlyCheckoutElapsed=; firstReportEarlyCheckoutElapsed=
+N=5; receipts=15; gross=4230; refunds=638; maintenance=1000; capital=0; net=1242; cash=1992; minCash=100; peakLoad=7.896; peakStress=1.000; failures=5; minOccupiedC=14.12; quietSeconds=483.6; longestQuiet=284.8; showers=11; contacts=24; reportCount=3; firstReportCash=300; firstReportReceipts=0; policy=SequentialRooms; blankets=0; blanketVisits=0; blanketStaffSeconds=0.0; valveInspections=0; valveAdjustments=0; peakOccupiedValve=3; firstFailureElapsedAndCountByDay=D2@754.4/2,D3@1795.7/1,D4@1933.0/2; earlyReceipts=3; earlyCheckoutElapsed=stay-2-2@1178.206,stay-2-5@1190.403,stay-3-2@1893.632; firstReportEarlyCheckoutElapsed=
+N=6; receipts=18; gross=5580; refunds=1725; maintenance=600; capital=0; net=1905; cash=2655; minCash=675; peakLoad=7.935; peakStress=1.000; failures=3; minOccupiedC=13.11; quietSeconds=1050.8; longestQuiet=285.2; showers=11; contacts=25; reportCount=3; firstReportCash=675; firstReportReceipts=2; policy=SequentialRooms; blankets=0; blanketVisits=0; blanketStaffSeconds=0.0; valveInspections=0; valveAdjustments=0; peakOccupiedValve=3; firstFailureElapsedAndCountByDay=D2@1141.6/1,D3@1783.5/1,D4@2188.6/1; earlyReceipts=9; earlyCheckoutElapsed=stay-1-6@474.611,stay-1-5@488.611,stay-2-6@1148.014,stay-2-3@1191.603,stay-2-5@1191.803,stay-2-2@1206.799,stay-3-6@1842.444,stay-3-3@1873.037,stay-3-2@1887.033; firstReportEarlyCheckoutElapsed=stay-1-6@474.611,stay-1-5@488.611
+N=5; receipts=15; gross=4230; refunds=750; maintenance=800; capital=0; net=1330; cash=2080; minCash=300; peakLoad=7.881; peakStress=1.000; failures=4; minOccupiedC=14.21; quietSeconds=686.4; longestQuiet=261.0; showers=12; contacts=18; reportCount=3; firstReportCash=300; firstReportReceipts=0; policy=WarmRoomAssignment; blankets=0; blanketVisits=0; blanketStaffSeconds=0.0; valveInspections=0; valveAdjustments=0; peakOccupiedValve=3; firstFailureElapsedAndCountByDay=D2@779.4/2,D3@1793.5/1,D4@1922.4/1; earlyReceipts=4; earlyCheckoutElapsed=stay-2-5@1184.405,stay-2-3@1194.203,stay-3-3@1889.433,stay-3-2@1946.019; firstReportEarlyCheckoutElapsed=
+N=5; receipts=15; gross=4230; refunds=75; maintenance=600; capital=0; net=2205; cash=2955; minCash=300; peakLoad=6.616; peakStress=1.000; failures=3; minOccupiedC=14.58; quietSeconds=524.0; longestQuiet=297.8; showers=14; contacts=15; reportCount=3; firstReportCash=300; firstReportReceipts=0; policy=WarmRoomsAndWelcomeBlankets; blankets=5; blanketVisits=6; blanketStaffSeconds=197.2; valveInspections=10; valveAdjustments=6; peakOccupiedValve=3; firstFailureElapsedAndCountByDay=D3@1387.0/1,D4@1972.8/2; earlyReceipts=0; earlyCheckoutElapsed=; firstReportEarlyCheckoutElapsed=
+Separate earned-capital continuation: day4 pre-purchase cash=2955, paid=1800, ownedRooms=5, sameLoad=5.0191, condition=39.572, retainedStress=0.0038, ratio=1.1999->0.9599; sixth actual arrival elapsed=2498.9, sixRatio=0.9794, contemporaneous-fiveRatio=0.8530; through day5 00:06 peakRatio=1.4749, peakStress=0.4079, additionalFailures=0, retainedRatedCapacity=5.750, finalCash=1155. Natural pressure is measured, not a mandated failure.
+Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

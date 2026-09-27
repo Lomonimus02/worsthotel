@@ -12,7 +12,7 @@ Follow the requested order. Freeze runtime sources while Unity is compiling/test
 | 1 | Investigate actual boiler/electrical causal chain before changing it; document and fix/expose proven cause | PASS:25 Edit,4 relevant physical scenarios; [cause, failed attempts and trace](BOILER_POWER_INTERACTION.md). New prompt pixels remain final readability gate. |
 | 2 | Intermediate boiler bands, pre-failure performance, wear/stress and recovery; no new maintenance yet | PASS:638 Edit,3 physical; measured stress retuning preserved all economic gates. [Evidence](verification/rhythm041-phase2.md) |
 | 3 | Readable inspection, configurable Basic Service and Full Service with paid real downtime | PASS:Scene,130 Edit,6 physical. [Contract, evidence and EXE limits](verification/rhythm041-phase3.md) |
-| 4 | Pre-failure guest consequences, sustained severe escalation and eligible early checkout/once-only refunds | Pending |
+| 4 | Pre-failure guest consequences, sustained severe escalation and eligible early checkout/once-only refunds | PASS:734 Edit across full+corrected case,4 physical; actual production multi-day early outcomes. [Evidence](verification/rhythm041-phase4.md) |
 | 5 | Automatic scheduled normal bookings, per-room sales policy/prices, adjustable actual assignment | Pending |
 | 6 | Natural morning/afternoon/evening/night guest activity and demand; no hard phases/load multipliers | Pending |
 | 7 | Small modular staff room, physical beds, event-aware model-clock sleep, two-player agreement/critical wake | Pending |

@@ -137,7 +137,8 @@ namespace WorstHotel
                     {
                         var review = receipt;
                         AddOperationsChoice(42, 292 + row++ * 62, 705, 54, receipt.RoomId + " · " + receipt.Name + " · satisfaction " + receipt.Satisfaction.ToString("F0") +
-                            "/100\nPaid $" + receipt.Net + " · read review ›", () => { selectedReview = review; focus = 0; });
+                            "/100\n" + (receipt.EarlyCheckout ? "EARLY CHECKOUT · " : "") + "Paid $" + receipt.Net + " · read review ›",
+                            () => { selectedReview = review; focus = 0; });
                     }
                     if (report.Receipts.Count > 6)
                         AddOperationsChoice(42, 667, 705, 27, "More guest receipts ›", () =>
@@ -216,7 +217,11 @@ namespace WorstHotel
             if (selectedReview != null)
             {
                 Label(new Rect(42, 200, 705, 68), selectedReview.RoomId + " · " + selectedReview.Name + "\nSatisfaction " + selectedReview.Satisfaction.ToString("F0") + "/100 · paid $" + selectedReview.Net, Heading);
-                Label(new Rect(42, 306, 705, 370), "“" + selectedReview.Review + "”", Body);
+                string earlyCheckout = GuestLabels.EarlyCheckoutReceiptSummary(selectedReview, Session.Simulation);
+                if (earlyCheckout != null)
+                    Label(new Rect(42, 278, 705, 101), earlyCheckout + "\nAgreed $" + selectedReview.Price + " − credits/refunds $" +
+                        selectedReview.Compensation + " = paid $" + selectedReview.Net, Small, Wine);
+                Label(new Rect(42, earlyCheckout != null ? 392 : 306, 705, earlyCheckout != null ? 284 : 370), "“" + selectedReview.Review + "”", Body);
                 return;
             }
             Label(new Rect(42, 195, 705, 86), "PERIOD " + report.DayNumber + " · Revenue $" + report.Gross + " − credits/refunds $" + report.Compensation +

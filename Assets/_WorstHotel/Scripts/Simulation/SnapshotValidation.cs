@@ -113,7 +113,7 @@ namespace WorstHotel
             }
             var requests=Array(s.Requests,256);Unique(requests.Select(r=>r.Id));foreach(var r in requests){Text(r.Id,512);Text(r.MeasuredCause,2048,true);Range(r.Age);Require(incidents.Any(i=>i.Id==r.Id),"Missing request source.");}
             var reports=Array(s.Reports,continuous?128:3);Unique(reports.Select(r=>r.Day));foreach(var r in reports)
-            {Require(r.Day>=1 && r.Day<=s.Day && r.OperatingCost>=0,"Invalid report.");Range(r.Reputation,0,100);Range(r.ServiceSeconds);var receipts=Array(r.Receipts,continuous?128:6);Unique(receipts.Select(x=>x.GuestId));foreach(var x in receipts){Text(x.GuestId);Text(x.Name);Text(x.Review,4096,true);Require(Room(x.RoomId) && x.Price>=0 && x.Compensation>=0 && x.Compensation<=x.Price,"Invalid receipt.");Range(x.Satisfaction,0,100);}}
+            {Require(r.Day>=1 && r.Day<=s.Day && r.OperatingCost>=0,"Invalid report.");Range(r.Reputation,0,100);Range(r.ServiceSeconds);var receipts=Array(r.Receipts,continuous?128:6);Unique(receipts.Select(x=>x.GuestId));foreach(var x in receipts){Text(x.GuestId);Text(x.Name);Text(x.Review,4096,true);Require(Room(x.RoomId) && x.Price>=0 && x.Compensation>=0 && x.Compensation<=x.Price,"Invalid receipt.");Range(x.Satisfaction,0,100);DepartureReceipt(x,s.Time);}}
             foreach(var r in reports)Require(r.Receipts.Sum(x=>(long)x.Price)<=int.MaxValue && r.Receipts.Sum(x=>(long)x.Compensation)<=int.MaxValue,"Report totals overflow.");
             foreach(var r in reports)Require(r.MaintenanceSpend>=0 && r.CapitalSpend>=0 && (long)r.MaintenanceSpend+r.CapitalSpend+r.OperatingCost<=int.MaxValue &&
                 (continuous || r.MaintenanceSpend==0 && r.CapitalSpend==0),"Invalid report equipment spending total.");

@@ -29,6 +29,7 @@ namespace WorstHotel
         public float MinimumRepeatPatienceMultiplier { get; }
         public int MemoryCountLimit { get; }
         public int HistoryCapacity { get; }
+        public EarlyCheckoutSettings EarlyCheckout { get; }
 
         public NeedSettings(float temperatureSevereDelta = 4, float tolerableSeverity = 0.25f,
             float buildupPerSecond = 0.02f, float recoveryPerSecond = 0.04f, float dirtySeverity = 0.45f,
@@ -39,7 +40,7 @@ namespace WorstHotel
             float recoverySeverityThreshold = 0.03f, float reopenCooldownSeconds = 12, float noiseBuildupMultiplier = 3,
             float compensationReliefSeconds = 25, float compensationDissatisfactionReduction = 0.35f,
             float repeatPatienceReduction = 0.20f, float minimumRepeatPatienceMultiplier = 0.5f,
-            int memoryCountLimit = 32, int historyCapacity = 12)
+            int memoryCountLimit = 32, int historyCapacity = 12, EarlyCheckoutSettings earlyCheckout = null)
         {
             foreach (float value in new[] { temperatureSevereDelta, tolerableSeverity, buildupPerSecond, recoveryPerSecond,
                 dirtySeverity, degradedSeverity, brokenSeverity, serviceExpiredSeverity, complaintDissatisfaction,
@@ -70,6 +71,7 @@ namespace WorstHotel
             CompensationDissatisfactionReduction = compensationDissatisfactionReduction;
             RepeatPatienceReduction = repeatPatienceReduction; MinimumRepeatPatienceMultiplier = minimumRepeatPatienceMultiplier;
             MemoryCountLimit = memoryCountLimit; HistoryCapacity = historyCapacity;
+            EarlyCheckout = earlyCheckout ?? new EarlyCheckoutSettings();
         }
     }
 }

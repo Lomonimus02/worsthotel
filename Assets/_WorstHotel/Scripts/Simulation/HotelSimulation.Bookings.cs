@@ -219,7 +219,8 @@ namespace WorstHotel
                 guest.ReceiptPosted = true;
                 reservation.Status = ReservationStatus.Completed; reservation.Revision++;
                 if (!LivingEnabled) ReleaseRoom(guest);
-                SignalEvent(guest.Name + " checked out — $" + receipt.Net + " received");
+                SignalEvent(guest.Name + (receipt.EarlyCheckout ? " checked out early" : " checked out") +
+                    " — $" + receipt.Net + " received" + (receipt.EarlyCheckout ? "; " + receipt.DepartureReason : ""));
             }
         }
     }

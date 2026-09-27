@@ -70,6 +70,7 @@ namespace WorstHotel
                         (snapshot.Boiler.ActiveServiceKind == BoilerServiceKind.Basic ? settings.Boiler.Capacity.BasicMaintenanceHours : settings.Boiler.Capacity.MaintenanceHours) / 24),
                         "Maintenance deadline exceeds its configured duration.");
                 SnapshotValidation.Services(snapshot, Services != null, rooms.Keys.ToArray(), Services?.NaturalCommunicationEnabled == true);
+                SnapshotValidation.EarlyDepartures(snapshot, NeedsSettings?.EarlyCheckout, Operations, settings.Economy, rooms.Keys.ToArray());
                 Housekeeping?.ValidateSnapshot(snapshot.Linens);
                 foreach(var room in snapshot.Rooms)
                     SnapshotValidation.Require(SnapshotData.OptionalId(room.CircuitId)==Electrical?.CircuitForRoom(room.Id)?.Id,"Room circuit differs from this hotel.");

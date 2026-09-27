@@ -71,7 +71,9 @@ namespace WorstHotel
                 service?.Kind == ServiceKind.ExtraBlanket && Session.Simulation.ContinuousOperations ? GuestLabels.ServiceClue(service, Session.Simulation) :
                 cases.Length > 0 ? GuestLabels.ComplaintClue(cases[0]) : service != null ? GuestLabels.ServiceClue(service, Session.Simulation) : noisy ?
                     (guest.Memory.PreviousNoiseWarnings > 0 ? "Yes? We have already spoken about the noise." : "Yes? You wanted to speak to me?") : "Yes? What is it?";
-            Label(new Rect(99, 310, 598, 66), line, Body, Muted);
+            string departureWarning = GuestLabels.KnownEarlyDepartureWarning(guest, Session.Simulation);
+            Label(new Rect(99, 310, 598, departureWarning != null ? 36 : 60), line, Body, Muted);
+            if (departureWarning != null) Label(new Rect(99, 347, 598, 22), departureWarning, Small, Wine);
             if (!contextHasResponse) Label(new Rect(99, 370, 598, 20), GuestLabels.GuestIntentStatus(guest, Session.Simulation) ?? "", Small, Teal);
             if (contextHasResponse) Label(new Rect(99, 370, 598, 20), Session.LastMessage, Small, Wine);
             float y = 390;

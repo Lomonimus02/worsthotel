@@ -39,6 +39,28 @@ namespace WorstHotel
             Keys.ReturnGuestKeys(guest.GuestId);
         }
 
+        // Normal deadline and an accepted early-departure outcome use the same real exit.
+        // Do not change the contracted schedule to make a departure happen earlier.
+        internal void BeginGuestCheckout(GuestStay guest, float now)
+        {
+            if (IsReadOnlyMirror || guest?.Agent == null || guest.ReceiptPosted) return;
+            var agent = guest.Agent;
+            if (agent.State == GuestAgentState.CheckingOut || agent.State == GuestAgentState.Leaving || agent.State == GuestAgentState.Left) return;
+            bool alreadyOutside = agent.State == GuestAgentState.GuestAway;
+            // Service/item/key observers may run during ReleaseRoom. Commit the terminal
+            // agent first, so a captured early outcome never still describes an in-room actor.
+            agent.State = alreadyOutside ? GuestAgentState.Left : agent.CheckedIn ? GuestAgentState.CheckingOut : GuestAgentState.Leaving;
+            agent.StateChangedAt = now;
+            agent.HeatingDemandMultiplier = agent.NoiseOutput = 0;
+            agent.NextActivityTime = agent.ActivityEndsAt = float.PositiveInfinity;
+            ReleaseRoom(guest);
+            if (alreadyOutside) SignalGuestVacatedRoom(guest.GuestId, guest.RoomId);
+            RefreshRoomPresence(); RefreshGuestLoad(); RefreshElectrical();
+            SignalEvent(guest.EarlyCheckout.State == EarlyCheckoutState.Committed ?
+                guest.Name + " is checking out early: " + guest.EarlyCheckout.CauseDescription :
+                agent.CheckedIn ? guest.Name + " is checking out" : guest.Name + " left without checking in");
+        }
+
         private GuestStay FindLivingGuest(string id) => Running && LivingEnabled && id != null ? guests.FirstOrDefault(guest => guest.GuestId == id) : null;
 
         public CommandResult SignalGuestReachedReception(string guestId)
@@ -165,13 +187,7 @@ namespace WorstHotel
                 }
                 if (now >= agent.CheckoutTime && agent.State != GuestAgentState.CheckingOut)
                 {
-                    bool alreadyOutside = agent.State == GuestAgentState.GuestAway;
-                    ReleaseRoom(guest);
-                    agent.HeatingDemandMultiplier = agent.NoiseOutput = 0;
-                    agent.NextActivityTime = agent.ActivityEndsAt = float.PositiveInfinity;
-                    if (alreadyOutside) SignalGuestVacatedRoom(guest.GuestId, guest.RoomId);
-                    Transition(guest, alreadyOutside ? GuestAgentState.Left : agent.CheckedIn ? GuestAgentState.CheckingOut : GuestAgentState.Leaving, now,
-                        agent.CheckedIn ? guest.Name + " is checking out" : guest.Name + " left without checking in");
+                    BeginGuestCheckout(guest, now);
                     continue;
                 }
                 if (agent.State == GuestAgentState.CheckingOut)

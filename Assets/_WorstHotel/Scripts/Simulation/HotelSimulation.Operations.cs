@@ -55,6 +55,7 @@ namespace WorstHotel
                     throw new InvalidOperationException("The hotel clock cannot represent another simulation step.");
                 RefreshBookingSchedule(Elapsed + step);
                 TickStep(step);
+                TickEarlyCheckout(Elapsed, step);
                 PostCompletedStays(Elapsed);
                 dayNumber = Calendar.Day;
                 CloseDueOperatingReports();

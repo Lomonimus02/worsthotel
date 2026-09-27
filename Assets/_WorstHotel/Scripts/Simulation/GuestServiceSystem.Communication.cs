@@ -36,6 +36,7 @@ namespace WorstHotel
 
         bool BeginContact(GuestResponse response, GuestStay guest, GuestContactChannel channel, float now)
         {
+            if (simulation.EarlyCheckoutDecisionPending(guest)) return false;
             if (response.ContactAttempts >= Settings.MaxContactAttempts || !CausePresent(response, guest, now) ||
                 !CanInterrupt(guest) || !ContactWindowAvailable(guest, now) || guest.Agent.ResponseActionId != null || !PrepareContact(response, guest, now)) return false;
             if (channel == GuestContactChannel.Phone && (IncomingCall != null || !guest.Agent.InAssignedRoom)) return false;

@@ -29,11 +29,16 @@ namespace WorstHotel
                 string status = guest.Agent == null ? room.Temperature.ToString("F1") + "°C" :
                     (guest.Agent.CheckedIn ? GuestLabels.State(guest.Agent) + " / " + room.Temperature.ToString("F1") + "°C" : GuestLabels.State(guest.Agent));
                 string id = guest.GuestId;
-                ButtonAt(new Rect(42, y, 438, 44), guest.RoomId + "  " + guest.Name + "\n" + status + "   /   $" + guest.Price + (guest.Compensated ? " credit $" + guest.CompensationCredit : ""), () => { selectedServiceGuest = id; focus = 0; });
+                ButtonAt(new Rect(42, y, 438, 44), guest.RoomId + "  " + guest.Name + "\n" + status + "   /   $" + guest.Price +
+                    (guest.Compensated && !guest.ReceiptPosted ? " credit $" + guest.CompensationCredit : ""), () => { selectedServiceGuest = id; focus = 0; });
                 var situation = Session.Simulation.Incidents.Items.Where(s => s.GuestId == id && GuestLabels.IsActionable(s)).OrderByDescending(s => s.Stage).FirstOrDefault();
                 var service = Session.Simulation.Services?.Cases.FirstOrDefault(c => c.GuestId == id && GuestLabels.IsKnownOpenService(c));
                 string complaint = situation != null ? GuestLabels.Problem(situation.Reason) + " / " + GuestLabels.Situation(situation.Stage) :
                     service != null ? "Request: " + GuestLabels.Service(service.Kind, Session.Simulation) : "No reported problem";
+                if (GuestLabels.KnownEarlyDepartureWarning(guest, Session.Simulation) != null)
+                    complaint = "Early checkout risk · read the reported concern";
+                else if (guest.ReceiptPosted && guest.EarlyCheckout.State == EarlyCheckoutState.Committed)
+                    complaint = "EARLY CHECKOUT · settled once · see operating report";
                 Label(new Rect(42, y + 48, 438, 25), complaint, Small, situation?.Stage >= SituationStage.Escalated ? Red : Muted);
                 ButtonAt(new Rect(502, y + 2, 245, 48), situation != null ? "Read concern / choices" : "Room / stay details",
                     () => { selectedServiceGuest = id; focus = 0; });
@@ -96,8 +101,10 @@ namespace WorstHotel
             LedgerPage("A NOTE FROM ROOM " + selectedReview.RoomId, selectedReview.Name + "  /  Satisfaction " + selectedReview.Satisfaction.ToString("F0") + "/100");
             Fill(new Rect(150, 270, 1300, 370), LightPaper);
             Border(new Rect(150, 270, 1300, 370), Brass);
-            Label(new Rect(192, 312, 1216, 260), "“" + selectedReview.Review + "”", Heading);
-            Label(new Rect(192, 589, 1216, 35), "Agreed rate $" + selectedReview.Price + "   −   compensation $" + selectedReview.Compensation + "   =   paid $" + selectedReview.Net, Body, Muted);
+            string earlyCheckout = GuestLabels.EarlyCheckoutReceiptSummary(selectedReview, Session.Simulation);
+            if (earlyCheckout != null) Label(new Rect(192, 282, 1216, 67), earlyCheckout, Body, Wine);
+            Label(new Rect(192, earlyCheckout != null ? 360 : 312, 1216, earlyCheckout != null ? 212 : 260), "“" + selectedReview.Review + "”", Heading);
+            Label(new Rect(192, 589, 1216, 35), "Agreed rate $" + selectedReview.Price + "   −   credits/refunds $" + selectedReview.Compensation + "   =   paid $" + selectedReview.Net, Body, Muted);
             ButtonAt(new Rect(150, 732, 560, 55), "BACK TO THE DAILY LEDGER", () => { selectedReview = null; focus = 0; }, true, false, true);
         }
     }

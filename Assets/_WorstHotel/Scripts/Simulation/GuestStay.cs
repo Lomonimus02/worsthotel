@@ -16,6 +16,7 @@ namespace WorstHotel
         public GuestNeeds Needs { get; internal set; }
         public GuestMemory Memory { get; } = new GuestMemory();
         public GuestPerception Perception { get; } = new GuestPerception();
+        public GuestEarlyCheckout EarlyCheckout { get; } = new GuestEarlyCheckout();
         public float BlanketComfortBonus { get; internal set; }
         public float ServiceSatisfactionAdjustment { get; internal set; }
         public float CheckInWaitingSeconds { get; internal set; }
@@ -51,11 +52,16 @@ namespace WorstHotel
         public int Compensation { get; }
         public int Net => Price - Compensation;
         public string Review { get; }
+        public bool EarlyCheckout { get; }
+        public float CheckoutAt { get; }
+        public string DepartureReason { get; }
 
-        public GuestReceipt(string guestId, string name, int roomId, int price, float satisfaction, int compensation, string review)
+        public GuestReceipt(string guestId, string name, int roomId, int price, float satisfaction, int compensation, string review,
+            bool earlyCheckout = false, float checkoutAt = -1, string departureReason = null)
         {
             GuestId = guestId; Name = name; RoomId = roomId; Price = price;
             Satisfaction = satisfaction; Compensation = compensation; Review = review;
+            EarlyCheckout = earlyCheckout; CheckoutAt = checkoutAt; DepartureReason = departureReason;
         }
     }
 

@@ -29,3 +29,15 @@ MonoBehaviour:
   recoverySeconds: 8
   recoverySeverityThreshold: 0.03
   reopenCooldownSeconds: 12
+  earlyCheckoutEnabled: 1
+  earlyCheckoutSevereThreshold: 0.5
+  earlyCheckoutRecoveryThreshold: 0.35
+  earlyCheckoutSevereHours: 3
+  earlyCheckoutGraceHours: 1
+  earlyCheckoutRecoveryHours: 0.25
+  earlyCheckoutMinimumRemainingStayHours: 1
+  earlyCheckoutReferencePatienceSeconds: 65
+  earlyCheckoutPatientMultiplier: 1.15
+  earlyCheckoutImpatientMultiplier: 0.9
+  earlyCheckoutMinimumPatienceMultiplier: 0.75
+  earlyCheckoutMaximumPatienceMultiplier: 1.75

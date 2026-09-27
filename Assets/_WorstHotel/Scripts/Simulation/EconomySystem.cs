@@ -31,12 +31,20 @@ namespace WorstHotel
         {
             if (stay == null || !Number.IsFinite(satisfaction)) throw new ArgumentException("A valid stay and finite score are required.");
             satisfaction = Number.Clamp(satisfaction, 0, 100);
+            bool earlyCheckout = stay.EarlyCheckout.State == EarlyCheckoutState.Committed;
+            // A sustained, warned departure is a negative stay outcome even if earlier
+            // comfortable hours diluted the integral. Reuse the existing severe-score boundary.
+            if (earlyCheckout) satisfaction = Math.Min(satisfaction, settings.SevereRefundThreshold);
             float refundRate = satisfaction < settings.SevereRefundThreshold ? settings.SevereRefundRate :
                 satisfaction < settings.PartialRefundThreshold ? settings.PartialRefundRate : 0;
+            if (earlyCheckout) refundRate = Math.Max(refundRate, settings.SevereRefundRate);
             int requiredRefund = RoundMoney(stay.Price * refundRate);
             int compensation = Math.Min(stay.Price, Math.Max(stay.CompensationCredit, requiredRefund));
             string review = ReviewSystem.Build(stay, satisfaction, compensation);
-            return new GuestReceipt(stay.GuestId, stay.Name, stay.RoomId, stay.Price, satisfaction, compensation, review);
+            if (earlyCheckout) review = stay.EarlyCheckout.CauseDescription + " " + review;
+            return new GuestReceipt(stay.GuestId, stay.Name, stay.RoomId, stay.Price, satisfaction, compensation, review,
+                earlyCheckout, earlyCheckout ? stay.EarlyCheckout.CommittedAt : -1,
+                earlyCheckout ? stay.EarlyCheckout.CauseDescription : null);
         }
 
         public DayReport Settle(int dayNumber, IEnumerable<GuestReceipt> receipts, float serviceSeconds)

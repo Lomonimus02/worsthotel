@@ -160,7 +160,8 @@ namespace WorstHotel
                     var agent = guest.Agent;
                     if (agent.State == GuestAgentState.Scheduled || agent.State == GuestAgentState.Arriving)
                         upcoming.Add((agent.ArrivalTime, "ARRIVAL · room " + guest.RoomId + "\n" + guest.Name));
-                    else if (agent.CheckedIn && agent.State != GuestAgentState.Leaving && agent.State != GuestAgentState.Left)
+                    else if (!guest.ReceiptPosted && agent.CheckedIn && agent.State != GuestAgentState.CheckingOut &&
+                        agent.State != GuestAgentState.Leaving && agent.State != GuestAgentState.Left)
                     {
                         bool late = services.Cases.Any(c => c.GuestId == guest.GuestId && c.Kind == ServiceKind.LateCheckout && c.Status == ServiceStatus.Fulfilled);
                         upcoming.Add((agent.CheckoutTime, (late ? "LATE CHECKOUT" : "CHECKOUT") + " · room " + guest.RoomId + "\n" + guest.Name));

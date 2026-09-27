@@ -28,6 +28,8 @@ namespace WorstHotel.Tests
             public int MinCash, EndingCash, ReportCount;
             public float MaxLoad, MaxStress, MinOccupiedTemperature = 100, QuietSeconds, LongestQuiet, quietRun;
             public int CashAtFirstReport, ReceiptsAtFirstReport;
+            public int EarlyReceipts;
+            public string FirstReportEarlyCheckoutTimes, EarlyCheckoutTimes;
             public int BlanketsDelivered, BlanketVisits;
             public int RadiatorInspections, RadiatorAdjustments, MaxOccupiedRadiatorSetting;
             public float BlanketStaffSeconds;
@@ -70,7 +72,27 @@ namespace WorstHotel.Tests
                 if (ReportCount == 0 && Hotel.DayReports.Count > 0)
                 {
                     CashAtFirstReport = Hotel.Economy.Cash;
-                    ReceiptsAtFirstReport = Hotel.DayReports.Sum(report => report.Receipts.Count);
+                    var first = Hotel.DayReports[0];
+                    ReceiptsAtFirstReport = first.Receipts.Count;
+                    // Scheduled checkout is after this report. Earlier revenue must come
+                    // from an actual committed early departure, never a booking payment.
+                    foreach (var receipt in first.Receipts)
+                    {
+                        var guest = Hotel.Guests.Single(item => item.GuestId == receipt.GuestId);
+                        Assert.That(receipt.EarlyCheckout, Is.True, receipt.GuestId);
+                        Assert.That(guest.EarlyCheckout.State, Is.EqualTo(EarlyCheckoutState.Committed));
+                        Assert.That(guest.Agent.HasReachedRoom && guest.ReceiptPosted, Is.True);
+                        Assert.That(guest.Agent.State == GuestAgentState.CheckingOut || guest.Agent.State == GuestAgentState.Leaving ||
+                            guest.Agent.State == GuestAgentState.Left, Is.True, "Payment follows the real departure transition.");
+                        Assert.That(receipt.CheckoutAt, Is.EqualTo(guest.EarlyCheckout.CommittedAt));
+                        Assert.That(receipt.CheckoutAt, Is.GreaterThanOrEqualTo(0).And.LessThan(Hotel.Calendar.FirstReportAt));
+                        Assert.That(receipt.CheckoutAt, Is.LessThan(guest.Agent.CheckoutTime), "The original checkout contract is preserved.");
+                        Assert.That(receipt.DepartureReason, Is.Not.Null.And.Not.Empty);
+                        Assert.That(receipt.DepartureReason, Is.EqualTo(guest.EarlyCheckout.CauseDescription));
+                    }
+                    Assert.That((long)first.Cash, Is.EqualTo((long)first.OpeningCash + first.Receipts.Sum(item => item.Net) -
+                        first.OperatingCost - first.MaintenanceSpend - first.CapitalSpend), "Early checkout revenue is paid exactly once in its real report period.");
+                    FirstReportEarlyCheckoutTimes = string.Join(",", first.Receipts.Select(item => CheckoutTime(item.GuestId, item.CheckoutAt)));
                 }
                 ReportCount = Hotel.DayReports.Count;
             }
@@ -85,6 +107,9 @@ namespace WorstHotel.Tests
                 var ids = published.Select(item => item.GuestId).Concat(current.Select(item => item.GuestId)).ToArray();
                 Assert.That(ids.Distinct().Count(), Is.EqualTo(ids.Length), "A stay must not appear in both a closed and current accounting period.");
                 Receipts = ids.Length;
+                EarlyReceipts = published.Count(item => item.EarlyCheckout) + current.Count(item => item.EarlyCheckout);
+                EarlyCheckoutTimes = string.Join(",", published.Where(item => item.EarlyCheckout).Select(item => CheckoutTime(item.GuestId, item.CheckoutAt))
+                    .Concat(current.Where(item => item.EarlyCheckout).Select(item => CheckoutTime(item.GuestId, item.CheckoutAt))));
                 Gross = published.Sum(item => item.Price) + current.Sum(item => item.Price);
                 Refunds = published.Sum(item => item.Compensation) + current.Sum(item => item.Compensation);
                 Maintenance = Hotel.DayReports.Sum(report => report.MaintenanceSpend) + Hotel.PeriodMaintenanceSpend;
@@ -102,13 +127,18 @@ namespace WorstHotel.Tests
                 "peakLoad={9:F3}; peakStress={10:F3}; failures={11}; minOccupiedC={12:F2}; quietSeconds={13:F1}; longestQuiet={14:F1}; " +
                 "showers={15}; contacts={16}; reportCount={17}; firstReportCash={18}; firstReportReceipts={19}; " +
                 "policy={20}; blankets={21}; blanketVisits={22}; blanketStaffSeconds={23:F1}; " +
-                "valveInspections={24}; valveAdjustments={25}; peakOccupiedValve={26}; firstFailureElapsedAndCountByDay={27}",
+                "valveInspections={24}; valveAdjustments={25}; peakOccupiedValve={26}; firstFailureElapsedAndCountByDay={27}; " +
+                "earlyReceipts={28}; earlyCheckoutElapsed={29}; firstReportEarlyCheckoutElapsed={30}",
                 Occupancy, Receipts, Gross, Refunds, Maintenance, Capital, Net, EndingCash, MinCash,
                 MaxLoad, MaxStress, Failures, MinOccupiedTemperature, QuietSeconds, LongestQuiet, Showers, Contacts,
                 ReportCount, CashAtFirstReport, ReceiptsAtFirstReport, Management, BlanketsDelivered, BlanketVisits, BlanketStaffSeconds,
                 RadiatorInspections, RadiatorAdjustments, MaxOccupiedRadiatorSetting,
                 string.Join(",", FirstFailureAt.OrderBy(pair => pair.Key).Select(pair => string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "D{0}@{1:F1}/{2}", pair.Key, pair.Value, FailuresByDay[pair.Key]))));
+                    "D{0}@{1:F1}/{2}", pair.Key, pair.Value, FailuresByDay[pair.Key]))),
+                EarlyReceipts, EarlyCheckoutTimes, FirstReportEarlyCheckoutTimes);
+
+            static string CheckoutTime(string guestId, float at) => string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "{0}@{1:F3}", guestId, at);
         }
 
         sealed class Travel
@@ -414,7 +444,6 @@ namespace WorstHotel.Tests
                 Assert.That(run.Departures, Is.EqualTo(run.Occupancy * 3), run.ToString());
                 Assert.That(run.Receipts, Is.EqualTo(run.Occupancy * 3), run.ToString());
                 Assert.That(run.ReportCount, Is.EqualTo(3));
-                Assert.That(run.ReceiptsAtFirstReport, Is.Zero, "The first overnight bill precedes room revenue.");
                 Assert.That(run.EndingCash, Is.EqualTo(run.Settings.Economy.StartingCash + run.Net), "Every checkout, report and patch is counted once. " + run);
                 Assert.That(run.Capital, Is.Zero);
                 Assert.That(run.Showers, Is.GreaterThan(0), "Natural schedules must reach real staged demand, not remain frozen in quiet state.");
@@ -423,6 +452,7 @@ namespace WorstHotel.Tests
             }
             foreach (var cautious in runs.Take(2))
             {
+                Assert.That(cautious.ReceiptsAtFirstReport, Is.Zero, "Cautious three/four-room stays reach their scheduled checkout after the first overnight bill. " + cautious);
                 Assert.That(cautious.MinCash, Is.GreaterThanOrEqualTo(0), cautious.ToString());
                 Assert.That(cautious.Net, Is.GreaterThan(0), "Three/four-booking cautious operation must remain viable. " + cautious);
                 Assert.That(cautious.LongestQuiet, Is.GreaterThan(20), "Even an occupied hotel must have a real quiet interval. " + cautious);

@@ -44,6 +44,8 @@ namespace WorstHotel
                 // A repeated physical open or another staff member never extends this wait.
                 return CommandResult.Ok("The guest is still waiting for the compensation decision.");
             }
+            if (simulation.EarlyCheckoutDecisionPending(guest))
+                return CommandResult.Fail("The guest's final departure grace has elapsed. A new discussion cannot restart it.");
             // This dialogue promises an item that can be left while the guest continues life.
             // Do not turn its underlying Remote temperature cause into a mandatory Direct wait.
             if (DropOffIntent(guestId) != null)

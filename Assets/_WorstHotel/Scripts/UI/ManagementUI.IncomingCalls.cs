@@ -100,7 +100,10 @@ namespace WorstHotel
                 else
                 {
                     Label(new Rect(42, 206, 705, 35), "ROOM " + response.RoomId + " · " + GuestName(response.GuestId), Heading);
-                    Label(new Rect(42, 264, 705, 98), GuestLabels.ResponseClue(Session.Simulation, response), Body);
+                    var guest = Session.Simulation.Guests.FirstOrDefault(value => value.GuestId == response.GuestId);
+                    string departureWarning = GuestLabels.KnownEarlyDepartureWarning(guest, Session.Simulation);
+                    Label(new Rect(42, 264, 705, departureWarning != null ? 65 : 98), GuestLabels.ResponseClue(Session.Simulation, response), Body);
+                    if (departureWarning != null) Label(new Rect(42, 335, 705, 26), departureWarning, Small, Wine);
                     var item = services.Cases.FirstOrDefault(c => c.Id == response.ServiceCaseId && GuestLabels.IsKnownToHotel(c));
                     Label(new Rect(42, 365, 705, 33), GuestLabels.IntentState(services.CompensationDiscussion(response.GuestId), Session.Simulation) ??
                         (item != null ? GuestLabels.ServiceProgress(item, Session.Simulation) : "Guest concern · heard by reception"), Small, Teal);
