@@ -21,7 +21,8 @@ namespace WorstHotel.Editor
                         new Vector3(7.03f, 3.46f, north - south)));
             }
 
-            var heater = Group("Portable heater", gameplay.transform, new Vector3(3.8f, .035f, 31.4f));
+            var heater = Group("Portable heater", gameplay.transform, new Vector3(10.8f, .035f, 1.5f));
+            heater.transform.localEulerAngles = new Vector3(0, -90, 0);
             var body = heater.AddComponent<Rigidbody>();
             body.mass = 6; body.interpolation = RigidbodyInterpolation.Interpolate;
             body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
@@ -49,7 +50,7 @@ namespace WorstHotel.Editor
             // The same supported device, not another load model: two physical alternatives can exceed one circuit.
             var second = Object.Instantiate(heater, gameplay.transform);
             second.name = "Portable heater 2";
-            second.transform.position = new Vector3(2.6f, .035f, 31.4f);
+            second.transform.position = new Vector3(10.8f, .035f, 2.65f);
             second.GetComponent<PortableHeater>().heaterId = "portable-heater-2";
         }
     }

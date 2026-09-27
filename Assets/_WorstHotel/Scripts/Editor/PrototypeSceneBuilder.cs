@@ -28,6 +28,7 @@ namespace WorstHotel.Editor
             var gameplay = Group("Gameplay", null);
             var spawns = Group("SpawnPoints", null);
             BuildShell(environment.transform);
+            BuildServiceWing(environment.transform);
             BuildNorthWingShell(environment.transform);
             BuildLobby(environment.transform, gameplay.transform);
             BuildRooms(environment.transform, spawns.transform);
@@ -41,8 +42,8 @@ namespace WorstHotel.Editor
             bootstrap.spawn2 = p2.transform;
             BuildGameplay(gameplay);
             AddEnvironmentFeedback(gameplay, environment);
-            OpenCentralPlantPassage();
             AddProgressionPresentation(gameplay, environment);
+            RelocateBoilerAssembly();
             AddElectricalPanel(gameplay);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -65,6 +66,9 @@ namespace WorstHotel.Editor
                 renderer.name = "Hotel Renderer";
                 AssetDatabase.CreateAsset(renderer, rendererPath);
             }
+            // Large shared floor/ceiling meshes need every nearby lamp, not Forward's eight-light list.
+            renderer.renderingMode = RenderingMode.ForwardPlus;
+            EditorUtility.SetDirty(renderer);
             string pipelinePath = Root + "/Settings/HotelURP.asset";
             var pipeline = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(pipelinePath);
             if (!pipeline)
@@ -79,6 +83,7 @@ namespace WorstHotel.Editor
             renderers.GetArrayElementAtIndex(0).objectReferenceValue = renderer;
             serialized.FindProperty("m_AdditionalLightsPerObjectLimit").intValue = 8;
             serialized.FindProperty("m_AdditionalLightShadowsSupported").boolValue = true;
+            serialized.FindProperty("m_SoftShadowsSupported").boolValue = true;
             serialized.FindProperty("m_AdditionalLightsShadowmapResolution").intValue = 4096;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             pipeline.renderScale = 1;
@@ -150,6 +155,7 @@ namespace WorstHotel.Editor
             Pipe("Curved bracket", l.transform, new Vector3(0, -.04f, 0), new Vector3(0, -.04f, -.30f), .06f, "Aged brass");
             Cylinder("Shade rim", l.transform, new Vector3(0, .12f, -.30f), .23f, .08f, "Aged brass");
             Sphere("Milk glass", l.transform, new Vector3(0, .23f, -.3f), new Vector3(.43f, .38f, .43f), "Warm lamp");
+            DisableFixtureShadows(l.transform);
             lamp = SavePrefab(l, "WallLamp");
 
             var b = Group("Guest bed", null);
@@ -204,10 +210,10 @@ namespace WorstHotel.Editor
             var floors = Group("Floors and ceilings", root).transform;
             Box("Lobby carpet", floors, new Vector3(0, -.16f, .5f), new Vector3(20, .32f, 11), "Grand carpet");
             Box("Rooms and corridor carpet", floors, new Vector3(0, -.16f, 17.5f), new Vector3(20, .32f, 23), "Grand carpet");
-            Box("Utility tile floor", floors, new Vector3(-2, -.16f, 34.5f), new Vector3(18, .32f, 11), "Utility tile");
+            Box("North connecting gallery carpet", floors, new Vector3(0, -.16f, 34.5f), new Vector3(4.3f, .32f, 11), "Gallery carpet");
             Box("Lobby ceiling", floors, new Vector3(0, 3.91f, .5f), new Vector3(20.3f, .22f, 11.3f), "Cream linen");
             Box("Hall and room ceiling", floors, new Vector3(0, 3.91f, 17.5f), new Vector3(20.3f, .22f, 23.3f), "Cream linen");
-            Box("Utility ceiling", floors, new Vector3(-2, 3.91f, 34.5f), new Vector3(18.3f, .22f, 11.3f), "Utility tile");
+            Box("North connecting gallery ceiling", floors, new Vector3(0, 3.91f, 34.5f), new Vector3(4.6f, .22f, 11.3f), "Cream linen");
             foreach (int side in new[] { -1, 1 })
             {
                 Box("Runner gold border", floors, new Vector3(side * 1.49f, .008f, 17.5f), new Vector3(.07f, .01f, 23), "Aged brass", false, false);
@@ -215,7 +221,10 @@ namespace WorstHotel.Editor
             }
             var walls = Group("Architecture", root).transform;
             WallRun(walls, new Vector3(-10, 0, 12), 34, 90);
-            WallRun(walls, new Vector3(10, 0, 12), 34, 90);
+            // Real doorway in the lobby wall, not a door placed over an unbroken collider.
+            WallRun(walls, new Vector3(10, 0, -4.005f), 1.99f, 90);
+            WallRun(walls, new Vector3(10, 0, 14.405f), 29.19f, 90);
+            Box("Staff entrance lintel", walls, new Vector3(10, 3.51f, -1.6f), new Vector3(.32f, .58f, 2.82f), "Cream plaster");
             WallRun(walls, new Vector3(-5.83f, 0, -5), 8.34f);
             WallRun(walls, new Vector3(5.83f, 0, -5), 8.34f);
             Box("Entrance overlight", walls, new Vector3(0, 3.28f, -5), new Vector3(3.32f, 1.04f, .32f), "Cream plaster");
@@ -228,12 +237,9 @@ namespace WorstHotel.Editor
                 WallRun(walls, new Vector3(side * 6.075f, 0, 6), 7.85f);
                 WallRun(walls, new Vector3(side * 8.5f, 0, 29), 3);
                 for (int i = 0; i < 2; i++) WallRun(walls, new Vector3(side * 6.075f, 0, 13.5f + i * 7), 7.85f);
-                WallRun(walls, new Vector3(side < 0 ? -11 : 7, 0, 34.5f), 11, 90);
+                WallRun(walls, new Vector3(side * 2.15f, 0, 34.5f), 11, 90);
                 WallRun(walls, new Vector3(side * 4.55f, 0, 29), 4.9f);
             }
-            WallRun(walls, new Vector3(-6.55f, 0, 40), 8.9f);
-            WallRun(walls, new Vector3(4.55f, 0, 40), 4.9f);
-            WallRun(walls, new Vector3(-9, 0, 29), 4);
             for (int side = -1; side <= 1; side += 2)
             {
                 float previous = 6;
@@ -255,7 +261,8 @@ namespace WorstHotel.Editor
                 Box("Crossbeam inlay", walls, new Vector3(0, 3.42f, z), new Vector3(3.74f, .04f, .18f), "Aged brass", false, false);
             }
             Sign(walls, "GUEST ROOMS  /  101—106", new Vector3(0, 3.10f, 6.02f), 3.55f, .45f, .18f);
-            Sign(walls, "BOILER ROOM", new Vector3(0, 3.06f, 28.9f), 2.9f, .48f, .21f);
+            Sign(walls, "NORTH WING  /  107–110", new Vector3(0, 3.06f, 28.9f), 3.35f, .48f, .15f);
+            DressGuestConnection(walls);
         }
 
         static void BuildLobby(Transform environment, Transform gameplay)
@@ -283,10 +290,10 @@ namespace WorstHotel.Editor
             Sphere("Service bell", desk, new Vector3(2.08f, 1.51f, -.35f), new Vector3(.4f, .22f, .4f), "Aged brass");
             Box("Guest ledger", desk, new Vector3(-1.83f, 1.45f, -.35f), new Vector3(.70f, .09f, .49f), "Burgundy velvet", true, false);
             Sign(lobby, "THE WORST\nHOTEL EVER", new Vector3(-5, 2.47f, 5.56f), 5.35f, 1.48f, .47f);
-            Place(chair, lobby, new Vector3(6, 0, 3.1f));
-            Place(chair, lobby, new Vector3(8.2f, 0, 1), new Vector3(0, -90, 0));
-            Place(chair, lobby, new Vector3(5.5f, 0, -1.3f), new Vector3(0, 180, 0));
-            var coffee = Group("Coffee table", lobby, new Vector3(6.45f, 0, .9f)).transform;
+            Place(chair, lobby, new Vector3(6.45f, 0, 4.05f));
+            Place(chair, lobby, new Vector3(8.45f, 0, 2.15f), new Vector3(0, 90, 0));
+            Place(chair, lobby, new Vector3(6.45f, 0, .25f), new Vector3(0, 180, 0));
+            var coffee = Group("Coffee table", lobby, new Vector3(6.45f, 0, 2.15f)).transform;
             Cylinder("Round table top", coffee, new Vector3(0, .58f, 0), .95f, .15f, "Mahogany", default, true);
             Cylinder("Table stem", coffee, new Vector3(0, .28f, 0), .2f, .55f, "Aged brass");
             Box("Old magazine", coffee, new Vector3(.23f, .69f, 0), new Vector3(.5f, .045f, .37f), "Luggage mustard", false, false);
@@ -316,7 +323,7 @@ namespace WorstHotel.Editor
                 PrefabUtility.RecordPrefabInstancePropertyModifications(instance.GetComponent<DoorInteractable>());
                 Sign(instance.GetComponent<DoorInteractable>().doorPivot, number.ToString(), new Vector3(.755f, 2.20f, -.145f), .57f, .36f, .15f);
                 // Leave room for the guests' full arm span between open doors, the bed and the north wall.
-                Place(bed, room, new Vector3(side * .6f, 0, .66f));
+                var roomBed = Place(bed, room, new Vector3(side * .6f, 0, .66f + WingBedOffset(i)));
                 Place(table, room, new Vector3(side * -.85f, 0, 1.35f));
                 Place(chair, room, new Vector3(side * 2.45f, 0, -1.8f), new Vector3(0, side * 90, 0));
                 var rad = Place(radiator, room, new Vector3(side * 3.60f, 0, .2f), new Vector3(0, side * 90, 0));
@@ -330,6 +337,7 @@ namespace WorstHotel.Editor
                 Box("Wardrobe", room, new Vector3(side * -1.9f, 1.06f, -2.5f), new Vector3(1.17f, 2.12f, .70f), "Walnut panels", true);
                 Box("Wardrobe doors", room, new Vector3(side * -1.9f, 1.12f, -2.88f), new Vector3(1.03f, 1.82f, .06f), "Mahogany", true, false);
                 Sphere("Wardrobe knob", room, new Vector3(side * -1.9f, 1.2f, -2.95f), Vector3.one * .10f, "Aged brass");
+                if (i >= 6) DressWingRoom(room, roomBed.transform, i, side);
             }
             var hall = Group("Corridor details", environment).transform;
             for (int i = 0; i < 3; i++)
@@ -347,8 +355,6 @@ namespace WorstHotel.Editor
         {
             var utility = Group("Utility fittings", environment).transform;
             // Painted grid lines give this room its own surface language without extra dependencies.
-            for (int x = -6; x <= 6; x++) Box("Tile grout", utility, new Vector3(x, .006f, 34.5f), new Vector3(.025f, .008f, 10.5f), "Pipe iron", false, false);
-            for (int z = 30; z <= 39; z++) Box("Tile grout", utility, new Vector3(0, .007f, z), new Vector3(13.5f, .008f, .025f), "Pipe iron", false, false);
             Sign(utility, "PLANT No. 01  /  HEATING", new Vector3(0, 3.08f, 39.61f), 6.0f, .54f, .17f);
             var boiler = Group("Boiler", gameplay, new Vector3(0, 0, 37.7f)).transform;
             Box("Boiler foundation", boiler, new Vector3(-.6f, .17f, .35f), new Vector3(4.15f, .34f, 2.7f), "Pipe iron", true);
@@ -360,9 +366,9 @@ namespace WorstHotel.Editor
             Box("Manufacturer plate", boiler, new Vector3(-.63f, 1.63f, -1.19f), new Vector3(1.1f, .48f, .06f), "Aged brass", true, false);
             Text("Boiler brand", boiler, "GRAND HEAT\nMODEL 1968", new Vector3(-.63f, 1.64f, -1.23f), .089f, Mat("Ink").color);
             Pipe("Main riser", utility, new Vector3(-3.1f, .25f, 38.3f), new Vector3(-3.1f, 3.38f, 38.3f), .19f, "Pipe iron");
-            Pipe("Upper manifold", utility, new Vector3(-3.1f, 3.38f, 38.3f), new Vector3(5.7f, 3.38f, 38.3f), .19f, "Pipe iron");
+            Pipe("Upper manifold", utility, new Vector3(-3.1f, 3.38f, 38.3f), new Vector3(4.25f, 3.38f, 38.3f), .19f, "Pipe iron");
             Sphere("Main elbow", utility, new Vector3(-3.1f, 3.38f, 38.3f), Vector3.one * .46f, "Pipe iron");
-            Pipe("Room heating supply", utility, new Vector3(5.7f, 3.38f, 38.3f), new Vector3(5.7f, 3.38f, 29.3f), .16f, "Repair copper");
+            Pipe("Room heating supply", utility, new Vector3(4.25f, 3.38f, 38.3f), new Vector3(4.25f, 3.38f, 30.7f), .16f, "Repair copper");
             Pipe("Relief branch", utility, new Vector3(-3.1f, 1.55f, 38.3f), new Vector3(-3.1f, 1.55f, 36.7f), .17f, "Repair copper");
             Pipe("Tank connection", utility, new Vector3(-3.1f, 1.55f, 38.3f), new Vector3(-1.8f, 1.55f, 38.3f), .17f, "Pipe iron");
             Pipe("Steam outlet", utility, new Vector3(-3.1f, 2.50f, 38.3f), new Vector3(-4.25f, 2.50f, 38.3f), .13f, "Repair copper");
@@ -418,11 +424,11 @@ namespace WorstHotel.Editor
             Text("Gauge units", gauge, "PRESSURE", new Vector3(0, -.22f, -.15f), .054f, Mat("Ink").color);
             Group("SteamAnchor", gameplay, new Vector3(-4.3f, 2.50f, 38.3f), new Vector3(0, -90, 0));
 
-            var bench = Group("Repair workbench", utility, new Vector3(-5.3f, 0, 32.0f)).transform;
+            var bench = Group("Repair workbench", utility, new Vector3(-3.5f, 0, 32.1f), new Vector3(0, -90, 0)).transform;
             Box("Workbench top", bench, new Vector3(0, 1.0f, 0), new Vector3(2.25f, .18f, 1.02f), "Walnut panels", true);
             for (int i = -1; i <= 1; i += 2) Box("Workbench legs", bench, new Vector3(i * .89f, .48f, 0), new Vector3(.18f, .97f, .78f), "Pipe iron");
-            Box("New repair sheet", utility, new Vector3(6.76f, 2.18f, 35), new Vector3(.03f, 1.5f, 2.2f), "New plaster patch", false, false);
-            Sign(utility, "BOILER REPAIR\nVALVE > PANEL > ISOLATION\nLATCH A > LATCH B > RESTART", new Vector3(4.8f, 2.15f, 39.61f), 3.1f, 1.05f, .13f);
+            Box("New repair sheet", utility, new Vector3(4.17f, 2.18f, 35), new Vector3(.03f, 1.5f, 2.2f), "New plaster patch", false, false);
+            Sign(utility, "BOILER REPAIR\nVALVE > PANEL > ISOLATION\nLATCH A > LATCH B > RESTART", new Vector3(-4.28f, 2.15f, 34.3f), 2.55f, 1.05f, .11f, -90);
         }
 
         static void Sign(Transform parent, string words, Vector3 position, float width, float height, float letterSize = .13f, float yaw = 0)
@@ -511,20 +517,21 @@ namespace WorstHotel.Editor
             var sun = Group("Soft daylight bounce", parent, default, new Vector3(50, -30, 0)).AddComponent<Light>();
             sun.type = LightType.Directional; sun.color = new Color(.64f, .75f, 1); sun.intensity = .045f; sun.shadows = LightShadows.None;
             RenderSettings.sun = sun;
-            for (int i = 0; i < 3; i++) PointLight(parent, "Lobby warm fill", new Vector3(-6 + i * 6, 3.18f, .3f), new Color(1, .77f, .48f), 4, 8);
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 3; i++) PointLight(parent, "Lobby warm fill", new Vector3(-6 + i * 6, 3.12f, .3f), new Color(1, .90f, .77f), 2.5f, 8);
+            for (int i = 0; i < 3; i++)
                 foreach (float side in new[] { -1.45f, 1.45f })
-                    PointLight(parent, "Hall warm fill", new Vector3(side, 3.15f, 8 + i * 4), new Color(1, .79f, .53f), 4f, 5f);
-            for (int i = 0; i < HotelLayout.RoomCount; i++) PointLight(parent, "Room light " + (101 + i), new Vector3(i % 2 == 0 ? -6 : 6, 3.25f, HotelLayout.RoomZ(i)), new Color(1, .82f, .59f), 3.0f, 6.0f);
-            PointLight(parent, "Boiler work light", new Vector3(-2, 3.28f, 35.5f), new Color(.82f, .90f, 1), 3.3f, 8);
-            PointLight(parent, "Panel work light", new Vector3(4, 3.20f, 36), new Color(1, .85f, .61f), 3.0f, 6);
-            foreach (var position in new[] { new Vector3(-2, 3.63f, 35.5f), new Vector3(4, 3.63f, 36) })
+                    PointLight(parent, "Hall warm fill", new Vector3(side, 2.40f, 12.10f + i * 7), new Color(1, .88f, .72f), 1.8f, 6f);
+            for (int i = 0; i < HotelLayout.RoomCount; i++) PointLight(parent, "Room light " + (101 + i), new Vector3(i % 2 == 0 ? -6 : 6, 3.25f, HotelLayout.RoomZ(i)), new Color(1, .92f, .82f), 2.5f, 6.5f);
+            PointLight(parent, "Boiler work light", BoilerOffset + new Vector3(-1, 3.28f, 35.5f), new Color(.82f, .90f, 1), 3.3f, 8);
+            PointLight(parent, "Panel work light", new Vector3(27.4f, 3.20f, 2.3f), new Color(.90f, .94f, 1), 2.5f, 6);
+            foreach (var position in new[] { BoilerOffset + new Vector3(-1, 3.63f, 35.5f), new Vector3(27.4f, 3.63f, 2.3f) })
             {
                 var fixture = Group("Industrial work light", parent, position).transform;
                 Box("Light enclosure", fixture, Vector3.zero, new Vector3(1.7f, .16f, .54f), "Pipe iron", true, false);
                 Box("Opal diffuser", fixture, new Vector3(0, -.10f, 0), new Vector3(1.45f, .08f, .37f), "Warm lamp", true, false);
                 foreach (float x in new[] { -.5f, 0, .5f })
                     Box("Light guard", fixture, new Vector3(x, -.16f, 0), new Vector3(.035f, .035f, .46f), "Pipe iron", false, false);
+                DisableFixtureShadows(fixture);
             }
             for (int i = 0; i < 3; i++)
             {
@@ -532,6 +539,7 @@ namespace WorstHotel.Editor
                 Cylinder("Suspension", fixture, new Vector3(0, .16f, 0), .04f, .50f, "Aged brass");
                 Cylinder("Shade rim", fixture, new Vector3(0, -.12f, 0), .49f, .11f, "Aged brass");
                 Sphere("Milk glass pendant", fixture, new Vector3(0, -.01f, 0), new Vector3(.91f, .36f, .91f), "Warm lamp");
+                DisableFixtureShadows(fixture);
             }
             var probes = Group("Light probes", parent).AddComponent<LightProbeGroup>();
             var positions = new List<Vector3>();
@@ -553,6 +561,10 @@ namespace WorstHotel.Editor
                 var tonemap = profile.Add<Tonemapping>(true); tonemap.mode.value = TonemappingMode.ACES;
                 foreach (var component in profile.components) AssetDatabase.AddObjectToAsset(component, profile);
             }
+            if (profile.TryGet<Bloom>(out var gentleBloom)) { gentleBloom.intensity.value = .035f; gentleBloom.threshold.value = 1.5f; }
+            if (profile.TryGet<Tonemapping>(out var neutralTone)) neutralTone.mode.value = TonemappingMode.Neutral;
+            EditorUtility.SetDirty(profile);
+            AddExteriorSpill(parent);
             var volume = Group("Warm subtle grading", parent).AddComponent<Volume>();
             volume.isGlobal = true; volume.sharedProfile = profile;
         }
@@ -561,7 +573,7 @@ namespace WorstHotel.Editor
         {
             var light = Group(name, parent, position).AddComponent<Light>();
             light.type = LightType.Point; light.color = color; light.intensity = intensity * 2.2f; light.range = range;
-            light.shadows = LightShadows.Hard; light.shadowResolution = LightShadowResolution.Low;
+            light.shadows = LightShadows.Soft; light.shadowResolution = LightShadowResolution.Low;
             light.shadowBias = .025f; light.shadowNormalBias = .1f;
             light.lightmapBakeType = LightmapBakeType.Realtime;
             var extra = light.gameObject.AddComponent<UniversalAdditionalLightData>();
@@ -569,11 +581,6 @@ namespace WorstHotel.Editor
             var shadowSettings = new SerializedObject(extra);
             shadowSettings.FindProperty("m_AdditionalLightsShadowResolutionTier").intValue = UniversalAdditionalLightData.AdditionalLightsShadowResolutionTierLow;
             shadowSettings.ApplyModifiedPropertiesWithoutUndo();
-            if (name == "Hall warm fill")
-            {
-                light.type = LightType.Spot; light.spotAngle = 57; light.innerSpotAngle = 35;
-                light.transform.localRotation = Quaternion.Euler(90, 0, 0);
-            }
         }
     }
 }

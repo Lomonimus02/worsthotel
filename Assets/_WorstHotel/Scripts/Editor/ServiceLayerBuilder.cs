@@ -11,8 +11,8 @@ namespace WorstHotel.Editor
         {
             var root = Group("Guest service equipment", gameplay.transform).transform;
             var items = Group("Physical service supplies", gameplay.transform).transform;
-            BuildServiceShelf(root, items, ServiceItemKind.Blanket, new Vector3(-1.15f, 0, 31.0f), 0);
-            BuildServiceShelf(root, items, ServiceItemKind.ReplacementBulb, new Vector3(6.20f, 0, 32.2f), 90);
+            BuildServiceShelf(root, items, ServiceItemKind.Blanket, new Vector3(14.1f, 0, 6.20f), 0);
+            BuildServiceShelf(root, items, ServiceItemKind.ReplacementBulb, new Vector3(15.61f, 0, 4.1f), 90);
             BuildServiceLuggage(root, items);
             BuildReceptionServiceControls(root);
             for (int i = 0; i < HotelLayout.RoomCount; i++) BuildRoomServiceControls(root, 101 + i, i % 2 == 0 ? -1 : 1, HotelLayout.RoomZ(i));

@@ -43,7 +43,7 @@ namespace WorstHotel
                 Label(new Rect(x + 10, y + 52, 325, 20), task?.WorkingPlayerId != null ?
                     "Staff " + (task.WorkingPlayerId.Value + 1) : room.Cleanliness == Cleanliness.Dirty ? "Player preparation" : "", Small, Muted);
             }
-            Label(new Rect(42, 634, 700, 91), "You may reserve dirty rooms, but guests need a prepared bed before receiving their key. The linen shelf and hamper are in the utility room at the far end of the corridor. Stock refills each morning.\n" + Session.LastMessage, Small, Muted);
+            Label(new Rect(42, 634, 700, 91), "You may reserve dirty rooms, but guests need a prepared bed before receiving their key. Find clean linen and the hamper in LAUNDRY / SUPPLIES, through the STAFF ONLY door on the right of the lobby. Stock refills each morning.\n" + Session.LastMessage, Small, Muted);
             ButtonAt(new Rect(42, 746, 705, 42), "Back to " + (Session.Phase == DayPhase.Planning ? "bookings" : "guest relations"), () => { showingHousekeeping = false; focus = 0; });
             ButtonAt(new Rect(42, 799, 705, 42), "Close ledger / keep working", Close);
             GUI.matrix = oldMatrix;

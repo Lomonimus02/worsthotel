@@ -8,7 +8,7 @@ namespace WorstHotel.Editor
     {
         public static void AddElectricalPanel(GameObject gameplay)
         {
-            var cabinet = Group("Room electrical panel", gameplay.transform, new Vector3(4.9f, 0, 35.3f));
+            var cabinet = Group("Room electrical panel", gameplay.transform, ServicePanelPosition, new Vector3(0, 90, 0));
             var panel = cabinet.AddComponent<ElectricalPanelPresentation>();
             Box("Electrical cabinet back", cabinet.transform, new Vector3(0, 1.75f, .15f), new Vector3(2.2f, 2.05f, .37f), "Boiler enamel", true);
             Box("Electrical inner mounting plate", cabinet.transform, new Vector3(0, 1.75f, -.05f), new Vector3(2.05f, 1.91f, .035f), "Gauge ivory", true, false);
@@ -19,7 +19,7 @@ namespace WorstHotel.Editor
                 Box("Panel stand foot", cabinet.transform, new Vector3(sign * .80f, .08f, .07f), new Vector3(.42f, .16f, .92f), "Pipe iron", true);
             }
             Box("Circuit divider", cabinet.transform, new Vector3(0, 1.70f, -.12f), new Vector3(.055f, 1.68f, .10f), "Pipe iron", false, false);
-            var pivot = Group("Electrical cabinet hinged cover", cabinet.transform, new Vector3(-1.10f, 1.75f, -.49f));
+            var pivot = Group("Electrical cabinet hinged cover", cabinet.transform, new Vector3(-1.10f, 1.75f, -.68f));
             Box("Solid cover", pivot.transform, new Vector3(1.10f, 0, 0), new Vector3(2.20f, 2.04f, .08f), "Boiler enamel", true);
             Box("Cover brass frame", pivot.transform, new Vector3(1.10f, .30f, -.057f), new Vector3(1.65f, .48f, .025f), "Aged brass", true, false);
             Text("Electrical cover label", pivot.transform, "ROOM POWER\nA / B", new Vector3(1.10f, .30f, -.08f), .15f, Mat("Ink").color);
@@ -76,7 +76,7 @@ namespace WorstHotel.Editor
                 {
                     circuitId = west ? "A" : "B",
                     lights = Object.FindObjectsByType<Light>(FindObjectsSortMode.None).Where(light =>
-                        light.type != LightType.Directional && !assignedLights.Contains(light) &&
+                        light.type != LightType.Directional && !assignedLights.Contains(light) && !light.name.StartsWith("Exterior spill") &&
                         !light.transform.IsChildOf(cabinet.transform) && light.name != "Pressure warning beacon" &&
                         light.GetComponentInParent<RoomLampInteraction>() == null && (light.transform.position.x < 0) == west).ToArray(),
                     luminousSurfaces = Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None).Where(renderer =>

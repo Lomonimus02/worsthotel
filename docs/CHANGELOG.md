@@ -1,3 +1,17 @@
+## Prototype 0.5.2 — separate service wing from the lobby
+
+The right-hand lobby wall now has a real STAFF ONLY doorway leading to a separate service corridor. Laundry/supplies, staff sleeping and boiler/electrical each have their own room and door. Linen, blanket/bulb sources, the dirty hamper and both heaters are authored in the laundry room; their physical items and source anchors move together. The two existing staff beds retain their sleep interactions in a modest separate room. The boiler's controls, readouts, effects and upgrade visual move together to the plant room; the room-power cabinet has its own clear wall location and a deeper cover that conceals the breaker grips when closed.
+
+The old plant space is now a continuous guest gallery to North Wing 107–110. Guest room positions, routes, restoration purchase and luggage/cart behaviour are retained. Lobby seating is regrouped to clear the staff entrance. Door openings to the service wing, laundry and boiler room are wider than the original guest doors. Housekeeping directions point to the new laundry room. The LAN compatibility identifier changes so older maps cannot join this layout.
+
+Scene/C# compilation and rendered visual inspection covered the lobby entrance, service corridor, plant, electrical cabinet, laundry, sleeping room and guest connection. That review found and corrected a folding-table/shelf intersection, obscured entrance signage and seating in front of the service approach. No automated tests or harnesses were created or run. First-person traversal and complete repair/carry/sleep interactions still need a manual gameplay pass.
+
+## Prototype 0.5.1 — lighting and North Gallery correction
+
+Reworked the existing realtime lighting: Forward+ avoids the per-object light limit on shared surfaces; soft shadows and non-shadowing translucent fixture proxies remove the harsh pendant silhouettes. Practicals are less yellow, emissive glare/bloom is reduced, and visible window/rooflight spill preserves orientation during power loss without increasing global ambient. Existing west/A and east/B circuit control remains intact.
+
+The North Wing now has a framed entrance, continuous trimmed walls, a blue-green patterned carpet, sage panels, travel prints, architectural breaks and a window-seat focal point. Its four rooms have different accents, curtains, bed textiles and small props; bed/guest anchors move together. Progression and physicality rules are unchanged. No automated tests or new harnesses. Compilation and initial rendered scene inspection succeeded; assisted gameplay/blackout review is recorded in [the visual pass notes](VISUAL_CORRECTION_051.md).
+
 ## Prototype 0.5 — physicality corrections and growth
 
 Guests yield, stumble or fall with swept directional movement; accepted luggage help grants temporary room access and delivery now completes beside the wardrobe inside the room. The brass cart is parked visibly on the right of the corridor entrance. The unbaked scene previously had strong permanent ambient/directional light, shadowless mixed practicals and a bright cached reflection; practicals now cast realtime shadows and switch with their A/B zone, with only weak ambient visibility remaining.

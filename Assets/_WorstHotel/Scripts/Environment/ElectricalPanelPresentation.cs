@@ -115,7 +115,7 @@ namespace WorstHotel
                 if (view.warningLight != null)
                 {
                     view.warningLight.color = signal;
-                    view.warningLight.intensity = circuit.Tripped ? .35f : pulse ? .55f : capacityWarning ? .18f : 0;
+                    view.warningLight.intensity = circuit.Tripped ? 0 : pulse ? .06f : capacityWarning ? .03f : 0;
                 }
             }
             foreach (var binding in roomLights)

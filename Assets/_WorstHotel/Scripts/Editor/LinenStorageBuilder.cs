@@ -12,7 +12,7 @@ namespace WorstHotel.Editor
         {
             var linenRoot = Group("Player linen supplies", gameplay.transform).transform;
             var itemsRoot = Group("Physical linen bundles", gameplay.transform).transform;
-            var shelf = Group("Clean linen shelf", linenRoot, new Vector3(-3f, 0, 30.85f));
+            var shelf = Group("Clean linen shelf", linenRoot, new Vector3(11.65f, 0, 6.20f));
             var storage = shelf.AddComponent<LinenStorage>();
             storage.cleanStock = new LinenBundleItem[HotelLayout.RoomCount];
             Box("Linen shelf back", shelf.transform, new Vector3(0, 1.4f, .25f), new Vector3(1.60f, 2.8f, .10f), "Walnut panels", true);
@@ -32,7 +32,7 @@ namespace WorstHotel.Editor
                 storage.cleanStock[i] = MakeLinenBundle(itemsRoot, "clean:" + i, 0, source, grabSettings);
             }
 
-            var hamperObject = Group("Dirty linen hamper", linenRoot, new Vector3(-4.45f, 0, 30.65f));
+            var hamperObject = Group("Dirty linen hamper", linenRoot, new Vector3(15.22f, 0, 1.25f));
             var hamper = hamperObject.AddComponent<LaundryHamperInteraction>();
             hamper.displayName = "Dirty linen hamper";
             var hamperTarget = hamperObject.AddComponent<BoxCollider>();

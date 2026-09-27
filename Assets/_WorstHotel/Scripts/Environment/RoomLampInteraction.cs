@@ -46,7 +46,7 @@ namespace WorstHotel
             {
                 bulbSurface.GetPropertyBlock(properties);
                 properties.SetColor("_BaseColor", IsLit ? new Color(1, .80f, .46f) : room.LampBroken ? new Color(.20f, .17f, .13f) : new Color(.55f, .48f, .36f));
-                properties.SetColor("_EmissionColor", IsLit ? new Color(1, .63f, .22f) * 1.3f : Color.black);
+                properties.SetColor("_EmissionColor", IsLit ? new Color(1, .88f, .70f) * .35f : Color.black);
                 bulbSurface.SetPropertyBlock(properties);
             }
             if (statusLabel) statusLabel.text = "ROOM " + roomId + " LAMP\n" + (room.LampBroken ? "BURNT BULB" : !room.HasPower ? "NO POWER" :

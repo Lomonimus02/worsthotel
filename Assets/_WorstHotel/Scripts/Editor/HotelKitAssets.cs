@@ -18,9 +18,9 @@ namespace WorstHotel.Editor
                 System.IO.Directory.CreateDirectory(Root + "/" + dir);
             AssetDatabase.Refresh();
             Materials.Clear();
-            MakeMaterial("Cream plaster", new Color(.83f, .76f, .59f), .08f);
+            MakeMaterial("Cream plaster", new Color(.83f, .80f, .70f), .08f);
             MakeMaterial("New plaster patch", new Color(.93f, .87f, .72f), .05f);
-            MakeMaterial("Ivory moulding", new Color(.94f, .86f, .68f), .22f);
+            MakeMaterial("Ivory moulding", new Color(.90f, .87f, .77f), .22f);
             MakeMaterial("Mahogany", new Color(.32f, .16f, .095f), .3f);
             MakeMaterial("Walnut panels", new Color(.48f, .28f, .16f), .24f);
             MakeMaterial("Aged brass", new Color(.63f, .42f, .12f), .58f, .62f);
@@ -35,13 +35,17 @@ namespace WorstHotel.Editor
             MakeMaterial("Gauge ivory", new Color(.98f, .94f, .76f), .21f);
             MakeMaterial("Ink", new Color(.035f, .045f, .038f), .15f);
             MakeMaterial("Window blue", new Color(.48f, .71f, .8f), .65f, 0, .23f);
-            MakeMaterial("Warm lamp", new Color(1, .74f, .36f), .15f, 0, 1.25f);
+            MakeMaterial("Warm lamp", new Color(1, .88f, .70f), .15f, 0, .35f);
+            MakeMaterial("Gallery sage", new Color(.38f, .49f, .44f), .08f);
+            MakeMaterial("Gallery blue", new Color(.25f, .39f, .47f), .12f);
+            MakeMaterial("Gallery ochre", new Color(.63f, .47f, .25f), .12f);
             MakeMaterial("Terminal glass", new Color(.075f, .19f, .15f), .4f, 0, .25f);
             MakeMaterial("Utility tile", new Color(.45f, .47f, .42f), .14f);
             MakeMaterial("Plant green", new Color(.14f, .33f, .12f), .15f);
             MakeMaterial("Luggage mustard", new Color(.75f, .49f, .12f), .2f);
             MakeWorldTextMaterial();
             MakeCarpet();
+            MakeCarpet(true);
             SoftBlock = SaveMesh("SoftBlock", CreateSoftBlock());
             Wheel = SaveMesh("ValveWheel", CreateRing());
         }
@@ -88,7 +92,7 @@ namespace WorstHotel.Editor
             EditorUtility.SetDirty(material);
         }
 
-        static void MakeCarpet()
+        static void MakeCarpet(bool gallery = false)
         {
             const int size = 128;
             var tex = new Texture2D(size, size, TextureFormat.RGB24, true) { name = "Grand carpet weave", wrapMode = TextureWrapMode.Repeat, filterMode = FilterMode.Bilinear };
@@ -101,16 +105,18 @@ namespace WorstHotel.Editor
                 bool corner = (x < 2 || x > 125 || y < 2 || y > 125);
                 float weave = ((x + y) % 2 == 0) ? 1f : .94f;
                 var col = motif ? new Color(.7f, .46f, .21f) : corner ? new Color(.32f, .09f, .09f) : new Color(.39f, .065f, .09f);
+                if (gallery) col = motif ? new Color(.55f, .56f, .38f) : corner ? new Color(.10f, .20f, .22f) : new Color(.16f, .29f, .31f);
                 tex.SetPixel(x, y, col * weave);
             }
             tex.Apply();
-            string path = Root + "/Art/Textures/GrandCarpet.asset";
+            string path = Root + "/Art/Textures/" + (gallery ? "GalleryCarpet" : "GrandCarpet") + ".asset";
             var existing = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
             if (existing) { EditorUtility.CopySerialized(tex, existing); Object.DestroyImmediate(tex); tex = existing; }
             else AssetDatabase.CreateAsset(tex, path);
-            MakeMaterial("Grand carpet", Color.white, .06f);
-            Mat("Grand carpet").SetTexture("_BaseMap", tex);
-            Mat("Grand carpet").SetTextureScale("_BaseMap", new Vector2(12, 16));
+            string name = gallery ? "Gallery carpet" : "Grand carpet";
+            MakeMaterial(name, Color.white, .06f);
+            Mat(name).SetTexture("_BaseMap", tex);
+            Mat(name).SetTextureScale("_BaseMap", new Vector2(12, 16));
         }
 
         static Mesh SaveMesh(string name, Mesh generated)
