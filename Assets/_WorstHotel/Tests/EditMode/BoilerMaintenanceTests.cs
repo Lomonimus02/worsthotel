@@ -15,7 +15,7 @@ namespace WorstHotel.Tests
         private static bool Complete(BoilerSystem boiler, float now) => Invoke<bool>(boiler, "CompleteMaintenance", now);
         private static BoilerSystem Create(BoilerCapacitySettings capacity = null, float daySeconds = 720) =>
             new BoilerSystem(new BoilerSettings(capacity: capacity ?? new BoilerCapacitySettings(
-                runningWearPerHotelDay: 0, overloadWearPerHotelDay: 0)), daySeconds);
+                runningWearPerHotelDay: 0, overloadWearPerHotelDay: 0, strainedWearPerHotelDay: 0)), daySeconds);
         private static void ReadyForRepair(BoilerSystem boiler)
         {
             boiler.ForceFailure();
@@ -39,7 +39,9 @@ namespace WorstHotel.Tests
                 Assert.That(boiler.MaintenanceInProgress, Is.False);
                 Assert.That(boiler.ReliefActorId, Is.EqualTo(-1));
                 Assert.That(boiler.Pressure, Is.EqualTo(40));
-                Assert.That(boiler.HeatingOutput, Is.EqualTo(boiler.EffectiveCapacity / boiler.Load).Within(.00001f));
+                Assert.That(boiler.Load, Is.GreaterThan(boiler.EffectiveCapacity));
+                Assert.That(boiler.HeatingOutput, Is.EqualTo(.9f * boiler.EffectiveCapacity / boiler.Load).Within(.00001f),
+                    "Commit observers see the current overloaded strain/output curve, not the old full-output assumption.");
             };
             boiler.OnConditionChanged += _ => checkCommitted();
             boiler.OnPressureChanged += _ => checkCommitted();
@@ -73,7 +75,8 @@ namespace WorstHotel.Tests
         public void ConfiguredPatchOutcomeAndPenaltyApplyOnceWithoutAnExtraCapacityPenalty()
         {
             var tuning = new BoilerCapacitySettings(runningWearPerHotelDay: 0, overloadWearPerHotelDay: 0,
-                emergencyPatchCondition: 35, emergencyPatchStress: .3f, emergencyPatchStressMultiplier: 1.4f);
+                emergencyPatchCondition: 35, emergencyPatchStress: .3f, emergencyPatchStressMultiplier: 1.4f,
+                strainedWearPerHotelDay: 0);
             var patched = Create(tuning); var comparison = Create(tuning);
             ReadyForRepair(patched); Assert.That(Patch(patched).Success, Is.True);
             comparison.SetCondition(35);

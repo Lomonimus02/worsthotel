@@ -35,12 +35,13 @@ namespace WorstHotel.Tests
         public void RealAccumulatedStressAndFailureSurviveMidnightReportAndJsonWithoutAReset(bool failBeforeMidnight)
         {
             var host = Create(); var mirror = Create(); mirror.EnableReadOnlyMirror();
-            // Explicit diagnostic demand isolates equipment persistence from schedules. Other
-            // capacity tests use actual room consumers, valves and staged shower sources.
-            host.Boiler.OverrideLoad(host.Boiler.EffectiveCapacity * 1.05f);
+            // Explicit subcapacity strain isolates stress persistence from schedules. The old
+            // 1.05 overload can now legitimately fail before the report; that is not this test's
+            // retention question. Actual room/shower consumers have separate integration tests.
+            host.Boiler.OverrideLoad(host.Boiler.EffectiveCapacity * .97f);
             Advance(host, host.Calendar.At(2, 0) - .25f);
             Assert.That(host.Boiler.Stress01, Is.GreaterThan(.05f));
-            Assert.That(host.Boiler.Failed, Is.False, "A mild overload must leave time for a decision.");
+            Assert.That(host.Boiler.Failed, Is.False, "This controlled strain fixture remains below the failure load gate.");
             if (failBeforeMidnight) host.Boiler.ForceFailure();
             float before = host.Boiler.Stress01;
             Require(mirror.ApplySnapshot(Wire(host, 1)));
@@ -61,6 +62,27 @@ namespace WorstHotel.Tests
             string unchanged = State(mirror);
             mirror.Boiler.OverrideLoad(0); mirror.Boiler.Tick(100); mirror.Tick(100);
             Assert.That(State(mirror), Is.EqualTo(unchanged), "Only host time can change replica equipment.");
+        }
+
+        [TestCase(.76f, CapacityBand.Busy)]
+        [TestCase(.93f, CapacityBand.Strained)]
+        [TestCase(1.08f, CapacityBand.Overloaded)]
+        public void DerivedPreFailureBandAndReducedHeatSurviveJsonWithoutGivingMirrorAuthority(float ratio, CapacityBand expected)
+        {
+            var host = Create(); var mirror = Create(); mirror.EnableReadOnlyMirror();
+            // Controlled equipment demand tests wire state, not consumer generation.
+            host.Boiler.OverrideLoad(host.Boiler.EffectiveCapacity * ratio); host.Tick(1);
+            Assert.That(host.Boiler.CapacityBand, Is.EqualTo(expected));
+            Assert.That(host.Boiler.Failed, Is.False);
+            if (expected == CapacityBand.Busy) Assert.That(host.Boiler.HeatingOutput, Is.EqualTo(1));
+            else Assert.That(host.Boiler.HeatingOutput, Is.LessThan(1));
+            Require(mirror.ApplySnapshot(Wire(host, 1)));
+            Assert.That(mirror.Boiler.CapacityBand, Is.EqualTo(expected));
+            Assert.That(mirror.Boiler.HeatingOutput, Is.EqualTo(host.Boiler.HeatingOutput));
+            Assert.That(mirror.Boiler.Stress01, Is.EqualTo(host.Boiler.Stress01));
+            string before = State(mirror);
+            mirror.Boiler.SetLoad(0); mirror.Boiler.SetCondition(100); mirror.Tick(30);
+            Assert.That(State(mirror), Is.EqualTo(before));
         }
 
         [TestCase(-.01f)]

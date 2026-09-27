@@ -72,7 +72,7 @@ namespace WorstHotel.Tests
             }
             Assert.That(hotels[1].Boiler.LoadRatio, Is.LessThan(1), "Four ordinary mixed stays fit the authored capacity at the starting condition.");
             Assert.That(hotels[2].Boiler.CapacityBand, Is.EqualTo(CapacityBand.Strained),
-                "Five mixed stays approach rated capacity without an unavoidable quiet-hour heat deficit.");
+                "Five mixed stays strain the authored boiler before demand exceeds its effective capacity.");
             Assert.That(hotels[2].Boiler.LoadRatio, Is.LessThan(1));
             Assert.That(hotels[3].Boiler.LoadRatio, Is.GreaterThan(1), "Six mixed stays create real pressure; this is not a forced failure assertion.");
             float vacantSixthRoom = hotels[2].HeatingDemands.Single(row => row.RoomId == 106).Total;

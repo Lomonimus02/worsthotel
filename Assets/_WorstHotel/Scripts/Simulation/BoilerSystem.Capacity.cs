@@ -15,9 +15,19 @@ namespace WorstHotel
         public float Reserve => EffectiveCapacity - Load;
         public float Stress01 { get; private set; }
         public CapacityBand CapacityBand => Failed || Stress01 >= settings.Capacity.CriticalStress ? CapacityBand.Critical :
-            LoadRatio > 1 ? CapacityBand.Overloaded : LoadRatio >= settings.Capacity.StrainedLoadRatio ? CapacityBand.Strained :
-            CapacityBand.Comfortable;
-        private float CapacityHeatOutput => Load > 0 ? (float)Math.Min(1d, (double)EffectiveCapacity / Load) : 1;
+            CapacityBands.ForLoad(LoadRatio, settings.Capacity.BusyLoadRatio, settings.Capacity.StrainedLoadRatio);
+        private float CapacityHeatOutput
+        {
+            get
+            {
+                if (Load == 0) return 1;
+                double ratio = (double)Load / EffectiveCapacity;
+                return (float)((1 - settings.Capacity.MaximumStrainedHeatLoss * StrainFraction(ratio)) * Math.Min(1d, 1d / ratio));
+            }
+        }
+
+        private double StrainFraction(double ratio) => Math.Max(0, Math.Min(1,
+            (ratio - settings.Capacity.StrainedLoadRatio) / (1d - settings.Capacity.StrainedLoadRatio)));
 
         private void TickCapacity(float dt)
         {
@@ -38,12 +48,14 @@ namespace WorstHotel
             double days = (double)dt / operatingSecondsPerDay.Value;
             double ratio = (double)Load / EffectiveCapacity;
             double overload = Math.Max(0, ratio - 1);
+            double strain = StrainFraction(ratio);
             double poorCondition = (1 - Condition / 100d) * tuning.PoorConditionStressPenalty;
-            double stressChange = overload > 0 ? overload * tuning.StressGainPerHotelHour * (1 + poorCondition) *
-                (EmergencyPatchActive ? tuning.EmergencyPatchStressMultiplier : 1) :
-                -Math.Max(0, 1 - ratio) * tuning.StressRecoveryPerHotelHour;
+            double stressChange = (strain * tuning.StrainedStressGainPerHotelHour + overload * tuning.StressGainPerHotelHour) *
+                (1 + poorCondition) * (EmergencyPatchActive ? tuning.EmergencyPatchStressMultiplier : 1) -
+                Math.Max(0, (tuning.StrainedLoadRatio - ratio) / tuning.StrainedLoadRatio) * tuning.StressRecoveryPerHotelHour;
             Stress01 = (float)Math.Max(0, Math.Min(1, Stress01 + stressChange * days * 24));
-            double wear = (tuning.RunningWearPerHotelDay * Math.Min(1, ratio) + tuning.OverloadWearPerHotelDay * overload) * days;
+            double wear = (tuning.RunningWearPerHotelDay * Math.Min(1, ratio) +
+                tuning.StrainedWearPerHotelDay * strain + tuning.OverloadWearPerHotelDay * overload) * days;
             SetCondition((float)Math.Max(0, Condition - wear));
 
             double target = settings.PressureBase + (double)settings.PressureOverloadFactor * overload +

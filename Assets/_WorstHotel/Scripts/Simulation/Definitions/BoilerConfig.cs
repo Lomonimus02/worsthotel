@@ -34,7 +34,11 @@ namespace WorstHotel
 
         [Header("Continuous operation: capacity and hotel-time wear")]
         [Range(.01f, 1)] public float conditionCapacityFloor = .85f;
+        [Range(.01f, .99f)] public float busyLoadRatio = .70f;
         [Range(.01f, .99f)] public float strainedLoadRatio = .85f;
+        [Range(0, 1)] public float maximumStrainedHeatLoss = .10f;
+        [Min(0)] public float strainedStressGainPerHotelHour = .015f;
+        [Min(0)] public float strainedWearPerHotelDay = 3;
         [Range(.01f, 1)] public float criticalStress = .8f;
         [Min(0)] public float stressGainPerHotelHour = .25f;
         [Min(0)] public float stressRecoveryPerHotelHour = .25f;
@@ -59,6 +63,6 @@ namespace WorstHotel
             new BoilerCapacitySettings(conditionCapacityFloor, strainedLoadRatio, criticalStress, stressGainPerHotelHour,
                 stressRecoveryPerHotelHour, poorConditionStressPenalty, runningWearPerHotelDay, overloadWearPerHotelDay, pressureStressFactor,
                 emergencyPatchCondition, emergencyPatchStress, emergencyPatchStressMultiplier, properMaintenanceCondition, maintenanceHours,
-                capacityUpgradeMultiplier));
+                capacityUpgradeMultiplier, busyLoadRatio, maximumStrainedHeatLoss, strainedStressGainPerHotelHour, strainedWearPerHotelDay));
     }
 }

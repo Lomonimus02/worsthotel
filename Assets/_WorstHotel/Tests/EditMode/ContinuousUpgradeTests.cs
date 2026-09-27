@@ -143,6 +143,7 @@ namespace WorstHotel.Tests
         public void BoilerUpgradeReducesUtilizationOfTheSameSixOwnedRoomsWithoutErasingWearOrStress()
         {
             var fixture = Create(occupancy: 6); var hotel = fixture.Hotel;
+            float initialStress = hotel.Boiler.Stress01;
             hotel.Tick(30); // Actual six-room demand accumulates real overload stress before buying capacity.
             var rows = hotel.HeatingDemands.ToArray();
             Assert.That(rows.All(row => row.GuestId != null && row.HotWater == 0), Is.True);
@@ -164,9 +165,31 @@ namespace WorstHotel.Tests
             Assert.That(hotel.Boiler.EffectiveCapacity, Is.EqualTo(effective * fixture.Settings.Boiler.Capacity.CapacityUpgradeMultiplier).Within(.0001f));
             Assert.That(hotel.Boiler.LoadRatio, Is.LessThan(ratio));
             Assert.That(hotel.Economy.Cash, Is.EqualTo(cash - fixture.Settings.Economy.BoilerUpgradeCost));
+            Assert.That(hotel.Boiler.CapacityBand, Is.EqualTo(CapacityBand.Strained));
             hotel.Tick(20);
             Assert.That(hotel.Boiler.Load, Is.EqualTo(load), "The upgrade cannot silently replace or turn down the room consumers.");
-            Assert.That(hotel.Boiler.Stress01, Is.LessThan(stress), "Lower actual utilization recovers stress over time, not at purchase time.");
+            float beforeGainPerSecond = (stress - initialStress) / 30;
+            float afterGainPerSecond = (hotel.Boiler.Stress01 - stress) / 20;
+            Assert.That(afterGainPerSecond, Is.GreaterThan(0).And.LessThan(beforeGainPerSecond * .5f),
+                "These same six rooms still strain the upgraded historical4.2-rated fixture; accumulation is substantially slower, not reversed.");
+
+            // Explicit headless staff access/valve adapters. The player really removes these
+            // two room heat consumers; the upgrade itself did not do that work or preserve their comfort.
+            float beforeReduction = hotel.Boiler.Stress01;
+            foreach (int roomId in new[] { 101, 104 })
+            {
+                Require(hotel.RequestStaffRoomAccess(0, roomId));
+                Require(hotel.SetRadiatorSetting(0, roomId, 0));
+                Assert.That(hotel.HeatingDemands.Single(row => row.RoomId == roomId).Total, Is.Zero);
+            }
+            Assert.That(hotel.Boiler.Load, Is.LessThan(load));
+            Assert.That(hotel.Boiler.LoadRatio, Is.LessThan(fixture.Settings.Boiler.Capacity.StrainedLoadRatio));
+            Assert.That(hotel.Boiler.Stress01, Is.EqualTo(beforeReduction), "A valve command does not erase stored stress.");
+            Assert.That(hotel.Boiler.HeatingOutput, Is.EqualTo(1));
+            hotel.Tick(20);
+            Assert.That(hotel.Boiler.Stress01, Is.GreaterThan(0).And.LessThan(beforeReduction),
+                "Only the actual additional load reduction and elapsed safe operation recover stress.");
+            Assert.That(hotel.Boiler.Failed, Is.False);
         }
 
         [Test]

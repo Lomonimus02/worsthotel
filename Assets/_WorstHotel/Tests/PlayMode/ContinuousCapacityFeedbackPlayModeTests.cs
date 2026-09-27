@@ -20,6 +20,8 @@ namespace WorstHotel.Tests
             session.AdvanceTime(60); // Let actual empty-building pressure settle before comparing capacity bands.
             var feedback = HotelFeedback.Instance;
             var hum = feedback.transform.Find("Boiler hum").GetComponent<AudioSource>();
+            var gauge = Object.FindAnyObjectByType<BoilerReadout>();
+            Assert.That(gauge.capacityReadout && gauge.warningLight, Is.True);
             feedback.SendMessage("Update");
             Assert.That(model.Boiler.CapacityBand, Is.EqualTo(CapacityBand.Comfortable));
             Assert.That(hum.volume, Is.GreaterThan(0), "The source must be audible at this physical boiler-room position.");
@@ -33,12 +35,33 @@ namespace WorstHotel.Tests
             for (int index = 0; index < kinds.Length; index++)
                 Assert.That(model.DebugSpawnGuest(kinds[index], 101 + index).Success, Is.True);
             session.AdvanceTime(1.4f);
-            foreach (var guest in model.Guests)
+            bool observedBusy = false;
+            foreach (var guest in model.Guests.OrderBy(value => value.RoomId))
             {
                 Assert.That(session.ReportGuestReachedReception(guest.GuestId).Success, Is.True);
                 Assert.That(CheckInWithModelKeyFixture(session, 0, guest.GuestId).Success, Is.True);
                 Assert.That(session.ReportGuestReachedRoom(guest.GuestId).Success, Is.True);
+                if (model.HeatingDemands.Count(row => row.GuestId != null) == 4)
+                {
+                    observedBusy = true;
+                    // The fourth actual owned-room demand reaches Busy without a load override.
+                    // Busy is numeric 4 for wire compatibility, but it precedes Strained in severity.
+                    Assert.That(model.Boiler.LoadOverride, Is.Null);
+                    Assert.That(model.Boiler.CapacityBand, Is.EqualTo(CapacityBand.Busy));
+                    Assert.That(model.Boiler.Load, Is.EqualTo(model.HeatingDemands.Sum(row => row.Total)).Within(.0001f));
+                    Assert.That(model.Boiler.Pressure, Is.LessThan(session.BoilerSettings.WarningPressure));
+                    string beforeBusyPresentation = JsonUtility.ToJson(model.CaptureSnapshot(909, 1));
+                    feedback.SendMessage("Update"); gauge.SendMessage("Update");
+                    Assert.That(JsonUtility.ToJson(model.CaptureSnapshot(909, 1)), Is.EqualTo(beforeBusyPresentation),
+                        "A Busy display must not mutate demand, stress, pressure or the hotel clock.");
+                    Assert.That(gauge.capacityReadout.text, Does.Contain("BUSY"));
+                    Assert.That(gauge.warningLight.intensity, Is.Zero,
+                        "Busy demand with normal pressure must not illuminate the strained/severe warning.");
+                    Assert.That(hum.pitch, Is.EqualTo(comfortablePitch).Within(.01f),
+                        "Busy alone must not add the strained hum.");
+                }
             }
+            Assert.That(observedBusy, Is.True, "The four-room Busy presentation check must actually run.");
             Assert.That(model.HeatingDemands.Count(row => row.GuestId != null), Is.EqualTo(5));
             Assert.That(model.Boiler.LoadOverride, Is.Null);
             Assert.That(model.Boiler.CapacityBand, Is.EqualTo(CapacityBand.Strained));

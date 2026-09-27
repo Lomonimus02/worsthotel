@@ -9,8 +9,10 @@ namespace WorstHotel.Tests
         private static BoilerSystem Boiler(float condition = 85, float daySeconds = 720, bool wear = false)
         {
             var capacity = wear ? new BoilerCapacitySettings() :
-                new BoilerCapacitySettings(runningWearPerHotelDay: 0, overloadWearPerHotelDay: 0);
-            return new BoilerSystem(new BoilerSettings(initialCondition: condition, capacity: capacity), daySeconds);
+                new BoilerCapacitySettings(runningWearPerHotelDay: 0, overloadWearPerHotelDay: 0, strainedWearPerHotelDay: 0);
+            // Current production rating; pure BoilerSettings' historical default remains4.2.
+            // These are controlled equipment loads, not a natural guest-schedule fixture.
+            return new BoilerSystem(new BoilerSettings(initialCondition: condition, safeLoad: 4.6f, capacity: capacity), daySeconds);
         }
 
         private static void Run(BoilerSystem boiler, float duration, float step = 1)
@@ -30,8 +32,9 @@ namespace WorstHotel.Tests
             boiler.Tick(30);
             Assert.That(boiler.LoadRatio, Is.EqualTo(1.05f).Within(.00001f));
             Assert.That(boiler.Reserve, Is.LessThan(0));
-            Assert.That(boiler.HeatingOutput, Is.EqualTo(1 / 1.05f).Within(.00001f));
-            Assert.That(boiler.Stress01, Is.InRange(.01f, .02f));
+            Assert.That(boiler.HeatingOutput, Is.EqualTo(.9f / 1.05f).Within(.00001f));
+            Assert.That(boiler.Stress01, Is.EqualTo((.015f + .05f * .25f) * 1.075f).Within(.00001f),
+                "One hotel hour includes full strain plus the small real overload, with condition85.");
             Assert.That(boiler.CapacityBand, Is.EqualTo(CapacityBand.Overloaded));
             Assert.That(boiler.Failed, Is.False);
         }
@@ -44,10 +47,10 @@ namespace WorstHotel.Tests
             boiler.SetLoad(boiler.EffectiveCapacity * 2);
             boiler.Tick(1);
             Assert.That(boiler.Failed, Is.False);
-            Run(boiler, 100);
+            Run(boiler, 89); // 90 model seconds = 3 hotel hours; .284875 stress/hour gives .854625.
             Assert.That(boiler.Failed, Is.False);
             Assert.That(boiler.CapacityBand, Is.EqualTo(CapacityBand.Critical));
-            Run(boiler, 20);
+            Run(boiler, 16);
             Assert.That(boiler.Failed, Is.True);
             Assert.That(boiler.Stress01, Is.EqualTo(1));
             Assert.That(boiler.HeatingOutput, Is.EqualTo(.1f));

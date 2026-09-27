@@ -105,7 +105,7 @@ namespace WorstHotel
                 if (view.lastReadout != readout && view.readout != null)
                 { view.lastReadout = readout; view.readout.text = readout; }
                 if (view.consumers != null) view.consumers.text = ConsumerBreakdown(simulation.Electrical, view.circuitId);
-                bool capacityWarning = simulation.ContinuousOperations && circuit.CapacityBand >= CapacityBand.Strained;
+                bool capacityWarning = simulation.ContinuousOperations && CapacityBands.AtLeast(circuit.CapacityBand, CapacityBand.Strained);
                 bool severe = simulation.ContinuousOperations && circuit.CapacityBand == CapacityBand.Critical;
                 bool pulse = (circuit.Warning || severe) && !circuit.Tripped && Mathf.Sin(Time.time * 7) > 0;
                 Color signal = circuit.Tripped || severe ? new Color(.95f, .08f, .025f) : circuit.Warning || capacityWarning ?

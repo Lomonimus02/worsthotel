@@ -1,3 +1,7 @@
+## Prototype 0.4.1 — phase 2 pre-failure pressure
+
+Added Busy and gradual heat loss, wear and stress before overload, with load-dependent recovery. Real weak-room temperature and guest radiator self-help now respond before boiler failure; forecasts and physical lamps/hum share semantic band ordering. The first production multi-day run exposed excessive managed-operation failures; reducing only strain stress gain from.03 to.015 retained heat consequences and passed every original economic gate. Full Edit638/638 and physical3/3 passed. Game metadata0.4.1/LAN13; no new service, booking or sleep mechanics yet. [Measured results, trial failure and limitations](verification/rhythm041-phase2.md).
+
 ## Prototype 0.4.1 — phase 1 actual power relationship
 
 Kept central heat independent from room circuits. The placed heater now previews its real branch, current demand/capacity and overload risk before switching; boiler repair controls consistently say boiler isolation. Fresh model 25/25 and all four relevant physical scenarios passed: an actual carried heater changed A from2.55 to4.55, warning preceded natural trip, delivered heat stopped and B stayed powered. The new fixture also exposed and fixed an unrepresentable fractional remainder in diagnostic AdvanceTime; the direct model clock remains strict. Initial failures and an informational-log registration correction are preserved. [Measured chronology, scope and pending pixel review](BOILER_POWER_INTERACTION.md).

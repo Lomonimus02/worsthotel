@@ -112,8 +112,8 @@ namespace WorstHotel
             bool maintaining = active && simulation.Boiler.MaintenanceInProgress;
             bool failed = active && simulation.Boiler.Failed && !maintaining;
             bool relief = active && simulation.Boiler.ReliefActorId >= 0;
-            bool strained = active && !maintaining && simulation.Boiler.CapacityModelEnabled && simulation.Boiler.CapacityBand >= CapacityBand.Strained;
-            bool overloaded = active && !maintaining && simulation.Boiler.CapacityModelEnabled && simulation.Boiler.CapacityBand >= CapacityBand.Overloaded;
+            bool strained = active && !maintaining && simulation.Boiler.CapacityModelEnabled && CapacityBands.AtLeast(simulation.Boiler.CapacityBand, CapacityBand.Strained);
+            bool overloaded = active && !maintaining && simulation.Boiler.CapacityModelEnabled && CapacityBands.AtLeast(simulation.Boiler.CapacityBand, CapacityBand.Overloaded);
             float audibility = Audibility(steamAnchor ? steamAnchor.position : new Vector3(0, 1.5f, 37), 31);
             float output = active ? simulation.Boiler.HeatingOutput : 0;
             // Near-capacity operation already has a distinct note before overload raises

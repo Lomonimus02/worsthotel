@@ -12,7 +12,7 @@ namespace WorstHotel.Editor
         {
             PlayerSettings.companyName = "Independent Prototype";
             PlayerSettings.productName = "The Worst Hotel Ever";
-            PlayerSettings.bundleVersion = "0.4.0";
+            PlayerSettings.bundleVersion = "0.4.1";
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;

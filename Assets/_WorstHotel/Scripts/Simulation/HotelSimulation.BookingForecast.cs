@@ -92,8 +92,8 @@ namespace WorstHotel
             float peakResult = (float)Math.Min(float.MaxValue, peak);
             float circuitResult = (float)Math.Min(float.MaxValue, circuitDemand);
             double ratio = (double)typicalResult / Boiler.EffectiveCapacity;
-            var band = ratio > 1 ? CapacityBand.Overloaded : ratio >= settings.Boiler.Capacity.StrainedLoadRatio ?
-                CapacityBand.Strained : CapacityBand.Comfortable;
+            var band = CapacityBands.ForLoad((float)Math.Min(float.MaxValue, ratio),
+                settings.Boiler.Capacity.BusyLoadRatio, settings.Boiler.Capacity.StrainedLoadRatio);
             return new BookingLoadForecast(offerId, roomId, start, end, Boiler.Load, Boiler.CapacityBand,
                 Boiler.EffectiveCapacity, typicalResult, peakResult, band, circuit.Id, circuit.Capacity, circuitResult, maximumGuests);
         }

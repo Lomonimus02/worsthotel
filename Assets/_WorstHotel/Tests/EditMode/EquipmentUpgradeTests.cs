@@ -15,7 +15,8 @@ namespace WorstHotel.Tests
         static CommandResult Install(ElectricalSystem electrical, string circuit) =>
             Invoke<CommandResult>(electrical, "InstallCapacityUpgrade", circuit);
         static BoilerSystem Boiler(float multiplier = 1.25f) => new BoilerSystem(new BoilerSettings(capacity:
-            new BoilerCapacitySettings(runningWearPerHotelDay: 0, overloadWearPerHotelDay: 0, capacityUpgradeMultiplier: multiplier)), 720);
+            new BoilerCapacitySettings(runningWearPerHotelDay: 0, overloadWearPerHotelDay: 0,
+                capacityUpgradeMultiplier: multiplier, strainedWearPerHotelDay: 0)), 720);
         static void PreparePatch(BoilerSystem boiler)
         {
             boiler.ForceFailure(); Assert.That(boiler.SetRelief(0, true).Success, Is.True);
@@ -31,7 +32,7 @@ namespace WorstHotel.Tests
             float output = boiler.HeatingOutput, capacity = boiler.EffectiveCapacity;
             Assert.That(stress, Is.GreaterThan(0));
             int observations = 0;
-            boiler.OnHeatingOutputChanged += _ =>
+            Action<float> checkUpgradeCommit = _ =>
             {
                 observations++;
                 Assert.That(boiler.CapacityUpgradePurchased, Is.True);
@@ -40,16 +41,27 @@ namespace WorstHotel.Tests
                 Assert.That(boiler.Stress01, Is.EqualTo(stress));
                 Assert.That(boiler.Pressure, Is.EqualTo(pressure));
             };
+            boiler.OnHeatingOutputChanged += checkUpgradeCommit;
             Assert.That(Invoke<CommandResult>(boiler, "CanInstallCapacityUpgrade").Success, Is.True);
             Assert.That(boiler.CapacityUpgradePurchased, Is.False, "The pre-payment guard is pure.");
             Assert.That(Install(boiler).Success, Is.True);
             Assert.That(observations, Is.EqualTo(1));
+            // These immutable-before/after assertions describe the purchase callback only;
+            // subsequent elapsed operation and valve changes must be free to change stress.
+            boiler.OnHeatingOutputChanged -= checkUpgradeCommit;
             Assert.That(boiler.EffectiveCapacity, Is.EqualTo(capacity * 1.25f).Within(.00001f));
             Assert.That(boiler.Load, Is.EqualTo(5));
             Assert.That(boiler.LoadRatio, Is.LessThan(1));
             Assert.That(boiler.HeatingOutput, Is.GreaterThan(output));
             boiler.Tick(1);
-            Assert.That(boiler.Stress01, Is.LessThan(stress).And.GreaterThan(0), "Only elapsed safe operation recovers stress.");
+            Assert.That(boiler.Stress01 - stress, Is.GreaterThan(0).And.LessThan(stress / 60),
+                "The unchanged workload remains Strained after this upgrade: accumulation slows but does not become recovery.");
+            float stillStored = boiler.Stress01;
+            boiler.SetLoad(boiler.EffectiveCapacity * .75f);
+            Assert.That(boiler.Stress01, Is.EqualTo(stillStored), "A load change is not an instant repair.");
+            boiler.Tick(1);
+            Assert.That(boiler.Stress01, Is.LessThan(stillStored).And.GreaterThan(0),
+                "Further real load reduction and elapsed time finally recover the stored stress.");
         }
 
         [Test]

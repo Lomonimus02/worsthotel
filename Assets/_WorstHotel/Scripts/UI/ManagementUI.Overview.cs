@@ -49,7 +49,7 @@ namespace WorstHotel
         {
             if (circuit == null) return "Unavailable";
             if (circuit.Tripped) return "TRIPPED · power off";
-            return circuit.CapacityBand == CapacityBand.Comfortable ? "Normal" : circuit.CapacityBand == CapacityBand.Strained ?
+            return circuit.CapacityBand == CapacityBand.Comfortable ? "Normal" : circuit.CapacityBand == CapacityBand.Busy ? "Busy" : circuit.CapacityBand == CapacityBand.Strained ?
                 "Near limit" : circuit.CapacityBand == CapacityBand.Overloaded ? "Overloaded" : "High stress";
         }
 

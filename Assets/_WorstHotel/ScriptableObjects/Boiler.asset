@@ -37,3 +37,7 @@ MonoBehaviour:
   failedPressureRise: 4
   latchTravelSeconds: 2.5
   restartPressure: 40
+  busyLoadRatio: 0.7
+  maximumStrainedHeatLoss: 0.1
+  strainedStressGainPerHotelHour: 0.015
+  strainedWearPerHotelDay: 3

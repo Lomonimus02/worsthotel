@@ -4,7 +4,8 @@ namespace WorstHotel
     public static class CapacityLabels
     {
         public static string Band(CapacityBand band) => band == CapacityBand.Comfortable ? "COMFORTABLE" :
-            band == CapacityBand.Strained ? "STRAINED" : band == CapacityBand.Overloaded ? "OVERLOADED" : "CRITICAL";
+            band == CapacityBand.Busy ? "BUSY" : band == CapacityBand.Strained ? "STRAINED" :
+            band == CapacityBand.Overloaded ? "OVERLOADED" : "CRITICAL";
         public static string Percent(float ratio) => ratio > 9.99f ? ">999%" : (ratio * 100).ToString("F0") + "%";
         public static string Reserve(float reserve) => (reserve >= 0 ? "+" : "") + reserve.ToString("F2");
         public static string BoilerReadout(BoilerSystem boiler) =>
