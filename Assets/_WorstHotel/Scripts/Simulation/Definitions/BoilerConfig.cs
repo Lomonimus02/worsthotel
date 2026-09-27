@@ -48,6 +48,8 @@ namespace WorstHotel
         [Min(1)] public float emergencyPatchStressMultiplier = 1.25f;
         [Range(0, 100)] public float properMaintenanceCondition = 95;
         [Min(.01f)] public float maintenanceHours = 2;
+        [Header("One permanent capacity upgrade")]
+        [Min(1.01f)] public float capacityUpgradeMultiplier = 1.25f;
 
         public BoilerSettings ToData() => new BoilerSettings(initialCondition, safeLoad, baseWearPerMinute,
             overloadWearPerMinute, pressureBase, pressureOverloadFactor, pressureConditionThreshold, pressureConditionFactor,
@@ -56,6 +58,7 @@ namespace WorstHotel
             repairSafeMin, repairSafeMax, reliefTarget, reliefRate, failedPressureRise, latchTravelSeconds, restartPressure, maxPressure,
             new BoilerCapacitySettings(conditionCapacityFloor, strainedLoadRatio, criticalStress, stressGainPerHotelHour,
                 stressRecoveryPerHotelHour, poorConditionStressPenalty, runningWearPerHotelDay, overloadWearPerHotelDay, pressureStressFactor,
-                emergencyPatchCondition, emergencyPatchStress, emergencyPatchStressMultiplier, properMaintenanceCondition, maintenanceHours));
+                emergencyPatchCondition, emergencyPatchStress, emergencyPatchStressMultiplier, properMaintenanceCondition, maintenanceHours,
+                capacityUpgradeMultiplier));
     }
 }

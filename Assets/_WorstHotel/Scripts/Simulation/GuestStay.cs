@@ -68,19 +68,21 @@ namespace WorstHotel
         public int Compensation { get; }
         public int OperatingCost { get; }
         public int MaintenanceSpend { get; }
-        public int Net => Gross - Compensation - OperatingCost - MaintenanceSpend;
+        public int CapitalSpend { get; }
+        public int Net => Gross - Compensation - OperatingCost - MaintenanceSpend - CapitalSpend;
         public int Cash { get; }
         public float Reputation { get; }
         public float AverageSatisfaction { get; }
         public float ServiceSeconds { get; }
 
         public DayReport(int dayNumber, IEnumerable<GuestReceipt> receipts, int openingCash, int operatingCost,
-            int cash, float reputation, float serviceSeconds, int maintenanceSpend = 0)
+            int cash, float reputation, float serviceSeconds, int maintenanceSpend = 0, int capitalSpend = 0)
         {
             var copy = receipts.ToArray();
-            if (maintenanceSpend < 0 || (long)operatingCost + maintenanceSpend > int.MaxValue)
+            if (maintenanceSpend < 0 || capitalSpend < 0 || (long)operatingCost + maintenanceSpend + capitalSpend > int.MaxValue)
                 throw new ArgumentException("Invalid report expense totals.");
             MaintenanceSpend = maintenanceSpend;
+            CapitalSpend = capitalSpend;
             DayNumber = dayNumber; Receipts = Array.AsReadOnly(copy); OpeningCash = openingCash;
             Gross = copy.Sum(receipt => receipt.Price); Compensation = copy.Sum(receipt => receipt.Compensation);
             OperatingCost = operatingCost; Cash = cash; Reputation = reputation; ServiceSeconds = serviceSeconds;

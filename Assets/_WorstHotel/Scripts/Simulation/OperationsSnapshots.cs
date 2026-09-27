@@ -6,7 +6,7 @@ namespace WorstHotel
     [Serializable] public sealed class OperationsSnapshot
     {
         public float SecondsPerDay, StartHour, ReportHour, ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour;
-        public int ReportHistoryLimit, ReportSequence, PeriodOpeningCash, OffersThroughDay, ServiceDay, PeriodMaintenanceSpend;
+        public int ReportHistoryLimit, ReportSequence, PeriodOpeningCash, OffersThroughDay, ServiceDay, PeriodMaintenanceSpend, PeriodCapitalSpend;
         public float PeriodStartedAt;
         public ReceiptSnapshot[] PeriodReceipts;
         public ScheduledOfferSnapshot[] Offers;
@@ -54,6 +54,7 @@ namespace WorstHotel
             SleepHour = Operations.SleepHour, CheckoutHour = Operations.CheckoutHour, ReportHistoryLimit = Operations.ReportHistoryLimit,
             ReportSequence = ReportSequence, PeriodOpeningCash = periodOpeningCash, PeriodStartedAt = periodStartedAt,
             PeriodMaintenanceSpend = PeriodMaintenanceSpend,
+            PeriodCapitalSpend = PeriodCapitalSpend,
             OffersThroughDay = offersThroughDay, ServiceDay = operatingServiceDay,
             PeriodReceipts = periodReceipts.Select(SnapshotData.Capture).ToArray(),
             Offers = bookingOffers.Select(SnapshotData.Capture).ToArray(), Reservations = reservations.Select(SnapshotData.Capture).ToArray()
@@ -63,6 +64,7 @@ namespace WorstHotel
             if (data == null) return;
             ReportSequence = data.ReportSequence; periodOpeningCash = data.PeriodOpeningCash; periodStartedAt = data.PeriodStartedAt;
             PeriodMaintenanceSpend = data.PeriodMaintenanceSpend;
+            PeriodCapitalSpend = data.PeriodCapitalSpend;
             offersThroughDay = data.OffersThroughDay; operatingServiceDay = data.ServiceDay;
             periodReceipts.Clear(); periodReceipts.AddRange(data.PeriodReceipts.Select(SnapshotData.Receipt));
             bookingOffers.Clear(); bookingOffers.AddRange(data.Offers.Select(SnapshotData.Offer));
@@ -80,8 +82,9 @@ namespace WorstHotel
             Require((data != null) == (expected != null), "Continuous operations mode differs from this hotel.");
             if (data == null) return;
             var config = data.ToSettings();
-            Require(data.PeriodMaintenanceSpend >= 0 && (long)data.PeriodMaintenanceSpend + economy.DailyOperatingCost <= int.MaxValue,
-                "Invalid period maintenance total.");
+            Require(data.PeriodMaintenanceSpend >= 0 && data.PeriodCapitalSpend >= 0 &&
+                (long)data.PeriodMaintenanceSpend + data.PeriodCapitalSpend + economy.DailyOperatingCost <= int.MaxValue,
+                "Invalid period equipment spending total.");
             Require(config.SecondsPerDay == expected.SecondsPerDay && config.StartHour == expected.StartHour && config.ReportHour == expected.ReportHour &&
                 config.ArrivalStartHour == expected.ArrivalStartHour && config.ArrivalEndHour == expected.ArrivalEndHour &&
                 config.SleepHour == expected.SleepHour && config.CheckoutHour == expected.CheckoutHour && config.ReportHistoryLimit == expected.ReportHistoryLimit,

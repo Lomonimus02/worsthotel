@@ -27,6 +27,7 @@ namespace WorstHotel
                 Epoch=epoch,Sequence=sequence,Day=dayNumber,LastMaintenanceDay=lastMaintenanceDay,DebugGuestCounter=debugGuestCounter,
                 Running=Running,Time=Elapsed,Speed=Clock.Speed,EventRevision=EventRevision,LastEvent=LastEvent,
                 BoilerFailureAcknowledged=BoilerFailureAcknowledged,Cash=Economy.Cash,Reputation=Economy.Reputation,
+                UpgradedCircuitId=Electrical?.UpgradedCircuitId ?? string.Empty,
                 LastReportDay=LastReport?.DayNumber??0,LastRefillDay=Housekeeping?.LastRefillDay??0,
                 Rooms=rooms.Values.OrderBy(r=>r.Profile.Id).Select(SnapshotData.Capture).ToArray(),Guests=guests.Select(SnapshotData.Capture).ToArray(),
                 Boiler=Boiler.CaptureSnapshot(),Circuits=Electrical?.CaptureSnapshot()??Array.Empty<CircuitSnapshot>(),Consumers=Electrical?.CaptureConsumers()??Array.Empty<ConsumerSnapshot>(),
@@ -51,6 +52,18 @@ namespace WorstHotel
             {
                 SnapshotValidation.Model(snapshot,rooms.Keys.ToArray(),LivingEnabled,Housekeeping?.Linens.Count??0,Electrical?.Circuits.Select(c=>c.Id)??Enumerable.Empty<string>());
                 SnapshotValidation.OperationsModel(snapshot, Operations, settings.Economy, rooms.Keys.ToArray());
+                if (snapshot.Boiler.CapacityUpgradePurchased)
+                {
+                    double capacity = (double)settings.Boiler.SafeLoad * settings.Boiler.Capacity.CapacityUpgradeMultiplier;
+                    SnapshotValidation.Require(capacity <= float.MaxValue && (float)capacity > settings.Boiler.SafeLoad,
+                        "Invalid upgraded boiler capacity.");
+                }
+                if (!string.IsNullOrEmpty(snapshot.UpgradedCircuitId))
+                {
+                    double capacity = (double)ElectricitySettings.CircuitCapacity + ElectricitySettings.CapacityUpgradeAmount;
+                    SnapshotValidation.Require(capacity <= float.MaxValue && (float)capacity > ElectricitySettings.CircuitCapacity,
+                        "Invalid upgraded branch capacity.");
+                }
                 if (ContinuousOperations && snapshot.Boiler.MaintenanceEndsAt > 0)
                     SnapshotValidation.Require(snapshot.Boiler.MaintenanceEndsAt <= (float)Math.Min(float.MaxValue,
                         (double)snapshot.Time + (double)Operations.SecondsPerDay * settings.Boiler.Capacity.MaintenanceHours / 24),
@@ -76,7 +89,7 @@ namespace WorstHotel
             }
             foreach(var r in snapshot.Rooms)SnapshotData.Restore(rooms[r.Id],r);
             Boiler.RestoreSnapshot(snapshot.Boiler);Clock.RestoreSnapshot(snapshot.Time,snapshot.Speed);
-            Heaters.RestoreSnapshot(snapshot.Heaters);Electrical?.RestoreSnapshot(snapshot.Circuits,snapshot.Consumers);Keys.RestoreSnapshot(snapshot.Keys);
+            Heaters.RestoreSnapshot(snapshot.Heaters);Electrical?.RestoreSnapshot(snapshot.Circuits,snapshot.Consumers,snapshot.UpgradedCircuitId);Keys.RestoreSnapshot(snapshot.Keys);
             Housekeeping?.RestoreSnapshot(snapshot.Linens,snapshot.Turnover,snapshot.LastRefillDay,snapshot.Epoch==AppliedSnapshotEpoch);
             Noise?.RestoreSnapshot(snapshot.NoiseOverrides);Schedules?.RestoreSnapshot(guests);
             Noise?.RestoreMeasuredSources(snapshot.NoiseSources);

@@ -75,7 +75,10 @@ namespace WorstHotel
             Require(s.HasOperations || (b.Stress01 == 0 && !b.EmergencyPatchActive && b.MaintenanceEndsAt == 0), "Legacy boiler cannot contain continuous operating states.");
             Require(b.MaintenanceEndsAt == 0 || (s.Running && b.MaintenanceEndsAt > s.Time && b.HeatingOutput == 0 && b.ReliefActorId == -1),
                 "Invalid boiler downtime state.");
+            Require(continuous || !b.CapacityUpgradePurchased, "Legacy boiler cannot contain a capacity purchase.");
             var cs=Array(s.Circuits,2);Unique(cs.Select(c=>c.Id));Require(cs.Select(c=>c.Id).OrderBy(x=>x).SequenceEqual(circuitIds.OrderBy(x=>x)),"Circuit set differs.");
+            OptionalId(s.UpgradedCircuitId,32);
+            Require(string.IsNullOrEmpty(s.UpgradedCircuitId) || continuous && cs.Any(c=>c.Id==s.UpgradedCircuitId), "Invalid purchased branch.");
             foreach(var c in cs){Text(c.Id,32);Nonnegative(c.ActualRequestedLoad,c.LoadOverride,c.OverloadSeconds);Require(c.TripCount>=0,"Invalid trip count.");}
             var consumers=Array(s.Consumers,24);Unique(consumers.Select(c=>c.Id));foreach(var c in consumers){Text(c.Id);OptionalId(c.CircuitId,32);Require(Room(c.RoomId,true) && (string.IsNullOrEmpty(c.CircuitId)||cs.Any(x=>x.Id==c.CircuitId)),"Invalid consumer placement.");Nonnegative(c.RequestedLoad,c.DeliveredLoad);Require(c.DeliveredLoad<=c.RequestedLoad,"Invalid delivered power.");}
             var heaters=Array(s.Heaters,6);Unique(heaters.Select(h=>h.Id));foreach(var h in heaters){Text(h.Id);Require(Room(h.RoomId,true),"Invalid heater placement.");Range(h.HeatOutput,float.Epsilon);Range(h.ElectricalLoad,float.Epsilon);}
@@ -106,8 +109,8 @@ namespace WorstHotel
             var reports=Array(s.Reports,continuous?128:3);Unique(reports.Select(r=>r.Day));foreach(var r in reports)
             {Require(r.Day>=1 && r.Day<=s.Day && r.OperatingCost>=0,"Invalid report.");Range(r.Reputation,0,100);Range(r.ServiceSeconds);var receipts=Array(r.Receipts,continuous?128:6);Unique(receipts.Select(x=>x.GuestId));foreach(var x in receipts){Text(x.GuestId);Text(x.Name);Text(x.Review,4096,true);Require(Room(x.RoomId) && x.Price>=0 && x.Compensation>=0 && x.Compensation<=x.Price,"Invalid receipt.");Range(x.Satisfaction,0,100);}}
             foreach(var r in reports)Require(r.Receipts.Sum(x=>(long)x.Price)<=int.MaxValue && r.Receipts.Sum(x=>(long)x.Compensation)<=int.MaxValue,"Report totals overflow.");
-            foreach(var r in reports)Require(r.MaintenanceSpend>=0 && (long)r.MaintenanceSpend+r.OperatingCost<=int.MaxValue &&
-                (continuous || r.MaintenanceSpend==0),"Invalid report maintenance total.");
+            foreach(var r in reports)Require(r.MaintenanceSpend>=0 && r.CapitalSpend>=0 && (long)r.MaintenanceSpend+r.CapitalSpend+r.OperatingCost<=int.MaxValue &&
+                (continuous || r.MaintenanceSpend==0 && r.CapitalSpend==0),"Invalid report equipment spending total.");
             Require(s.LastReportDay==0 || reports.Any(r=>r.Day==s.LastReportDay),"Missing last report.");
             var maintenance=Array(s.Maintenance,2);Unique(maintenance.Select(m=>m.Day));foreach(var m in maintenance){EnumValue(m.Choice);Require(m.Day>=1 && m.Day<=2 && m.Day<=s.LastMaintenanceDay && m.ActorId>=0 && m.Cost>=0,"Invalid maintenance.");Range(m.ConditionBefore,0,100);Range(m.ConditionAfter,0,100);}
             var overrides=Array(s.NoiseOverrides,6);Unique(overrides.Select(n=>n.RoomId));foreach(var n in overrides){Require(Room(n.RoomId),"Invalid noise override.");Unit(n.Value);}

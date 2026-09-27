@@ -14,7 +14,8 @@ namespace WorstHotel
         [Min(0)] public float stressRecoveryPerSecond = 1;
         [Range(.01f, .99f)] public float strainedLoadRatio = .85f;
         [Range(.01f, 1)] public float criticalStress = .8f;
+        [Min(.01f)] public float capacityUpgradeAmount = 1;
         public ElectricitySettings ToData() => new ElectricitySettings(circuitCapacity, occupiedRoomLoad, loudActivityLoad,
-            warningSeconds, tripSeconds, powerLossConditionSeverity, stressRecoveryPerSecond, strainedLoadRatio, criticalStress);
+            warningSeconds, tripSeconds, powerLossConditionSeverity, stressRecoveryPerSecond, strainedLoadRatio, criticalStress, capacityUpgradeAmount);
     }
 }

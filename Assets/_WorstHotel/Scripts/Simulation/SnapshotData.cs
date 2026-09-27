@@ -140,11 +140,11 @@ namespace WorstHotel
         }
         internal static ReportSnapshot Capture(DayReport r) => new ReportSnapshot
         {
-            Day=r.DayNumber,OpeningCash=r.OpeningCash,OperatingCost=r.OperatingCost,Cash=r.Cash,Reputation=r.Reputation,ServiceSeconds=r.ServiceSeconds,MaintenanceSpend=r.MaintenanceSpend,
+            Day=r.DayNumber,OpeningCash=r.OpeningCash,OperatingCost=r.OperatingCost,Cash=r.Cash,Reputation=r.Reputation,ServiceSeconds=r.ServiceSeconds,MaintenanceSpend=r.MaintenanceSpend,CapitalSpend=r.CapitalSpend,
             Receipts=r.Receipts.Select(x=>new ReceiptSnapshot{GuestId=x.GuestId,Name=x.Name,RoomId=x.RoomId,Price=x.Price,
                 Satisfaction=x.Satisfaction,Compensation=x.Compensation,Review=x.Review}).ToArray()
         };
         internal static DayReport Report(ReportSnapshot r) => new DayReport(r.Day,r.Receipts.Select(x=>new GuestReceipt(x.GuestId,x.Name,x.RoomId,
-            x.Price,x.Satisfaction,x.Compensation,x.Review)),r.OpeningCash,r.OperatingCost,r.Cash,r.Reputation,r.ServiceSeconds,r.MaintenanceSpend);
+            x.Price,x.Satisfaction,x.Compensation,x.Review)),r.OpeningCash,r.OperatingCost,r.Cash,r.Reputation,r.ServiceSeconds,r.MaintenanceSpend,r.CapitalSpend);
     }
 }

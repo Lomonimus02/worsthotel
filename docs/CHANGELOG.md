@@ -30,6 +30,10 @@ Continuous demand now comes from each real room radiator and physically staged s
 
 The continuous physical repair sequence now charges one emergency patch, restores working heat at 40 percent condition and retains a visible stress penalty. Proper maintenance costs more, shuts heat off for two hotel hours and restores condition/removes the penalty at the actual clock deadline. Reports show payments without charging again; jobs, costs and patch state survive calendar boundaries and validated snapshots. Reception/controller UI and planned-downtime WAIT work through the ordinary session. Compile passed; relevant Edit **64/64**, actual physical SOLO repair and reception maintenance/WAIT Play **2/2**. [Evidence and limits](verification/core04-phase6.md). Model schema 9 / LAN protocol 10.
 
+## Prototype 0.4 — phase 7 capital upgrades
+
+Added one permanent boiler capacity purchase (+25%, $1,800) and one electrical branch choice (+1 unit to A or B, $1,200). Purchases preserve demand, condition, stress, existing outages and maintenance; a tripped breaker still requires physical reset. Controller ledger pages show cost/benefit and installed state, and host commands reject repeated/invalid/unaffordable transactions. Capital costs persist and appear in report net without being charged twice. Compile passed; relevant Edit **85/85**, actual ledger/physical heater and breaker Play **1/1**. [Evidence and limits](verification/core04-phase7.md). Model schema 10 / LAN protocol 11.
+
 ## Prototype 0.3.2 — Natural Service
 
 26 September 2026. Natural Service implemented and packaged as Windows 0.3.2; the pause investigation remains explicitly deferred.

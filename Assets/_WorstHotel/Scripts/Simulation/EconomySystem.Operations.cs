@@ -19,10 +19,10 @@ namespace WorstHotel
         }
 
         // Receipts have already been paid at checkout. Closing a period never posts revenue again.
-        internal DayReport CloseOperatingDay(int number, IEnumerable<GuestReceipt> receipts, int openingCash, float seconds, int maintenanceSpend = 0)
+        internal DayReport CloseOperatingDay(int number, IEnumerable<GuestReceipt> receipts, int openingCash, float seconds, int maintenanceSpend = 0, int capitalSpend = 0)
         {
             if (ReadOnlyMirror) throw new InvalidOperationException(HotelSimulation.MirrorMessage);
-            if (number != lastOperatingReport + 1 || receipts == null || !Number.IsFinite(seconds) || seconds <= 0 || maintenanceSpend < 0)
+            if (number != lastOperatingReport + 1 || receipts == null || !Number.IsFinite(seconds) || seconds <= 0 || maintenanceSpend < 0 || capitalSpend < 0)
                 throw new ArgumentException("Operating reports must close consecutive positive intervals exactly once.");
             var copy = receipts.ToArray();
             if (copy.Any(receipt => receipt == null) || copy.Select(receipt => receipt.GuestId).Distinct().Count() != copy.Length)
@@ -32,7 +32,7 @@ namespace WorstHotel
             float nextReputation = Reputation;
             if (copy.Length > 0)
                 nextReputation = Number.Clamp(Reputation + (copy.Average(receipt => receipt.Satisfaction) - settings.ReputationTarget) * settings.ReputationChangeFactor, 0, 100);
-            var report = new DayReport(number, copy, openingCash, settings.DailyOperatingCost, (int)nextCash, nextReputation, seconds, maintenanceSpend);
+            var report = new DayReport(number, copy, openingCash, settings.DailyOperatingCost, (int)nextCash, nextReputation, seconds, maintenanceSpend, capitalSpend);
             Cash = (int)nextCash;
             Reputation = nextReputation;
             lastOperatingReport = number;

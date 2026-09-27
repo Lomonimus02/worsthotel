@@ -7,7 +7,8 @@ namespace WorstHotel
     {
         public string Id { get; }
         public IReadOnlyList<int> RoomIds { get; }
-        public float Capacity { get; }
+        public float Capacity => (float)((double)settings.CircuitCapacity +
+            (system.UpgradedCircuitId == Id ? settings.CapacityUpgradeAmount : 0));
         public float RatedCapacity => Capacity;
         public float LoadRatio => (float)Math.Min(float.MaxValue, (double)RequestedLoad / Capacity);
         public float Reserve => Capacity - RequestedLoad;
@@ -15,6 +16,7 @@ namespace WorstHotel
         public CapacityBand CapacityBand => Tripped || Stress01 >= settings.CriticalStress ? CapacityBand.Critical :
             LoadRatio > 1 ? CapacityBand.Overloaded : LoadRatio >= settings.StrainedLoadRatio ? CapacityBand.Strained : CapacityBand.Comfortable;
         private readonly ElectricitySettings settings;
+        private readonly ElectricalSystem system;
         /// <summary>Unmodified sum of the real registered consumers, including during a diagnostic override.</summary>
         public float ActualRequestedLoad { get; internal set; }
         public float ActualDeliveredLoad => HasPower ? ActualRequestedLoad : 0;
@@ -28,8 +30,8 @@ namespace WorstHotel
         public bool Tripped { get; internal set; }
         public bool HasPower => !Tripped;
         public int TripCount { get; internal set; }
-        internal ElectricalCircuit(string id, int[] rooms, ElectricitySettings settings)
-        { Id = id; RoomIds = Array.AsReadOnly(rooms); this.settings = settings; Capacity = settings.CircuitCapacity; }
+        internal ElectricalCircuit(string id, int[] rooms, ElectricalSystem system)
+        { Id = id; RoomIds = Array.AsReadOnly(rooms); this.system = system; settings = system.Settings; }
     }
 
     /// <summary>A diagnostic snapshot. IDs identify real guests and registered devices, never duplicated synthetic loads.</summary>

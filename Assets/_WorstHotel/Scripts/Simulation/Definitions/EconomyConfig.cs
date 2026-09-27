@@ -13,6 +13,8 @@ namespace WorstHotel
         public int cheapPatchCost = 200;
         public float cheapPatchCondition = 15;
         public int properRepairCost = 1500;
+        public int boilerUpgradeCost = 1800;
+        public int electricalUpgradeCost = 1200;
         public float properRepairCondition = 95;
         public float compensationRate = 0.2f;
         public float compensationGoodwill = 10;
@@ -37,6 +39,7 @@ namespace WorstHotel
             priceStep, cheapPatchCost, cheapPatchCondition, properRepairCost, properRepairCondition, compensationRate,
             compensationGoodwill, severeRefundThreshold, severeRefundRate, partialRefundThreshold, partialRefundRate,
             expectationSlope, minExpectation, maxExpectation, qualityPenaltyScale, patiencePenalty, initialReputation,
-            reputationTarget, reputationChangeFactor, coldSeverityDegrees, degradedSeverity, brokenSeverity, dirtySeverity);
+            reputationTarget, reputationChangeFactor, coldSeverityDegrees, degradedSeverity, brokenSeverity, dirtySeverity,
+            boilerUpgradeCost, electricalUpgradeCost);
     }
 }

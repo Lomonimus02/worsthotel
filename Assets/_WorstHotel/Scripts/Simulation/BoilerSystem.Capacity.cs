@@ -6,7 +6,7 @@ namespace WorstHotel
     {
         private readonly float? operatingSecondsPerDay;
         public bool CapacityModelEnabled => operatingSecondsPerDay.HasValue;
-        public float RatedCapacity => settings.SafeLoad;
+        public float RatedCapacity => CapacityUpgradePurchased ? (float)((double)settings.SafeLoad * settings.Capacity.CapacityUpgradeMultiplier) : settings.SafeLoad;
         public float EffectiveCapacity => CapacityModelEnabled ? (float)Math.Max(float.Epsilon,
             (double)RatedCapacity * (settings.Capacity.ConditionCapacityFloor +
                 (1d - settings.Capacity.ConditionCapacityFloor) * Condition / 100d)) : RatedCapacity;

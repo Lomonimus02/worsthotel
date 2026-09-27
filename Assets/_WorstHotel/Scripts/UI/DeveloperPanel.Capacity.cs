@@ -11,7 +11,8 @@ namespace WorstHotel
             if (!boiler.CapacityModelEnabled) return;
             GUILayout.Label("HEATING CAPACITY / REAL ROOM DEMAND (u)", heading);
             GUILayout.Label(BoilerMaintenanceLabels.State(simulation) + (boiler.MaintenanceInProgress ?
-                " / " + BoilerMaintenanceLabels.Remaining(simulation) + " remaining" : "") + " / maintenance spend $" + simulation.PeriodMaintenanceSpend, body);
+                " / " + BoilerMaintenanceLabels.Remaining(simulation) + " remaining" : "") + " / maintenance spend $" + simulation.PeriodMaintenanceSpend +
+                " / boiler upgrade " + boiler.CapacityUpgradePurchased + " / capital spend $" + simulation.PeriodCapitalSpend, body);
             GUILayout.Label("Rated " + boiler.RatedCapacity.ToString("F2") + " / effective " + boiler.EffectiveCapacity.ToString("F2") +
                 " / demand " + boiler.Load.ToString("F2") + " / reserve " + CapacityLabels.Reserve(boiler.Reserve) + " u" +
                 "\nLoad " + CapacityLabels.Percent(boiler.LoadRatio) + " / stress " + CapacityLabels.Percent(boiler.Stress01) + " / " +

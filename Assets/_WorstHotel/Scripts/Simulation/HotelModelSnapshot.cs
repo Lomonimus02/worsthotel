@@ -5,13 +5,13 @@ namespace WorstHotel
     // Explicit wire data only: arrays, strings, enums and finite scalar values. No Unity or transport API.
     [Serializable] public sealed class HotelModelSnapshot
     {
-        public const int ProtocolVersion = 9;
+        public const int ProtocolVersion = 10;
         public int Version = ProtocolVersion;
         public long Epoch, Sequence;
         public int Day, LastMaintenanceDay, DebugGuestCounter, EventRevision, LastReportDay, Cash, LastRefillDay;
         public bool Running, BoilerFailureAcknowledged;
         public float Time, Speed, Reputation;
-        public string LastEvent;
+        public string LastEvent, UpgradedCircuitId;
         public RoomSnapshot[] Rooms;
         public GuestSnapshot[] Guests;
         public BoilerSnapshot Boiler;
@@ -92,7 +92,7 @@ namespace WorstHotel
     [Serializable] public sealed class BoilerSnapshot
     {
         public float Condition, Load, HeatingOutput, Pressure, FailureExposure, OccupancyLoad, LoadOverride, Stress01, MaintenanceEndsAt;
-        public bool Failed, HasLoadOverride, EmergencyPatchActive; public int ReliefActorId;
+        public bool Failed, HasLoadOverride, EmergencyPatchActive, CapacityUpgradePurchased; public int ReliefActorId;
     }
     [Serializable] public sealed class CircuitSnapshot
     { public string Id; public float ActualRequestedLoad, LoadOverride, OverloadSeconds; public bool HasLoadOverride, Warning, Tripped; public int TripCount; }
@@ -129,7 +129,7 @@ namespace WorstHotel
     [Serializable] public sealed class ReceiptSnapshot
     { public string GuestId, Name, Review; public int RoomId, Price, Compensation; public float Satisfaction; }
     [Serializable] public sealed class ReportSnapshot
-    { public int Day, OpeningCash, OperatingCost, Cash, MaintenanceSpend; public float Reputation, ServiceSeconds; public ReceiptSnapshot[] Receipts; }
+    { public int Day, OpeningCash, OperatingCost, Cash, MaintenanceSpend, CapitalSpend; public float Reputation, ServiceSeconds; public ReceiptSnapshot[] Receipts; }
     [Serializable] public sealed class MaintenanceSnapshot
     { public int Day, ActorId, Cost, CashAfter; public MaintenanceChoice Choice; public float ConditionBefore, ConditionAfter; }
     [Serializable] public sealed class NoiseOverrideSnapshot

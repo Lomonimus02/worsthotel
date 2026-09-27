@@ -13,9 +13,9 @@ namespace WorstHotel
     {
         internal bool ReadOnlyMirror;
         internal BoilerSnapshot CaptureSnapshot() => new BoilerSnapshot{Condition=Condition,Load=Load,HeatingOutput=HeatingOutput,Pressure=Pressure,Failed=Failed,
-            ReliefActorId=ReliefActorId,FailureExposure=FailureExposure,OccupancyLoad=occupancyLoad,HasLoadOverride=LoadOverride.HasValue,LoadOverride=LoadOverride??0,Stress01=Stress01,EmergencyPatchActive=EmergencyPatchActive,MaintenanceEndsAt=MaintenanceEndsAt};
+            ReliefActorId=ReliefActorId,FailureExposure=FailureExposure,OccupancyLoad=occupancyLoad,HasLoadOverride=LoadOverride.HasValue,LoadOverride=LoadOverride??0,Stress01=Stress01,EmergencyPatchActive=EmergencyPatchActive,MaintenanceEndsAt=MaintenanceEndsAt,CapacityUpgradePurchased=CapacityUpgradePurchased};
         internal void RestoreSnapshot(BoilerSnapshot s)
-        {Condition=s.Condition;Load=s.Load;HeatingOutput=s.HeatingOutput;Pressure=s.Pressure;Failed=s.Failed;ReliefActorId=s.ReliefActorId;FailureExposure=s.FailureExposure;occupancyLoad=s.OccupancyLoad;LoadOverride=s.HasLoadOverride?s.LoadOverride:(float?)null;Stress01=s.Stress01;EmergencyPatchActive=s.EmergencyPatchActive;MaintenanceEndsAt=s.MaintenanceEndsAt;}
+        {Condition=s.Condition;Load=s.Load;HeatingOutput=s.HeatingOutput;Pressure=s.Pressure;Failed=s.Failed;ReliefActorId=s.ReliefActorId;FailureExposure=s.FailureExposure;occupancyLoad=s.OccupancyLoad;LoadOverride=s.HasLoadOverride?s.LoadOverride:(float?)null;Stress01=s.Stress01;EmergencyPatchActive=s.EmergencyPatchActive;MaintenanceEndsAt=s.MaintenanceEndsAt;CapacityUpgradePurchased=s.CapacityUpgradePurchased;}
     }
     public sealed partial class EconomySystem
     {
@@ -48,8 +48,9 @@ namespace WorstHotel
         internal bool ReadOnlyMirror;
         internal CircuitSnapshot[] CaptureSnapshot() => Circuits.Select(c=>new CircuitSnapshot{Id=c.Id,ActualRequestedLoad=c.ActualRequestedLoad,HasLoadOverride=c.LoadOverride.HasValue,LoadOverride=c.LoadOverride??0,OverloadSeconds=c.OverloadSeconds,Warning=c.Warning,Tripped=c.Tripped,TripCount=c.TripCount}).ToArray();
         internal ConsumerSnapshot[] CaptureConsumers() => Consumers.Select(c=>new ConsumerSnapshot{Id=c.Id,RoomId=c.RoomId??0,CircuitId=SnapshotData.OptionalId(c.CircuitId),RequestedLoad=c.RequestedLoad,DeliveredLoad=c.DeliveredLoad}).ToArray();
-        internal void RestoreSnapshot(CircuitSnapshot[] circuits,ConsumerSnapshot[] consumers)
+        internal void RestoreSnapshot(CircuitSnapshot[] circuits,ConsumerSnapshot[] consumers,string upgradedCircuitId)
         {
+            UpgradedCircuitId = upgradedCircuitId ?? string.Empty;
             foreach(var s in circuits){var c=Find(s.Id);c.ActualRequestedLoad=s.ActualRequestedLoad;c.LoadOverride=s.HasLoadOverride?s.LoadOverride:(float?)null;c.OverloadSeconds=s.OverloadSeconds;c.Warning=s.Warning;c.Tripped=s.Tripped;c.TripCount=s.TripCount;}
             Consumers=Array.AsReadOnly(consumers.Select(c=>new PowerConsumer(c.Id,c.RoomId==0?(int?)null:c.RoomId,SnapshotData.OptionalId(c.CircuitId),c.RequestedLoad,c.DeliveredLoad)).ToArray());
         }

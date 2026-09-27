@@ -14,6 +14,8 @@ namespace WorstHotel
             if (simulation.Electrical == null) return;
             GUILayout.Space(8);
             GUILayout.Label("ELECTRICITY / REQUESTED vs DELIVERED", heading);
+            if (simulation.ContinuousOperations) GUILayout.Label("Capacity upgrade: " +
+                (string.IsNullOrEmpty(simulation.Electrical.UpgradedCircuitId) ? "available for one circuit" : "installed on circuit " + simulation.Electrical.UpgradedCircuitId), body);
             foreach (var circuit in simulation.Electrical.Circuits)
             {
                 string id = circuit.Id;

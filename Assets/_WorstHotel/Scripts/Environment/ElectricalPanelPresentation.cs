@@ -98,7 +98,7 @@ namespace WorstHotel
                 }
                 view.wasTripped = circuit.Tripped; view.wasWarning = circuit.Warning; view.initialized = true;
                 if (view.lever != null) view.lever.localRotation = Quaternion.Euler(circuit.Tripped ? 28 : -28, 0, 0);
-                string readout = simulation.ContinuousOperations ? CapacityLabels.CircuitReadout(circuit) :
+                string readout = simulation.ContinuousOperations ? CapacityLabels.CircuitReadout(circuit, simulation.Electrical.UpgradedCircuitId == circuit.Id) :
                     (circuit.LoadOverride.HasValue ? "OVERRIDE " : "LOAD ") + circuit.RequestedLoad.ToString("F2") + " / " + circuit.Capacity.ToString("F2") + "\n" +
                     (circuit.LoadOverride.HasValue ? "ACTUAL " + circuit.ActualRequestedLoad.ToString("F2") + "\n" : "") +
                     (circuit.Tripped ? "TRIPPED · POWER OFF" : circuit.Warning ? "OVERLOAD " + Mathf.FloorToInt(circuit.OverloadSeconds) + "s" : "POWER ON");

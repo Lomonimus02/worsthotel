@@ -65,12 +65,13 @@ namespace WorstHotel
             {
                 float boundary = NextReportAt;
                 LastReport = Economy.CloseOperatingDay(ReportSequence + 1, periodReceipts,
-                    periodOpeningCash, boundary - periodStartedAt, PeriodMaintenanceSpend);
+                    periodOpeningCash, boundary - periodStartedAt, PeriodMaintenanceSpend, PeriodCapitalSpend);
                 reports.Add(LastReport);
                 if (reports.Count > Operations.ReportHistoryLimit) reports.RemoveAt(0);
                 ReportSequence++;
                 periodReceipts.Clear();
                 PeriodMaintenanceSpend = 0;
+                PeriodCapitalSpend = 0;
                 periodOpeningCash = Economy.Cash;
                 periodStartedAt = boundary;
                 PruneCompletedOperatingHistory();

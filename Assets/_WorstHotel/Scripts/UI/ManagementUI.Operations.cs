@@ -8,7 +8,7 @@ namespace WorstHotel
 {
     public sealed partial class ManagementUI
     {
-        enum OperationsPage { Overview, Bookings, Offer, Reports, Report, Maintenance }
+        enum OperationsPage { Overview, Bookings, Offer, Reports, Report, Maintenance, Upgrades }
         bool showingOperations;
         OperationsPage operationsPage;
         int operationsDay, operationsListPage, operationsReportNumber, operationsPrice, operationsReceiptPage;
@@ -60,7 +60,8 @@ namespace WorstHotel
                 AddOperationsChoice(405, 633, 342, 43, "Service board / promises", () => { showingOperations = false; ShowServices(); }, simulation.Services != null);
                 AddOperationsChoice(42, 689, 342, 43, "Room preparation", () => { showingOperations = false; OpenHousekeeping(); });
                 AddOperationsChoice(405, 689, 342, 43, "Daily reports", () => { operationsPage = OperationsPage.Reports; operationsListPage = 0; focus = 0; });
-                AddOperationsChoice(42, 745, 705, 42, "Boiler maintenance", () => { operationsPage = OperationsPage.Maintenance; focus = 0; });
+                AddOperationsChoice(42, 745, 342, 42, "Boiler maintenance", () => { operationsPage = OperationsPage.Maintenance; focus = 0; });
+                AddOperationsChoice(405, 745, 342, 42, "Capacity upgrades", () => { operationsPage = OperationsPage.Upgrades; focus = 0; });
             }
             else if (operationsPage == OperationsPage.Bookings)
             {
@@ -142,6 +143,7 @@ namespace WorstHotel
                 }
             }
             if (operationsPage == OperationsPage.Maintenance) UpdateOperationsMaintenance();
+            if (operationsPage == OperationsPage.Upgrades) UpdateOperationsUpgrades();
             if (operationsPage != OperationsPage.Overview)
                 AddOperationsChoice(42, 746, 705, 42, operationsPage == OperationsPage.Offer ? "Back to bookings" :
                     selectedReview != null ? "Back to report" : operationsPage == OperationsPage.Report ? "Back to reports" : "Back to operations", OperationsBack);
@@ -169,7 +171,7 @@ namespace WorstHotel
             Fill(new Rect(15, 50, 770, 820), Paper); Border(new Rect(23, 58, 754, 804), Brass);
             Label(new Rect(42, 78, 705, 48), operationsPage == OperationsPage.Overview ? "HOTEL OPERATIONS" :
                 operationsPage == OperationsPage.Bookings ? "DATED BOOKINGS" : operationsPage == OperationsPage.Offer ? "ONE-NIGHT BOOKING" :
-                operationsPage == OperationsPage.Maintenance ? "BOILER MAINTENANCE" : "OPERATING REPORTS", Title);
+                operationsPage == OperationsPage.Maintenance ? "BOILER MAINTENANCE" : operationsPage == OperationsPage.Upgrades ? "CAPACITY UPGRADES" : "OPERATING REPORTS", Title);
             Label(new Rect(42, 135, 705, 49), GuestLabels.HotelMoment(simulation, simulation.Elapsed) + " · Cash $" + Session.Cash.ToString("F0") +
                 "\nThe hotel keeps running while you read and decide.", Small, Muted);
             if (operationsPage == OperationsPage.Overview) DrawOperationsOverview();
@@ -181,6 +183,7 @@ namespace WorstHotel
                     (Session.Reports.Count == 0 ? "\nNo completed accounting periods yet." : ""), Small, Muted);
             else if (operationsPage == OperationsPage.Report) DrawOperatingReport();
             else if (operationsPage == OperationsPage.Maintenance) DrawOperationsMaintenance();
+            else if (operationsPage == OperationsPage.Upgrades) DrawOperationsUpgrades();
             if (operationsPage != OperationsPage.Overview)
                 Label(new Rect(42, 699, 705, 41), Session.LastMessage, Small, Wine);
             foreach (var choice in operationsChoices) ButtonAt(choice.rect, choice.title, choice.action, choice.enabled);
