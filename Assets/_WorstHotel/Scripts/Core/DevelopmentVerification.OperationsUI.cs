@@ -73,6 +73,11 @@ namespace WorstHotel
                 Require(terminal, "authored reception terminal exists");
                 var aim = terminal.transform.position + Vector3.up * .35f;
                 Position(coop.Players[0], new Vector3(aim.x, .08f, aim.z - 1.45f), aim);
+                // Position is a static screenshot helper and disables locomotion. An
+                // actual service quote requires an active employee, even from reception.
+                coop.Players[0].enabled = true;
+                Require(coop.Players[0].isActiveAndEnabled && coop.Players[0].DeviceReady,
+                    "presentation staff remains active for normal service authorization");
                 // Direct opening is an explicit fixture adapter; all subsequent page/action
                 // selection uses the production controller reader, never reflected delegates.
                 var ui = ManagementUI.Instance; ui.Open(0);
@@ -139,7 +144,7 @@ namespace WorstHotel
                 Require(boilerStation && boilerStation.TryGetSelection(0, out var selectedKind, out var selectedRevision) &&
                     selectedKind == BoilerServiceKind.Full && selectedRevision == maintenanceRevision &&
                     model.Economy.Cash == maintenanceCash && !model.Boiler.MaintenanceInProgress,
-                    "controller selects Full Service without payment or boiler shutdown");
+                    "controller selects Full Service without payment or boiler shutdown; message=" + session.LastMessage);
                 yield return ChooseOperationsUI("Close / keep working");
                 facts.Add("Maintenance UI capture: explicitly repositioned empty-handed staff to the authored boiler plate; actual owned controller look, first-surface focus and held setup start Full Service. This verifies physical setup, not walking a reception-to-boiler route.");
                 yield return PlaceServiceStaff(boilerStation.InteractionPoint + Vector3.back * 2.1f, boilerStation.InteractionPoint);

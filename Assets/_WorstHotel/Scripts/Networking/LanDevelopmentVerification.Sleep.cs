@@ -29,6 +29,8 @@ namespace WorstHotel
             var originalRooms = session.Rooms;
             long originalEpoch = lan.Epoch;
             yield return Stage("sleep-client-connected", 12);
+            yield return SleepUntil(() => !coop.Players[1].IsUIBlocked, 5,
+                "host receives the client's actual startup-ledger close before bed approach");
             PositionEmptySleepStaff();
             WriteStage("sleep-poses-ready");
             yield return SleepAimLocal(0);
@@ -99,6 +101,8 @@ namespace WorstHotel
                 lan.Epoch == originalEpoch, "host hotel and epoch survive the client's disconnect");
             WriteStage("sleep-host-disconnect-verified");
             yield return SleepUntil(() => lan.PeerConnected, 35, "client rejoins through normal connection flow");
+            yield return SleepUntil(() => !coop.Players[1].IsUIBlocked, 5,
+                "rejoined client has closed any connection-start ledger before fresh bed input");
             SleepRequire(SleepNone() && session.Simulation.Clock.Speed == 1 &&
                 ReferenceEquals(original, session.Simulation) && lan.Epoch == originalEpoch,
                 "rejoin preserves the host hotel and requires fresh consent");
@@ -363,7 +367,27 @@ namespace WorstHotel
             SleepRequire(pad != null && pad.added && pad.enabled && pad.canRunInBackground, "private background-capable sleep pad exists");
             yield return SleepUntil(() => coop.Players[coop.LocalActorId] &&
                 ReferenceEquals(coop.Players[coop.LocalActorId].Input.Gamepad, pad), 5, "only this process's local staff reads its owned pad");
+            yield return SleepUntil(() => !lan.MenuOpen && !coop.IsPaused && session.Plan != null,
+                5, "normal connection flow has resumed the local hotel interface");
             Queue(default); yield return new WaitForSecondsRealtime(.3f);
+            // ManagementUI opens its one-time welcome ledger after the first usable
+            // model arrives. Join() closing an earlier panel does not consume that
+            // startup opening. Close it with the owned controller before look input;
+            // never override UI blocking or bypass the subsequent physical bed ray.
+            var ui = ManagementUI.Instance;
+            SleepRequire(ui, "normal management interface exists");
+            if (ui.IsOpen)
+            {
+                SleepRequire(ui.IsOperationsOpen && ui.Owner == coop.LocalActorId,
+                    "only this employee's startup operations ledger may be dismissed");
+                yield return TapButton(GamepadButton.East);
+                yield return SleepUntil(() => !ui.IsOpen, 3,
+                    "owned controller Back closes the startup operations ledger");
+                facts.Add("SLEEP UI: actual owned-pad Back closed the startup operations ledger before physical bed aim; no UI-block override.");
+            }
+            yield return SleepUntil(() => !ui.IsOpen && !coop.Players[coop.LocalActorId].IsUIBlocked,
+                3, "local gameplay input is unblocked after the normal ledger close");
+            Queue(default); yield return new WaitForSecondsRealtime(.25f);
             facts.Add("SLEEP INPUT: this process owns actor" + coop.LocalActorId + " virtual pad only; host remote input reader is never bound or written by the fixture. Existing hidden-player logical focus adapter is diagnostic, not native OS focus manipulation.");
         }
 
@@ -371,6 +395,9 @@ namespace WorstHotel
         {
             var actor = coop.Players[coop.LocalActorId]; var bed = SleepBed(bedId);
             SleepRequire(!session.Wait.HasSleepConsent(coop.LocalActorId), "look acquisition happens before this staff member consents");
+            SleepRequire(!lan.MenuOpen && !coop.IsPaused && !actor.IsUIBlocked &&
+                (!ManagementUI.Instance || !ManagementUI.Instance.IsOpen),
+                "bed look acquisition requires the ordinary local menus to be closed");
             Queue(default); yield return new WaitForSecondsRealtime(.25f);
             if (!host)
             {
@@ -453,7 +480,10 @@ namespace WorstHotel
             " ready=" + session.Wait.HasSleepConsent(0) + "/" + session.Wait.HasSleepConsent(1) +
             " beds=" + session.Wait.SleepBedId(0) + "/" + session.Wait.SleepBedId(1) +
             " until=" + session.Wait.SleepUntil.ToString("R") + " leaseExpired=" + coop.RemoteInputLeaseExpired +
-            " paused=" + coop.IsPaused + " menu=" + lan.MenuOpen + " localActor=" + coop.LocalActorId;
+            " paused=" + coop.IsPaused + " menu=" + lan.MenuOpen + " localActor=" + coop.LocalActorId +
+            " managementOpen=" + (ManagementUI.Instance && ManagementUI.Instance.IsOpen) +
+            " managementOwner=" + (ManagementUI.Instance ? ManagementUI.Instance.Owner : -1) +
+            " localUIBlocked=" + (coop.Players[coop.LocalActorId] && coop.Players[coop.LocalActorId].IsUIBlocked);
     }
 }
 #endif
