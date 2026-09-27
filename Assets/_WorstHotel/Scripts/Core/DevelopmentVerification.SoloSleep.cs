@@ -65,7 +65,7 @@ namespace WorstHotel
 
         IEnumerator VerifySoloSleepMorning()
         {
-            ManagementUI.Instance.Close();
+            yield return PrepareSoloSleepGameplay();
             var model = session.Simulation;
             CloseSoloSleepSales();
             AdvanceSoloSleepSetupTo(model.Calendar.At(1, 23));
@@ -128,6 +128,7 @@ namespace WorstHotel
         {
             session.NewGame(); ManagementUI.Instance.Close();
             yield return null; yield return null;
+            yield return PrepareSoloSleepGameplay();
             var model = session.Simulation;
             CloseSoloSleepSales();
             var policy = model.RoomSalesPolicies.Single(row => row.RoomId == 104);
@@ -227,6 +228,26 @@ namespace WorstHotel
 
         StaffBedInteraction SoloSleepBed() => FindObjectsByType<StaffBedInteraction>(FindObjectsSortMode.None).Single(item => item.bedId == 0);
 
+        IEnumerator PrepareSoloSleepGameplay()
+        {
+            yield return Until(() => session.Plan != null && coop.Players[0] &&
+                coop.Players[0].DeviceReady && !coop.IsPaused, 4, "normal SOLO model and owned staff input are ready");
+            // The welcome ledger opens in ManagementUI.Update after the first usable
+            // model. Closing before that Update races its legitimate startup opening.
+            yield return null; yield return null;
+            var ui = ManagementUI.Instance;
+            Require(ui, "the normal management interface exists");
+            if (ui.IsOpen)
+            {
+                Require(ui.IsOperationsOpen && ui.Owner == 0, "only the local startup ledger may be dismissed");
+                yield return PressMenu(GamepadButton.East);
+                yield return Until(() => !ui.IsOpen, 3, "owned controller Back closes the startup ledger before walking");
+                facts.Add("SLEEP STARTUP: actual owned-pad Back closed the welcome ledger after normal model/UI readiness; no UI-block override.");
+            }
+            yield return Until(() => !ui.IsOpen && !coop.Players[0].IsUIBlocked && !coop.IsPaused,
+                3, "ordinary SOLO gameplay input is unblocked before the physical route");
+        }
+
         IEnumerator WalkSoloSleepToBed(StaffBedInteraction bed)
         {
             foreach (var point in new[] { new Vector3(.5f, 0, 33), new Vector3(-2.5f, 0, 34.4f),
@@ -241,6 +262,8 @@ namespace WorstHotel
         {
             var actor = coop.Players[0]; actor.enabled = true;
             Require(actor.Interactor.HeldBody == null && session.Simulation.Clock.Speed == 1, "actual niche walk starts empty-handed at ordinary clock speed");
+            Require(!actor.IsUIBlocked && !coop.IsPaused && !ManagementUI.Instance.IsOpen,
+                "actual niche walk requires the startup menu to be closed normally");
             float deadline = Time.realtimeSinceStartup + 12;
             while (ServiceDistance(actor.transform.position, destination) > .065f && Time.realtimeSinceStartup < deadline)
             {
@@ -254,7 +277,9 @@ namespace WorstHotel
             }
             InputSystem.QueueStateEvent(verificationPads[0], new GamepadState()); yield return null; yield return null;
             Require(ServiceDistance(actor.transform.position, destination) < .14f && actor.BodyCollider.isGrounded,
-                "actual empty staff route reaches " + destination.ToString("F3") + "; actual=" + actor.transform.position.ToString("F3"));
+                "actual empty staff route reaches " + destination.ToString("F3") + "; actual=" + actor.transform.position.ToString("F3") +
+                "; active=" + actor.isActiveAndEnabled + "; device=" + actor.DeviceReady + "; paused=" + coop.IsPaused +
+                "; uiBlocked=" + actor.IsUIBlocked + "; managementOpen=" + ManagementUI.Instance.IsOpen);
         }
 
         IEnumerator ConsentSoloSleepBed(StaffBedInteraction bed)
