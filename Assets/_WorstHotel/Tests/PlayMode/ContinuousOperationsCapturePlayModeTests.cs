@@ -75,10 +75,11 @@ namespace WorstHotel.Tests
             yield return ChooseOperationsOption("Back to bookings");
             yield return ChooseOperationsOption("Back to operations");
             yield return ChooseOperationsOption("Boiler maintenance");
-            yield return ChooseOperationsOption("Start proper maintenance");
+            yield return SelectBoilerServiceThroughMenu(BoilerServiceKind.Full);
+            yield return HoldSelectedBoilerService(BoilerServiceKind.Full);
             Assert.That(model.Boiler.MaintenanceInProgress, Is.True);
             Assert.That(model.PeriodMaintenanceSpend, Is.EqualTo(session.Economy.ProperRepairCost));
-            yield return ChooseOperationsOption("Back to operations");
+            yield return ReopenReceptionOperations();
             Assert.That(ui.DisplayedOperationsOverview, Does.Contain("OFF · maintenance until"));
             yield return ChooseOperationsOption("Capacity upgrades");
             yield return ChooseOperationsOption("Upgrade circuit B");

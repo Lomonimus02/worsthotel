@@ -20,6 +20,7 @@ MonoBehaviour:
   cheapPatchCost: 200
   cheapPatchCondition: 15
   properRepairCost: 1500
+  basicMaintenanceCost: 350
   properRepairCondition: 95
   compensationRate: 0.2
   compensationGoodwill: 10

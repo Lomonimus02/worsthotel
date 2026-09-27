@@ -9,11 +9,11 @@ namespace WorstHotel
         long replicaEpoch;
         public bool IsLanReplica => Simulation != null && Simulation.IsReadOnlyMirror;
         bool ForwardLan(LanCommandKind kind, string subject = null, int room = 0, int amount = 0, int reservationRevision = -1,
-            string directIntentId = null, int directIntentRevision = -1)
+            string directIntentId = null, int directIntentRevision = -1, int maintenanceRevision = -1)
         {
             var lan = LanSession.Instance;
             if (!lan || !lan.IsClientReplica) return false;
-            LastMessage = lan.SubmitCommand(kind, subject, room, amount, reservationRevision, directIntentId, directIntentRevision) ? "Sent to the host…" : "Waiting for the host connection.";
+            LastMessage = lan.SubmitCommand(kind, subject, room, amount, reservationRevision, directIntentId, directIntentRevision, maintenanceRevision) ? "Sent to the host…" : "Waiting for the host connection.";
             return true;
         }
 
@@ -47,7 +47,7 @@ namespace WorstHotel
                 frame.waitVotes == null || frame.waitVotes.Length != 2 || frame.waitProgress == null || frame.waitProgress.Length != 2 ||
                 frame.waitProgress.Any(value => !Number.IsFinite(value) || value < 0 || value > 1) ||
                 frame.lastMessage != null && frame.lastMessage.Length > 1024 || frame.waitReason != null && frame.waitReason.Length > 1024 ||
-                frame.repairStatus != null && frame.repairStatus.Length > 1024 || frame.openGuestRevision < 0 || frame.openServiceRevision < 0 ||
+                frame.repairStatus != null && frame.repairStatus.Length > 1024 || frame.openGuestRevision < 0 || frame.openServiceRevision < 0 || frame.openBoilerRevision < 0 ||
                 frame.conversationGuestId != null && frame.conversationGuestId.Length > 160 ||
                 frame.openGuestRevision > 0 && string.IsNullOrWhiteSpace(frame.conversationGuestId))
                 return CommandResult.Fail("Invalid host frame.");
@@ -103,7 +103,8 @@ namespace WorstHotel
                     break;
                 case LanCommandKind.PurchaseBoilerUpgrade: PurchaseBoilerUpgrade(playerId); break;
                 case LanCommandKind.PurchaseElectricalUpgrade: PurchaseElectricalUpgrade(playerId, command.subject); break;
-                case LanCommandKind.BeginBoilerMaintenance: BeginBoilerMaintenance(playerId); break;
+                case LanCommandKind.SelectBoilerService:
+                    SelectBoilerService(playerId, (BoilerServiceKind)command.amount, command.expectedMaintenanceRevision); break;
                 case LanCommandKind.RestartSession: RestartSession(playerId); break;
                 case LanCommandKind.MoveGuest: MoveGuest(playerId, command.subject, command.roomId); break;
                 case LanCommandKind.CancelMove: CancelGuestMove(playerId, command.subject, command.expectedDirectIntentId, command.expectedDirectIntentRevision); break;

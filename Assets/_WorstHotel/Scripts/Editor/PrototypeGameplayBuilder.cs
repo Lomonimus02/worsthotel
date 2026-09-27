@@ -48,6 +48,16 @@ namespace WorstHotel.Editor
                 new Vector3(2.00f, .47f, .045f), "Gauge ivory", true, false);
             readout.capacityReadout = HotelKitAssets.Text("Boiler actual capacity readout", readout.capacityDisplay.transform,
                 "DEMAND / EFFECTIVE CAPACITY\nRATED · RESERVE\nLOAD · STRESS", new Vector3(-.52f, 2.15f, 36.085f), .061f, HotelKitAssets.Mat("Ink").color);
+            // Reuse the visible plate. Its front hitbox is clear of the gauge and the
+            // emergency cabinet; the complete inspection surface is hidden in legacy mode.
+            var inspectionCollider = readout.capacityDisplay.AddComponent<BoxCollider>();
+            inspectionCollider.center = new Vector3(-.52f, 2.15f, 36.075f);
+            inspectionCollider.size = new Vector3(2.00f, .47f, .06f);
+            var inspection = readout.capacityDisplay.AddComponent<BoilerServiceInteraction>();
+            inspection.displayName = "BOILER INSPECTION / SERVICE";
+            inspection.instruction = "Inspect condition and choose Basic or Full Service";
+            HotelKitAssets.Text("Boiler inspection instruction", readout.capacityDisplay.transform,
+                "INSPECT / SERVICE", new Vector3(-.52f, 1.96f, 36.035f), .048f, HotelKitAssets.Mat("Ink").color);
         }
 
         public static SessionConfig EnsureConfiguration()

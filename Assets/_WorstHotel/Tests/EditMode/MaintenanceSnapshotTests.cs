@@ -76,6 +76,13 @@ namespace WorstHotel.Tests
         [TestCase("overflow")]
         [TestCase("report")]
         [TestCase("failed-patch")]
+        [TestCase("missing-kind")]
+        [TestCase("invalid-kind")]
+        [TestCase("idle-deadline")]
+        [TestCase("negative-revision")]
+        [TestCase("missing-start-revision")]
+        [TestCase("exhausted-active-revision")]
+        [TestCase("old-service-schema")]
         public void MalformedPaidStateRejectsAtomicallyWithoutConsumingSequence(string change)
         {
             var host = Create(); var mirror = Create(); mirror.EnableReadOnlyMirror();
@@ -96,12 +103,77 @@ namespace WorstHotel.Tests
                 case "overflow": bad.Operations.PeriodMaintenanceSpend = int.MaxValue; break;
                 case "report": bad.Reports[0].MaintenanceSpend = -1; break;
                 case "failed-patch": bad.Boiler.Failed = true; bad.Boiler.EmergencyPatchActive = true; break;
+                case "missing-kind": bad.Boiler.ActiveServiceKind = BoilerServiceKind.None; break;
+                case "invalid-kind": bad.Boiler.ActiveServiceKind = (BoilerServiceKind)99; break;
+                case "idle-deadline": bad.Boiler.MaintenanceEndsAt = 0; break;
+                case "negative-revision": bad.Boiler.MaintenanceRevision = -1; break;
+                case "missing-start-revision": bad.Boiler.MaintenanceRevision = 0; break;
+                case "exhausted-active-revision": bad.Boiler.MaintenanceRevision = int.MaxValue; break;
+                case "old-service-schema": bad.Version = HotelModelSnapshot.ProtocolVersion - 1; break;
             }
             Assert.That(mirror.ApplySnapshot(bad).Success, Is.False, change);
             Assert.That(State(mirror), Is.EqualTo(before));
             Assert.That(mirror.AppliedSnapshotSequence, Is.EqualTo(1));
             Require(mirror.ApplySnapshot(Wire(host, 2)));
             Assert.That(State(mirror), Is.EqualTo(State(host)));
+        }
+
+        [TestCase(BoilerServiceKind.Basic)]
+        [TestCase(BoilerServiceKind.Full)]
+        public void WorkingServiceKindDeadlineAndRevisionCrossReportAndOnlyHostCompletes(BoilerServiceKind kind)
+        {
+            var host = Create(); var mirror = Create(); mirror.EnableReadOnlyMirror();
+            Advance(host, host.Calendar.At(2, 5.75f));
+            host.Boiler.SetCondition(48); // Explicit equipment-wear fixture, no guest or fault claim.
+            int revision = host.Boiler.MaintenanceRevision, cash = host.Economy.Cash;
+            var economy = new EconomySettings(); var tuning = new BoilerCapacitySettings();
+            int cost = kind == BoilerServiceKind.Basic ? economy.BasicMaintenanceCost : economy.ProperRepairCost;
+            float hours = kind == BoilerServiceKind.Basic ? tuning.BasicMaintenanceHours : tuning.MaintenanceHours;
+            Require(host.BeginBoilerMaintenance(0, kind, revision));
+            float ends = host.Boiler.MaintenanceEndsAt;
+            Assert.That(ends - host.Elapsed, Is.EqualTo(hours * host.Operations.SecondsPerDay / 24).Within(.0001f));
+            Advance(host, host.Calendar.At(2, 6) + .25f);
+            Require(mirror.ApplySnapshot(Wire(host, 1)));
+            Assert.That(State(mirror), Is.EqualTo(State(host)));
+            Assert.That(mirror.Boiler.ActiveServiceKind, Is.EqualTo(kind));
+            Assert.That(mirror.Boiler.MaintenanceRevision, Is.EqualTo(revision + 1));
+            Assert.That(mirror.Boiler.HeatingOutput, Is.Zero);
+            Assert.That(mirror.Boiler.Failed, Is.False);
+            Assert.That(host.LastReport.MaintenanceSpend, Is.EqualTo(cost));
+            Assert.That(host.Economy.Cash, Is.EqualTo(cash - cost - economy.DailyOperatingCost));
+            string before = State(mirror);
+            mirror.Tick(720); mirror.Boiler.Tick(720);
+            Assert.That(mirror.BeginBoilerMaintenance(1, kind, revision + 1).Success, Is.False);
+            Assert.That(State(mirror), Is.EqualTo(before));
+            Advance(host, ends);
+            Require(mirror.ApplySnapshot(Wire(host, 2)));
+            Assert.That(State(mirror), Is.EqualTo(State(host)));
+            Assert.That(mirror.Boiler.ActiveServiceKind, Is.EqualTo(BoilerServiceKind.None));
+            Assert.That(mirror.Boiler.MaintenanceRevision, Is.EqualTo(revision + 2));
+            Assert.That(mirror.Boiler.Condition, Is.EqualTo(kind == BoilerServiceKind.Basic ?
+                Math.Min(tuning.BasicMaintenanceConditionCap, 48 + tuning.BasicMaintenanceConditionGain) : tuning.ProperMaintenanceCondition));
+            Assert.That(mirror.Boiler.HeatingOutput, Is.EqualTo(1));
+            before = State(host);
+            Assert.That(host.BeginBoilerMaintenance(1, kind, revision).Success, Is.False,
+                "A delayed second command cannot buy another job after completion.");
+            Assert.That(State(host), Is.EqualTo(before));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void BasicSnapshotCannotBorrowFullDurationOrRestoreAFailedBoiler(bool failed)
+        {
+            var host = Create(); var mirror = Create(); mirror.EnableReadOnlyMirror();
+            host.Boiler.SetCondition(48);
+            Require(host.BeginBoilerMaintenance(0, BoilerServiceKind.Basic, 0));
+            Require(mirror.ApplySnapshot(Wire(host, 1)));
+            string before = State(mirror);
+            var bad = Wire(host, 2);
+            if (failed) bad.Boiler.Failed = true;
+            else bad.Boiler.MaintenanceEndsAt = host.Elapsed + host.Operations.SecondsPerDay * new BoilerCapacitySettings().MaintenanceHours / 24;
+            Assert.That(mirror.ApplySnapshot(bad).Success, Is.False);
+            Assert.That(State(mirror), Is.EqualTo(before));
+            Require(mirror.ApplySnapshot(Wire(host, 2)));
         }
     }
 }

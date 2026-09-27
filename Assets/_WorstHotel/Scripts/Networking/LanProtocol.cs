@@ -12,7 +12,7 @@ namespace WorstHotel
         RespondService, AcknowledgeService, CompleteWakeUp, CloseWakePhone,
         AnswerServiceCall, TalkServiceGuest, DiscussRoomConcern,
         AcceptBooking, CancelBooking, SetBookingPrice, BeginBoilerMaintenance,
-        PurchaseBoilerUpgrade, PurchaseElectricalUpgrade, EndServicePhoneConversation
+        PurchaseBoilerUpgrade, PurchaseElectricalUpgrade, EndServicePhoneConversation, SelectBoilerService
     }
 
     [Serializable] public sealed class LanCommand
@@ -21,6 +21,7 @@ namespace WorstHotel
         public long epoch, sequence;
         public int day, roomId, amount;
         public int expectedReservationRevision = -1;
+        public int expectedMaintenanceRevision = -1;
         public string expectedDirectIntentId;
         public int expectedDirectIntentRevision = -1;
         public DayPhase phase;
@@ -34,7 +35,7 @@ namespace WorstHotel
         public long epoch, sequence, openLedgerRevision, openGuestRevision;
         public string conversationGuestId;
         public bool conversationThroughDoor;
-        public long openServiceRevision;
+        public long openServiceRevision, openBoilerRevision;
         public bool servicePhone;
         public DayPhase phase;
         public bool planCommitted, hostPaused;
@@ -48,9 +49,9 @@ namespace WorstHotel
     /// <summary>Small, versioned LAN boundary. A network connection, never a payload, selects its staff identity.</summary>
     public static class LanProtocol
     {
-        public const int Version = 13, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
+        public const int Version = 14, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
         public const ushort DefaultPort = 7777;
-        public const string BuildCompatibility = "worst-hotel-0.4.1-pressure13-gzip";
+        public const string BuildCompatibility = "worst-hotel-0.4.1-service14-gzip";
 
         public static bool ValidAddress(string value) => IPAddress.TryParse(value, out var address) &&
             address.AddressFamily == AddressFamily.InterNetwork && !address.Equals(IPAddress.Any) &&
@@ -64,6 +65,11 @@ namespace WorstHotel
             Enum.IsDefined(typeof(LanCommandKind), command.kind) && Enum.IsDefined(typeof(DayPhase), command.phase) &&
             (command.subject == null || command.subject.Length <= (UsesResponseIdentity(command.kind) ? 512 : 128)) &&
             command.amount >= 0 && command.amount <= 100000 &&
+            command.kind != LanCommandKind.BeginBoilerMaintenance &&
+            (command.kind == LanCommandKind.SelectBoilerService ? continuousOperations &&
+                command.expectedMaintenanceRevision >= 0 &&
+                (command.amount == (int)BoilerServiceKind.Basic || command.amount == (int)BoilerServiceKind.Full) :
+                command.expectedMaintenanceRevision == -1) &&
             (command.kind == LanCommandKind.CancelBooking || command.kind == LanCommandKind.SetBookingPrice ?
                 command.expectedReservationRevision >= 0 : command.expectedReservationRevision == -1) &&
             (UsesDirectDecision(command.kind) && continuousOperations ?

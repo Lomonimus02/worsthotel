@@ -19,7 +19,7 @@ namespace WorstHotel
             int cost = settings.Economy.CheapPatchCost;
             var allowed = CanPayForEquipment(actorId, cost);
             if (!allowed.Success) return allowed;
-            allowed = Boiler.CanRestart(actorId);
+            allowed = Boiler.CanApplyEmergencyPatch(actorId);
             if (!allowed.Success) return allowed;
             var paid = Economy.TrySpend(cost);
             if (!paid.Success) return paid;
@@ -30,18 +30,31 @@ namespace WorstHotel
             return result;
         }
 
-        public CommandResult BeginBoilerMaintenance(int actorId)
+        public CommandResult BeginBoilerMaintenance(int actorId) => BeginBoilerMaintenance(actorId, BoilerServiceKind.Full);
+
+        public CommandResult CanBeginBoilerMaintenance(int actorId, BoilerServiceKind kind, int expectedRevision = -1)
         {
-            int cost = settings.Economy.ProperRepairCost;
+            if (kind != BoilerServiceKind.Basic && kind != BoilerServiceKind.Full) return CommandResult.Fail("Choose Basic or Full boiler service.");
+            if (expectedRevision < -1 || expectedRevision >= 0 && expectedRevision != Boiler.MaintenanceRevision)
+                return CommandResult.Fail("The boiler has changed since this service was selected. Inspect it again.");
+            int cost = kind == BoilerServiceKind.Basic ? settings.Economy.BasicMaintenanceCost : settings.Economy.ProperRepairCost;
             var allowed = CanPayForEquipment(actorId, cost);
             if (!allowed.Success) return allowed;
-            allowed = Boiler.CanBeginMaintenance(Elapsed);
+            allowed = Boiler.CanBeginMaintenance(Elapsed, kind);
             if (!allowed.Success) return allowed;
+            return Economy.Cash < cost ? CommandResult.Fail("Not enough cash for this maintenance choice.") : CommandResult.Ok();
+        }
+
+        public CommandResult BeginBoilerMaintenance(int actorId, BoilerServiceKind kind, int expectedRevision = -1)
+        {
+            var allowed = CanBeginBoilerMaintenance(actorId, kind, expectedRevision);
+            if (!allowed.Success) return allowed;
+            int cost = kind == BoilerServiceKind.Basic ? settings.Economy.BasicMaintenanceCost : settings.Economy.ProperRepairCost;
             var paid = Economy.TrySpend(cost);
             if (!paid.Success) return paid;
             PeriodMaintenanceSpend += cost;
-            var result = Boiler.BeginMaintenance(Elapsed);
-            SignalEvent("Boiler maintenance started: $" + cost + ". Heating is off until the work finishes.");
+            var result = Boiler.BeginMaintenance(Elapsed, kind);
+            SignalEvent(kind + " boiler service started: $" + cost + ". Heating is off until the work finishes.");
             return result;
         }
     }

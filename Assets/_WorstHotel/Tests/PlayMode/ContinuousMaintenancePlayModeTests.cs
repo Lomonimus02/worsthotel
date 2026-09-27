@@ -95,7 +95,10 @@ namespace WorstHotel.Tests
             yield return WaitForCondition(() => ManagementUI.Instance.IsOperationsOpen, 2, "Use the real reception ledger to authorize maintenance.");
             QueueUse(padA, false); yield return null; yield return null;
             yield return ChooseOperationsOption("Boiler maintenance");
-            yield return ChooseOperationsOption("Start proper maintenance");
+            yield return SelectBoilerServiceThroughMenu(BoilerServiceKind.Full);
+            // Selecting at reception is only a quote. The empty-actor approach fixture then
+            // acquires the real boiler surface and completes its actual held preparation.
+            yield return HoldSelectedBoilerService(BoilerServiceKind.Full);
             Assert.That(boiler.MaintenanceInProgress, Is.True);
             Assert.That(boiler.Failed, Is.True, "Buying the work must not claim completion of the existing failure.");
             Assert.That(boiler.HeatingOutput, Is.Zero);
@@ -103,7 +106,8 @@ namespace WorstHotel.Tests
             Assert.That(session.Cash, Is.EqualTo(model.Economy.Cash));
             Assert.That(model.PeriodMaintenanceSpend, Is.EqualTo(session.Economy.ProperRepairCost));
             float end = boiler.MaintenanceEndsAt;
-            Assert.That(boiler.MaintenanceRemaining(model.Elapsed), Is.InRange(50f, 60f));
+            Assert.That(boiler.MaintenanceRemaining(model.Elapsed), Is.EqualTo(
+                model.Calendar.Settings.SecondsPerDay * session.BoilerSettings.Capacity.MaintenanceHours / 24).Within(.6f));
             Assert.That(session.BeginBoilerMaintenance(1).Success, Is.False, "A partner's simultaneous repeat cannot restart or pay for the same job.");
             Assert.That(session.BeginBoilerMaintenance(-1).Success, Is.False);
             Assert.That(boiler.MaintenanceEndsAt, Is.EqualTo(end));
@@ -112,6 +116,8 @@ namespace WorstHotel.Tests
             yield return null; yield return null;
             Assert.That(RepairController.CanUseControls, Is.False);
             Assert.That(RepairController.Status, Does.Contain("MAINTENANCE"));
+            yield return ReopenReceptionOperations();
+            yield return ChooseOperationsOption("Boiler maintenance");
             Assert.That(ManagementUI.Instance.OperationsOptionTitles.Any(title => title.StartsWith("Maintenance in progress")), Is.True);
             var gauge = Object.FindAnyObjectByType<BoilerReadout>();
             Assert.That(gauge.capacityReadout.text, Does.Contain("HEATING OFF").And.Contain("READY"));

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
 
 namespace WorstHotel
 {
@@ -49,6 +50,17 @@ namespace WorstHotel
                 "one electrical purchase remains enforced without an extra debit");
             WriteStage("continuous-other-circuit-rejected");
 
+            yield return Stage("continuous-maintenance-selected", 20);
+            Require(!boiler.MaintenanceInProgress && model.Economy.Cash == cashBefore - capitalCost,
+                "remote menu selection neither pays nor shuts down the boiler");
+            var servicePoint = BoilerServiceInteraction.Instance;
+            Require(servicePoint && servicePoint.TryGetSelection(1, out var selectedService, out var selectedRevision) &&
+                selectedService == BoilerServiceKind.Full && selectedRevision == boiler.MaintenanceRevision,
+                "host prepared the actual client's selected service revision");
+            Vector3 serviceAim = servicePoint.InteractionPoint;
+            PositionEmptyServiceActor(new Vector3(serviceAim.x, .08f, serviceAim.z - 1.45f), serviceAim);
+            facts.Add("DIAGNOSTIC: empty remote employee placed before boiler inspection plaque. The client performs actual network aim and held setup; selection alone does not purchase service.");
+            WriteStage("continuous-maintenance-positioned");
             yield return Until(() => boiler.MaintenanceInProgress, 40, "actual remote controller starts paid proper maintenance");
             float endsAt = boiler.MaintenanceEndsAt;
             int afterEquipment = cashBefore - capitalCost - session.Economy.ProperRepairCost;
@@ -176,17 +188,35 @@ namespace WorstHotel
             Require(mirror.Economy.Cash == cashBefore - capitalCost && mirror.Electrical.UpgradedCircuitId == "B", "negative capital requests cannot alter replica balances or chosen branch");
             yield return ContinuousChoose("Back to operations");
             yield return ContinuousChoose("Boiler maintenance");
-            yield return ContinuousChoose("Start proper maintenance");
+            int selectionCash = mirror.Economy.Cash;
+            yield return ContinuousChoose("Select Full Service");
+            yield return Until(() => session.LastMessage.StartsWith("Full Service selected.", StringComparison.Ordinal), 8,
+                "host acknowledges the prepared selection before the client closes its command menu");
+            Require(!mirror.Boiler.MaintenanceInProgress && mirror.Economy.Cash == selectionCash,
+                "selecting a service does not charge or invent completed physical setup");
+            yield return TapButton(GamepadButton.East);
+            WriteStage("continuous-maintenance-selected");
+            yield return Stage("continuous-maintenance-positioned", 12);
+            var servicePoint = BoilerServiceInteraction.Instance;
+            Require(servicePoint, "authored boiler inspection surface exists on the client");
+            yield return ServicesAim(() => servicePoint.InteractionPoint, "Hold: start Full Service");
+            Queue(new GamepadState().WithButton(GamepadButton.South));
+            yield return new WaitForSecondsRealtime(BoilerServiceInteraction.SetupHoldSeconds + .45f);
+            Queue(default);
             yield return Until(() => mirror.Boiler.MaintenanceInProgress && mirror.PeriodMaintenanceSpend == session.Economy.ProperRepairCost, 8,
                 "real maintenance command replicates its active job and payment");
             float endsAt = mirror.Boiler.MaintenanceEndsAt;
             int afterEquipment = cashBefore - capitalCost - session.Economy.ProperRepairCost;
             Require(mirror.Boiler.Failed && mirror.Boiler.HeatingOutput == 0 && mirror.Boiler.MaintenanceRemaining(mirror.Elapsed) > 0 &&
                 mirror.Economy.Cash == afterEquipment, "client sees zero heat during paid downtime, not premature repair");
+            yield return TapButton(GamepadButton.South);
+            yield return Until(() => ManagementUI.Instance.IsOperationsOpen, 8,
+                "host physical inspection opens the client's service page through the inspection revision");
             if (capture) yield return Capture("client-continuous-maintenance-active");
             yield return Stage("continuous-maintenance-started", 10);
             WriteStage("continuous-maintenance-observed");
-            session.BeginBoilerMaintenance(1); WriteStage("continuous-duplicate-maintenance-sent");
+            session.SelectBoilerService(1, BoilerServiceKind.Full, mirror.Boiler.MaintenanceRevision);
+            WriteStage("continuous-duplicate-maintenance-sent");
             yield return Stage("continuous-duplicate-maintenance-rejected", 12);
             Require(mirror.Boiler.MaintenanceEndsAt == endsAt && mirror.Economy.Cash == afterEquipment,
                 "rejected duplicate keeps the replicated original deadline and cash");

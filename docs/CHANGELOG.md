@@ -1,3 +1,7 @@
+## Prototype 0.4.1 — phase 3 preventive service
+
+The existing boiler plaque now opens qualitative inspection. Selecting Basic/Full is free; actual1.5s focused setup starts one paid job after host revalidation. Basic350/.75h partially restores condition/stress and retains a patch; Full1500/2h retains its stronger outcome. Both really stop heat. Cancellation, stale revisions, duplicate payments and remote completion shortcuts are guarded. Model schema12/LAN14 replicate kind/revision atomically; optional EXE drivers now use the physical flow. Scene,130 focused Edit and6 actual physical scenarios passed. [Evidence and pending final EXE/pixel gate](verification/rhythm041-phase3.md).
+
 ## Prototype 0.4.1 — phase 2 pre-failure pressure
 
 Added Busy and gradual heat loss, wear and stress before overload, with load-dependent recovery. Real weak-room temperature and guest radiator self-help now respond before boiler failure; forecasts and physical lamps/hum share semantic band ordering. The first production multi-day run exposed excessive managed-operation failures; reducing only strain stress gain from.03 to.015 retained heat consequences and passed every original economic gate. Full Edit638/638 and physical3/3 passed. Game metadata0.4.1/LAN13; no new service, booking or sleep mechanics yet. [Measured results, trial failure and limitations](verification/rhythm041-phase2.md).

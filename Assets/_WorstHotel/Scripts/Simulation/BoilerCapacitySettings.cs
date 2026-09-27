@@ -24,6 +24,10 @@ namespace WorstHotel
         public float MaximumStrainedHeatLoss { get; }
         public float StrainedStressGainPerHotelHour { get; }
         public float StrainedWearPerHotelDay { get; }
+        public float BasicMaintenanceHours { get; }
+        public float BasicMaintenanceConditionGain { get; }
+        public float BasicMaintenanceConditionCap { get; }
+        public float BasicMaintenanceStressReduction { get; }
 
         public BoilerCapacitySettings(float conditionCapacityFloor = .85f, float strainedLoadRatio = .85f,
             float criticalStress = .8f, float stressGainPerHotelHour = .25f, float stressRecoveryPerHotelHour = .25f,
@@ -32,20 +36,25 @@ namespace WorstHotel
             float emergencyPatchCondition = 40, float emergencyPatchStress = .2f, float emergencyPatchStressMultiplier = 1.25f,
             float properMaintenanceCondition = 95, float maintenanceHours = 2, float capacityUpgradeMultiplier = 1.25f,
             float busyLoadRatio = .70f, float maximumStrainedHeatLoss = .10f,
-            float strainedStressGainPerHotelHour = .015f, float strainedWearPerHotelDay = 3)
+            float strainedStressGainPerHotelHour = .015f, float strainedWearPerHotelDay = 3,
+            float basicMaintenanceHours = .75f, float basicMaintenanceConditionGain = 20,
+            float basicMaintenanceConditionCap = 80, float basicMaintenanceStressReduction = .25f)
         {
             foreach (float value in new[] { conditionCapacityFloor, strainedLoadRatio, criticalStress,
                 stressGainPerHotelHour, stressRecoveryPerHotelHour, poorConditionStressPenalty,
                 runningWearPerHotelDay, overloadWearPerHotelDay, pressureStressFactor, emergencyPatchCondition,
                 emergencyPatchStress, emergencyPatchStressMultiplier, properMaintenanceCondition, maintenanceHours, capacityUpgradeMultiplier,
-                busyLoadRatio, maximumStrainedHeatLoss, strainedStressGainPerHotelHour, strainedWearPerHotelDay })
+                busyLoadRatio, maximumStrainedHeatLoss, strainedStressGainPerHotelHour, strainedWearPerHotelDay,
+                basicMaintenanceHours, basicMaintenanceConditionGain, basicMaintenanceConditionCap, basicMaintenanceStressReduction })
                 if (!Number.IsFinite(value) || value < 0)
                     throw new ArgumentException("Boiler capacity tuning must be finite and nonnegative.");
             if (conditionCapacityFloor <= 0 || conditionCapacityFloor > 1 || strainedLoadRatio <= 0 ||
                 strainedLoadRatio >= 1 || criticalStress <= 0 || criticalStress > 1 || emergencyPatchCondition > 100 ||
                 emergencyPatchStress >= 1 || emergencyPatchStressMultiplier < 1 || properMaintenanceCondition > 100 ||
                 properMaintenanceCondition < emergencyPatchCondition || maintenanceHours <= 0 || capacityUpgradeMultiplier <= 1 ||
-                busyLoadRatio <= 0 || busyLoadRatio >= strainedLoadRatio || maximumStrainedHeatLoss > 1)
+                busyLoadRatio <= 0 || busyLoadRatio >= strainedLoadRatio || maximumStrainedHeatLoss > 1 ||
+                basicMaintenanceHours <= 0 || basicMaintenanceConditionGain > 100 ||
+                basicMaintenanceConditionCap > 100 || basicMaintenanceStressReduction > 1)
                 throw new ArgumentException("Capacity floor and critical stress must be normalized, and strain must begin below capacity.");
             ConditionCapacityFloor = conditionCapacityFloor; StrainedLoadRatio = strainedLoadRatio;
             CriticalStress = criticalStress; StressGainPerHotelHour = stressGainPerHotelHour;
@@ -58,6 +67,8 @@ namespace WorstHotel
             CapacityUpgradeMultiplier = capacityUpgradeMultiplier;
             BusyLoadRatio = busyLoadRatio; MaximumStrainedHeatLoss = maximumStrainedHeatLoss;
             StrainedStressGainPerHotelHour = strainedStressGainPerHotelHour; StrainedWearPerHotelDay = strainedWearPerHotelDay;
+            BasicMaintenanceHours = basicMaintenanceHours; BasicMaintenanceConditionGain = basicMaintenanceConditionGain;
+            BasicMaintenanceConditionCap = basicMaintenanceConditionCap; BasicMaintenanceStressReduction = basicMaintenanceStressReduction;
         }
     }
 }

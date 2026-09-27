@@ -41,6 +41,7 @@ namespace WorstHotel
         long modelSequence, worldSequence, inputSequence, commandSequence, lastCommandSequence, openLedgerRevision, receivedLedgerRevision;
         long openGuestRevision, receivedGuestRevision;
         long openServiceRevision, receivedServiceRevision;
+        long openBoilerRevision, receivedBoilerRevision;
         bool servicePhone;
         string conversationGuestId;
         bool conversationThroughDoor;
@@ -173,12 +174,12 @@ namespace WorstHotel
                 if (clientId != remoteClient) { manager.DisconnectClient(clientId); return; }
                 PeerConnected = true; lastCommandSequence = 0;
                 openLedgerRevision = 0;
-                openGuestRevision = openServiceRevision = 0; conversationGuestId = null;
+                openGuestRevision = openServiceRevision = openBoilerRevision = 0; conversationGuestId = null;
                 coop.ResetInputEpoch(Epoch); coop.SetRemoteConnected(true);
                 nextModel = nextWorld = 0; Status = "HOST · second owner connected · UDP " + Port;
             }
             else if (Role == LanRole.Client && clientId == manager.LocalClientId)
-            { PeerConnected = true; Status = "Connected. Receiving the host's hotel…"; }
+            { PeerConnected = true; receivedBoilerRevision = 0; Status = "Connected. Receiving the host's hotel…"; }
         }
 
         void Disconnected(ulong clientId)
@@ -188,6 +189,7 @@ namespace WorstHotel
             {
                 GameSession.Instance.ClearGuestConversation(1);
                 GameSession.Instance.ClearServicePhone(1);
+                BoilerServiceInteraction.Instance?.ClearSelection(1);
                 coop.SetRemoteConnected(false); PeerConnected = false; remoteClient = ulong.MaxValue;
                 GameSession.Instance.Wait?.Stop("The second owner disconnected.");
                 Status = "Second owner disconnected. Hosting continues; waiting for them to rejoin.";
@@ -209,7 +211,7 @@ namespace WorstHotel
             Epoch = Math.Max(Epoch + 1, DateTime.UtcNow.Ticks);
             modelSequence = worldSequence = lastCommandSequence = 0;
             openLedgerRevision = 0;
-            openGuestRevision = openServiceRevision = 0; conversationGuestId = null;
+            openGuestRevision = openServiceRevision = openBoilerRevision = 0; conversationGuestId = null;
             coop?.ResetInputEpoch(Epoch);
             nextModel = nextWorld = 0;
         }
@@ -239,6 +241,7 @@ namespace WorstHotel
                 frame.conversationGuestId = conversationGuestId;
                 frame.conversationThroughDoor = conversationThroughDoor;
                 frame.openServiceRevision = openServiceRevision;
+                frame.openBoilerRevision = openBoilerRevision;
                 frame.servicePhone = servicePhone;
                 frame.hostPaused = coop.IsPaused;
                 LastModelBytes = Send(HotelMessage, remoteClient, frame, LanProtocol.MaxSnapshotBytes);
@@ -266,15 +269,21 @@ namespace WorstHotel
             servicePhone = phone; openServiceRevision++; nextModel = 0;
         }
 
+        public void RequestRemoteBoilerInspection()
+        {
+            if (Role != LanRole.Host || !PeerConnected || openBoilerRevision == long.MaxValue) return;
+            openBoilerRevision++; nextModel = 0;
+        }
+
         public bool SubmitCommand(LanCommandKind kind, string subject = null, int roomId = 0, int amount = 0, int reservationRevision = -1,
-            string directIntentId = null, int directIntentRevision = -1)
+            string directIntentId = null, int directIntentRevision = -1, int maintenanceRevision = -1)
         {
             if (!IsClientReplica || !HasSnapshot || !PeerConnected || MenuOpen) return false;
             var session = GameSession.Instance;
             var command = new LanCommand { epoch = Epoch, sequence = ++commandSequence, day = session.Day,
                 phase = session.Phase, kind = kind, subject = subject, roomId = roomId, amount = amount,
                 expectedReservationRevision = reservationRevision, expectedDirectIntentId = directIntentId,
-                expectedDirectIntentRevision = directIntentRevision };
+                expectedDirectIntentRevision = directIntentRevision, expectedMaintenanceRevision = maintenanceRevision };
             Send(CommandMessage, NetworkManager.ServerClientId, command, LanProtocol.MaxCommandBytes);
             return true;
         }
@@ -311,7 +320,7 @@ namespace WorstHotel
             RemoteRepairStatus = frame.repairStatus; lastSnapshotAt = Time.unscaledTime;
             coop.SetRemoteHostPaused(frame.hostPaused);
             coop.SetRemoteConnected(true);
-            if (freshEpoch) { coop.ResetInputEpoch(Epoch); receivedLedgerRevision = receivedGuestRevision = receivedServiceRevision = 0; }
+            if (freshEpoch) { coop.ResetInputEpoch(Epoch); receivedLedgerRevision = receivedGuestRevision = receivedServiceRevision = receivedBoilerRevision = 0; }
             if (frame.openLedgerRevision > receivedLedgerRevision)
             { receivedLedgerRevision = frame.openLedgerRevision; ManagementUI.Instance?.Open(coop.LocalActorId); }
             if (frame.openGuestRevision > receivedGuestRevision)
@@ -324,6 +333,11 @@ namespace WorstHotel
                 receivedServiceRevision = frame.openServiceRevision;
                 if (frame.servicePhone) ManagementUI.Instance?.OpenWakePhone(coop.LocalActorId);
                 else ManagementUI.Instance?.OpenReceptionServiceBoard(coop.LocalActorId);
+            }
+            if (frame.openBoilerRevision > receivedBoilerRevision)
+            {
+                receivedBoilerRevision = frame.openBoilerRevision;
+                ManagementUI.Instance?.OpenBoilerInspection(coop.LocalActorId);
             }
             Status = frame.hostPaused ? "CLIENT · host paused the hotel · UDP " + Port :
                 "CLIENT · connected to the host · UDP " + Port;

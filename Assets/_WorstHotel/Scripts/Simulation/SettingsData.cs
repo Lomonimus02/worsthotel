@@ -77,6 +77,7 @@ namespace WorstHotel
         public int CheapPatchCost { get; }
         public float CheapPatchCondition { get; }
         public int ProperRepairCost { get; }
+        public int BasicMaintenanceCost { get; }
         public int BoilerUpgradeCost { get; }
         public int ElectricalUpgradeCost { get; }
         public float ProperRepairCondition { get; }
@@ -107,20 +108,21 @@ namespace WorstHotel
             float maxExpectation = 1.75f, float qualityPenaltyScale = 60, float patiencePenalty = 20,
             float initialReputation = 60, float reputationTarget = 70, float reputationChangeFactor = 0.15f,
             float coldSeverityDegrees = 4, float degradedSeverity = 0.15f, float brokenSeverity = 0.5f, float dirtySeverity = 0.3f,
-            int boilerUpgradeCost = 1800, int electricalUpgradeCost = 1200)
+            int boilerUpgradeCost = 1800, int electricalUpgradeCost = 1200, int basicMaintenanceCost = 350)
         {
             var values = new[] { cheapPatchCondition, properRepairCondition, compensationRate, compensationGoodwill,
                 severeRefundThreshold, severeRefundRate, partialRefundThreshold, partialRefundRate, expectationSlope,
                 minExpectation, maxExpectation, qualityPenaltyScale, patiencePenalty, initialReputation, reputationTarget,
                 reputationChangeFactor, coldSeverityDegrees, degradedSeverity, brokenSeverity, dirtySeverity };
             if (values.Any(value => !Number.IsFinite(value) || value < 0) || startingCash < 0 || dailyOperatingCost < 0 ||
-                minPrice <= 0 || maxPrice < minPrice || priceStep <= 0 || cheapPatchCost < 0 || properRepairCost < 0 || boilerUpgradeCost < 0 || electricalUpgradeCost < 0 ||
+                minPrice <= 0 || maxPrice < minPrice || priceStep <= 0 || cheapPatchCost < 0 || properRepairCost < 0 || boilerUpgradeCost < 0 || electricalUpgradeCost < 0 || basicMaintenanceCost < 0 ||
                 compensationRate > 1 || severeRefundRate > 1 || partialRefundRate > 1 || severeRefundThreshold >= partialRefundThreshold ||
                 coldSeverityDegrees <= 0 || maxExpectation < minExpectation || properRepairCondition > 100 || initialReputation > 100)
                 throw new ArgumentException("Economy settings contain invalid values.");
             StartingCash = startingCash; DailyOperatingCost = dailyOperatingCost; MinPrice = minPrice; MaxPrice = maxPrice;
             PriceStep = priceStep; CheapPatchCost = cheapPatchCost; CheapPatchCondition = cheapPatchCondition;
             ProperRepairCost = properRepairCost; ProperRepairCondition = properRepairCondition;
+            BasicMaintenanceCost = basicMaintenanceCost;
             BoilerUpgradeCost = boilerUpgradeCost; ElectricalUpgradeCost = electricalUpgradeCost;
             CompensationRate = compensationRate; CompensationGoodwill = compensationGoodwill; SevereRefundThreshold = severeRefundThreshold;
             SevereRefundRate = severeRefundRate; PartialRefundThreshold = partialRefundThreshold; PartialRefundRate = partialRefundRate;

@@ -66,7 +66,8 @@ namespace WorstHotel
                 }
                 if (ContinuousOperations && snapshot.Boiler.MaintenanceEndsAt > 0)
                     SnapshotValidation.Require(snapshot.Boiler.MaintenanceEndsAt <= (float)Math.Min(float.MaxValue,
-                        (double)snapshot.Time + (double)Operations.SecondsPerDay * settings.Boiler.Capacity.MaintenanceHours / 24),
+                        (double)snapshot.Time + (double)Operations.SecondsPerDay *
+                        (snapshot.Boiler.ActiveServiceKind == BoilerServiceKind.Basic ? settings.Boiler.Capacity.BasicMaintenanceHours : settings.Boiler.Capacity.MaintenanceHours) / 24),
                         "Maintenance deadline exceeds its configured duration.");
                 SnapshotValidation.Services(snapshot, Services != null, rooms.Keys.ToArray(), Services?.NaturalCommunicationEnabled == true);
                 Housekeeping?.ValidateSnapshot(snapshot.Linens);

@@ -32,7 +32,7 @@ namespace WorstHotel
             var session = GameSession.Instance;
             if (session && session.Simulation.ContinuousOperations && controller && !controller.CanUseControls)
                 return session.Simulation.Boiler.MaintenanceInProgress ? controller.Status :
-                    BoilerMaintenanceLabels.State(session.Simulation) + " · Proper maintenance is available in Hotel operations";
+                    BoilerMaintenanceLabels.State(session.Simulation) + " · Inspect the plate below the pressure gauge for Basic / Full Service";
             if (!controller || !controller.CanUseControls) return "No active service fault. Restore wear with between-day maintenance.";
             if (controller.SoloAssistEnabled && kind == RepairControlKind.ReliefValve)
                 return controller.SoloLatchSecondsRemaining > 0 ?

@@ -104,6 +104,31 @@ namespace WorstHotel.Tests
                 "The host supplies elapsed work time; input packets cannot complete a bed with an invented time delta.");
         }
 
+        [TestCase(BoilerServiceKind.Basic)]
+        [TestCase(BoilerServiceKind.Full)]
+        public void BoilerSelectionCarriesCurrentRevisionButCompletedWorkCannotBeSubmittedOverTheWire(BoilerServiceKind kind)
+        {
+            var command = Valid(); command.phase = DayPhase.Service; command.kind = LanCommandKind.SelectBoilerService;
+            command.roomId = 0; command.subject = null; command.amount = (int)kind;
+            Assert.That(LanProtocol.ValidCommand(command, 41, 2, 1, DayPhase.Service, true), Is.False);
+            command.expectedMaintenanceRevision = 7;
+            var decoded = JsonUtility.FromJson<LanCommand>(JsonUtility.ToJson(command));
+            Assert.That(decoded.expectedMaintenanceRevision, Is.EqualTo(7));
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.True);
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 1, DayPhase.Service), Is.False);
+            decoded.amount = (int)BoilerServiceKind.None;
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False);
+            decoded.amount = 99;
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False);
+            decoded.amount = (int)kind; decoded.kind = LanCommandKind.BeginBoilerMaintenance;
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False);
+            decoded.expectedMaintenanceRevision = -1;
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False,
+                "Only the host's physical interaction can finish setup; the old instant-start command stays forbidden.");
+            decoded.kind = LanCommandKind.RequestQuiet; decoded.expectedMaintenanceRevision = 7;
+            Assert.That(LanProtocol.ValidCommand(decoded, 41, 2, 2, DayPhase.Service, true), Is.False);
+        }
+
         [TestCase(LanCommandKind.AnswerServiceCall)]
         [TestCase(LanCommandKind.TalkServiceGuest)]
         [TestCase(LanCommandKind.DiscussRoomConcern)]

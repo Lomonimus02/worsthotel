@@ -13,9 +13,9 @@ namespace WorstHotel
     {
         internal bool ReadOnlyMirror;
         internal BoilerSnapshot CaptureSnapshot() => new BoilerSnapshot{Condition=Condition,Load=Load,HeatingOutput=HeatingOutput,Pressure=Pressure,Failed=Failed,
-            ReliefActorId=ReliefActorId,FailureExposure=FailureExposure,OccupancyLoad=occupancyLoad,HasLoadOverride=LoadOverride.HasValue,LoadOverride=LoadOverride??0,Stress01=Stress01,EmergencyPatchActive=EmergencyPatchActive,MaintenanceEndsAt=MaintenanceEndsAt,CapacityUpgradePurchased=CapacityUpgradePurchased};
+            ReliefActorId=ReliefActorId,FailureExposure=FailureExposure,OccupancyLoad=occupancyLoad,HasLoadOverride=LoadOverride.HasValue,LoadOverride=LoadOverride??0,Stress01=Stress01,EmergencyPatchActive=EmergencyPatchActive,MaintenanceEndsAt=MaintenanceEndsAt,ActiveServiceKind=ActiveServiceKind,MaintenanceRevision=MaintenanceRevision,CapacityUpgradePurchased=CapacityUpgradePurchased};
         internal void RestoreSnapshot(BoilerSnapshot s)
-        {Condition=s.Condition;Load=s.Load;HeatingOutput=s.HeatingOutput;Pressure=s.Pressure;Failed=s.Failed;ReliefActorId=s.ReliefActorId;FailureExposure=s.FailureExposure;occupancyLoad=s.OccupancyLoad;LoadOverride=s.HasLoadOverride?s.LoadOverride:(float?)null;Stress01=s.Stress01;EmergencyPatchActive=s.EmergencyPatchActive;MaintenanceEndsAt=s.MaintenanceEndsAt;CapacityUpgradePurchased=s.CapacityUpgradePurchased;}
+        {Condition=s.Condition;Load=s.Load;HeatingOutput=s.HeatingOutput;Pressure=s.Pressure;Failed=s.Failed;ReliefActorId=s.ReliefActorId;FailureExposure=s.FailureExposure;occupancyLoad=s.OccupancyLoad;LoadOverride=s.HasLoadOverride?s.LoadOverride:(float?)null;Stress01=s.Stress01;EmergencyPatchActive=s.EmergencyPatchActive;MaintenanceEndsAt=s.MaintenanceEndsAt;ActiveServiceKind=s.ActiveServiceKind;MaintenanceRevision=s.MaintenanceRevision;CapacityUpgradePurchased=s.CapacityUpgradePurchased;}
     }
     public sealed partial class EconomySystem
     {

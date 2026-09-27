@@ -10,7 +10,10 @@ namespace WorstHotel.Tests
         // Labelled subsystem adapters call internal equipment commits only. Integration and
         // physical tests exercise the paid authoritative simulation/session commands instead.
         static T Invoke<T>(object target, string method, params object[] args) =>
-            (T)target.GetType().GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(target, args);
+            (T)target.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
+                .Single(candidate => candidate.Name == method && candidate.GetParameters().Length == args.Length &&
+                    candidate.GetParameters().Select((parameter, index) => args[index] == null || parameter.ParameterType == args[index].GetType()).All(match => match))
+                .Invoke(target, args);
         static CommandResult Install(BoilerSystem boiler) => Invoke<CommandResult>(boiler, "InstallCapacityUpgrade");
         static CommandResult Install(ElectricalSystem electrical, string circuit) =>
             Invoke<CommandResult>(electrical, "InstallCapacityUpgrade", circuit);

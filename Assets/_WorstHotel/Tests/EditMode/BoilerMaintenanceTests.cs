@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 
@@ -9,7 +10,10 @@ namespace WorstHotel.Tests
         // Internal equipment commits are intentionally inaccessible to gameplay clients. This
         // labelled subsystem adapter tests them without bypassing production wrappers in the game.
         private static T Invoke<T>(BoilerSystem boiler, string method, params object[] args) =>
-            (T)typeof(BoilerSystem).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(boiler, args);
+            (T)typeof(BoilerSystem).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
+                .Single(candidate => candidate.Name == method && candidate.GetParameters().Length == args.Length &&
+                    candidate.GetParameters().Select((parameter, index) => args[index] == null || parameter.ParameterType == args[index].GetType()).All(match => match))
+                .Invoke(boiler, args);
         private static CommandResult Patch(BoilerSystem boiler, int actor = 1) => Invoke<CommandResult>(boiler, "ApplyEmergencyPatch", actor);
         private static CommandResult Begin(BoilerSystem boiler, float now) => Invoke<CommandResult>(boiler, "BeginMaintenance", now);
         private static bool Complete(BoilerSystem boiler, float now) => Invoke<bool>(boiler, "CompleteMaintenance", now);

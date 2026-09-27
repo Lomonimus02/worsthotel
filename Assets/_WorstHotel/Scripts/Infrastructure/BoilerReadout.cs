@@ -25,7 +25,8 @@ namespace WorstHotel
             if (capacityReadout && boiler.CapacityModelEnabled)
             {
                 capacityReadout.text = boiler.MaintenanceInProgress ?
-                    "MAINTENANCE · HEATING OFF\n" + BoilerMaintenanceLabels.Remaining(session.Simulation) + " LEFT\nREADY " + GuestLabels.HotelMoment(session.Simulation, boiler.MaintenanceEndsAt) : CapacityLabels.BoilerReadout(boiler);
+                    BoilerMaintenanceLabels.ServiceName(boiler.ActiveServiceKind).ToUpperInvariant() + " · HEATING OFF\n" +
+                    BoilerMaintenanceLabels.Remaining(session.Simulation) + " LEFT\nREADY " + GuestLabels.HotelMoment(session.Simulation, boiler.MaintenanceEndsAt) : CapacityLabels.BoilerReadout(boiler);
                 capacityReadout.color = boiler.Failed || boiler.CapacityModelEnabled && CapacityBands.AtLeast(boiler.CapacityBand, CapacityBand.Overloaded) ?
                     new Color(.65f, .12f, .06f) : new Color(.18f, .21f, .19f);
             }

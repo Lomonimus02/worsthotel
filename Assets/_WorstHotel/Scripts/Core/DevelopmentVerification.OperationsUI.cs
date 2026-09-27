@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
 namespace WorstHotel
@@ -89,10 +90,29 @@ namespace WorstHotel
                 yield return ChooseOperationsUI("Back to bookings");
                 yield return ChooseOperationsUI("Back to operations");
                 yield return ChooseOperationsUI("Boiler maintenance");
-                yield return CaptureOperationsPage("06-maintenance", "Proper maintenance cost and actual boiler condition");
-                yield return ChooseOperationsUI("Start proper maintenance");
+                yield return CaptureOperationsPage("06-maintenance", "Basic / Full Service inspection, cost and actual boiler condition");
+                int maintenanceCash = model.Economy.Cash, maintenanceRevision = model.Boiler.MaintenanceRevision;
+                yield return ChooseOperationsUI("Select Full Service");
+                var boilerStation = BoilerServiceInteraction.Instance;
+                Require(boilerStation && boilerStation.TryGetSelection(0, out var selectedKind, out var selectedRevision) &&
+                    selectedKind == BoilerServiceKind.Full && selectedRevision == maintenanceRevision &&
+                    model.Economy.Cash == maintenanceCash && !model.Boiler.MaintenanceInProgress,
+                    "controller selects Full Service without payment or boiler shutdown");
+                yield return ChooseOperationsUI("Close / keep working");
+                facts.Add("Maintenance UI capture: explicitly repositioned empty-handed staff to the authored boiler plate; actual owned controller look, first-surface focus and held setup start Full Service. This verifies physical setup, not walking a reception-to-boiler route.");
+                yield return PlaceServiceStaff(boilerStation.InteractionPoint + Vector3.back * 2.1f, boilerStation.InteractionPoint);
+                yield return Until(() => coop.Players[0].Interactor.Focused == boilerStation, 3, "real ray reaches the boiler inspection plate");
+                BindSyntheticStaff();
+                Require(ReferenceEquals(coop.Players[0].Input.Gamepad, verificationPads[0]), "physical service uses only the owned controller");
+                InputSystem.QueueStateEvent(verificationPads[0], new GamepadState().WithButton(GamepadButton.South));
+                try { yield return Until(() => model.Boiler.MaintenanceInProgress, 6, "actual held physical setup starts Full Service"); }
+                finally { InputSystem.QueueStateEvent(verificationPads[0], new GamepadState()); }
+                yield return null; yield return null;
                 Require(model.Boiler.MaintenanceInProgress && model.PeriodMaintenanceSpend == session.Economy.ProperRepairCost,
-                    "actual controller starts one paid maintenance job");
+                    "actual physical setup starts one paid maintenance job");
+                yield return PressMenu(GamepadButton.South);
+                yield return Until(() => ui.IsOperationsOpen && ui.OperationsOptionTitles.Any(title => title.StartsWith("Maintenance in progress")),
+                    2, "real boiler interaction reopens active service inspection");
                 yield return CaptureOperationsPage("07-maintenance-active", "Maintenance downtime and remaining hotel time");
                 yield return ChooseOperationsUI("Back to operations");
                 Require(ui.DisplayedOperationsOverview.Contains("OFF · maintenance until"), "overview shows actual maintenance downtime");
