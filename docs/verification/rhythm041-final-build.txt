@@ -1,0 +1,9 @@
+BuildSourceCommit=82a7615
+BuildLog=Logs/rhythm041-phase9-windows-build-final.log
+BuildOutcome=PASS
+Version=0.4.1
+ExecutableSHA256=ABC8179E345B70C9D7CA423C54E02739ED9B9ADCA668C2C745FFB81AADC05CC6
+GameplayAssemblySHA256=9AAAA85ACC70733F0CEBF1CF3BD33F11AA7688BEA4D9FCF6AB7091FEF734F2B9
+Editor=6000.3.2f1
+SourceGates=838 regular Edit passed; 90 existing Play passed across full88/90 plus corrected20; final4.7 affected10 passed; extra natural-boiler-sleep1 passed
+ExecutableGates=Additional repeats stopped at explicit user request; final SOLO sleep PASS; earlier completed passes retained in phase9 report. Package delivered.

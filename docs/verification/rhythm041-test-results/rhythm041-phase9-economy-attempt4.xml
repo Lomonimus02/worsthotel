@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 14:42:16Z" end-time="2026-09-27 14:45:53Z" duration="217.1889856">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="838" result="Failed" site="Child" start-time="2026-09-27 14:42:16Z" end-time="2026-09-27 14:45:53Z" duration="217.188986" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="2007" name="WorstHotel.Tests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="838" result="Failed" site="Child" start-time="2026-09-27 14:42:16Z" end-time="2026-09-27 14:45:53Z" duration="217.176996" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="33576" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="2008" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="838" result="Failed" site="Child" start-time="2026-09-27 14:42:16Z" end-time="2026-09-27 14:45:53Z" duration="217.170820" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="2009" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="838" result="Failed" site="Child" start-time="2026-09-27 14:42:16Z" end-time="2026-09-27 14:45:53Z" duration="217.164866" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="1827" name="RhythmAutomaticEconomyTests" fullname="WorstHotel.Tests.RhythmAutomaticEconomyTests" classname="WorstHotel.Tests.RhythmAutomaticEconomyTests" runstate="Runnable" testcasecount="1" result="Failed" site="Child" start-time="2026-09-27 14:42:16Z" end-time="2026-09-27 14:45:53Z" duration="217.155174" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="1828" name="ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies" fullname="WorstHotel.Tests.RhythmAutomaticEconomyTests.ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies" methodname="ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies" classname="WorstHotel.Tests.RhythmAutomaticEconomyTests" runstate="Runnable" seed="1172277150" result="Failed" start-time="2026-09-27 14:42:16Z" end-time="2026-09-27 14:45:53Z" duration="217.144340" asserts="0">
+              <properties>
+                <property name="Timeout" value="400000" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <failure>
+                <message><![CDATA[  Preventive work cannot be funded by injected money or unseen debt.
+  Expected: greater than or equal to 0
+  But was:  -10
+]]></message>
+                <stack-trace><![CDATA[at WorstHotel.Tests.RhythmAutomaticEconomyTests.AssertMatchedInspectionPair (WorstHotel.Tests.RhythmAutomaticEconomyTests+Run control, WorstHotel.Tests.RhythmAutomaticEconomyTests+Run treatment) [0x000b3] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Tests\EditMode\RhythmAutomaticEconomyTests.cs:541
+at WorstHotel.Tests.RhythmAutomaticEconomyTests.ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies () [0x00376] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Tests\EditMode\RhythmAutomaticEconomyTests.cs:521
+]]></stack-trace>
+              </failure>
+              <output><![CDATA[policy=CautiousFour; booked=12; checkIns=12; roomArrivals=12; departed=12; receipts=12; early=0; gross=2160; refunds=0; maintenance=0; basic=0; patches=0; net=810; cash=1560; minCash=300; reports=3; firstReportReceipts=0; firstReportCash=300; failures=0; failureAt=[]; basicAt=[]; peakLoad=6.734; peakStress=0.221; minCondition=77.18; minOwnedC=19.71; ownedGuestHours=221.48; inRoomHours=200.43; awayHours=6.15; hotWaterSeconds=397.8; overloadSeconds=173.0; failureSeconds=0.0; staffSeconds=506.0; quietSeconds=1156.0; longestQuiet=253.8; showers=23; contacts=12; blankets=4; valveResets=2; inspections=0; basicCompleted=0; basicOutcomes=[]
+policy=AggressiveSix; booked=18; checkIns=18; roomArrivals=18; departed=18; receipts=18; early=8; gross=3240; refunds=720; maintenance=800; basic=0; patches=4; net=370; cash=1120; minCash=280; reports=3; firstReportReceipts=2; firstReportCash=280; failures=4; failureAt=[543.75,750.75,1113.75,1858.50]; basicAt=[]; peakLoad=7.895; peakStress=1.000; minCondition=35.73; minOwnedC=12.54; ownedGuestHours=238.84; inRoomHours=210.81; awayHours=5.70; hotWaterSeconds=371.3; overloadSeconds=942.5; failureSeconds=146.0; staffSeconds=1038.5; quietSeconds=752.0; longestQuiet=250.3; showers=22; contacts=24; blankets=5; valveResets=12; inspections=0; basicCompleted=0; basicOutcomes=[]
+policy=SixWithObservedBasic; booked=18; checkIns=18; roomArrivals=18; departed=18; receipts=18; early=8; gross=3240; refunds=720; maintenance=1150; basic=1; patches=4; net=20; cash=770; minCash=70; reports=3; firstReportReceipts=2; firstReportCash=280; failures=4; failureAt=[543.75,750.75,1156.00,1861.50]; basicAt=[808.50]; peakLoad=7.883; peakStress=1.000; minCondition=36.11; minOwnedC=12.63; ownedGuestHours=238.68; inRoomHours=211.42; awayHours=5.78; hotWaterSeconds=353.3; overloadSeconds=941.0; failureSeconds=146.0; staffSeconds=1126.0; quietSeconds=746.3; longestQuiet=234.3; showers=22; contacts=25; blankets=5; valveResets=12; inspections=5; basicCompleted=1; basicOutcomes=[808.50->831.00:condition39.99->59.99,stress0.054->0.000,heatOff22.25s,patchTrue]
+policy=FiveInspectedNoBasic; booked=15; checkIns=15; roomArrivals=15; departed=15; receipts=15; early=5; gross=2700; refunds=450; maintenance=800; basic=0; patches=4; net=100; cash=850; minCash=100; reports=3; firstReportReceipts=0; firstReportCash=100; failures=4; failureAt=[614.75,744.00,1187.00,1903.75]; basicAt=[]; peakLoad=8.581; peakStress=1.000; minCondition=35.56; minOwnedC=12.31; ownedGuestHours=234.38; inRoomHours=211.33; awayHours=5.91; hotWaterSeconds=399.0; overloadSeconds=1051.3; failureSeconds=181.8; staffSeconds=1026.5; quietSeconds=640.0; longestQuiet=191.5; showers=23; contacts=16; blankets=5; valveResets=12; inspections=5; basicCompleted=0; basicOutcomes=[]
+policy=FiveWithObservedBasic; booked=15; checkIns=15; roomArrivals=15; departed=15; receipts=15; early=5; gross=2700; refunds=450; maintenance=800; basic=0; patches=4; net=100; cash=850; minCash=100; reports=3; firstReportReceipts=0; firstReportCash=100; failures=4; failureAt=[614.75,744.00,1187.00,1903.75]; basicAt=[]; peakLoad=8.581; peakStress=1.000; minCondition=35.56; minOwnedC=12.31; ownedGuestHours=234.38; inRoomHours=211.33; awayHours=5.91; hotWaterSeconds=399.0; overloadSeconds=1051.3; failureSeconds=181.8; staffSeconds=1026.5; quietSeconds=640.0; longestQuiet=191.5; showers=23; contacts=16; blankets=5; valveResets=12; inspections=5; basicCompleted=0; basicOutcomes=[]
+policy=WarmFiveInspectedNoBasic; booked=15; checkIns=15; roomArrivals=15; departed=15; receipts=15; early=4; gross=2700; refunds=360; maintenance=600; basic=0; patches=3; net=390; cash=1140; minCash=100; reports=3; firstReportReceipts=0; firstReportCash=300; failures=3; failureAt=[679.75,1217.25,1938.25]; basicAt=[]; peakLoad=8.318; peakStress=1.000; minCondition=35.82; minOwnedC=11.86; ownedGuestHours=236.82; inRoomHours=213.78; awayHours=5.52; hotWaterSeconds=409.5; overloadSeconds=1062.0; failureSeconds=142.5; staffSeconds=1014.3; quietSeconds=577.3; longestQuiet=150.5; showers=24; contacts=19; blankets=5; valveResets=12; inspections=6; basicCompleted=0; basicOutcomes=[]
+policy=WarmFiveWithObservedBasic; booked=15; checkIns=15; roomArrivals=15; departed=15; receipts=15; early=3; gross=2700; refunds=270; maintenance=1300; basic=2; patches=3; net=-220; cash=530; minCash=-10; reports=3; firstReportReceipts=0; firstReportCash=300; failures=3; failureAt=[679.75,1287.50,1921.75]; basicAt=[830.50,1550.50]; peakLoad=8.318; peakStress=1.000; minCondition=38.02; minOwnedC=13.52; ownedGuestHours=241.63; inRoomHours=219.23; awayHours=4.53; hotWaterSeconds=416.8; overloadSeconds=1189.8; failureSeconds=109.5; staffSeconds=1014.5; quietSeconds=488.5; longestQuiet=187.5; showers=25; contacts=19; blankets=5; valveResets=12; inspections=6; basicCompleted=2; basicOutcomes=[830.50->853.00:condition38.82->58.82,stress0.408->0.158,heatOff22.25s,patchTrue;1550.50->1573.00:condition38.02->58.02,stress0.386->0.136,heatOff22.25s,patchTrue]
+Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

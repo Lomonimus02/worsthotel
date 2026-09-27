@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 14:50:47Z" end-time="2026-09-27 14:52:34Z" duration="106.5779822">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="839" result="Passed" start-time="2026-09-27 14:50:47Z" end-time="2026-09-27 14:52:34Z" duration="106.577982" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="2009" name="WorstHotel.Tests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="839" result="Passed" start-time="2026-09-27 14:50:47Z" end-time="2026-09-27 14:52:34Z" duration="106.564868" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="2232" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="2010" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="839" result="Passed" start-time="2026-09-27 14:50:47Z" end-time="2026-09-27 14:52:34Z" duration="106.557953" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2011" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="839" result="Passed" start-time="2026-09-27 14:50:47Z" end-time="2026-09-27 14:52:34Z" duration="106.551102" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1827" name="RhythmAutomaticEconomyTests" fullname="WorstHotel.Tests.RhythmAutomaticEconomyTests" classname="WorstHotel.Tests.RhythmAutomaticEconomyTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-27 14:50:47Z" end-time="2026-09-27 14:52:34Z" duration="106.539642" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="ParameterizedMethod" id="1830" name="DiagnosticCapacityTrialUsesActualAutomaticCohorts" fullname="WorstHotel.Tests.RhythmAutomaticEconomyTests.DiagnosticCapacityTrialUsesActualAutomaticCohorts" classname="WorstHotel.Tests.RhythmAutomaticEconomyTests" runstate="Explicit" testcasecount="1" result="Passed" start-time="2026-09-27 14:50:47Z" end-time="2026-09-27 14:52:34Z" duration="106.535065" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="_SKIPREASON" value="Opt-in capacity calibration using in-memory config clones; does not change authored production tuning." />
+                <property name="Timeout" value="300000" />
+              </properties>
+              <test-case id="1829" name="DiagnosticCapacityTrialUsesActualAutomaticCohorts(4.7f)" fullname="WorstHotel.Tests.RhythmAutomaticEconomyTests.DiagnosticCapacityTrialUsesActualAutomaticCohorts(4.7f)" methodname="DiagnosticCapacityTrialUsesActualAutomaticCohorts" classname="WorstHotel.Tests.RhythmAutomaticEconomyTests" runstate="Runnable" seed="675765828" result="Passed" start-time="2026-09-27 14:50:47Z" end-time="2026-09-27 14:52:34Z" duration="106.524058" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[DIAGNOSTIC ONLY: cloned rated capacity 4.60->4.70; identical production seed/rates/schedules/heat/wear; Basic requires its $350 purchase plus the $450 bill AND one configured $200 emergency-patch reserve. Original seven-run production comparison remains unchanged. All staff tasks keep their existing durations.
+policy=CautiousFour; booked=12; checkIns=12; roomArrivals=12; departed=12; receipts=12; early=0; gross=2160; refunds=0; maintenance=0; basic=0; patches=0; net=810; cash=1560; minCash=300; reports=3; firstReportReceipts=0; firstReportCash=300; failures=0; failureAt=[]; basicAt=[]; peakLoad=6.518; peakStress=0.088; minCondition=77.65; minOwnedC=19.93; ownedGuestHours=221.48; inRoomHours=200.43; awayHours=6.15; hotWaterSeconds=397.8; overloadSeconds=147.5; failureSeconds=0.0; staffSeconds=508.5; quietSeconds=1156.0; longestQuiet=253.8; showers=23; contacts=13; blankets=4; valveResets=2; inspections=0; basicCompleted=0; basicOutcomes=[]
+diagnosticFirstNight policy=CautiousFour; ratedCapacity=4.70; additionalPatchReserve=200; bandSeconds=[Busy:329.75,Comfortable:0.25,Overloaded:24.50,Strained:125.50]
+diagnosticNight policy=CautiousFour; at=300.00; D1 18:00; load=3.384; ratio=0.737; band=Busy; stress=0.000; condition=84.66; output=1.000; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=4; cash=750
+diagnosticNight policy=CautiousFour; at=360.00; D1 20:00; load=4.134; ratio=0.900; band=Strained; stress=0.001; condition=84.46; output=0.966; hotWater=0.750; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=4; cash=750
+diagnosticNight policy=CautiousFour; at=420.00; D1 22:00; load=3.384; ratio=0.737; band=Busy; stress=0.000; condition=84.18; output=1.000; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=4; cash=750
+diagnosticNight policy=CautiousFour; at=480.00; D2 00:00; load=3.384; ratio=0.738; band=Busy; stress=0.000; condition=83.92; output=1.000; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=4; cash=750
+diagnosticNight policy=CautiousFour; at=540.00; D2 02:00; load=3.384; ratio=0.738; band=Busy; stress=0.000; condition=83.74; output=1.000; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=4; cash=750
+diagnosticNight policy=CautiousFour; at=600.00; D2 04:00; load=3.384; ratio=0.738; band=Busy; stress=0.000; condition=83.55; output=1.000; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=4; cash=750
+diagnosticNight policy=CautiousFour; at=660.00; D2 06:00; load=3.384; ratio=0.738; band=Busy; stress=0.000; condition=83.37; output=1.000; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=4; cash=300
+diagnosticNight policy=CautiousFour; at=720.00; D2 08:00; load=4.171; ratio=0.911; band=Strained; stress=0.001; condition=83.11; output=0.960; hotWater=0.788; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=4; cash=300
+diagnosticNight policy=CautiousFour; at=780.00; D2 10:00; load=0.510; ratio=0.111; band=Comfortable; stress=0.026; condition=82.72; output=1.000; hotWater=0.000; valves=[101:1,102:1,103:1,104:2,105:1,106:1]; owned=0; cash=1020
+policy=WarmFiveInspectedNoBasic; booked=15; checkIns=15; roomArrivals=15; departed=15; receipts=15; early=1; gross=2700; refunds=90; maintenance=400; basic=0; patches=2; net=860; cash=1610; minCash=300; reports=3; firstReportReceipts=0; firstReportCash=300; failures=2; failureAt=[1454.50,1959.00]; basicAt=[]; peakLoad=7.648; peakStress=1.000; minCondition=36.75; minOwnedC=13.55; ownedGuestHours=261.06; inRoomHours=237.37; awayHours=5.52; hotWaterSeconds=443.8; overloadSeconds=1148.0; failureSeconds=73.0; staffSeconds=917.3; quietSeconds=508.3; longestQuiet=222.0; showers=26; contacts=15; blankets=5; valveResets=10; inspections=6; basicCompleted=0; basicOutcomes=[]
+diagnosticFirstNight policy=WarmFiveInspectedNoBasic; ratedCapacity=4.70; additionalPatchReserve=200; bandSeconds=[Comfortable:0.25,Overloaded:191.00,Strained:288.75]
+diagnosticNight policy=WarmFiveInspectedNoBasic; at=300.00; D1 18:00; load=4.219; ratio=0.919; band=Strained; stress=0.010; condition=84.56; output=0.954; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveInspectedNoBasic; at=360.00; D1 20:00; load=4.969; ratio=1.083; band=Overloaded; stress=0.033; condition=84.18; output=0.831; hotWater=0.750; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveInspectedNoBasic; at=420.00; D1 22:00; load=5.006; ratio=1.092; band=Overloaded; stress=0.105; condition=83.63; output=0.824; hotWater=0.788; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveInspectedNoBasic; at=480.00; D2 00:00; load=4.219; ratio=0.921; band=Strained; stress=0.193; condition=83.07; output=0.953; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveInspectedNoBasic; at=540.00; D2 02:00; load=4.219; ratio=0.922; band=Strained; stress=0.208; condition=82.73; output=0.952; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveInspectedNoBasic; at=600.00; D2 04:00; load=4.219; ratio=0.922; band=Strained; stress=0.224; condition=82.38; output=0.952; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveInspectedNoBasic; at=660.00; D2 06:00; load=4.219; ratio=0.923; band=Strained; stress=0.240; condition=82.02; output=0.952; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=300
+diagnosticNight policy=WarmFiveInspectedNoBasic; at=720.00; D2 08:00; load=5.794; ratio=1.268; band=Overloaded; stress=0.306; condition=81.51; output=0.710; hotWater=1.575; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=300
+diagnosticNight policy=WarmFiveInspectedNoBasic; at=780.00; D2 10:00; load=0.571; ratio=0.125; band=Comfortable; stress=0.481; condition=80.75; output=1.000; hotWater=0.000; valves=[101:2,102:1,103:2,104:1,105:2,106:2]; owned=0; cash=1200
+policy=WarmFiveWithObservedBasic; booked=15; checkIns=15; roomArrivals=15; departed=15; receipts=15; early=2; gross=2700; refunds=180; maintenance=1100; basic=2; patches=2; net=70; cash=820; minCash=280; reports=3; firstReportReceipts=0; firstReportCash=300; failures=2; failureAt=[1454.50,1982.25]; basicAt=[1550.50,1604.75]; peakLoad=7.648; peakStress=1.000; minCondition=38.58; minOwnedC=13.55; ownedGuestHours=255.31; inRoomHours=231.78; awayHours=4.53; hotWaterSeconds=409.0; overloadSeconds=1004.5; failureSeconds=73.0; staffSeconds=989.5; quietSeconds=659.8; longestQuiet=222.0; showers=24; contacts=16; blankets=3; valveResets=11; inspections=6; basicCompleted=2; basicOutcomes=[1550.50->1573.00:condition39.86->59.86,stress0.000->0.000,heatOff22.25s,patchTrue;1604.75->1627.25:condition59.84->79.84,stress0.000->0.000,heatOff22.25s,patchTrue]
+diagnosticFirstNight policy=WarmFiveWithObservedBasic; ratedCapacity=4.70; additionalPatchReserve=200; bandSeconds=[Comfortable:0.25,Overloaded:191.00,Strained:288.75]
+diagnosticNight policy=WarmFiveWithObservedBasic; at=300.00; D1 18:00; load=4.219; ratio=0.919; band=Strained; stress=0.010; condition=84.56; output=0.954; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveWithObservedBasic; at=360.00; D1 20:00; load=4.969; ratio=1.083; band=Overloaded; stress=0.033; condition=84.18; output=0.831; hotWater=0.750; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveWithObservedBasic; at=420.00; D1 22:00; load=5.006; ratio=1.092; band=Overloaded; stress=0.105; condition=83.63; output=0.824; hotWater=0.788; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveWithObservedBasic; at=480.00; D2 00:00; load=4.219; ratio=0.921; band=Strained; stress=0.193; condition=83.07; output=0.953; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveWithObservedBasic; at=540.00; D2 02:00; load=4.219; ratio=0.922; band=Strained; stress=0.208; condition=82.73; output=0.952; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveWithObservedBasic; at=600.00; D2 04:00; load=4.219; ratio=0.922; band=Strained; stress=0.224; condition=82.38; output=0.952; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=WarmFiveWithObservedBasic; at=660.00; D2 06:00; load=4.219; ratio=0.923; band=Strained; stress=0.240; condition=82.02; output=0.952; hotWater=0.000; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=300
+diagnosticNight policy=WarmFiveWithObservedBasic; at=720.00; D2 08:00; load=5.794; ratio=1.268; band=Overloaded; stress=0.306; condition=81.51; output=0.710; hotWater=1.575; valves=[101:1,102:1,103:1,104:1,105:1,106:1]; owned=5; cash=300
+diagnosticNight policy=WarmFiveWithObservedBasic; at=780.00; D2 10:00; load=0.571; ratio=0.125; band=Comfortable; stress=0.481; condition=80.75; output=1.000; hotWater=0.000; valves=[101:2,102:1,103:2,104:1,105:2,106:2]; owned=0; cash=1200
+policy=AggressiveSix; booked=18; checkIns=18; roomArrivals=18; departed=18; receipts=18; early=8; gross=3240; refunds=720; maintenance=600; basic=0; patches=3; net=570; cash=1320; minCash=280; reports=3; firstReportReceipts=2; firstReportCash=480; failures=3; failureAt=[709.75,1116.75,1864.00]; basicAt=[]; peakLoad=8.102; peakStress=1.000; minCondition=35.80; minOwnedC=12.57; ownedGuestHours=237.36; inRoomHours=208.77; awayHours=6.07; hotWaterSeconds=383.5; overloadSeconds=741.0; failureSeconds=109.5; staffSeconds=998.8; quietSeconds=960.0; longestQuiet=251.5; showers=21; contacts=27; blankets=5; valveResets=13; inspections=0; basicCompleted=0; basicOutcomes=[]
+diagnosticFirstNight policy=AggressiveSix; ratedCapacity=4.70; additionalPatchReserve=200; bandSeconds=[Comfortable:0.25,Critical:280.75,Overloaded:199.00]
+diagnosticNight policy=AggressiveSix; at=300.00; D1 18:00; load=4.691; ratio=1.022; band=Overloaded; stress=0.018; condition=84.48; output=0.881; hotWater=0.000; valves=[101:1,102:2,103:2,104:1,105:1,106:1]; owned=5; cash=750
+diagnosticNight policy=AggressiveSix; at=360.00; D1 20:00; load=7.277; ratio=1.587; band=Overloaded; stress=0.188; condition=83.72; output=0.567; hotWater=0.750; valves=[101:2,102:3,103:2,104:2,105:2,106:2]; owned=6; cash=750
+diagnosticNight policy=AggressiveSix; at=420.00; D1 22:00; load=6.527; ratio=1.426; band=Overloaded; stress=0.522; condition=82.67; output=0.631; hotWater=0.000; valves=[101:2,102:3,103:2,104:2,105:2,106:2]; owned=6; cash=750
+diagnosticNight policy=AggressiveSix; at=480.00; D2 00:00; load=6.527; ratio=1.428; band=Critical; stress=0.864; condition=81.60; output=0.630; hotWater=0.000; valves=[101:2,102:3,103:2,104:2,105:2,106:2]; owned=6; cash=750
+diagnosticNight policy=AggressiveSix; at=540.00; D2 02:00; load=4.547; ratio=0.996; band=Critical; stress=0.973; condition=80.96; output=0.903; hotWater=0.000; valves=[101:2,102:3,103:1,104:2,105:2,106:2]; owned=4; cash=930
+diagnosticNight policy=AggressiveSix; at=600.00; D2 04:00; load=4.526; ratio=0.992; band=Critical; stress=1.000; condition=80.47; output=0.905; hotWater=0.000; valves=[101:2,102:3,103:1,104:2,105:2,106:1]; owned=4; cash=930
+diagnosticNight policy=AggressiveSix; at=660.00; D2 06:00; load=4.526; ratio=0.993; band=Critical; stress=1.000; condition=79.99; output=0.905; hotWater=0.000; valves=[101:2,102:3,103:1,104:2,105:2,106:1]; owned=4; cash=480
+diagnosticNight policy=AggressiveSix; at=720.00; D2 08:00; load=6.101; ratio=1.339; band=Critical; stress=1.000; condition=79.58; output=0.100; hotWater=1.575; valves=[101:2,102:3,103:1,104:2,105:2,106:1]; owned=4; cash=480
+diagnosticNight policy=AggressiveSix; at=780.00; D2 10:00; load=0.592; ratio=0.139; band=Comfortable; stress=0.288; condition=39.64; output=1.000; hotWater=0.000; valves=[101:2,102:3,103:1,104:2,105:2,106:1]; owned=0; cash=1000
+Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-27 14:06:01Z" end-time="2026-09-27 14:07:39Z" duration="98.7315964">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="838" result="Failed" site="Child" start-time="2026-09-27 14:06:01Z" end-time="2026-09-27 14:07:39Z" duration="98.731596" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="2007" name="WorstHotel.Tests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="838" result="Failed" site="Child" start-time="2026-09-27 14:06:01Z" end-time="2026-09-27 14:07:39Z" duration="98.719543" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="4912" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="2008" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="838" result="Failed" site="Child" start-time="2026-09-27 14:06:01Z" end-time="2026-09-27 14:07:39Z" duration="98.713482" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="2009" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="838" result="Failed" site="Child" start-time="2026-09-27 14:06:01Z" end-time="2026-09-27 14:07:39Z" duration="98.707444" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="1827" name="RhythmAutomaticEconomyTests" fullname="WorstHotel.Tests.RhythmAutomaticEconomyTests" classname="WorstHotel.Tests.RhythmAutomaticEconomyTests" runstate="Runnable" testcasecount="1" result="Failed" site="Child" start-time="2026-09-27 14:06:01Z" end-time="2026-09-27 14:07:39Z" duration="98.696558" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="1828" name="ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies" fullname="WorstHotel.Tests.RhythmAutomaticEconomyTests.ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies" methodname="ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies" classname="WorstHotel.Tests.RhythmAutomaticEconomyTests" runstate="Runnable" seed="658066236" result="Failed" start-time="2026-09-27 14:06:01Z" end-time="2026-09-27 14:07:39Z" duration="98.685584" asserts="0">
+              <properties>
+                <property name="Timeout" value="300000" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <failure>
+                <message><![CDATA[  Expected: less than 146.0f
+  But was:  146.0f
+]]></message>
+                <stack-trace><![CDATA[at WorstHotel.Tests.RhythmAutomaticEconomyTests.ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies () [0x0032f] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Tests\EditMode\RhythmAutomaticEconomyTests.cs:447
+]]></stack-trace>
+              </failure>
+              <output><![CDATA[policy=CautiousFour; booked=12; checkIns=12; roomArrivals=12; departed=12; receipts=12; early=0; gross=2160; refunds=0; maintenance=0; basic=0; patches=0; net=810; cash=1560; minCash=300; reports=3; firstReportReceipts=0; firstReportCash=300; failures=0; failureAt=[]; basicAt=[]; peakLoad=6.734; peakStress=0.221; minCondition=77.18; minOwnedC=19.71; ownedGuestHours=221.48; inRoomHours=200.43; awayHours=6.15; hotWaterSeconds=397.8; overloadSeconds=173.0; failureSeconds=0.0; staffSeconds=506.0; quietSeconds=1156.0; longestQuiet=253.8; showers=23; contacts=12; blankets=4; valveResets=2
+policy=AggressiveSix; booked=18; checkIns=18; roomArrivals=18; departed=18; receipts=18; early=8; gross=3240; refunds=720; maintenance=800; basic=0; patches=4; net=370; cash=1120; minCash=280; reports=3; firstReportReceipts=2; firstReportCash=280; failures=4; failureAt=[543.75,750.75,1113.75,1858.50]; basicAt=[]; peakLoad=7.895; peakStress=1.000; minCondition=35.73; minOwnedC=12.54; ownedGuestHours=238.84; inRoomHours=210.81; awayHours=5.70; hotWaterSeconds=371.3; overloadSeconds=942.5; failureSeconds=146.0; staffSeconds=1038.5; quietSeconds=752.0; longestQuiet=250.3; showers=22; contacts=24; blankets=5; valveResets=12
+policy=SixWithObservedBasic; booked=18; checkIns=18; roomArrivals=18; departed=18; receipts=18; early=8; gross=3240; refunds=720; maintenance=1150; basic=1; patches=4; net=20; cash=770; minCash=70; reports=3; firstReportReceipts=2; firstReportCash=280; failures=4; failureAt=[543.75,750.75,1156.00,1861.50]; basicAt=[808.50]; peakLoad=7.883; peakStress=1.000; minCondition=36.11; minOwnedC=12.63; ownedGuestHours=238.68; inRoomHours=211.42; awayHours=5.78; hotWaterSeconds=353.3; overloadSeconds=941.0; failureSeconds=146.0; staffSeconds=1126.0; quietSeconds=746.3; longestQuiet=234.3; showers=22; contacts=25; blankets=5; valveResets=12
+Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

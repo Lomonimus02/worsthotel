@@ -1,0 +1,5 @@
+Outcome=PASS
+Shortcut=Играть 0.4.1.lnk
+Target=C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Builds\Windows-0.4.1\TheWorstHotelEver.exe
+WorkingDirectory=C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Builds\Windows-0.4.1
+Validation=Byte-identical ASCII-path copy read through WScript because local COM wrapper does not marshal Cyrillic filenames.

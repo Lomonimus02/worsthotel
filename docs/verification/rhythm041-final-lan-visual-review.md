@@ -1,0 +1,28 @@
+# Rhythm 0.4.1 — final continuous LAN visual review
+
+Reviewed all **10 actual client GPU PNG captures directly with `view_image`**. Resolution: **1600×900**. No screenshot was inferred from a log or another reviewer's description.
+
+Run: [20260927-152340-1eee684e](rhythm041-final-lan/20260927-152340-1eee684e/). Build checkpoint supplied by the parent: `533ec18`; gameplay DLL SHA256 `77B9DA66BDA31490C8F0931D9B321739A8D29C1845C54F85D455D969A225A90E`, also recorded in [binary-and-scope.txt](rhythm041-final-lan/20260927-152340-1eee684e/binary-and-scope.txt).
+
+**Result: no blocking visual defect found in these captures.** No blank frame, clipped foreground menu text, overlapping menu controls or missing central readout was observed. The client connection strip, employee label, selection borders, disabled purchase states and bottom actions remain legible. Menus intentionally obscure parts of the world behind them; the captures do not establish the visibility of every background sign at once.
+
+| Inspected image | Direct visual observation |
+|---|---|
+| [client-continuous-sales.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-sales.png) | Six room sales rows, open/closed states, prices and explanatory text fit; the three-open-room summary and bottom actions are readable. |
+| [client-continuous-bookings.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-bookings.png) | Two confirmed reservations show complete names, rooms, agreed prices and dated arrivals; the $370 total and navigation fit. |
+| [client-continuous-boundary.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-boundary.png) | D2/$7550 operations screen accommodates six room temperatures, two upcoming arrivals, failed boiler, tripped branch B and room 106 linen work without overlap. |
+| [client-continuous-report.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-report.png) | Period 1 shows revenue $0, operations $450, no maintenance/capital spend and $8000 → $7550 cash; the empty-stay explanation and actions are complete. |
+| [client-continuous-capital-before.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-capital-before.png) | Rated 4.70 → 5.88 and effective 4.59 → 5.74 capacity, failed/85% condition, prices and retained-fault explanation are readable. |
+| [client-continuous-capital-installed.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-capital-installed.png) | $4550 cash and $3000 capital spend fit; installed boiler/branch B and unavailable branch A choices are visibly disabled while failed/85% condition remains displayed. |
+| [client-continuous-maintenance-active.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-maintenance-active.png) | FULL SERVICE / HEAT OFF, 85% condition, D2 08:46 completion and 1h 59m remaining are legible. Basic/Full descriptions and disabled in-progress control fit. |
+| [client-continuous-maintenance-complete.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-maintenance-complete.png) | RUNNING/95%, Comfortable, zero stress and service None are clear. Basic is disabled with no benefit; Full selection and physical hold instructions fit. |
+| [client-continuous-report-2.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-report-2.png) | Period 2 separates $450 operations, $1500 maintenance and $3000 capital; $7550 → $2600 cash and all controls are readable. |
+| [client-continuous-report-3.png](rhythm041-final-lan/20260927-152340-1eee684e/client-continuous-report-3.png) | D4/$2150 and Period 3 operations-only $450 cost are complete; two $0-paid guest rows and bottom controls fit without clipping. |
+
+The completed [host report](rhythm041-final-lan/20260927-152340-1eee684e/host-report.txt) records **PASS, 0 errors, 121 checks**. The [client report](rhythm041-final-lan/20260927-152340-1eee684e/client-report.txt) records **PASS, 0 errors, 252 checks**, plus **2921 snapshot-only clock checks**. These are two actual localhost EXE processes using normal NGO messages, with the client read-only mirror and the same host epoch preserved. The reports separately verify actual client controller sales/rate/reassignment commands, stale and duplicate rejection, paid upgrades, physical held service setup, maintenance completion and three accounting boundaries.
+
+Scope is deliberately limited. Starting cash was a labelled **$8000 diagnostic funding fixture**; the host created a boiler failure, branch B trip and dirty room 106 to test persistence. Empty employee positioning and bounded host clock advances are also labelled setup. No paid check-in or three natural LAN guest cohorts is claimed. The visible final cash is **$2150 = $8000 − $1350 operating costs − $3000 upgrades − $1500 maintenance**, with no room revenue: this is command/accounting evidence, not an affordability or profit result. The last boundary's initially short float advance was observed at 2099.99976/report 2, then corrected by the existing bounded diagnostic residual step to 2100.2/report 3 without changing model, rooms or epoch.
+
+The retained “Last update: already offline for maintenance” line on later screens is the previous command result; the completed maintenance page separately and clearly says RUNNING/95%. It does not clip the report or controls.
+
+This review establishes the legibility of these ten still captures. It does not establish human pacing, second-computer LAN behavior, sustained network performance, other resolutions, or sleep behavior (covered by separate runs). The deferred native Alt-Tab issue is not assessed or claimed fixed.
