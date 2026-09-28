@@ -6,7 +6,7 @@
 
 ## Скачать и играть
 
-Последняя опубликованная сборка: [0.5.6 для Windows](https://github.com/Lomonimus02/worsthotel/releases/tag/v0.5.6). Новая 0.6.0 собрана локально в `Builds/Windows-0.6.0`; её изменения описаны ниже.
+[Скачать Windows-сборку 0.6.0](https://github.com/Lomonimus02/worsthotel/releases/tag/v0.6.0). Предыдущая [0.5.6](https://github.com/Lomonimus02/worsthotel/releases/tag/v0.5.6) также сохранена.
 
 Распакуйте весь архив и запустите `TheWorstHotelEver.exe`. Unity Editor игроку не нужен. Передавайте другу полный ZIP или всю папку: один EXE без соседних файлов не работает.
 
