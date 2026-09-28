@@ -1,0 +1,28 @@
+Outcome=PASS Errors=0 Role=host Mode=SleepFixtures Checks=251
+Utc=2026-09-27T15:34:03.0398181Z
+Run=20260927-153218-b22d6e96
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+DIAGNOSTIC ADVANCE quiet staff-sleep evening setup: before=0.2 target=300 requested=299.8 tickRate=5
+DIAGNOSTIC ADVANCE RESULT quiet staff-sleep evening setup: correction=0 actual=300 shortfall=0 report=0 count=0 nextReport=660 phase=Service modelSame=True roomsSame=True expectedEpoch=639261199424574727 actualEpoch=639261199424574727 message=Hotel open. Review upcoming bookings while the building keeps running.
+SLEEP FIXTURE SETUP: production continuous rules, ordinary room sales policies closed before timed demand, bounded host diagnostic advance to D1 18:00; original production cash/settings. No guest cohort, economy balance, natural workload or real OS focus claim.
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+SLEEP UI: actual owned-pad Back closed the startup operations ledger before physical bed aim; no UI-block override.
+SLEEP INPUT: this process owns actor0 virtual pad only; host remote input reader is never bound or written by the fixture. Existing hidden-player logical focus adapter is diagnostic, not native OS focus manipulation.
+SLEEP PHYSICAL SETUP: empty staff0/1 placed once at authored bed0/1 standing anchors for this epoch. All subsequent bed acquisition/consent/cancel uses each process's own virtual pad and production input/first-hit checks. No sleep API or fabricated guest route callback.
+HostFirstConsent=True DistinctBeds=True ReleasePreservesConsent=True FreshUseCancels=True
+RemoteFirstConsent=True HostFreshUseCancels=True
+LeaseExpiryClearsSleep=True LeaseRenewalDoesNotResume=True
+DisconnectClearsSleep=True RejoinRequiresFreshConsent=True HostHotelPreservedOnRejoin=True
+CRITICAL WAKE SETUP: one labelled DebugSpawnGuest Budget104, then actual production reception and room routes. Model-key pickup/handoff is the sole check-in adapter; no fabricated arrival/anchor callbacks, natural booking or physical key-carry claim.
+CRITICAL LOAD ADAPTER: two existing heater bodies are placed in room104 without a shelf-to-room carry claim. Their ordinary model switches will be enabled only after both real physical bed consents. No load override, direct stress assignment, ForceTrip or timer advance is used.
+CRITICAL CLEANUP: explicitly labelled model switch-off of the same two heaters, then ordinary model ResetCircuit. No physical reset-lever interaction is claimed. The following normal NewGame isolates the final quiet-night proof.
+CriticalWarningKeptSleep=True ActualHeaterLoadTrip=True CriticalWakeMirrored=True TripWakeNormalSpeed=True
+DIAGNOSTIC ADVANCE quiet staff-sleep evening setup: before=0 target=300 requested=300 tickRate=5
+DIAGNOSTIC ADVANCE RESULT quiet staff-sleep evening setup: correction=0 actual=300 shortfall=0 report=0 count=0 nextReport=660 phase=Service modelSame=True roomsSame=True expectedEpoch=639261199937071445 actualEpoch=639261199937071445 message=Hotel open. Review upcoming bookings while the building keeps running.
+SLEEP FIXTURE SETUP: production continuous rules, ordinary room sales policies closed before timed demand, bounded host diagnostic advance to D1 18:00; original production cash/settings. No guest cohort, economy balance, natural workload or real OS focus claim.
+SLEEP PHYSICAL SETUP: empty staff0/1 placed once at authored bed0/1 standing anchors for this epoch. All subsequent bed acquisition/consent/cancel uses each process's own virtual pad and production input/first-hit checks. No sleep API or fabricated guest route callback.
+NewGameClearsSleep=True OldEpochInputRejected=True CurrentEpochInputWorks=True MorningWake=True
+SleepFixturesVerified=True ProductionContinuous=True OwnedLocalPads=True SnapshotSleepAuthority=True
+ModelBytes=22276 WorldBytes=14139
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

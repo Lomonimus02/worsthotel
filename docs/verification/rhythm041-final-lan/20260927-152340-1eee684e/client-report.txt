@@ -1,0 +1,28 @@
+Outcome=PASS Errors=0 Role=client Mode=ContinuousFixtures Checks=252
+Utc=2026-09-27T15:24:44.4606162Z
+Run=20260927-152340-1eee684e
+CONTINUOUS CAPITAL FIXTURE: cloned economy starting cash=8000; production continuous calendar, service, capacity, wear and prices remain unchanged. This is funded command/accounting verification, not an affordability or natural-profit claim.
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+LANVersion=18 ModelSchema=15 Compatibility=worst-hotel-0.4.1-rhythm18-gzip
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+SERVICE AIM: target=(-5.000, 1.770, 2.400) actor=(-5.000, 0.035, 0.950) camera=(-5.000, 1.645, 0.985) angle=5.05 yawError=0.00 pitchError=-5.05 startAngle=5.05 bestAngle=5.05 elapsed=0.26 pulses=0 settled=True worldSequence=8 inputLook=(0.000, 0.000) intendedSurface=True maxSampleFrameMs=0.0 uiBlocked=False pickup=False caption=Hotel fixture|[A / Cross]  Open the reception ledger
+SERVICE LOOK DOSE: dose=(0.00, 0.00) world=2->8 responseAndSettle=0.26 observed=0.00 angle=5.05 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+GPU candidate=client-continuous-sales.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-bookings.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-boundary.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-report.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-capital-before.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-capital-installed.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+SERVICE AIM: target=(-0.520, 2.150, 36.075) actor=(-0.520, 0.035, 34.625) camera=(-0.519, 1.645, 34.660) angle=7.50 yawError=-1.82 pitchError=-7.29 startAngle=7.32 bestAngle=7.32 elapsed=1.07 pulses=2 settled=True worldSequence=907 inputLook=(0.000, 0.000) intendedSurface=True maxSampleFrameMs=16.8 uiBlocked=False pickup=False caption=BOILER INSPECTION / SERVICE|[A / Cross]  Hold: start Full Service · 0%|Heating stops when setup finishes · Q / X: inspect
+SERVICE LOOK DOSE: dose=(4.84, 0.54) world=885->894 responseAndSettle=0.28 observed=4.87 angle=19.70 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+SERVICE LOOK DOSE: dose=(-3.07, 11.80) world=894->907 responseAndSettle=0.29 observed=12.19 angle=7.50 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+GPU candidate=client-continuous-maintenance-active.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-maintenance-complete.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-report-2.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-continuous-report-3.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+RemotePaidUpgrades=True UpgradeDoesNotRepair=True DuplicateCapitalRejected=True OtherBranchRejected=True RemotePaidMaintenance=True MaintenanceDowntime=True DuplicateMaintenanceRejected=True MaintenanceRestored=True ThreeAccountingBoundaries=True ContinuousCapitalVerified=True
+ThreeAccountingBoundaries ends after D4 06:00 from D1 08:00; bounded host diagnostic advances, not 72 hours of human play or three paid guest cohorts. All equipment choices used actual client controller through normal NGO authorization; duplicate attempts used labelled ordinary session commands.
+PhysicalLedgerAccess=True BookingRoundtrip=True SalesPolicyRoundtrip=True AutomaticBooking=True Reassignment=True AgreedPricePreserved=True StalePolicyRejected=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryReassignment=True
+ReadOnlyMirror=True SnapshotOnlyClockChecks=2921 HostEpoch=639261194247739938 Day=4 Cash=2150 Report=3; forced system faults and bounded diagnostic advance are setup, not human play or natural overload evidence.
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

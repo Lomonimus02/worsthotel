@@ -1,0 +1,11 @@
+Outcome=PASS Errors=0 Role=client Mode=AgencyFixtures Checks=52
+Utc=2026-09-26T14:15:30.5129511Z
+Run=20260926-141348-6f1afc01
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+GPU candidate=client-agency-context.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-agency-quiet.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+RemoteGuestContext=True ActualNoiseReduced=True CausalMemoryReplicated=True ContextCancelReopen=True RemotePermissionEntry=True NaturalRecovery=True
+Cause=day1-guest4:Noise:day1-guest1/Television SourceWarnings=1 AffectedComplaints=1 Resolved=1 SnapshotOnlyClockChecks=4974
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

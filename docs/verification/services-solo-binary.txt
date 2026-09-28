@@ -1,0 +1,5 @@
+BuildLog=Logs/services-windows-3.log
+SOLOOutput=docs/screenshots/services-solo-final
+GameplayAssemblySHA256=BEB78CF41450FD23D309F3B4D13972E2180E112CEBB98984FC99CE3582D006E4
+CapturedUtc=2026-09-26T16:16:55.6403525Z
+Scope=Binary used by the full SOLO service/lifecycle run; later LAN diagnostic-only rebuilds are recorded separately.

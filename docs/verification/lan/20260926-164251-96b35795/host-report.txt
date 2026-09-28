@@ -1,0 +1,12 @@
+Outcome=PASS Errors=0 Role=host Mode=ServiceFixtures Checks=57
+Utc=2026-09-26T16:44:13.6879267Z
+Run=20260926-164251-96b35795
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+SERVICE SETUP: one real Business booking106; explicitly labelled model key pickup/handoff at actual reception; all guest arrivals/anchors use production routes. No route-completion callbacks.
+DIAGNOSTIC: sustained mild cold/rest, initial burnt lamp105/valve105 and pre-opened room106 door. Only empty actor1 is repositioned at shelf, then valve and phone; every carried blanket metre is real remote input through NGO.
+PhysicalBlanketPickup=True PhysicalBlanketDelivery=True ServiceStateReplicated=True CrossActorOwnershipRejected=True UngrantedCallRejected=True RemoteRadiator=True RemotePhonePromise=True
+BlanketStock=3->2 CarryDisplacementMetres=9.22 ComfortBonus=2.00 PromisesKept=1 Lamp105Broken=True
+WorldSnapshotPayloadBytes=14305 WorldSnapshotDecodedBytes=139462 EncodedFraction=0.1026 ModelSnapshotPayloadBytes=17085; measured most recent payload sizes, not a latency or throughput benchmark.
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

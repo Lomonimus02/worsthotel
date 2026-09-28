@@ -11,6 +11,9 @@
 *.pidb
 *.user
 *.log
+*.lnk
+# Transient synchronization markers written by local diagnostic runs.
+/docs/**/*.stage
 /.DS_Store
 # Local process evidence may contain memory and machine-specific data.
 *.dmp

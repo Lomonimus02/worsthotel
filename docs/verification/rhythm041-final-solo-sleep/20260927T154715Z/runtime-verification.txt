@@ -1,0 +1,27 @@
+Built-player SOLO physical sleep diagnostic / two isolated scenarios, not a three-day tour
+ApplicationVersion=0.4.1 UnityVersion=6000.3.2f1
+Outcome=PASS Errors=0 ResetVerified=True
+Mode=Solo SyntheticPads=1
+SoloSleepVerified=True ActualBedInput=True DriverClockOverride=False
+FreshCancelVerified=True MorningWakeVerified=True CriticalCircuitWakeVerified=True ModelWorldContinuity=True ModelOnlyAcceleration=True
+MorningDeadline=660.000 ObservedMorning=660.000 ReportsAdded=1 ActualStaffWalkMetres=19.664
+AutomaticPowerGuest=stay-1-1 CircuitLoad=4.850 CircuitCapacity=4.000 WarningObservedWhileAsleep=True ActualTripAt=237.248
+RuntimeSeconds=94.160 Captures=5 OffscreenGPUAvailable=True
+No physical heater-carry, room104-to-utility traversal, human pacing/performance, long-pause or AltTab-fix claim. GPU image legibility needs separate manual review.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+SOLO SLEEP SCOPE: two isolated production sessions, then a fresh reset. This is not the three-day economy tour or a human pacing/performance/AltTab test.
+INPUT: only the driver's own background-capable synthetic pad. Every claimed bed consent/cancellation and heater switch uses the production reader and the actual first physical surface. No DebugStartSleep, ForceFailure, ForceTrip, forced activity, temperature or load override.
+SETUP ADAPTERS: normal sales-policy commands and bounded ordinary AdvanceTime before sleep. The electrical scenario uses one real timed automatic contract, actual guest reception/room routes, and a timed model rack-key handoff. No guest route-completion callback is invoked by this driver.
+PLACEMENT ADAPTERS: only explicitly empty employee approaches and two existing uncarried, switched-off heater bodies in room104. Room104-to-utility traversal and heater carrying are not claimed. The final utility-entry-to-bed walk, raycast, inputs and overload trip are actual.
+SLEEP STARTUP: actual owned-pad Back closed the welcome ledger after normal model/UI readiness; no UI-block override.
+Capture solo-sleep-staff-room: Actual cot, shared narrow aisle and employee viewpoint after genuine controller walk from utility entrance.
+Capture solo-sleep-active: Actual bed consent active / ordinary WAIT owner advances only the hotel model at8x.
+MORNING PASS: target=660.000 observed=660.000 reportsAdded=1 cashBefore=750 cashAfter=300 conditionBefore=84.794 conditionAfter=84.698.
+Capture solo-sleep-morning: Actual06:00 wake / same hotel and equipment / one scheduled report and operating bill.
+POWER SETUP: automaticGuest=stay-1-1 room=104 state=InRoom activity=QuietRest baselineB=0.850/4.000; guest presentation routes remained enabled; only key commands were adapted.
+POWER WARNING WHILE ASLEEP: elapsed=230.848 storedStressSeconds=11.800 demand=4.850.
+POWER WAKE PASS: cause=CircuitTrip elapsed=237.248 demand=4.850/4.000 trips=1 heaterHeat=0 AHasPower=True CentralHeatFailed=False.
+Capture solo-sleep-critical-wake: Actual loaded circuitB trip woke sleeping staff / no forced fault, no clock or wake command.
+ContinuousFreshInventoryReset=True KeysOnRack=6 CleanLinen=6 Blankets=3 Bulbs=3 HeatersOff=2 OldServiceRecords=0 OldCarriers=0 EquipmentFaultsAndUpgradesCleared=True
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Capture solo-sleep-new-session: Fresh production hotel after both isolated sleep scenarios / no old votes, faults, carried items or equipment upgrades.

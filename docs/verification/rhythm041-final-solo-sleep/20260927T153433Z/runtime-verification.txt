@@ -1,0 +1,19 @@
+Built-player SOLO physical sleep diagnostic / two isolated scenarios, not a three-day tour
+ApplicationVersion=0.4.1 UnityVersion=6000.3.2f1
+Outcome=FAIL Errors=1 ResetVerified=False
+Mode=Solo SyntheticPads=1
+SoloSleepVerified=False ActualBedInput=False DriverClockOverride=False
+FreshCancelVerified=False MorningWakeVerified=False CriticalCircuitWakeVerified=False ModelWorldContinuity=False ModelOnlyAcceleration=False
+MorningDeadline=0.000 ObservedMorning=0.000 ReportsAdded=0 ActualStaffWalkMetres=0.000
+AutomaticPowerGuest=none CircuitLoad=0.000 CircuitCapacity=0.000 WarningObservedWhileAsleep=False ActualTripAt=0.000
+RuntimeSeconds=13.931 Captures=0 OffscreenGPUAvailable=True
+No physical heater-carry, room104-to-utility traversal, human pacing/performance, long-pause or AltTab-fix claim. GPU image legibility needs separate manual review.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+SOLO SLEEP SCOPE: two isolated production sessions, then a fresh reset. This is not the three-day economy tour or a human pacing/performance/AltTab test.
+INPUT: only the driver's own background-capable synthetic pad. Every claimed bed consent/cancellation and heater switch uses the production reader and the actual first physical surface. No DebugStartSleep, ForceFailure, ForceTrip, forced activity, temperature or load override.
+SETUP ADAPTERS: normal sales-policy commands and bounded ordinary AdvanceTime before sleep. The electrical scenario uses one real timed automatic contract, actual guest reception/room routes, and a timed model rack-key handoff. No guest route-completion callback is invoked by this driver.
+PLACEMENT ADAPTERS: only explicitly empty employee approaches and two existing uncarried, switched-off heater bodies in room104. Room104-to-utility traversal and heater carrying are not claimed. The final utility-entry-to-bed walk, raycast, inputs and overload trip are actual.
+ERROR: VERIFY: System.InvalidOperationException: VERIFY failed: actual empty staff route reaches (0.500, 0.000, 33.000); actual=(0.500, 0.035, 29.500)
+  at WorstHotel.DevelopmentVerification.Require (System.Boolean success, System.String operation) [0x0001a] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Core\DevelopmentVerification.cs:410 
+  at WorstHotel.DevelopmentVerification+<WalkSoloSleepSegment>d__203.MoveNext () [0x0028d] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Core\DevelopmentVerification.SoloSleep.cs:256 
+  at WorstHotel.DevelopmentVerification+<Start>d__126.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Core\DevelopmentVerification.cs:110 

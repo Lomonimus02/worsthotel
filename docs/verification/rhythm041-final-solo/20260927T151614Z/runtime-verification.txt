@@ -1,0 +1,74 @@
+Built-player continuous hotel verification / SOLO / production settings
+ApplicationVersion=0.4.1 UnityVersion=6000.3.2f1
+Outcome=PASS Errors=0 ResetVerified=True
+Mode=Solo SyntheticPads=1
+ContinuousOperationsVerified=True CashConserved=True ModelContinuity=True RoomRegistryContinuity=True ClockContinuity=True EpochContinuity=True
+ObservationTarget=2160 CheckoutTailTarget=2280 ObservationElapsed=2160.17 TailElapsed=2280.14
+Graphics=NVIDIA GeForce GTX 1650 SUPER Resolution=1600x900 RuntimeSeconds=298.20
+OffscreenGPUAvailable=True Captures=12
+Reports=3 UniquePaidStays=14 CurrentPeriodReceipts=3 FinalCash=1340.00 FinalReputation=64.97 MinimumCash=300
+StaffSlots=1 ModelKeyHandoffs=14 ModelLinenTurnovers=12 VacantValveInspections=12 ModelPaidPatches=2 EarnedBoilerUpgrade=False
+NaturalBoilerFailures=2 NaturalCircuitTrips=0 PeakHeatingDemand=7.48 PeakLoadRatio=1.65 MinimumBoilerCondition=36.71
+Cohort 1: booked=4 checkedIn=4 actualRoomArrivals=4 actualDepartures=4 paidStays=4 gross=720 refunds=0 net=720 guestWalkMetres=706.79 satisfaction=99.08 requestedServices=0 coldExposureSeconds=285.62
+Cohort 2: booked=5 checkedIn=5 actualRoomArrivals=5 actualDepartures=5 paidStays=5 gross=900 refunds=0 net=900 guestWalkMetres=923.88 satisfaction=89.64 requestedServices=0 coldExposureSeconds=2141.70
+Cohort 3: booked=5 checkedIn=5 actualRoomArrivals=5 actualDepartures=5 paidStays=5 gross=900 refunds=180 net=720 guestWalkMetres=815.05 satisfaction=64.54 requestedServices=0 coldExposureSeconds=1861.75
+Period 1: receipts=0 gross=0 refunds=0 operating=450 maintenance=0 capital=0 net=-450 openingCash=750 closingCash=300
+Period 2: receipts=4 gross=720 refunds=0 operating=450 maintenance=0 capital=0 net=270 openingCash=300 closingCash=570
+Period 3: receipts=7 gross=1260 refunds=180 operating=450 maintenance=400 capital=0 net=230 openingCash=570 closingCash=800
+Receipt id=stay-1-1 room=102 gross=180 refund=0 net=180 satisfaction=99.59 early=False earlyAt=-1.00
+Receipt id=stay-1-2 room=101 gross=180 refund=0 net=180 satisfaction=98.12 early=False earlyAt=-1.00
+Receipt id=stay-1-3 room=104 gross=180 refund=0 net=180 satisfaction=98.63 early=False earlyAt=-1.00
+Receipt id=stay-1-4 room=103 gross=180 refund=0 net=180 satisfaction=100.00 early=False earlyAt=-1.00
+Receipt id=stay-2-1 room=102 gross=180 refund=0 net=180 satisfaction=93.16 early=False earlyAt=-1.00
+Receipt id=stay-2-2 room=101 gross=180 refund=0 net=180 satisfaction=90.56 early=False earlyAt=-1.00
+Receipt id=stay-2-3 room=104 gross=180 refund=0 net=180 satisfaction=83.14 early=False earlyAt=-1.00
+Receipt id=stay-2-4 room=105 gross=180 refund=0 net=180 satisfaction=97.64 early=False earlyAt=-1.00
+Receipt id=stay-2-5 room=103 gross=180 refund=0 net=180 satisfaction=83.69 early=False earlyAt=-1.00
+Receipt id=stay-3-3 room=104 gross=180 refund=90 net=90 satisfaction=35.00 early=True earlyAt=2068.79
+Receipt id=stay-3-6 room=105 gross=180 refund=90 net=90 satisfaction=35.00 early=True earlyAt=2069.19
+Receipt id=stay-3-1 room=102 gross=180 refund=0 net=180 satisfaction=89.79 early=False earlyAt=-1.00
+Receipt id=stay-3-2 room=101 gross=180 refund=0 net=180 satisfaction=83.11 early=False earlyAt=-1.00
+Receipt id=stay-3-5 room=103 gross=180 refund=0 net=180 satisfaction=79.82 early=False earlyAt=-1.00
+CurrentStaffJob=linen:101 CurrentStaffPhase=3 NextActionAt=2285.87
+Evidence limits: ordinary production GameSession8x ticks and actual guest navigation; timed model staff travel/key/linen/repair adapters, not physical carrying or human SOLO pacing. GPU images require separate visual review. No hardware performance, long-pause, AltTab, disk-save or multiplayer claim.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Sales policy at elapsed=0.60: open=4; rate=180; existing contracts preserved.
+CONTINUOUS POLICY: production demand seed/configuration/cash; four rooms offered at the production initial rate, then five after D1 13:00 for later scheduled enquiries. Close all new sales on D3 after its already-booked cohort, preventing a fourth cohort during the checkout tail. Actual automatic reservations determine cohort identities/counts; no AcceptBooking calls, invented fill counts or contract repricing. A labelled model staff assignment adapter moves each new cold-sensitive booking toward a warmer available open room and tolerant guests toward heat-loss rooms before arrival.
+ONE STAFF ADAPTER: one exclusive job, declared 3.5m/s corridor/storage travel and action durations in hotel seconds at diagnostic8x. Real model rack-key pickup/giving, dirty-linen pickup/deposit, finite clean-stock pickup and bed progress. No physical staff carry claim. Every guest arrival, room crossing, outing, return and final exit is supplied by production GuestPresentation, never by this driver.
+REPAIR ADAPTER: only on a naturally failed boiler; paid SOLO relief/catch and ordered panel/breaker/latch/latch/restart model sequence. Physical repair input controller is temporarily suspended for this explicitly separate model-input owner and restored even on failure. No pressure, temperature, condition or failure override.
+Other policy: inspect each genuinely vacant room valve for 3 hotel seconds during turnover, return it to level1; no optional blanket/wake/late-checkout promise is fabricated. Natural private concerns, self-help, contact attempts, finite waits and schedule choices remain active. No human workload/performance/AltTab claim.
+Capture continuous-opening: Production continuous D1 / cash750 / future bookings / one original hotel.
+Automatic cohort=1 id=stay-1-1 room=102 agreedPrice=180 arrival=180.0 observedAt=15.20
+Automatic cohort=1 id=stay-1-2 room=101 agreedPrice=180 arrival=197.1 observedAt=30.00
+Automatic cohort=1 id=stay-1-3 room=104 agreedPrice=180 arrival=214.3 observedAt=45.00
+Automatic cohort=1 id=stay-1-4 room=103 agreedPrice=180 arrival=231.4 observedAt=60.00
+Capture continuous-bookings: Actual first-night automatic reservations; later nights remain scheduled demand.
+Sales policy at elapsed=150.20: open=5; rate=180; existing contracts preserved.
+Automatic cohort=2 id=stay-2-1 room=102 agreedPrice=180 arrival=900.0 observedAt=240.20
+Automatic cohort=2 id=stay-2-2 room=101 agreedPrice=180 arrival=917.1 observedAt=255.20
+Automatic cohort=2 id=stay-2-3 room=104 agreedPrice=180 arrival=934.3 observedAt=270.20
+Capture continuous-day1-guests: Cohort 1 / real reception and room routes completed / natural life remains active.
+Automatic cohort=2 id=stay-2-4 room=105 agreedPrice=180 arrival=951.4 observedAt=285.20
+Automatic cohort=2 id=stay-2-5 room=103 agreedPrice=180 arrival=968.6 observedAt=300.20
+Capture continuous-day2-preparation: Real prior-cohort departures and timed manual turnover; no overnight world reset.
+Automatic cohort=3 id=stay-3-1 room=102 agreedPrice=180 arrival=1620.0 observedAt=960.04
+Automatic cohort=3 id=stay-3-2 room=101 agreedPrice=180 arrival=1637.1 observedAt=975.04
+Automatic cohort=3 id=stay-3-3 room=104 agreedPrice=180 arrival=1654.3 observedAt=990.04
+Capture continuous-day2-guests: Cohort 2 / real reception and room routes completed / natural life remains active.
+Automatic cohort=3 id=stay-3-5 room=103 agreedPrice=180 arrival=1688.6 observedAt=1020.04
+Automatic cohort=3 id=stay-3-6 room=105 agreedPrice=180 arrival=1705.7 observedAt=1035.04
+Sales policy at elapsed=1200.00: open=0; rate=180; existing contracts preserved.
+Natural repair model job begins at=1484.5 cash=570
+Capture continuous-day3-preparation: Real prior-cohort departures and timed manual turnover; no overnight world reset.
+Capture continuous-day3-guests: Cohort 3 / real reception and room routes completed / natural life remains active.
+Natural repair model job begins at=1979.2 cash=1270
+Capture continuous-72-hours: 72 hours on one model, room registry and clock; day-three stays await next-morning checkout.
+Capture continuous-reports: Three real reports; reporting periods and arrival cohorts are deliberately separate.
+Cash conservation: start=750 +netReceipts=2340 -operating=1350 -maintenance=400 -capital=0 =cash=1340. Reports never post checkout revenue a second time.
+AutomaticSales=True SalesClosurePreservesContracts=True AgreedRatesPreserved=True SoldStays=14 EarlyCheckouts=2
+Optional earned upgrade purchased=False; if false the production policy did not reach its affordable pre-D3-evening threshold while keeping bill450+patch200 buffer. This is an observation, not a guaranteed purchase objective.
+Capture continuous-final-accounts: Every automatically sold stay paid once, in its actual departure period; conserved real cash.
+Capture continuous-final-boiler: Actual end-of-run boiler condition/capacity; faults and paid work are measured, never forced.
+ContinuousFreshInventoryReset=True KeysOnRack=6 CleanLinen=6 Blankets=3 Bulbs=3 HeatersOff=2 OldServiceRecords=0 OldCarriers=0 EquipmentFaultsAndUpgradesCleared=True
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Capture continuous-new-session: Explicit NewGame after successful three-day trace / D1 / cash750 / six fresh rooms / one SOLO staff.

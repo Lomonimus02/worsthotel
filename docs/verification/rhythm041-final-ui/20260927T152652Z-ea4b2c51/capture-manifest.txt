@@ -1,0 +1,10 @@
+01-operations.png
+02-paid-departure.png
+02a-room-sales.png
+02b-rate-draft.png
+02c-rate-applied.png
+03-bookings.png
+04-booking-detail.png
+05-forecast.png
+05a-reassigned.png
+06-maintenance.png

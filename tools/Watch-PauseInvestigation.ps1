@@ -8,7 +8,7 @@ param(
     [string]$RunDirectory,
     [ValidateSet('Observe', 'Capture')][string]$Mode = 'Observe',
     [ValidateRange(0, 2)][int]$CaptureIndex = 0,
-    [ValidateSet('HeartbeatStall', 'ToolSmoke')][string]$CaptureReason = 'HeartbeatStall',
+    [ValidateSet('HeartbeatStall', 'ToolSmoke', 'UserReportedHang')][string]$CaptureReason = 'HeartbeatStall',
     [switch]$LibraryOnly
 )
 $ErrorActionPreference = 'Stop'
@@ -243,13 +243,19 @@ $playerLog = Join-Path $runPath 'Player.log'
 if ($Mode -eq 'Capture') {
     if ($CaptureIndex -lt 1) { throw 'A numbered dump capture is required.' }
     $toolSmoke = $CaptureReason -eq 'ToolSmoke'
-    $resultName = if ($toolSmoke) { 'tool-smoke-dump-{0}-result.json' -f $CaptureIndex } else { 'dump-{0}-result.json' -f $CaptureIndex }
-    $dumpName = if ($toolSmoke) { 'healthy-tool-smoke-{0}.dmp' -f $CaptureIndex } else { 'hang-suspect-{0}.dmp' -f $CaptureIndex }
+    $userReported = $CaptureReason -eq 'UserReportedHang'
+    $resultName = if ($toolSmoke) { 'tool-smoke-dump-{0}-result.json' -f $CaptureIndex }
+        elseif ($userReported) { 'user-reported-dump-{0}-result.json' -f $CaptureIndex }
+        else { 'dump-{0}-result.json' -f $CaptureIndex }
+    $dumpName = if ($toolSmoke) { 'healthy-tool-smoke-{0}.dmp' -f $CaptureIndex }
+        elseif ($userReported) { 'user-reported-hang-{0}.dmp' -f $CaptureIndex }
+        else { 'hang-suspect-{0}.dmp' -f $CaptureIndex }
     $resultPath = Join-Path $runPath $resultName
     $dumpPath = Join-Path $runPath $dumpName
     $captureClaim = [IO.File]::Open(($resultPath + '.claim'), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::Read)
     $captureClaim.Dispose()
     $interpretation = if ($toolSmoke) { 'Explicit healthy owned-process dump-tool smoke; NOT crash or hang evidence.' }
+        elseif ($userReported) { 'User reports a frozen picture. Capture during reported symptoms; heartbeat stall and root cause are NOT established.' }
         else { 'Suspected heartbeat stall; no root cause established.' }
     $capture = [ordered]@{ Index = $CaptureIndex; ProcessId = $manifest.ProcessId; BeginUtc = [DateTime]::UtcNow.ToString('o')
         Flags = '0x1924'; Status = 'Capturing'; Reason = $CaptureReason; Interpretation = $interpretation }

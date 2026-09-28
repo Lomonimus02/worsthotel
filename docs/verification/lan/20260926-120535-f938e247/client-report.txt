@@ -1,0 +1,16 @@
+Outcome=PASS Errors=0 Role=client Checks=162
+Utc=2026-09-26T12:05:59.3674010Z
+Run=20260926-120535-f938e247
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+Only client actor1 receives synthetic pad state; host remote reader is untouched by fixture code.
+WorldPoseAgreement=True StaffError=0.000 KeyError=0.000
+PhysicalFloorApproach=True RetreatMetres=0.68 KeyHorizontalGap=1.79
+GPU candidate=client-one-camera-play.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+AssignRoundtrip=True CommitRoundtrip=True ReadOnlyTickRejected=True SnapshotOnlyClockChecks=609
+GPU candidate=client-connection-menu.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+DisconnectedReadOnly=True ClientPhysicsDisabled=True (verified before any intentional return to main menu)
+GPU candidate=client-host-join-menu.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+IntentionalLeaveToMenu=True FreshLocalSession=True SoloAfterLan=True StaffObjects=1; the earlier disconnected replica assertion does not describe this new session.
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

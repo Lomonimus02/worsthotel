@@ -1,0 +1,71 @@
+Built-player living-hotel diagnostic tour / SOLO
+ApplicationVersion=0.3.0 UnityVersion=6000.3.2f1 InputBackgroundPolicy=ResetAndDisableNonBackgroundDevices VerificationPadLayout=WorstHotelVerificationGamepad
+Outcome=PASS Errors=0 ResetVerified=True
+Mode=Solo SyntheticPads=1
+PresenceFixturesRequested=False GuestPresenceVerified=False
+Owned synthetic input; diagnostic8x clock is NOT player WAIT. Production GameSession.Update, guest schedules, doors and routes remain active. No starting housekeeper.
+Diagnostic model key pickup/giving follows a rack-retrieval time estimate at real reception; physical rack grab and instant handoff are tested separately in PlayMode. There is no check-in hold timer.
+Graphics=NVIDIA GeForce GTX 1650 SUPER Resolution=1600x900 RuntimeSeconds=217.4
+Hidden-window player-loop timing is NOT a rendered-performance benchmark. GPU captures require manual visual review.
+OffscreenGPUAvailable=True Captures=30
+Reports=3 FinalCash=3620 FinalReputation=66.45892
+PhysicalRelocations=1 ModelBedActions=11 ModelLinenTurnovers=11
+Day 1: booked=4 checkedIn=4 actualRoomArrivals=4 guestWalkMetres=538.4 minimumRoomSeconds=99.4 naturallyColdGuests=1 naturalBoilerFailure=False paidStays=4 gross=1110 refunds=0 net=660
+Day 2: booked=6 checkedIn=6 actualRoomArrivals=6 guestWalkMetres=774.0 minimumRoomSeconds=99.4 naturallyColdGuests=4 naturalBoilerFailure=False paidStays=6 gross=1860 refunds=0 net=1410
+Day 3: booked=6 checkedIn=6 actualRoomArrivals=6 guestWalkMetres=681.7 minimumRoomSeconds=119.2 naturallyColdGuests=6 naturalBoilerFailure=True paidStays=6 gross=2000 refunds=150 net=1400
+Heater powered-interval temperature: start=21.30 peak=25.92. This observation alone is not a thermal counterfactual.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+The three-day lifecycle uses no forced failure, temperature override, activity override or synthetic route-completion callback. Optional presence/agency fixtures use separate preliminary sessions and are explicitly reset before day1.
+Diagnostic commands: clock8x, model rack-key pickup and giving after retrieval-time estimate, planning/move/switch/reset, physical heater repositioning for the electrical case.
+This three-day lifecycle driver explicitly issues model dirty-pickup/deposit/clean-pickup/bed commands after real guest departure. It does not prove physical linen carrying; the input-driven PlayMode route supplies that evidence.
+Exact synthetic staff device IDs=15; private background-capable layout=WorstHotelVerificationGamepad. Physical devices are not enabled, disabled, removed or sent synthetic events by this driver.
+AGENCY FIXTURES: two separate disposable hotels. Explicit ForceActivity refresh sustains selected sources; SetRoomTemperature prepares the cold case. Production noise output, transmission, needs, complaint/recovery and warning settings stay unchanged. Model key adapters are labelled; all guest arrival/activity/exit/relocation callbacks are production routes. Staff viewpoints use diagnostic repositioning; conversation choices use actual owned controller input.
+Capture agency-noise-case: DIAGNOSTIC sustained TV in101 / real received noise and persistent complaint in103.
+Capture agency-conversation: DIAGNOSTIC setup / actual door knock and controller-operated guest choices.
+AGENCY A PASS: cause=day1-guest4:Noise:day1-guest1/Television; raw=0.750; received=0.525; audibleAudioSource=True; realKnockAndContextQuiet=True; naturalRecovery=True.
+Capture agency-repeat: DIAGNOSTIC setup / actual door knock and controller-operated guest choices.
+AGENCY B PASS: persistentCase=day1-guest4:Noise:day1-guest1/Television; episodes=2; complaints=2; repeatedNoise=1; sourceWarnings=2; effectivePatience=0.80.
+Capture agency-credit: DIAGNOSTIC renewed noise case / actual contextual compensation selected / credit recorded while cause persists.
+AGENCY D PASS: credit=90; caseStillActive=True; sourceBefore=0.750; sourceAfter=0.750; sourceNoiseUnchanged=True.
+Capture agency-relocation: DIAGNOSTIC model key exchange / real guest route103→106 / original TV still active / exposure recovered.
+AGENCY C PASS: modelKeyAdapter=True; physicalRelocation=103->106; destinationReceived=0.000; originalSourceStillActive=True; naturallyResolved=True.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Capture agency-life: DIAGNOSTIC varied quiet TV, desk work and shower / real anchors / no actionable guest case.
+AGENCY E PASS: stagedQuietTV=True; stagedDeskWork=True; stagedShower=True; actionableCases=0; natural seeded schedules are separately exercised by the three-day tour.
+Capture agency-cold: DIAGNOSTIC thermometer set to10C / cold-sensitive guest105 / actual temperature complaint.
+Capture agency-away: DIAGNOSTIC requested exit / actual exterior route / retained room / room perception suspended.
+Capture agency-return: DIAGNOSTIC return / actual room anchor / cold and nearby noise exposure resume.
+AGENCY F PASS: coldSensitive=True; physicalExitReturn=True; awayTemperatureExposureDelta=0; awayNoiseExposureDelta=0; roomAndKeyRetained=True; perceptionResumed=True.
+GuestAgencyVerified=True Scenarios=A,B,C,D,E,F NoSyntheticGuestRouteCallbacks=True
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Capture physical-sources: Six numbered physical rack keys / fixed door knocker outside Room101.
+Capture planning: Original day-one ledger / four production offers.
+Capture developer-panel: Original F2 developer panel / actual IMGUI and cameras.
+Capture developer-controls: Original F2 heater and electrical controls / actual scrolled IMGUI / no override applied.
+Capture solo-service: Real staggered arrivals and physical room routes completed.
+Day1 relocation102->105: real origin door, departure token, destination door and arrival callback.
+Capture guest-relations: Original service ledger before owned virtual-pad navigation.
+Guest menu ready: owner=0 open=True paused=False actions=10 enabled=10 focus=0 selected=<none> pad=15
+Guest menu down: 0 -> owner=0 open=True paused=False actions=10 enabled=10 focus=1 selected=<none> pad=15
+Guest menu down: 1 -> owner=0 open=True paused=False actions=10 enabled=10 focus=2 selected=<none> pad=15
+Guest menu confirm: owner=0 open=True paused=False actions=10 enabled=10 focus=0 selected=day1-guest3 pad=15
+Capture guest-detail: Original guest detail page / selected with real virtual-pad menu input.
+Capture settlement-day1: Actual paid stays and consequences / no room-time shortcut.
+Capture maintenance: Production maintenance choice between real guest days.
+After day1 maintenance=CheapPatch.
+Capture housekeeping-day2: Dirty-room ledger / owners perform linen turnover.
+Capture linen-source: Finite clean linen on the utility shelf / dirty linen on a vacated bed.
+Capture planning-day2: Prepared rooms / production day 2 bookings.
+Day2 before physical heater setup: room106=21.30C, naturalCold=True, boilerFailed=False. No temperature or failure override.
+Capture portable-heater: DIAGNOSTIC heater repositioning / actual room volume, switch, heat and electrical load.
+Capture electrical-warning: Actual overload timer / heater and three occupied B rooms / no forced trip.
+Natural circuitB trip: requestedLoad=4.55 capacity=4.00 trips=1; actual heater heat=0, A unaffected.
+Capture electrical-tripped: Actual tripped B / room lights and heater off / independent A powered.
+Capture settlement-day2: Actual paid stays and consequences / no room-time shortcut.
+After day2 maintenance=Defer.
+Capture housekeeping-day3: Dirty-room ledger / owners perform linen turnover.
+Capture planning-day3: Prepared rooms / production day 3 bookings.
+Capture settlement-day3: Actual paid stays and consequences / no room-time shortcut.
+Capture results: Actual three-day living-hotel results.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Capture new-session: Verified clean reset / one fresh physical heater registration.

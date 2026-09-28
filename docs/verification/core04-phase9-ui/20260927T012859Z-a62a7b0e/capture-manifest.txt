@@ -1,0 +1,18 @@
+Actual Unity GPU / IMGUI captures. Human visual review remains separate.
+Fixture: SOLO; production continuous calendar; starting cash 4000; two labelled model check-ins; room105 dirt, boiler45%, circuitB trip forced.
+Guest checkout and report time advanced by explicit diagnostic commands. Maintenance and circuit upgrade use actual reception controller choices.
+Graphics=Direct3D11 | Unity=6000.3.2f1
+01-operations.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=197.64 | cash=4000 | 2026-09-27T01:29:00.5137889Z
+02-paid-departure-filtered.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=198.14 | cash=4120 | 2026-09-27T01:29:00.7328434Z
+03-dated-bookings.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=198.54 | cash=4120 | 2026-09-27T01:29:01.1251624Z
+04-booking-room-choice.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=199.54 | cash=4120 | 2026-09-27T01:29:02.0341384Z
+05-forecast-power-off.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=199.94 | cash=4120 | 2026-09-27T01:29:02.5583119Z
+06-maintenance-choice.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=202.34 | cash=4120 | 2026-09-27T01:29:04.8319217Z
+07-maintenance-running.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=202.54 | cash=2620 | 2026-09-27T01:29:05.1546605Z
+08-operations-downtime.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=202.94 | cash=2620 | 2026-09-27T01:29:05.4810056Z
+09-upgrade-options.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=203.74 | cash=2620 | 2026-09-27T01:29:06.2702153Z
+10-upgrade-installed.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=204.14 | cash=1420 | 2026-09-27T01:29:06.7272567Z
+11-current-accounts.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=204.94 | cash=1420 | 2026-09-27T01:29:07.5000861Z
+12-report-list.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=660.51 | cash=970 | 2026-09-27T01:29:07.8842084Z
+13-report-costs.png | 640x480 | sha256=3a56fcbb5e843d076a4638ca75a0aec01b0241e384d10424bfba5bcbe3d834be | hotel=660.71 | cash=970 | 2026-09-27T01:29:08.2083730Z
+14-phone-calendar.png | 640x480 | sha256=f2258126d9af837f0ee647d6e381578f662422af29ea8ff233e386216ae1d804 | hotel=661.11 | cash=970 | 2026-09-27T01:29:08.5495578Z

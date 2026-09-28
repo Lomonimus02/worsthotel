@@ -1,0 +1,14 @@
+Outcome=FAIL Errors=1 Role=host Checks=22
+Utc=2026-09-26T10:48:14.7555836Z
+Run=20260926-104756-5fcfa1bb
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+DIAGNOSTIC: empty actor1 placed near rack; all item pickup/carry/drop uses real client pad through NGO.
+FAIL: System.InvalidOperationException: Peer reported failure during remote F physically regrabs the dropped key
+  at WorstHotel.LanDevelopmentVerification+<Until>d__40.MoveNext () [0x000e0] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:365 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__26.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:105 
+ERROR: LAN VERIFY FAILED [host]: System.InvalidOperationException: Peer reported failure during remote F physically regrabs the dropped key
+  at WorstHotel.LanDevelopmentVerification+<Until>d__40.MoveNext () [0x000e0] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:365 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__26.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:105 
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

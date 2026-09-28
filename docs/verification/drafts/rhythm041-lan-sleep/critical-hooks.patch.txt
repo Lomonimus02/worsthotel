@@ -1,0 +1,27 @@
+*** Begin Patch
+*** Update File: Assets/_WorstHotel/Scripts/Networking/LanDevelopmentVerification.Sleep.cs
+@@
+             facts.Add("DisconnectClearsSleep=True RejoinRequiresFreshConsent=True HostHotelPreservedOnRejoin=True");
++            yield return RunSleepCriticalHost();
+ 
+             yield return TapButton(GamepadButton.South);
+@@
+             facts.Add("DisconnectClearsSleep=True DisconnectedReadOnly=True RejoinRequiresFreshConsent=True HostHotelPreservedOnRejoin=True");
++            yield return RunSleepCriticalClient();
+ 
+             yield return Stage("sleep-before-reset-pending", 12);
+*** Update File: tools/VerifyLAN.ps1
+@@
+                 'NewGameClearsSleep=True', 'OldEpochInputRejected=True', 'CurrentEpochInputWorks=True',
++                'CriticalWarningKeptSleep=True', 'ActualHeaterLoadTrip=True', 'CriticalWakeMirrored=True', 'TripWakeNormalSpeed=True',
+                 'MorningWake=True', 'SnapshotSleepAuthority=True', 'SleepFixturesVerified=True')) {
+@@
+-            'client-sleep-rejoined.png', 'client-sleep-fresh-epoch.png', 'client-sleep-morning.png') }
++            'client-sleep-rejoined.png', 'client-sleep-fresh-epoch.png', 'client-sleep-morning.png', 'client-sleep-critical-wake.png') }
+@@
+-            $(if ($SleepFixtures) { 'RuntimeScope=Two actual localhost EXE processes with distinct owned local pads; quiet hotel through normal closed room-sales policies, labelled empty-staff approaches and evening clock setup, real ordinary sleep until 06:00, actual disconnect/rejoin and constructed old-epoch negative input on the normal NGO channel.' }
++            $(if ($SleepFixtures) { 'RuntimeScope=Two actual localhost EXE processes with distinct owned local pads; closed room-sales policies, labelled empty-staff approaches and evening clock setup; separate actual guest routes with model-key/body-placement/switch/reset critical-load adapters; ordinary electrical warning/trip wake, normal sleep until 06:00 after NewGame, actual disconnect/rejoin and constructed old-epoch negative input on the normal NGO channel.' }
+*** End Patch
+
+Integration note: copy the accompanying partial/meta to Networking only after the current gate, then apply this patch.
+Nine captures are required with -Capture. The final quiet night still starts after normal NewGame and closed-sales/evening setup.

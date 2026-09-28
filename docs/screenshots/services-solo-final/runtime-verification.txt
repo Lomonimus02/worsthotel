@@ -1,0 +1,67 @@
+Built-player living-hotel diagnostic tour / SOLO
+ApplicationVersion=0.3.1 UnityVersion=6000.3.2f1 InputBackgroundPolicy=ResetAndDisableNonBackgroundDevices VerificationPadLayout=WorstHotelVerificationGamepad
+Outcome=FAIL Errors=1 ResetVerified=False
+Mode=Solo SyntheticPads=1
+PresenceFixturesRequested=False GuestPresenceVerified=False
+ServiceFixturesRequested=True GuestServicesVerified=True
+Owned synthetic input; diagnostic8x clock is NOT player WAIT. Production GameSession.Update, guest schedules, doors and routes remain active. No starting housekeeper.
+Diagnostic model key pickup/giving follows a rack-retrieval time estimate at real reception; physical rack grab and instant handoff are tested separately in PlayMode. There is no check-in hold timer.
+Graphics=NVIDIA GeForce GTX 1650 SUPER Resolution=1600x900 RuntimeSeconds=263.1
+Hidden-window player-loop timing is NOT a rendered-performance benchmark. GPU captures require manual visual review.
+OffscreenGPUAvailable=True Captures=24
+Reports=2 FinalCash=0 FinalReputation=0
+PhysicalRelocations=1 ModelBedActions=5 ModelLinenTurnovers=5
+Day 1: booked=4 checkedIn=4 actualRoomArrivals=4 guestWalkMetres=538.3 minimumRoomSeconds=99.0 naturallyColdGuests=1 naturalBoilerFailure=False serviceRequests=3 guestsWithoutRequests=2 servicesFulfilled=0 paidStays=4 gross=1110 refunds=0 net=660
+Day 2: booked=6 checkedIn=4 actualRoomArrivals=4 guestWalkMetres=890.5 minimumRoomSeconds=0.0 naturallyColdGuests=1 naturalBoilerFailure=False serviceRequests=3 guestsWithoutRequests=3 servicesFulfilled=0 paidStays=4 gross=1110 refunds=0 net=660
+Heater powered-interval temperature: start=0.00 peak=0.00. This observation alone is not a thermal counterfactual.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+The three-day lifecycle uses no forced failure, temperature override, activity override or synthetic route-completion callback. Optional presence/agency fixtures use separate preliminary sessions and are explicitly reset before day1.
+Diagnostic commands: clock8x, model rack-key pickup and giving after retrieval-time estimate, planning/move/switch/reset, physical heater repositioning for the electrical case.
+This three-day lifecycle driver explicitly issues model dirty-pickup/deposit/clean-pickup/bed commands after real guest departure. It does not prove physical linen carrying; the input-driven PlayMode route supplies that evidence.
+Exact synthetic staff device IDs=15; private background-capable layout=WorstHotelVerificationGamepad. Physical devices are not enabled, disabled, removed or sent synthetic events by this driver.
+SERVICE FIXTURES: two disposable hotels. Service eligibility=0 only in cloned fixture config; explicit DebugForceService, mild cold, burnt bulb and dirty-room setup select the scenarios. All service stock, thermal/electrical tuning, due windows and consequences remain production values. Initial empty-handed staff viewpoints and model key pickup/handoff are labelled adapters; actual owned controller, colliders, physics carrying, service choices and production guest routes execute the chains. No synthetic guest route callbacks or carried-item repositioning.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Capture service-board: Original NOW / UPCOMING service board opened with owned controller at its actual reception prop.
+Capture service-blanket-stock: DIAGNOSTIC mild cold / finite physical blanket shelf before real grab and carry.
+Capture service-blanket-delivered: Actual shelf pickup, physics carry, guest entry and bed delivery / personal comfort without electrical load.
+SERVICE BLANKET PASS: item=blanket:0; shelf=3->2; visibleBedBlanket=True; comfortBonus=2; electricalLoadUnchanged=True; productionTemperatureDrift=0.024; physicalInput=True.
+Capture service-radiator: Actual controller radiator adjustment / local setting and increased central heating demand.
+SERVICE RADIATOR PASS: setting=1->2; actualBoilerLoad=0.850->1.100.
+Capture service-lamp-off: DIAGNOSTIC burnt bulb / actual bedside light and lamp glass are off.
+Capture service-lamp-on: Actual maintenance-shelf bulb pickup, physics carry and installation restore the same lamp.
+SERVICE LAMP PASS: explicitBreak=True; darkLightObserved=True; physicalShelfBulb=bulb:0; installedRoom=101; realLightRestored=True.
+Capture service-electrical-consumers: Actual electrical cabinet and consumer readout / diagnostic cover opening only / no load or breaker override.
+SERVICE POWER INSPECTION: guest:day1-guest4 room=101 requested=0.850 delivered=0.850; heater:portable-heater-1 room= requested=0.000 delivered=0.000; heater:portable-heater-2 room= requested=0.000 delivered=0.000.
+Capture service-wake-request: Original service decision page selected through actual board/controller input.
+Capture service-phone: Accepted wake-up promise shown at the actual reception telephone near its due time.
+SERVICE PHONE PASS: actualReceptionPhone=True; timedCallCancelledWithoutCompletion=True; retryCompleted=True; kept=1.
+Capture service-late-checkout: Original service decision page selected through actual board/controller input.
+SERVICE LATE CHECKOUT PASS: original=284.1; accepted=297.0; occupiedAt=285.1; turnoverDelayed=True.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Capture service-luggage-request: Original service decision page selected through actual board/controller input.
+Capture service-luggage-stored: Actual accepted guest suitcase picked up, carried across reception and placed on luggage platform.
+SERVICE LUGGAGE PASS: actualGuestSuitcase=luggage:day1-guest1; physicalCarry=True; stored=True; stillAwaitingRoom=True; noAutoStaff=True.
+GuestServicesVerified=True PhysicalServiceCarryMetres=58.47 Blanket=True Radiator=True Lamp=True Luggage=True PhoneCancelAndComplete=True LateCheckoutDelay=True NoSyntheticGuestRouteCallbacks=True
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Capture physical-sources: Six numbered physical rack keys / fixed door knocker outside Room101.
+Capture planning: Original day-one ledger / four production offers.
+Capture developer-panel: Original F2 developer panel / actual IMGUI and cameras.
+Capture developer-controls: Original F2 heater and electrical controls / actual scrolled IMGUI / no override applied.
+Capture solo-service: Real staggered arrivals and physical room routes completed.
+Day1 relocation102->105: real origin door, departure token, destination door and arrival callback.
+Capture guest-relations: Original service ledger before owned virtual-pad navigation.
+Guest menu ready: owner=0 open=True paused=False actions=11 enabled=11 focus=0 selected=<none> pad=15
+Guest menu down: 0 -> owner=0 open=True paused=False actions=11 enabled=11 focus=1 selected=<none> pad=15
+Guest menu down: 1 -> owner=0 open=True paused=False actions=11 enabled=11 focus=2 selected=<none> pad=15
+Guest menu confirm: owner=0 open=True paused=False actions=11 enabled=11 focus=0 selected=day1-guest3 pad=15
+Capture guest-detail: Original guest detail page / selected with real virtual-pad menu input.
+Capture settlement-day1: Actual paid stays and consequences / no room-time shortcut.
+Capture maintenance: Production maintenance choice between real guest days.
+After day1 maintenance=CheapPatch.
+Capture housekeeping-day2: Dirty-room ledger / owners perform linen turnover.
+Capture linen-source: Finite clean linen on the utility shelf / dirty linen on a vacated bed.
+Capture planning-day2: Prepared rooms / production day 2 bookings.
+ERROR: VERIFY: System.InvalidOperationException: VERIFY failed: day 2 all 6 guests physically reach their rooms (timeout; day 2, Settlement, clock 300.0)
+  at WorstHotel.DevelopmentVerification.Require (System.Boolean success, System.String operation) [0x0001a] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Core\DevelopmentVerification.cs:340 
+  at WorstHotel.DevelopmentVerification+<Until>d__67.MoveNext () [0x0006c] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Core\DevelopmentVerification.cs:336 
+  at WorstHotel.DevelopmentVerification+<Start>d__60.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Core\DevelopmentVerification.cs:85 

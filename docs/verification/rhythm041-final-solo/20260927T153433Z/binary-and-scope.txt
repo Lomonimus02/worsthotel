@@ -1,0 +1,5 @@
+Build=Builds/Windows-0.4.1
+GameplayAssemblySHA256=86A2A0216EC27B085CFEC30E27A8E5ED3DF0AA14A9E451891AE4973D72E5FEAC
+ExecutableSHA256=ABC8179E345B70C9D7CA423C54E02739ED9B9ADCA668C2C745FFB81AADC05CC6
+RuntimeScope=Continuous SOLO with explicitly labelled diagnostic staff actions; human controls, feel and performance require separate review.
+ScreenshotLegibility=MANUAL_REVIEW_REQUIRED

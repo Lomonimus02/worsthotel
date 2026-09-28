@@ -1,0 +1,34 @@
+Outcome=PASS Errors=0 Role=host Mode=ContinuousFixtures Checks=121
+Utc=2026-09-27T15:24:44.4636881Z
+Run=20260927-152340-1eee684e
+CONTINUOUS CAPITAL FIXTURE: cloned economy starting cash=8000; production continuous calendar, service, capacity, wear and prices remain unchanged. This is funded command/accounting verification, not an affordability or natural-profit claim.
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+LANVersion=18 ModelSchema=15 Compatibility=worst-hotel-0.4.1-rhythm18-gzip
+DIAGNOSTIC: ordinary host model sales-policy commands close all rooms before the first enquiry while transport connects. No sales configuration is disabled and no reservation is injected. Subsequent opening/rate/reassignment uses actual client controller commands.
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+DIAGNOSTIC: empty remote employee placed before the authored reception terminal; actual client look/use and the normal physical ledger grant perform all access.
+PRODUCTION CONTINUOUS: 720-second day, opens08:00, report06:00; no legacy clone, synthetic guest arrival or fabricated transport state.
+DIAGNOSTIC ADVANCE closed first-date demand window: before=5.599999 target=135 requested=129.4 tickRate=5
+DIAGNOSTIC ADVANCE RESULT closed first-date demand window: correction=0 actual=134.999908 shortfall=9.15527344E-05 report=0 count=0 nextReport=660 phase=Service modelSame=True roomsSame=True expectedEpoch=639261194247739938 actualEpoch=639261194247739938 message=Hotel open. Review upcoming bookings while the building keeps running.
+DIAGNOSTIC ADVANCE RESULT closed first-date demand window: correction=1 actual=135.1999 shortfall=-0.1999054 report=0 count=0 nextReport=660 phase=Service modelSame=True roomsSame=True expectedEpoch=639261194247739938 actualEpoch=639261194247739938 message=Hotel open. Review upcoming bookings while the building keeps running.
+DIAGNOSTIC ADVANCE normal timed automatic enquiries for second date: before=148.1997 target=348 requested=199.8003 tickRate=5
+DIAGNOSTIC ADVANCE RESULT normal timed automatic enquiries for second date: correction=0 actual=348.005859 shortfall=-0.005859375 report=0 count=0 nextReport=660 phase=Service modelSame=True roomsSame=True expectedEpoch=639261194247739938 actualEpoch=639261194247739938 message=This room's sales policy changed. Refresh it before applying the draft.
+DIAGNOSTIC: ForceFailure + DebugTripCircuit(B) + DebugMarkRoomDirty(106) create persistence conditions. Rack key stays on rack; no physical carry is claimed.
+DIAGNOSTIC ADVANCE first accounting boundary: before=359.406555 target=660.4 requested=300.993469 tickRate=5
+DIAGNOSTIC ADVANCE RESULT first accounting boundary: correction=0 actual=660.4184 shortfall=-0.018371582 report=1 count=1 nextReport=1380 phase=Service modelSame=True roomsSame=True expectedEpoch=639261194247739938 actualEpoch=639261194247739938 message=Future booking cancelled.
+DIAGNOSTIC CLOCK: 359.41 -> 660.42; normal fixed-tick AdvanceTime crosses midnight/report; not a human-duration or arrival-route test.
+PhysicalLedgerAccess=True BookingRoundtrip=True SalesPolicyRoundtrip=True AutomaticBooking=True Reassignment=True AgreedPricePreserved=True StalePolicyRejected=True StaleRevisionRejected=True Cancellation=True MidnightPersistence=True ReportOnce=True PostBoundaryReassignment=True
+HostEpoch=639261194247739938 Day=2 Cash=7550 Report=1 RemoteCommands=8 ModelBytes=24938 WorldBytes=14046
+DIAGNOSTIC: empty remote employee placed before boiler inspection plaque. The client performs actual network aim and held setup; selection alone does not purchase service.
+DIAGNOSTIC CLOCK: bounded advance to paid maintenance deadline; actual model completion and replicated condition are checked, not elapsed human work time.
+DIAGNOSTIC ADVANCE accounting boundary 2: before=743.6232 target=1380.2 requested=636.5767 tickRate=5
+DIAGNOSTIC ADVANCE RESULT accounting boundary 2: correction=0 actual=1380.10962 shortfall=0.09033203 report=2 count=2 nextReport=2100 phase=Service modelSame=True roomsSame=True expectedEpoch=639261194247739938 actualEpoch=639261194247739938 message=The boiler is already offline for maintenance.
+DIAGNOSTIC ADVANCE RESULT accounting boundary 2: correction=1 actual=1380.30957 shortfall=-0.109619141 report=2 count=2 nextReport=2100 phase=Service modelSame=True roomsSame=True expectedEpoch=639261194247739938 actualEpoch=639261194247739938 message=The boiler is already offline for maintenance.
+DIAGNOSTIC ACCOUNTING BOUNDARY 2: clock 743.62 -> 1380.31; Day=3 cash=2600. Production guest travel may continue, but no guest check-in or three played LAN days is claimed.
+DIAGNOSTIC ADVANCE accounting boundary 3: before=1383.90869 target=2100.2 requested=716.29126 tickRate=5
+DIAGNOSTIC ADVANCE RESULT accounting boundary 3: correction=0 actual=2099.99976 shortfall=0.200195313 report=2 count=2 nextReport=2100 phase=Service modelSame=True roomsSame=True expectedEpoch=639261194247739938 actualEpoch=639261194247739938 message=The boiler is already offline for maintenance.
+DIAGNOSTIC ADVANCE RESULT accounting boundary 3: correction=1 actual=2100.2 shortfall=0 report=3 count=3 nextReport=2820 phase=Service modelSame=True roomsSame=True expectedEpoch=639261194247739938 actualEpoch=639261194247739938 message=The boiler is already offline for maintenance.
+DIAGNOSTIC ACCOUNTING BOUNDARY 3: clock 1383.91 -> 2100.20; Day=4 cash=2150. Production guest travel may continue, but no guest check-in or three played LAN days is claimed.
+RemotePaidUpgrades=True UpgradeDoesNotRepair=True DuplicateCapitalRejected=True OtherBranchRejected=True RemotePaidMaintenance=True MaintenanceDowntime=True DuplicateMaintenanceRejected=True MaintenanceRestored=True ThreeAccountingBoundaries=True ContinuousCapitalVerified=True
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

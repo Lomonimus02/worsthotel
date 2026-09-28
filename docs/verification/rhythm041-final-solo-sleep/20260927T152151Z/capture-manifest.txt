@@ -1,0 +1,5 @@
+solo-sleep-staff-room.png
+solo-sleep-active.png
+solo-sleep-morning.png
+solo-sleep-critical-wake.png
+solo-sleep-new-session.png

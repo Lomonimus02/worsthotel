@@ -1,0 +1,18 @@
+Outcome=FAIL Errors=1 Role=client Checks=143
+Utc=2026-09-26T10:48:14.7465440Z
+Run=20260926-104756-5fcfa1bb
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+Only client actor1 receives synthetic pad state; host remote reader is untouched by fixture code.
+WorldPoseAgreement=True StaffError=0.000 KeyError=0.000
+GPU candidate=client-one-camera-play.png NativeIMGUI=True ActiveCameraCount=1; pixels and layout require human inspection.
+FAIL: System.InvalidOperationException: actual network look acquired the physical key
+  at WorstHotel.LanDevelopmentVerification.Require (System.Boolean condition, System.String operation) [0x0001e] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:379 
+  at WorstHotel.LanDevelopmentVerification+<Aim>d__32.MoveNext () [0x0023f] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:299 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__26.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:105 
+ERROR: LAN VERIFY FAILED [client]: System.InvalidOperationException: actual network look acquired the physical key
+  at WorstHotel.LanDevelopmentVerification.Require (System.Boolean condition, System.String operation) [0x0001e] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:379 
+  at WorstHotel.LanDevelopmentVerification+<Aim>d__32.MoveNext () [0x0023f] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:299 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__26.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:105 
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

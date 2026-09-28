@@ -1,0 +1,3 @@
+service-board.png
+service-blanket-stock.png
+service-blanket-delivered.png

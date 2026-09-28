@@ -1,0 +1,19 @@
+Outcome=FAIL Errors=1 Role=client Mode=SleepFixtures Checks=20
+Utc=2026-09-27T15:25:42.3625144Z
+Run=20260927-152526-4bb31213
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+SLEEP INPUT: this process owns actor1 virtual pad only; host remote input reader is never bound or written by the fixture. Existing hidden-player logical focus adapter is diagnostic, not native OS focus manipulation.
+SERVICE AIM: target=(-5.500, 0.560, 35.180) actor=(-4.650, 0.035, 34.680) camera=(-4.680, 1.645, 34.698) angle=48.76 yawError=0.00 pitchError=48.76 startAngle=48.76 bestAngle=48.76 elapsed=4.85 pulses=1 settled=False worldSequence=103 inputLook=(0.000, 0.000) intendedSurface=False maxSampleFrameMs=16.7 uiBlocked=True pickup=False caption=
+SERVICE LOOK DOSE: dose=(0.00, -29.86) noResponse world=14->103 observed=0.00 raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+GPU candidate=client-service-aim-failed.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+FAIL: System.InvalidOperationException: remote service look settled on Staff bed 2; target=(-5.500, 0.560, 35.180) actor=(-4.650, 0.035, 34.680) camera=(-4.680, 1.645, 34.698) angle=48.76 yawError=0.00 pitchError=48.76 startAngle=48.76 bestAngle=48.76 elapsed=4.85 pulses=1 settled=False worldSequence=103 inputLook=(0.000, 0.000) intendedSurface=False maxSampleFrameMs=16.7 uiBlocked=True pickup=False caption=
+  at WorstHotel.LanDevelopmentVerification.Require (System.Boolean condition, System.String operation) [0x0001e] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:454 
+  at WorstHotel.LanDevelopmentVerification+<ServicesAim>d__91.MoveNext () [0x00e3d] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.Services.cs:445 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__54.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:144 
+ERROR: LAN VERIFY FAILED [client]: System.InvalidOperationException: remote service look settled on Staff bed 2; target=(-5.500, 0.560, 35.180) actor=(-4.650, 0.035, 34.680) camera=(-4.680, 1.645, 34.698) angle=48.76 yawError=0.00 pitchError=48.76 startAngle=48.76 bestAngle=48.76 elapsed=4.85 pulses=1 settled=False worldSequence=103 inputLook=(0.000, 0.000) intendedSurface=False maxSampleFrameMs=16.7 uiBlocked=True pickup=False caption=
+  at WorstHotel.LanDevelopmentVerification.Require (System.Boolean condition, System.String operation) [0x0001e] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:454 
+  at WorstHotel.LanDevelopmentVerification+<ServicesAim>d__91.MoveNext () [0x00e3d] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.Services.cs:445 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__54.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:144 
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

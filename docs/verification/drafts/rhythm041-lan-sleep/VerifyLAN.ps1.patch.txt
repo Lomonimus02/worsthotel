@@ -1,0 +1,89 @@
+diff --git a/tools/VerifyLAN.ps1 b/tools/VerifyLAN.ps1
+index 028ff6f..d269b60 100644
+--- a/tools/VerifyLAN.ps1
++++ b/tools/VerifyLAN.ps1
+@@ -6,12 +6,14 @@ param(
+     [switch]$Capture,
+     [switch]$AgencyFixtures,
+     [switch]$ServiceFixtures,
+-    [switch]$ContinuousFixtures
++    [switch]$ContinuousFixtures,
++    [switch]$SleepFixtures
+ )
+ $ErrorActionPreference = 'Stop'
+-if ((@($AgencyFixtures, $ServiceFixtures, $ContinuousFixtures) | Where-Object { $_ }).Count -gt 1) { throw 'Choose only one fixture mode per LAN run.' }
++if ((@($AgencyFixtures, $ServiceFixtures, $ContinuousFixtures, $SleepFixtures) | Where-Object { $_ }).Count -gt 1) { throw 'Choose only one fixture mode per LAN run.' }
+ if ($ServiceFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 345 }
+ if ($ContinuousFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 480 }
++if ($SleepFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 480 }
+ $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+ $playerPath = Join-Path (Join-Path $projectRoot $BuildDirectory) 'TheWorstHotelEver.exe'
+ if (-not (Test-Path -LiteralPath $playerPath)) { throw 'Build the Windows development player with the LAN verification driver first.' }
+@@ -36,6 +38,7 @@ function Start-OwnedHotel([string]$Side) {
+     if ($AgencyFixtures) { $arguments += '-verifyLanAgency' }
+     if ($ServiceFixtures) { $arguments += '-verifyLanServices' }
+     if ($ContinuousFixtures) { $arguments += '-verifyLanContinuous' }
++    if ($SleepFixtures) { $arguments += '-verifyLanSleep' }
+     $process = Start-Process -FilePath $playerPath -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru
+     $ownedPlayers.Add($process)
+     return $process
+@@ -69,7 +72,21 @@ try {
+         if ($report -notmatch "Outcome=PASS Errors=0 Role=$side" -or $report -notmatch "Run=$runId") {
+             throw "$side did not pass with a fresh zero-error report. Inspect $runPath"
+         }
+-        if ($ContinuousFixtures) {
++        if ($SleepFixtures) {
++            foreach ($evidence in @('Mode=SleepFixtures', 'ProductionContinuous=True', 'OwnedLocalPads=True',
++                'HostFirstConsent=True', 'RemoteFirstConsent=True', 'DistinctBeds=True', 'ReleasePreservesConsent=True',
++                'FreshUseCancels=True', 'HostFreshUseCancels=True', 'LeaseExpiryClearsSleep=True', 'LeaseRenewalDoesNotResume=True',
++                'DisconnectClearsSleep=True', 'RejoinRequiresFreshConsent=True', 'HostHotelPreservedOnRejoin=True',
++                'NewGameClearsSleep=True', 'OldEpochInputRejected=True', 'CurrentEpochInputWorks=True',
++                'MorningWake=True', 'SnapshotSleepAuthority=True', 'SleepFixturesVerified=True')) {
++                if ($report -notmatch [regex]::Escape($evidence)) { throw "$side lacks sleep evidence $evidence. Inspect $runPath" }
++            }
++            if ($side -eq 'client' -and ($report -notmatch 'ReadOnlyMirror=True ReadOnlyTickRejected=True SnapshotOnlyClockChecks=' -or
++                $report -notmatch 'DisconnectedReadOnly=True')) {
++                throw 'Client sleep report lacks snapshot-only clock or disconnected read-only evidence.'
++            }
++        }
++        elseif ($ContinuousFixtures) {
+             foreach ($evidence in @('Mode=ContinuousFixtures', 'PhysicalLedgerAccess=True', 'SalesPolicyRoundtrip=True',
+                 'AutomaticBooking=True', 'Reassignment=True', 'AgreedPricePreserved=True', 'StaleRevisionRejected=True', 'StalePolicyRejected=True',
+                 'Cancellation=True', 'MidnightPersistence=True', 'ReportOnce=True', 'PostBoundaryReassignment=True',
+@@ -102,11 +119,14 @@ try {
+         elseif ($side -eq 'host' -and ($report -notmatch 'PhysicalPickup=True' -or $report -notmatch 'DisconnectRelease=True')) {
+             throw 'Host report lacks real remote physical pickup or disconnect-release evidence.'
+         }
+-        if (-not $ContinuousFixtures -and -not $AgencyFixtures -and -not $ServiceFixtures -and $side -eq 'client' -and ($report -notmatch 'WorldPoseAgreement=True' -or $report -notmatch 'AssignRoundtrip=True CommitRoundtrip=True' -or
++        if (-not $SleepFixtures -and -not $ContinuousFixtures -and -not $AgencyFixtures -and -not $ServiceFixtures -and $side -eq 'client' -and ($report -notmatch 'WorldPoseAgreement=True' -or $report -notmatch 'AssignRoundtrip=True CommitRoundtrip=True' -or
+             $report -notmatch 'DisconnectedReadOnly=True')) { throw 'Client report lacks model roundtrip, pose agreement or read-only disconnect evidence.' }
+     }
+     if ($Capture) {
+-        $captureNames = if ($ContinuousFixtures) { @('client-continuous-sales.png', 'client-continuous-bookings.png', 'client-continuous-boundary.png', 'client-continuous-report.png',
++        $captureNames = if ($SleepFixtures) { @('client-sleep-staff-room.png', 'client-sleep-host-ready.png',
++            'client-sleep-both-ready.png', 'client-sleep-wake-cancelled.png', 'client-sleep-disconnected.png',
++            'client-sleep-rejoined.png', 'client-sleep-fresh-epoch.png', 'client-sleep-morning.png') }
++            elseif ($ContinuousFixtures) { @('client-continuous-sales.png', 'client-continuous-bookings.png', 'client-continuous-boundary.png', 'client-continuous-report.png',
+             'client-continuous-capital-before.png', 'client-continuous-capital-installed.png', 'client-continuous-maintenance-active.png',
+             'client-continuous-maintenance-complete.png', 'client-continuous-report-2.png', 'client-continuous-report-3.png') }
+             elseif ($ServiceFixtures) { @('client-service-stock.png', 'client-service-delivered.png', 'client-service-phone.png',
+@@ -121,15 +141,16 @@ try {
+         }
+         Write-Output 'Fresh GPU candidates captured with native IMGUI. Inspect pixels and layout separately.'
+     }
+-    $scenario = if ($ContinuousFixtures) { 'continuous bookings and reporting' } elseif ($ServiceFixtures) { 'physical guest services' } elseif ($AgencyFixtures) { 'guest-agency interaction' } else { 'physical-key smoke' }
++    $scenario = if ($SleepFixtures) { 'physical two-staff sleep, wake and reconnect' } elseif ($ContinuousFixtures) { 'continuous bookings and reporting' } elseif ($ServiceFixtures) { 'physical guest services' } elseif ($AgencyFixtures) { 'guest-agency interaction' } else { 'physical-key smoke' }
+     Write-Output "LAN localhost $scenario passed in two actual EXE processes. Reports: $runPath"
+     Write-Output 'This verifies the local transport path, not a second computer, firewall configuration, human controls, graphics or performance.'
+-    if ($ContinuousFixtures) {
++    if ($ContinuousFixtures -or $SleepFixtures) {
+         $binaryFacts = @(
+             ('Build=' + $BuildDirectory),
+             ('GameplayAssemblySHA256=' + (Get-FileHash -LiteralPath (Join-Path (Split-Path -Parent $playerPath) 'TheWorstHotelEver_Data/Managed/WorstHotel.Runtime.dll') -Algorithm SHA256).Hash),
+             ('ExecutableSHA256=' + (Get-FileHash -LiteralPath $playerPath -Algorithm SHA256).Hash),
+-            'RuntimeScope=Two actual localhost EXE processes; funds-only capital fixture and labelled host clock advances through three accounting boundaries.',
++            $(if ($SleepFixtures) { 'RuntimeScope=Two actual localhost EXE processes with distinct owned local pads; quiet hotel through normal closed room-sales policies, labelled empty-staff approaches and evening clock setup, real ordinary sleep until 06:00, actual disconnect/rejoin and constructed old-epoch negative input on the normal NGO channel.' }
++              else { 'RuntimeScope=Two actual localhost EXE processes; funds-only capital fixture and labelled host clock advances through three accounting boundaries.' }),
+             'ScreenshotLegibility=MANUAL_REVIEW_REQUIRED; ThreeNaturalGuestCohorts=False; SecondComputer=False'
+         )
+         [IO.File]::WriteAllLines((Join-Path $runPath 'binary-and-scope.txt'), $binaryFacts, [Text.UTF8Encoding]::new($false))

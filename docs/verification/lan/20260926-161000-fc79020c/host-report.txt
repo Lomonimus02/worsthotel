@@ -1,0 +1,15 @@
+Outcome=FAIL Errors=1 Role=host Mode=ServiceFixtures Checks=25
+Utc=2026-09-26T16:11:09.0995820Z
+Run=20260926-161000-fc79020c
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+SERVICE SETUP: one real Business booking106; explicitly labelled model key pickup/handoff at actual reception; all guest arrivals/anchors use production routes. No route-completion callbacks.
+DIAGNOSTIC: sustained mild cold/rest, initial burnt lamp105/valve105 and pre-opened room106 door. Only empty actor1 is repositioned at shelf, then valve and phone; every carried blanket metre is real remote input through NGO.
+FAIL: System.InvalidOperationException: Peer reported failure during remote actual shelf grab reaches host ownership
+  at WorstHotel.LanDevelopmentVerification+<Until>d__52.MoveNext () [0x000e0] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:404 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__38.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:110 
+ERROR: LAN VERIFY FAILED [host]: System.InvalidOperationException: Peer reported failure during remote actual shelf grab reaches host ownership
+  at WorstHotel.LanDevelopmentVerification+<Until>d__52.MoveNext () [0x000e0] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:404 
+  at WorstHotel.LanDevelopmentVerification+<Start>d__38.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Networking\LanDevelopmentVerification.cs:110 
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

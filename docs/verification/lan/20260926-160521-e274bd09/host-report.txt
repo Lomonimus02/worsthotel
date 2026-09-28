@@ -1,0 +1,10 @@
+Outcome=PASS Errors=0 Role=host Mode=PhysicalKeys Checks=29
+Utc=2026-09-26T16:05:43.9914170Z
+Run=20260926-160521-e274bd09
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+DIAGNOSTIC: empty actor1 placed near rack; all item pickup/carry/drop uses real client pad through NGO.
+RemoteCommands=2 PhysicalPickup=True CarryMetres=2.36 Drop=True Regrab=True DisconnectRelease=True HostClockAdvanced=True
+ModelBytes=13346 WorldBytes=139561
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

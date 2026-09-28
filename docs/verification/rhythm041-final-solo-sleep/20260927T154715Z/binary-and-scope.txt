@@ -1,0 +1,8 @@
+Build=C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Builds\Windows-0.4.1
+ProcessId=17156 StartUtc=2026-09-27T15:47:15.5951361Z
+ExecutableSHA256=ABC8179E345B70C9D7CA423C54E02739ED9B9ADCA668C2C745FFB81AADC05CC6
+GameplayAssemblySHA256=9AAAA85ACC70733F0CEBF1CF3BD33F11AA7688BEA4D9FCF6AB7091FEF734F2B9
+Scope=Actual SOLO bed consent/cancel/morning plus actual consumer-caused circuit wake, in two isolated production sessions.
+Adapters=Normal pre-sleep calendar advance and sales policies; model key handoff after real reception; uncarried off-heater placement; empty-staff approaches.
+NotClaimed=Heater carrying, room104-to-utility walking, three-day economy, human pacing, performance, long-pause or AltTab repair.
+ScreenshotLegibility=MANUAL_REVIEW_REQUIRED

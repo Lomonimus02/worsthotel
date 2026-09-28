@@ -1,0 +1,47 @@
+Built-player operations UI diagnostic only / SOLO
+ApplicationVersion=0.4.1 UnityVersion=6000.3.2f1 InputBackgroundPolicy=ResetAndDisableNonBackgroundDevices VerificationPadLayout=WorstHotelVerificationGamepad
+Outcome=PASS Errors=0 ResetVerified=False
+Mode=Solo SyntheticPads=1
+OperationsUIOnly=True OperationsUIVerified=True
+This run verifies operations controller state and records real player UI candidates for separate visual review; it does not verify a three-day lifecycle or natural pacing.
+PresenceFixturesRequested=False GuestPresenceVerified=False
+ServiceFixturesRequested=False GuestServicesVerified=False
+Graphics=NVIDIA GeForce GTX 1650 SUPER Resolution=1600x900 RuntimeSeconds=35.2
+Hidden-window player-loop timing is NOT a rendered-performance benchmark. GPU captures require manual visual review.
+OffscreenGPUAvailable=True Captures=23
+Reports=1 FinalCash=970 FinalReputation=64.5
+PhysicalRelocations=0 ModelBedActions=0 ModelLinenTurnovers=0
+Heater powered-interval temperature: start=0.00 peak=0.00. This observation alone is not a thermal counterfactual.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+OPERATIONS UI ONLY: cloned production continuous configuration with automatic sales ENABLED; diagnostic cash=4000, first activity delay=1000, optional service eligibility=0 and self-response observation/tolerance=1000. Initial normal room-policy commands offer two rooms at the allowed minimum rate; labelled clock advances execute scheduled demand decisions and obtain actual reservation IDs, never AcceptBooking or injected contracts. Explicit model reception/key/room callbacks prepare labels; these are not physical guest-route or check-in evidence. Forced boiler condition45, branch B trip, dirty room105 and debug departure demonstrate factual status, not the severe early-departure policy. Staff viewpoints are empty-handed diagnostic placements. Every UI page/action uses the owned synthetic controller. Clock1x plus labelled schedule/report advances; no three-day lifecycle, natural balance, human playtest or natural failure claim.
+UI-only scheduled-clock adapter: 0.00 -> 120.25. Regular model steps process due sales; no reservation injection or synthetic demand decision.
+UI-only scheduled-clock adapter: 120.50 -> 180.25. Regular model steps process due sales; no reservation injection or synthetic demand decision.
+UI-only scheduled-clock adapter: 180.50 -> 197.39. Regular model steps process due sales; no reservation injection or synthetic demand decision.
+Capture 01-operations: Operations overview / prepared factual hotel conditions.
+Capture 02-paid-departure: Paid departure is retained in history but omitted from upcoming checkouts.
+Capture 02a-room-sales: Actual room sales page / two future sale rooms distinct from existing occupied contracts.
+Capture 02b-rate-draft: Owned controller future-rate draft / stored policy and existing guest prices remain unchanged.
+Capture 02c-rate-applied: Applied future room rate / policy revision updated / no contract repricing.
+UI-only scheduled-clock adapter: 204.54 -> 345.25. Regular model steps process due sales; no reservation injection or synthetic demand decision.
+Capture 03-bookings: Tomorrow's automatically confirmed dated bookings / agreed charges before refunds.
+Capture 04-booking-detail: Confirmed booking reassignment preview in room106 / existing agreed price remains fixed.
+Capture 05-forecast: Approximate booking demand / actual tripped circuit remains explicit.
+Capture 05a-reassigned: Applied future-room reassignment / same automatic contract, guest, dates and agreed rate.
+Capture 06-maintenance: Basic / Full Service inspection, cost and actual boiler condition.
+Maintenance UI capture: explicitly repositioned empty-handed staff to the authored boiler plate; actual owned controller look, first-surface focus and held setup start Full Service. This verifies physical setup, not walking a reception-to-boiler route.
+Capture 07-maintenance-active: Maintenance downtime and remaining hotel time.
+Capture 08-operations-maintenance: Operations overview during maintenance.
+Capture 09-upgrades: Boiler and circuit upgrade choices / price and capacity.
+Capture 10-upgrade-installed: Purchased circuit capacity / trip remains unresolved.
+Capture 11-current-finances: Current period cash, collected receipts, unpaid bookings and actual costs.
+UI diagnostic advances hotel clock directly to the next report boundary; no natural three-day claim.
+Capture 12-daily-report-list: Current period after automatic report / historical report remains available.
+Capture 13-report-detail: Historical daily report with maintenance and capital arithmetic.
+Capture 14-phone-calendar: Actual telephone UI / hotel date and time wording.
+Capture 15-boiler-readout: Physical boiler readout / pressure and capacity are distinct gauges.
+Capture 16-electrical-readout: Physical panel / installed branch capacity and actual power state.
+Capture 17-debug-boiler: Actual F2 / measured boiler condition, demand, stress and paid service controls.
+Capture 18-debug-thermal: Actual F2 / single real thermal calculation / no separate display model.
+Capture 19-debug-history: Actual F2 / bounded infrastructure history / diagnostic events labelled.
+ThermalAndHistoryCaptured=True ActualIMGUI=True CaptureOnlyScrollChanges=True
+OperationsUIVerified=True AutomaticSales=True ControllerPolicyRate=True ConfirmedContracts=True ImmutableAgreedPrice=True ReassignmentPreviewAndApply=True ControllerPages=True PaidActions=True ReportsOnce=True DistinctCaptureCandidates=23 ManualVisualReview=REQUIRED ThreeDayLifecycle=False NaturalBalance=False HumanPlaytest=False

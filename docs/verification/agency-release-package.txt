@@ -1,0 +1,8 @@
+Version=0.3.0
+BuildLog=Logs/agency-release-windows.log
+Archive=Builds/TheWorstHotelEver-0.3.0-Windows.zip
+Bytes=70582608
+SHA256=6AB529EF906B12DA0B2E6D3B808C41113D3E860496338CF53ACD96C41D63EEF5
+RuntimeAssemblySHA256=8480C06D09785C39B72791627C76E1A961FCC46D042E3ED4C4B2243978DBCF42
+ArchiveFilesComparedByteContentSHA256=279
+Every packaged file matches the built folder. Complete player dependencies and README-RU.txt included. BurstDebugInformation_DoNotShip excluded.

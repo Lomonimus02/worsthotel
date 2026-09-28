@@ -1,0 +1,11 @@
+Outcome=PASS Errors=0 Role=host Mode=AgencyFixtures Checks=33
+Utc=2026-09-26T14:15:30.5271586Z
+Run=20260926-141348-6f1afc01
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+Agency setup: host booked source101 / affected103, model key handoffs only; all reception/room arrivals use actual guest routes. No route-completion callbacks.
+DIAGNOSTIC: only empty remote staff placed near closed source door; all knocking, menu choice, cancellation and entry permission are client pad through normal NGO.
+RemoteGuestContext=True ActualNoiseReduced=True CausalMemoryReplicated=True HostWarningCount=1 NaturalRecovery=True PermissionDoorOpened=True
+RemoteCommands=5 SourceBefore=0.750 SourceAfter=0.113
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

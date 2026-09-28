@@ -1,0 +1,34 @@
+Outcome=PASS Errors=0 Role=client Mode=SleepFixtures Checks=204
+Utc=2026-09-27T15:34:03.0327088Z
+Run=20260927-153218-b22d6e96
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+SLEEP UI: actual owned-pad Back closed the startup operations ledger before physical bed aim; no UI-block override.
+SLEEP INPUT: this process owns actor1 virtual pad only; host remote input reader is never bound or written by the fixture. Existing hidden-player logical focus adapter is diagnostic, not native OS focus manipulation.
+SERVICE AIM: target=(-5.500, 0.560, 35.180) actor=(-4.650, 0.035, 34.680) camera=(-4.680, 1.645, 34.698) angle=18.90 yawError=0.00 pitchError=18.90 startAngle=48.76 bestAngle=48.76 elapsed=1.13 pulses=1 settled=True worldSequence=46 inputLook=(0.000, 0.000) intendedSurface=True maxSampleFrameMs=16.7 uiBlocked=False pickup=False caption=Staff bed 2|[A / Cross]  Sleep until 06:00 · hotel time continues
+SERVICE LOOK DOSE: dose=(0.00, -29.86) world=27->46 responseAndSettle=0.30 observed=29.86 angle=18.90 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+GPU candidate=client-sleep-staff-room.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-sleep-host-ready.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-sleep-both-ready.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+GPU candidate=client-sleep-wake-cancelled.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+HostFirstConsent=True DistinctBeds=True ReleasePreservesConsent=True FreshUseCancels=True
+RemoteFirstConsent=True HostFreshUseCancels=True
+LeaseExpiryClearsSleep=True LeaseRenewalDoesNotResume=True
+GPU candidate=client-sleep-disconnected.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+SLEEP INPUT: this process owns actor1 virtual pad only; host remote input reader is never bound or written by the fixture. Existing hidden-player logical focus adapter is diagnostic, not native OS focus manipulation.
+SERVICE AIM: target=(-5.500, 0.560, 35.180) actor=(-4.650, 0.035, 34.680) camera=(-4.680, 1.645, 34.698) angle=18.90 yawError=0.00 pitchError=18.90 startAngle=18.90 bestAngle=18.90 elapsed=0.26 pulses=0 settled=True worldSequence=219 inputLook=(0.000, 0.000) intendedSurface=True maxSampleFrameMs=0.0 uiBlocked=False pickup=False caption=Staff bed 2|[A / Cross]  Sleep until 06:00 · hotel time continues
+SERVICE LOOK DOSE: dose=(0.00, 0.00) world=214->219 responseAndSettle=0.26 observed=0.00 angle=18.90 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+GPU candidate=client-sleep-rejoined.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+DisconnectClearsSleep=True DisconnectedReadOnly=True RejoinRequiresFreshConsent=True HostHotelPreservedOnRejoin=True
+GPU candidate=client-sleep-critical-wake.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+CriticalWarningKeptSleep=True ActualHeaterLoadTrip=True CriticalWakeMirrored=True TripWakeNormalSpeed=True
+SERVICE AIM: target=(-5.500, 0.560, 35.180) actor=(-4.650, 0.035, 34.680) camera=(-4.680, 1.645, 34.698) angle=18.90 yawError=0.00 pitchError=18.90 startAngle=48.76 bestAngle=48.76 elapsed=1.11 pulses=1 settled=True worldSequence=29 inputLook=(0.000, 0.000) intendedSurface=True maxSampleFrameMs=16.7 uiBlocked=False pickup=False caption=Staff bed 2|[A / Cross]  Sleep until 06:00 · hotel time continues
+SERVICE LOOK DOSE: dose=(0.00, -29.86) world=7->29 responseAndSettle=0.28 observed=29.86 angle=18.90 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+GPU candidate=client-sleep-fresh-epoch.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+NEGATIVE WIRE FIXTURE: constructed old-epoch fresh-Use envelope through actual NGO hotel/input; intentionally high sequence tests both stale rejection and continued valid input. Not a byte-for-byte traffic recording.
+GPU candidate=client-sleep-morning.png NativeIMGUI=True SubmittedCameraCount=1; pixels and layout require human inspection.
+NewGameClearsSleep=True OldEpochInputRejected=True CurrentEpochInputWorks=True MorningWake=True
+SleepFixturesVerified=True ProductionContinuous=True OwnedLocalPads=True SnapshotSleepAuthority=True
+ReadOnlyMirror=True ReadOnlyTickRejected=True SnapshotOnlyClockChecks=5079
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

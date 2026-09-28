@@ -1,0 +1,29 @@
+Built-player living-hotel diagnostic tour / SOLO
+ApplicationVersion=0.3.1 UnityVersion=6000.3.2f1 InputBackgroundPolicy=ResetAndDisableNonBackgroundDevices VerificationPadLayout=WorstHotelVerificationGamepad
+Outcome=FAIL Errors=1 ResetVerified=False
+Mode=Solo SyntheticPads=1
+PresenceFixturesRequested=False GuestPresenceVerified=False
+ServiceFixturesRequested=True GuestServicesVerified=False
+Owned synthetic input; diagnostic8x clock is NOT player WAIT. Production GameSession.Update, guest schedules, doors and routes remain active. No starting housekeeper.
+Diagnostic model key pickup/giving follows a rack-retrieval time estimate at real reception; physical rack grab and instant handoff are tested separately in PlayMode. There is no check-in hold timer.
+Graphics=NVIDIA GeForce GTX 1650 SUPER Resolution=1600x900 RuntimeSeconds=39.6
+Hidden-window player-loop timing is NOT a rendered-performance benchmark. GPU captures require manual visual review.
+OffscreenGPUAvailable=True Captures=3
+Reports=0 FinalCash=0 FinalReputation=0
+PhysicalRelocations=0 ModelBedActions=0 ModelLinenTurnovers=0
+Heater powered-interval temperature: start=0.00 peak=0.00. This observation alone is not a thermal counterfactual.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+The three-day lifecycle uses no forced failure, temperature override, activity override or synthetic route-completion callback. Optional presence/agency fixtures use separate preliminary sessions and are explicitly reset before day1.
+Diagnostic commands: clock8x, model rack-key pickup and giving after retrieval-time estimate, planning/move/switch/reset, physical heater repositioning for the electrical case.
+This three-day lifecycle driver explicitly issues model dirty-pickup/deposit/clean-pickup/bed commands after real guest departure. It does not prove physical linen carrying; the input-driven PlayMode route supplies that evidence.
+Exact synthetic staff device IDs=15; private background-capable layout=WorstHotelVerificationGamepad. Physical devices are not enabled, disabled, removed or sent synthetic events by this driver.
+SERVICE FIXTURES: two disposable hotels. Service eligibility=0 only in cloned fixture config; explicit DebugForceService, mild cold, burnt bulb and dirty-room setup select the scenarios. All service stock, thermal/electrical tuning, due windows and consequences remain production values. Initial empty-handed staff viewpoints and model key pickup/handoff are labelled adapters; actual owned controller, colliders, physics carrying, service choices and production guest routes execute the chains. No synthetic guest route callbacks or carried-item repositioning.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+Capture service-board: Original NOW / UPCOMING service board opened with owned controller at its actual reception prop.
+Capture service-blanket-stock: DIAGNOSTIC mild cold / finite physical blanket shelf before real grab and carry.
+Capture service-blanket-delivered: Actual shelf pickup, physics carry, guest entry and bed delivery / personal comfort without electrical load.
+SERVICE BLANKET PASS: item=blanket:0; shelf=3->2; visibleBedBlanket=True; comfortBonus=2; electricalLoadUnchanged=True; productionTemperatureDrift=0.024; physicalInput=True.
+ERROR: VERIFY: System.InvalidOperationException: VERIFY failed: real radiator valve target (timeout; day 1, Service, clock 70.8)
+  at WorstHotel.DevelopmentVerification.Require (System.Boolean success, System.String operation) [0x0001a] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Core\DevelopmentVerification.cs:340 
+  at WorstHotel.DevelopmentVerification+<Until>d__67.MoveNext () [0x0006c] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Core\DevelopmentVerification.cs:336 
+  at WorstHotel.DevelopmentVerification+<Start>d__60.MoveNext () [0x0006b] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Scripts\Core\DevelopmentVerification.cs:85 

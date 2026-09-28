@@ -1,0 +1,48 @@
+Prototype0.2 built-player living-hotel diagnostic tour
+ApplicationVersion=0.2.1 UnityVersion=6000.3.2f1 InputBackgroundPolicy=ResetAndDisableNonBackgroundDevices VerificationPadLayout=WorstHotelVerificationGamepad
+Outcome=PASS Errors=0 ResetVerified=True
+Synthetic staff devices; diagnostic8x clock is NOT two-player WAIT. Production GameSession.Update, guest schedules, doors and routes remain active. No starting housekeeper.
+Diagnostic model key pickup/giving follows a rack-retrieval time estimate at real reception; physical rack grab and instant handoff are tested separately in PlayMode. There is no check-in hold timer.
+Graphics=NVIDIA GeForce GTX 1650 SUPER Resolution=1600x900 RuntimeSeconds=152.2
+Hidden-window player-loop timing is NOT a rendered-performance benchmark. GPU captures require manual visual review.
+OffscreenGPUAvailable=True Captures=21
+Reports=3 FinalCash=1870 FinalReputation=46.73123
+PhysicalRelocations=1 ModelBedActions=11 ModelLinenTurnovers=11
+Day 1: booked=4 checkedIn=4 actualRoomArrivals=4 guestWalkMetres=634.5 minimumRoomSeconds=191.2 naturallyColdGuests=1 naturalBoilerFailure=False paidStays=4 gross=1110 refunds=225 net=435
+Day 2: booked=6 checkedIn=6 actualRoomArrivals=6 guestWalkMetres=937.4 minimumRoomSeconds=165.8 naturallyColdGuests=6 naturalBoilerFailure=True paidStays=6 gross=1860 refunds=720 net=690
+Day 3: booked=6 checkedIn=6 actualRoomArrivals=6 guestWalkMetres=939.1 minimumRoomSeconds=171.0 naturallyColdGuests=6 naturalBoilerFailure=True paidStays=6 gross=2000 refunds=955 net=595
+Heater powered-interval temperature: start=20.97 peak=24.41. This observation alone is not a thermal counterfactual.
+No forced failure, temperature override, activity override or synthetic route-completion callback is used.
+Diagnostic commands: clock8x, model rack-key pickup and giving after retrieval-time estimate, planning/move/switch/reset, physical heater repositioning for the electrical case.
+This three-day lifecycle driver explicitly issues model dirty-pickup/deposit/clean-pickup/bed commands after real guest departure. It does not prove physical linen carrying; the input-driven PlayMode route supplies that evidence.
+Exact synthetic staff device IDs=15,16; private background-capable layout=WorstHotelVerificationGamepad. Physical devices are not enabled, disabled, removed or sent synthetic events by this driver.
+Capture physical-sources: Six numbered physical rack keys / fixed door knocker outside Room101.
+Capture planning: Original day-one ledger / four production offers.
+Capture developer-panel: Original F2 developer panel / actual IMGUI and cameras.
+Capture developer-controls: Original F2 heater and electrical controls / actual scrolled IMGUI / no override applied.
+Capture split-screen: Real staggered arrivals and physical room routes completed.
+Day1 relocation102->105: real origin door, departure token, destination door and arrival callback.
+Capture guest-relations: Original service ledger before owned virtual-pad navigation.
+Guest menu ready: owner=0 open=True paused=False actions=10 enabled=10 focus=0 selected=<none> pad=15
+Guest menu down: 0 -> owner=0 open=True paused=False actions=10 enabled=10 focus=1 selected=<none> pad=15
+Guest menu down: 1 -> owner=0 open=True paused=False actions=10 enabled=10 focus=2 selected=<none> pad=15
+Guest menu confirm: owner=0 open=True paused=False actions=10 enabled=10 focus=0 selected=day1-guest3 pad=15
+Capture guest-detail: Original guest detail page / selected with real virtual-pad menu input.
+Capture settlement-day1: Actual paid stays and consequences / no room-time shortcut.
+Capture maintenance: Production maintenance choice between real guest days.
+After day1 maintenance=CheapPatch.
+Capture housekeeping-day2: Dirty-room ledger / owners perform linen turnover.
+Capture linen-source: Finite clean linen on the utility shelf / dirty linen on a vacated bed.
+Capture planning-day2: Prepared rooms / production day 2 bookings.
+Day2 before physical heater setup: room106=20.99C, naturalCold=True, boilerFailed=False. No temperature or failure override.
+Capture portable-heater: DIAGNOSTIC heater repositioning / actual room volume, switch, heat and electrical load.
+Capture electrical-warning: Actual overload timer / heater and three occupied B rooms / no forced trip.
+Natural circuitB trip: requestedLoad=4.80 capacity=4.00 trips=1; actual heater heat=0, A unaffected.
+Capture electrical-tripped: Actual tripped B / room lights and heater off / independent A powered.
+Capture settlement-day2: Actual paid stays and consequences / no room-time shortcut.
+After day2 maintenance=Defer.
+Capture housekeeping-day3: Dirty-room ledger / owners perform linen turnover.
+Capture planning-day3: Prepared rooms / production day 3 bookings.
+Capture settlement-day3: Actual paid stays and consequences / no room-time shortcut.
+Capture results: Actual three-day living-hotel results.
+Capture new-session: Verified clean reset / one fresh physical heater registration.
