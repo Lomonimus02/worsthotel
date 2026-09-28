@@ -20,7 +20,7 @@ namespace WorstHotel
 
         readonly List<RoomChannel> channels = new List<RoomChannel>(6);
         readonly Dictionary<int, RoomChannel> rooms = new Dictionary<int, RoomChannel>();
-        AudioClip showerClip, musicClip, phoneClip;
+        AudioClip showerClip, musicClip, phoneClip, rehearsalClip;
         GameSession session;
         HotelSimulation simulation;
         bool dirty = true, paused;
@@ -31,6 +31,7 @@ namespace WorstHotel
             showerClip = Synthesize(false);
             musicClip = Synthesize(true);
             phoneClip = SynthesizePhone();
+            rehearsalClip = SynthesizeRehearsal();
             if (presentation == null || presentation.roomMarkers == null) return;
             foreach (var markers in presentation.roomMarkers)
             {
@@ -99,8 +100,10 @@ namespace WorstHotel
                 bool shower = staged && agent.Activity == GuestActivity.Shower;
                 bool music = staged && (agent.Activity == GuestActivity.LoudRoom || agent.Activity == GuestActivity.WatchTV) && channel.Room.HasPower;
                 bool phone = staged && agent.Activity == GuestActivity.PhoneCall;
-                var anchor = shower ? channel.Markers.shower : phone ? channel.Markers.phoneAnchor : channel.Markers.loud;
-                var clip = shower ? showerClip : phone ? phoneClip : music ? musicClip : null;
+                var amplifier = staged && channel.Room.HasPower ? simulation.Services?.ActiveAmplifier(channel.Guest) : null;
+                var equipmentAnchor = amplifier == null ? null : ServiceSupplyItem.FindLuggageTransform(amplifier.Id);
+                var anchor = equipmentAnchor ? equipmentAnchor : shower ? channel.Markers.shower : phone ? channel.Markers.phoneAnchor : channel.Markers.loud;
+                var clip = equipmentAnchor ? rehearsalClip : shower ? showerClip : phone ? phoneClip : music ? musicClip : null;
                 if (anchor == null) clip = null;
                 var source = channel.Source;
                 if (source.clip != clip)
@@ -173,6 +176,24 @@ namespace WorstHotel
             return clip;
         }
 
+        static AudioClip SynthesizeRehearsal()
+        {
+            const int rate = 22050;
+            var samples = new float[rate * 8];
+            float[] riff = { 110, 164.8138f, 196, 220, 196, 164.8138f, 146.8324f, 0 };
+            for (int i = 0; i < samples.Length; i++)
+            {
+                float t = i / (float)rate, beat = t % .5f, note = riff[(int)(t * 2) % riff.Length];
+                float pick = Mathf.Clamp01(beat / .006f) * Mathf.Exp(-beat * 8);
+                float stringSound = note == 0 ? 0 : (Mathf.Sin(2 * Mathf.PI * note * t) + .35f * Mathf.Sin(4 * Mathf.PI * note * t) +
+                    .12f * Mathf.Sin(6 * Mathf.PI * note * t)) * pick;
+                samples[i] = (Mathf.Clamp(stringSound * 1.3f, -.65f, .65f) * .38f + .008f * Mathf.Sin(2 * Mathf.PI * 50 * t)) *
+                    Mathf.Clamp01(Mathf.Min(t, 8 - t) / .02f);
+            }
+            var clip = AudioClip.Create("Original touring guitar rehearsal", samples.Length, 1, rate, false);
+            clip.SetData(samples, 0); return clip;
+        }
+
         static AudioClip SynthesizePhone()
         {
             // Deliberately nonverbal, original low-pass voiced syllables: the cadence suggests
@@ -206,6 +227,7 @@ namespace WorstHotel
             if (showerClip != null) Destroy(showerClip);
             if (musicClip != null) Destroy(musicClip);
             if (phoneClip != null) Destroy(phoneClip);
+            if (rehearsalClip != null) Destroy(rehearsalClip);
             foreach (var channel in channels) if (channel.Source != null) Destroy(channel.Source.gameObject);
             channels.Clear(); rooms.Clear();
         }

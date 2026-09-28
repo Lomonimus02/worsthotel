@@ -92,7 +92,7 @@ namespace WorstHotel
         {
             var guest = new VisualGuest { Root = new GameObject(pose.name).transform };
             guest.Root.SetParent(parent, false);
-            BuildAppearance(guest, pose.kind, pose.appearanceIndex);
+            BuildAppearance(guest, pose.kind, pose.appearanceIndex, pose.specialKind);
             lanReplicaRoots[pose.id] = guest.Root;
             var view = new LanGuestView { root = guest.Root, body = guest.Body, leftArm = guest.LeftArm,
                 rightArm = guest.RightArm, leftLeg = guest.LeftLeg, rightLeg = guest.RightLeg, phone = guest.Phone };
@@ -111,7 +111,7 @@ namespace WorstHotel
             {
                 if (!guest.Root || !guest.Root.gameObject.activeInHierarchy) continue;
                 result.Add(new LanWorldGuest { id = guest.Id, name = guest.Stay.Name,
-                    kind = guest.Stay.Application.Archetype.Kind, appearanceIndex = guest.AppearanceIndex,
+                    kind = guest.Stay.Application.Archetype.Kind, specialKind = guest.Stay.Application.SpecialKind, appearanceIndex = guest.AppearanceIndex,
                     position = guest.Root.position, rotation = guest.Root.rotation,
                     bodyOffset = guest.Body.localPosition, bodyRotation = guest.Body.localRotation,
                     bodyVisible = guest.Body.gameObject.activeSelf, phoneVisible = guest.Phone && guest.Phone.gameObject.activeSelf,
@@ -632,11 +632,15 @@ namespace WorstHotel
                 if (!overlapsRoom) session.ReportGuestVacatedRoom(guest.Id, room.Profile.Id);
             }
         }
-        void BuildAppearance(VisualGuest guest, GuestKind kind, int index)
+        void BuildAppearance(VisualGuest guest, GuestKind kind, int index, SpecialGuestKind replicaKind = SpecialGuestKind.None)
         {
             var root = guest.Root;
             guest.Body = Pivot("Body", root, Vector3.zero);
             string outfit = kind == GuestKind.Budget ? "Moss coat" : kind == GuestKind.ColdSensitive ? "Claret coat" : "Blue suit";
+            var special = guest.Stay?.Application.SpecialKind ?? replicaKind;
+            if (special == SpecialGuestKind.TouringMusician) outfit = "Ink";
+            else if (special == SpecialGuestKind.Overpacker) outfit = "Ochre";
+            else if (special == SpecialGuestKind.NightOwl) outfit = "Night violet";
             string skin = "Skin " + (index % 3);
             Shape("Jacket", PrimitiveType.Capsule, guest.Body, new Vector3(0, 1.02f, 0), new Vector3(.64f, .48f, .43f), outfit);
             Shape("Shirt", PrimitiveType.Cube, guest.Body, new Vector3(0, 1.18f, .219f), new Vector3(.18f, .45f, .035f), "Ivory");
@@ -658,7 +662,28 @@ namespace WorstHotel
             Shape("Phone handset", PrimitiveType.Cube, guest.Phone, Vector3.zero, new Vector3(.13f, .22f, .055f), "Ink");
             Shape("Phone screen", PrimitiveType.Cube, guest.Phone, new Vector3(0, 0, .03f), new Vector3(.095f, .16f, .012f), "Ivory");
             guest.Phone.gameObject.SetActive(false);
-            if (kind == GuestKind.Budget)
+            if (special == SpecialGuestKind.TouringMusician)
+            {
+                Shape("Musician scarf", PrimitiveType.Cube, guest.Body, new Vector3(.12f, 1.23f, .255f), new Vector3(.13f, .53f, .065f), "Claret coat");
+                Shape("Musician hat brim", PrimitiveType.Sphere, guest.Body, new Vector3(0, 1.99f, 0), new Vector3(.79f, .055f, .67f), "Ink");
+                Shape("Musician hat crown", PrimitiveType.Capsule, guest.Body, new Vector3(0, 2.05f, -.025f), new Vector3(.55f, .12f, .49f), "Ink");
+            }
+            else if (special == SpecialGuestKind.Overpacker)
+            {
+                Shape("Travel vest", PrimitiveType.Cube, guest.Body, new Vector3(0, 1.05f, .225f), new Vector3(.53f, .51f, .09f), "Moss coat");
+                foreach (int side in new[] { -1, 1 })
+                    Shape("Travel vest pocket", PrimitiveType.Cube, guest.Body, new Vector3(side * .17f, .93f, .285f), new Vector3(.17f, .19f, .075f), "Ochre");
+                Shape("Travel hat", PrimitiveType.Sphere, guest.Body, new Vector3(0, 2.0f, .0f), new Vector3(.74f, .22f, .65f), "Ivory");
+            }
+            else if (special == SpecialGuestKind.NightOwl)
+            {
+                foreach (int side in new[] { -1, 1 })
+                {
+                    Shape("Tired eye", PrimitiveType.Sphere, guest.Body, new Vector3(side * .14f, 1.615f, .279f), new Vector3(.15f, .035f, .026f), "Night violet");
+                    Shape("Headphones", PrimitiveType.Sphere, guest.Body, new Vector3(side * .26f, 1.4f, .07f), new Vector3(.17f, .21f, .15f), "Ink");
+                }
+            }
+            else if (kind == GuestKind.Budget)
             {
                 Shape("Travel backpack", PrimitiveType.Capsule, guest.Body, new Vector3(0, 1.03f, -.29f), new Vector3(.47f, .29f, .24f), "Ochre");
                 Shape("Backpack clasp", PrimitiveType.Cube, guest.Body, new Vector3(0, .97f, -.42f), new Vector3(.11f, .16f, .035f), "Ivory");
@@ -718,6 +743,7 @@ namespace WorstHotel
                 case "Skin 0": color = new Color(.78f, .48f, .29f); break;
                 case "Skin 1": color = new Color(.96f, .73f, .51f); break;
                 case "Skin 2": color = new Color(.40f, .23f, .14f); break;
+                case "Night violet": color = new Color(.29f, .19f, .39f); break;
                 case "Moss coat": color = new Color(.24f, .41f, .28f); break;
                 case "Claret coat": color = new Color(.43f, .09f, .14f); break;
                 case "Blue suit": color = new Color(.08f, .18f, .27f); break;

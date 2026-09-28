@@ -68,7 +68,7 @@ namespace WorstHotel
 
         /// <summary>Attach one dated stay without changing any other guest or the hotel clock.</summary>
         public GuestAgent AttachStay(GuestStay guest, int arrivalDay, float arrivalAt, float sleepAt,
-            float checkoutAt, float wakeAt = float.PositiveInfinity, float outingReturnAt = -1)
+            float checkoutAt, float wakeAt = float.PositiveInfinity, float outingReturnAt = -1, float secondsPerHour = 30)
         {
             if (ReadOnlyMirror) throw new InvalidOperationException(HotelSimulation.MirrorMessage);
             if (guest == null || arrivalDay < 1 || !Number.IsFinite(arrivalAt) || arrivalAt < 0 ||
@@ -81,7 +81,7 @@ namespace WorstHotel
             uint random = Seed(Settings.Seed, arrivalDay, guest.GuestId);
             bool rhythm = Settings.Rhythm.Enabled && Number.IsFinite(wakeAt) && outingReturnAt >= 0;
             var schedule = new GuestSchedule(guest.GuestId, arrivalAt, sleepAt, checkoutAt,
-                rhythm ? BuildRhythmActivities(guest, ref random) : BuildActivities(guest, ref random), wakeAt,
+                rhythm ? BuildRhythmActivities(guest, ref random, secondsPerHour) : BuildActivities(guest, ref random), wakeAt,
                 rhythm ? MorningIndex : -1, rhythm ? outingReturnAt : -1);
             schedules.Add(schedule);
             return guest.Agent = new GuestAgent(guest.GuestId, schedule,

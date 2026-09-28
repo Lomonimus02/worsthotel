@@ -136,6 +136,12 @@ namespace WorstHotel
                 case LanCommandKind.SetBookingPrice: SetBookingPrice(playerId, command.subject, command.amount, command.expectedReservationRevision); break;
                 case LanCommandKind.SetRoomSalesPolicy:
                     SetRoomSalesPolicy(playerId, command.roomId, command.openForSale, command.amount, command.expectedPolicyRevision); break;
+                case LanCommandKind.AcceptSpecialBooking:
+                case LanCommandKind.DeclineSpecialBooking:
+                    DecideSpecialBooking(playerId, command.subject, command.roomId, command.kind == LanCommandKind.AcceptSpecialBooking,
+                        command.expectedReservationRevision); break;
+                case LanCommandKind.UnplugGuestAmplifier:
+                    AskToUnplugAmplifier(playerId, command.subject); break;
                 case LanCommandKind.ReassignBooking:
                     ReassignBooking(playerId, command.subject, command.roomId, command.expectedReservationRevision); break;
             }

@@ -9,7 +9,7 @@ namespace WorstHotel
         {
             Text(s.SourceEntityId,256);Text(s.SourceGuestId);EnumValue(s.Category);Unit(s.NoiseOutput);Range(s.ReceivedNoise,0,1);
             Require(rooms.Contains(s.SourceRoomId) && guests.Contains(s.SourceGuestId),"Noise emitter is outside this hotel.");
-            Require(s.SourceEntityId==s.SourceGuestId+"/"+s.Category,"Noise source identity disagrees with its guest and category.");
+            Require(s.SourceEntityId==(s.Category==NoiseCategory.Amplifier ? GuestServiceSystem.LuggageId(s.SourceGuestId,2) : s.SourceGuestId+"/"+s.Category),"Noise source identity disagrees with its guest and category.");
         }
         static void Cause(SituationCauseSnapshot c,IReadOnlyCollection<int> rooms,HashSet<string> guests)
         {

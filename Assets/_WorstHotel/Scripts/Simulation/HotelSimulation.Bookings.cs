@@ -138,6 +138,8 @@ namespace WorstHotel
             if (!gate.Success) return gate;
             if (AutomaticBookingsEnabled)
                 return CommandResult.Fail("This guest's agreed price is fixed. Change room sale rates for future reservations.");
+            if (reservation.Offer.Application.Special != null)
+                return CommandResult.Fail("The special enquiry has an agreed premium. Reassign or cancel the stay instead.");
             if (!ValidBookingPrice(price)) return CommandResult.Fail("Choose a price on the hotel's allowed price grid.");
             if (reservation.Price == price) return CommandResult.Ok("The agreed price is unchanged.");
             if (reservation.Revision >= int.MaxValue - 2)
@@ -186,6 +188,7 @@ namespace WorstHotel
         void RefreshBookingSchedule(float now)
         {
             int day = Calendar.DayAt(now);
+            RefreshSpecialBookings(now);
             if (operatingServiceDay != day)
             {
                 PruneCompletedOperatingHistory();
@@ -216,7 +219,7 @@ namespace WorstHotel
                 guests.Add(stay);
                 if (LivingEnabled) Schedules.AttachStay(stay, reservation.Offer.ArrivalDay, reservation.Offer.ArrivalAt,
                     reservation.Offer.SleepAt, reservation.Offer.CheckoutAt, reservation.Offer.WakeAt,
-                    BookingTiming(reservation.Offer.Application, reservation.Offer.ArrivalDay, reservation.Offer.ArrivalAt).OutingReturnAt);
+                    BookingTiming(reservation.Offer.Application, reservation.Offer.ArrivalDay, reservation.Offer.ArrivalAt).OutingReturnAt, Operations.SecondsPerDay / 24);
                 else rooms[stay.RoomId].GuestId = stay.GuestId;
                 reservation.Status = ReservationStatus.Arrived; reservation.Revision++;
                 SignalEvent(stay.Name + " is arriving for room " + stay.RoomId);

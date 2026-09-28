@@ -4,6 +4,18 @@ namespace WorstHotel
 {
     public sealed partial class GuestServiceSystem
     {
+        public static int LuggageCount(BookingApplication application) => application.Special?.Baggage.Count ?? LuggageCount(application.Id);
+        public static string LuggageId(string guestId, int index) => "luggage:" + guestId + (index == 0 ? "" : ":" + (index + 1));
+        public ServiceItemState ActiveAmplifier(GuestStay guest)
+        {
+            var agent = guest?.Agent;
+            if (guest?.Application.Special?.AmplifierLoad > 0 && agent != null && agent.InAssignedRoom &&
+                agent.State != GuestAgentState.Sleeping && agent.ActivityStaged && agent.Activity == GuestActivity.Rehearsal)
+                return items.FirstOrDefault(i => i.GuestId == guest.GuestId && i.Payload == LuggagePayload.Amplifier &&
+                    !i.EquipmentSwitchedOff && i.Location == ServiceItemLocation.Delivered && i.RoomId == guest.RoomId);
+            return null;
+        }
+
         public static int LuggageCount(string guestId)
         {
             uint hash = 2166136261;
@@ -35,7 +47,7 @@ namespace WorstHotel
             if (!CanOfferLuggage(guestId, storage)) return CommandResult.Fail("No luggage assistance to offer here.");
             var guest = Guest(guestId);
             // Most welcome help; an occasional independent traveller politely keeps their bag.
-            bool accepts = storage || guest.Name.Length % 7 != 0;
+            bool accepts = guest.Application.Special != null || storage || guest.Name.Length % 7 != 0;
             foreach (var bag in items.Where(item => item.Kind == ServiceItemKind.Luggage && item.GuestId == guestId))
                 bag.LuggageOfferAnswered = true;
             if (!accepts) return CommandResult.Ok("No thank you, I can carry it myself.");
@@ -73,7 +85,8 @@ namespace WorstHotel
             item.Location = stored ? ServiceItemLocation.Stored : ServiceItemLocation.Delivered;
             item.RoomId = guest.RoomId; item.PlayerId = null; ItemChanged?.Invoke(item);
             var request = cases.FirstOrDefault(c => c.GuestId == guest.GuestId && c.Kind == ServiceKind.LuggageStorage && c.Active);
-            if (request != null) Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true);
+            if (request != null && items.Where(i => i.Kind == ServiceItemKind.Luggage && i.GuestId == guest.GuestId).All(i => i.Location == ServiceItemLocation.Stored || i.Location == ServiceItemLocation.Delivered))
+                Finish(request, guest, ServiceStatus.Fulfilled, Settings.FulfilledBonus, true);
             if (stored && guest.Memory.LuggageStored == 0) guest.Memory.LuggageStored = 1;
             simulation.SignalEvent("Room " + guest.RoomId + ": suitcase " + (stored ? "stored beside reception" : "delivered"));
             return CommandResult.Ok();

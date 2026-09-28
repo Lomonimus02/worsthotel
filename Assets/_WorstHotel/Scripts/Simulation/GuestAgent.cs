@@ -6,7 +6,7 @@ namespace WorstHotel
         GoingToServiceReception = 13, WaitingAtServiceReception = 14, ReturningFromServiceReception = 15 }
     // Values 0–2 are serialized in existing diagnostics and network snapshots.
     public enum GuestActivity { QuietRest = 0, Shower = 1, LoudRoom = 2, Unpack = 3, Work = 4, PhoneCall = 5, WatchTV = 6, LeaveHotel = 7, Pack = 8,
-        AdjustRadiator = 9, CallReception = 10 }
+        AdjustRadiator = 9, CallReception = 10, Rehearsal = 11 }
     public enum GuestLocation { OutsideHotel, Lobby, Travelling, AssignedRoom, Away, Departed }
 
     /// <summary>Authoritative guest state. Scene navigation reports completion instead of inventing travel time here.</summary>

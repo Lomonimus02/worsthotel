@@ -62,3 +62,8 @@ MonoBehaviour:
   advanceBookingHour: 16
   bookingDecisionSpacingHours: 0.4
   bookingSeed: 73129
+  specialBookings:
+    Enabled: 1
+    FirstOfferDay: 2
+    IntervalDays: 2
+    OfferHour: 10

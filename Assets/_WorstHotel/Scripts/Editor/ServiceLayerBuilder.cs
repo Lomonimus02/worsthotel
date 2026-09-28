@@ -77,11 +77,11 @@ namespace WorstHotel.Editor
             Text("Luggage storage sign", area.transform, "LEFT LUGGAGE", new Vector3(0, 1.9f, .875f), .075f, Lettering);
             var interact = area.AddComponent<BoxCollider>(); interact.center = new Vector3(0, .85f, 0); interact.size = new Vector3(2.30f, 1.65f, 2.10f); interact.isTrigger = true;
             // The whole platform is a use target; placement is a short deliberate action while carrying.
-            zone.storageBounds = interact; zone.storageAnchors = new Transform[24];
-            for (int i = 0; i < 24; i++)
+            zone.storageBounds = interact; zone.storageAnchors = new Transform[36];
+            for (int i = 0; i < 36; i++)
             {
                 zone.storageAnchors[i] = Group("StoredLuggageAnchor" + i, area.transform,
-                    new Vector3(i % 2 == 0 ? -.47f : .47f, .62f, -.61f + (i / 2) * .61f)).transform;
+                    new Vector3(i % 2 == 0 ? -.47f : .47f, .62f + (i / 6) * .68f, -.61f + ((i / 2) % 3) * .61f)).transform;
                 var source = Group("LuggageRecoveryAnchor" + i, root,
                     new Vector3(-2.0f + (i % 2) * .8f, .43f, -.50f + (i / 2) * .8f)).transform;
                 var obj = Group("Guest service suitcase slot " + i, items, source.position);
@@ -89,13 +89,33 @@ namespace WorstHotel.Editor
                 body.interpolation = RigidbodyInterpolation.Interpolate; body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                 var shape = obj.AddComponent<BoxCollider>(); shape.size = new Vector3(.71f, .68f, .38f);
                 var pickup = obj.AddComponent<PhysicsPickup>(); pickup.itemName = "Guest luggage · offer help to the owner"; pickup.holdDistance = 1.30f; pickup.grabConfig = EnsureGrabConfiguration();
-                Box("Guest luggage case", obj.transform, Vector3.zero, new Vector3(.70f, .64f, .37f), i % 2 == 0 ? "Luggage mustard" : "Burgundy velvet", true, false);
-                Box("Luggage handle", obj.transform, new Vector3(0, .365f, 0), new Vector3(.29f, .105f, .09f), "Aged brass", true, false);
+                var ordinary = Group("Suitcase appearance", obj.transform).transform;
+                var instrument = Group("Instrument case appearance", obj.transform).transform;
+                var amp = Group("Amplifier appearance", obj.transform).transform;
+                var appearance = obj.AddComponent<SpecialLuggageAppearance>();
+                appearance.suitcase = ordinary; appearance.instrumentCase = instrument; appearance.amplifier = amp;
+                Box("Long road case", instrument, Vector3.zero, new Vector3(1.32f, .60f, .32f), "Ink", true, false);
+                foreach (int edge in new[] { -1, 1 })
+                {
+                    Box("Road case brass band", instrument, new Vector3(edge * .45f, 0, -.17f), new Vector3(.07f, .61f, .02f), "Aged brass", true, false);
+                    Box("Road case end", instrument, new Vector3(edge * .65f, 0, 0), new Vector3(.025f, .61f, .34f), "Aged brass", true, false);
+                }
+                Box("Road case handle", instrument, new Vector3(0, .35f, 0), new Vector3(.34f, .10f, .08f), "Mahogany", true, false);
+                Box("Amplifier cabinet", amp, Vector3.zero, new Vector3(.76f, .74f, .42f), "Ink", true, false);
+                Box("Amplifier cloth grille", amp, new Vector3(0, -.04f, -.219f), new Vector3(.65f, .49f, .025f), "Gauge ivory", true, false);
+                for (int grille = 0; grille < 9; grille++)
+                    Box("Amplifier grille slat", amp, new Vector3(-.28f + grille * .07f, -.04f, -.237f), new Vector3(.016f, .49f, .01f), "Mahogany", true, false);
+                for (int knob = 0; knob < 3; knob++)
+                    Sphere("Amplifier dial", amp, new Vector3(-.23f + knob * .14f, .285f, -.24f), Vector3.one * .045f, "Aged brass");
+                Box("Amplifier carry handle", amp, new Vector3(0, .41f, 0), new Vector3(.29f, .08f, .09f), "Mahogany", true, false);
+                Text("Amplifier maker", amp, "BARNES", new Vector3(.13f, .285f, -.247f), .032f, Lettering);
+                Box("Guest luggage case", ordinary, Vector3.zero, new Vector3(.70f, .64f, .37f), i % 2 == 0 ? "Luggage mustard" : "Burgundy velvet", true, false);
+                Box("Luggage handle", ordinary, new Vector3(0, .365f, 0), new Vector3(.29f, .105f, .09f), "Aged brass", true, false);
                 foreach (int side in new[] { -1, 1 })
-                    Box("Guest case leather strap", obj.transform, new Vector3(side * .21f, 0, -.192f), new Vector3(.085f, .64f, .018f), "Mahogany", true, false);
-                Box("Guest identity label", obj.transform, new Vector3(0, .02f, -.202f), new Vector3(.32f, .23f, .018f), "Cream linen", true, false);
+                    Box("Guest case leather strap", ordinary, new Vector3(side * .21f, 0, -.192f), new Vector3(.085f, .64f, .018f), "Mahogany", true, false);
+                Box("Guest identity label", obj.transform, new Vector3(0, .02f, -.256f), new Vector3(.32f, .23f, .018f), "Cream linen", true, false);
                 var item = obj.AddComponent<ServiceSupplyItem>(); item.luggageSlot = i; item.sourceAnchor = source; item.storageZone = zone;
-                item.identityLabel = Text("Guest luggage identity", obj.transform, "LUGGAGE", new Vector3(0, .02f, -.216f), .035f, Mat("Ink").color);
+                item.identityLabel = Text("Guest luggage identity", obj.transform, "LUGGAGE", new Vector3(0, .02f, -.269f), .035f, Mat("Ink").color);
             }
         }
 

@@ -96,11 +96,11 @@ namespace WorstHotel
         void EnsureLuggage(GuestStay guest)
         {
             if (simulation.ContinuousOperations && Departed(guest)) return;
-            for (int bag = 0; bag < LuggageCount(guest.GuestId); bag++)
+            for (int bag = 0; bag < LuggageCount(guest.Application); bag++)
             {
-                string id = "luggage:" + guest.GuestId + (bag == 0 ? "" : ":2");
+                string id = LuggageId(guest.GuestId, bag);
                 if (FindItem(id) == null)
-                    items.Add(new ServiceItemState(id, ServiceItemKind.Luggage, day, guest.GuestId) { RoomId = guest.RoomId });
+                    items.Add(new ServiceItemState(id, ServiceItemKind.Luggage, day, guest.GuestId) { RoomId = guest.RoomId, LuggageIndex = bag, Payload = guest.Application.Special?.Baggage[bag] ?? LuggagePayload.Suitcase });
             }
         }
         GuestStay Guest(string id) => simulation.Guests.FirstOrDefault(guest => guest.GuestId == id);

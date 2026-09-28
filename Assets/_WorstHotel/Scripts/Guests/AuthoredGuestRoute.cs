@@ -69,7 +69,7 @@ namespace WorstHotel
             ReturnToInnerLane(route, current, side, z);
             var target = sleeping ? room.bedApproach : activity == GuestActivity.Shower ? room.shower :
                 activity == GuestActivity.AdjustRadiator ? room.radiatorAnchor : activity == GuestActivity.CallReception ? room.roomPhoneAnchor :
-                activity == GuestActivity.Work ? room.deskAnchor : activity == GuestActivity.Unpack || activity == GuestActivity.Pack ? room.unpackAnchor :
+                activity == GuestActivity.Work ? room.deskAnchor : activity == GuestActivity.Rehearsal || activity == GuestActivity.Unpack || activity == GuestActivity.Pack ? room.unpackAnchor :
                 activity == GuestActivity.PhoneCall ? room.phoneAnchor :
                 activity == GuestActivity.LoudRoom || activity == GuestActivity.WatchTV ? room.loud : room.rest;
             if (target == null) { route.Add(room.roomTarget.position); return route; }

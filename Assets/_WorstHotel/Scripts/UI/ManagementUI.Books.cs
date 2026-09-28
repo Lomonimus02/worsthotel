@@ -122,7 +122,33 @@ namespace WorstHotel
             BookChoice("Tomorrow", () => BookPage(1));
             BookChoice("Checkouts / available rooms", () => BookPage(2));
             BookChoice("Room sales / rates", () => BookPage(3));
-            if (bookPage <= 1)
+            BookChoice("Special enquiries (" + model.SpecialEnquiries.Count(e => e.Status == SpecialOfferStatus.Pending) + ")", () => BookPage(4));
+            if (bookPage == 4)
+            {
+                bookChoices.Clear();
+                var pending = model.SpecialEnquiries.FirstOrDefault(e => e.Status == SpecialOfferStatus.Pending);
+                bookCopy = "SPECIAL CORRESPONDENCE\n\n";
+                if (pending == null)
+                    bookCopy += "No unanswered enquiries. Unusual travellers write occasionally once the hotel has been operating for a while. Ordinary reservations continue automatically.";
+                else
+                {
+                    bookCopy += pending.Offer.Application.GuestName + "\nOne night · $" + pending.Definition.Payment +
+                        "\nArrival " + GuestLabels.HotelMoment(model, pending.Offer.ArrivalAt) + "\nCheckout " +
+                        GuestLabels.HotelMoment(model, pending.Offer.CheckoutAt) + "\n\n" + pending.Definition.Note + "\n\nChoose a room to accept this stay.";
+                    var available = Session.Rooms.Where(r => model.CanReserveRoom(r.Profile.Id, pending.Offer).Success).ToArray();
+                    bookListPage = Mathf.Clamp(bookListPage, 0, Math.Max(0, (available.Length - 1) / 6));
+                    foreach (var room in available.Skip(bookListPage * 6).Take(6))
+                    {
+                        int roomId = room.Profile.Id; int revision = pending.Revision; string id = pending.Offer.Id;
+                        BookChoice("Accept · room " + roomId, () => Session.DecideSpecialBooking(owner, id, roomId, true, revision));
+                    }
+                    if (bookChoices.Count == 0) bookCopy += "\nNo room is free for these dates.";
+                    if (available.Length > 6) BookChoice("More rooms ›", () => bookListPage = (bookListPage + 1) % ((available.Length + 5) / 6));
+                    BookChoice("Decline politely", () => Session.DecideSpecialBooking(owner, pending.Offer.Id, 0, false, pending.Revision));
+                }
+                BookChoice("‹ Reservations", () => BookPage(0));
+            }
+            else if (bookPage <= 1)
             {
                 operationsDay = Session.Day + bookPage;
                 var entries = OperationsBookingOffers().OrderBy(o => o.ArrivalAt).ToArray();
@@ -205,7 +231,22 @@ namespace WorstHotel
                 noteLines.Add((item.RoomId + " · " + GuestLabels.Service(item.Kind, Session.Simulation) + "\n" +
                     (item.Kind == ServiceKind.WakeUpCall || item.Kind == ServiceKind.LateCheckout ? GuestLabels.HotelMoment(Session.Simulation, item.DueTime) + " · " : "") +
                     GuestLabels.ServiceBrief(item, Session.Simulation), item.Status == ServiceStatus.Fulfilled));
-            if (notes.Length == 0) bookCopy += "\n\nNo messages written yet.";
+            var bags = services.Items.Where(i => i.Kind == ServiceItemKind.Luggage && i.StaffHandling)
+                .GroupBy(i => i.GuestId).Where(g => g.Any(i => i.Location != ServiceItemLocation.Delivered)).ToArray();
+            if (bags.Length > 0) BookChoice("Luggage promises", () => BookPage(bookPage == 1 ? 0 : 1));
+            if (bookPage == 1)
+            {
+                noteLines.Clear();
+                foreach (var batch in bags.Take(7))
+                {
+                    var guest = Session.Simulation.Guests.FirstOrDefault(g => g.GuestId == batch.Key);
+                    noteLines.Add(((guest?.Name ?? batch.Key) + " · room " + guest?.RoomId + "\n" +
+                        batch.Count(i => i.Location == ServiceItemLocation.Delivered) + "/" + batch.Count() + " bags delivered · " +
+                        batch.Count(i => i.Location == ServiceItemLocation.Stored) + " stored", false));
+                }
+                BookChoice("‹ Guest messages", () => BookPage(0));
+            }
+            if (notes.Length == 0 && bags.Length == 0) bookCopy += "\n\nNo messages written yet.";
             if (notes.Length > 7) BookChoice("Turn page ›", () => bookListPage = (bookListPage + 1) % ((notes.Length + 6) / 7));
         }
 

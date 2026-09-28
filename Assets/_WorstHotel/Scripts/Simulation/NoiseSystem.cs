@@ -37,7 +37,7 @@ namespace WorstHotel
         public float? GetNoiseOverride(int roomId) => overrides.TryGetValue(roomId, out var value) ? value : (float?)null;
         public void ClearOverrides() { if (!ReadOnlyMirror) overrides.Clear(); }
 
-        public void Tick(IEnumerable<GuestStay> guests, IEnumerable<RoomState> roomStates, float simulationTime)
+        public void Tick(IEnumerable<GuestStay> guests, IEnumerable<RoomState> roomStates, float simulationTime, GuestServiceSystem services = null)
         {
             if (ReadOnlyMirror) return;
             if (guests == null || roomStates == null) throw new ArgumentNullException("Guests and room states are required.");
@@ -67,6 +67,13 @@ namespace WorstHotel
                 var agent = guest.Agent;
                 if (agent == null || !agent.InAssignedRoom || !agent.ActivityStaged || rooms[guest.RoomId].GuestId != guest.GuestId) continue;
                 // Television/music needs delivered electricity. The requested activity and its electrical demand remain intact.
+                var amplifier = services?.ActiveAmplifier(guest);
+                if (amplifier != null && rooms[guest.RoomId].HasPower)
+                {
+                    float volume = guest.Application.Special.AmplifierNoise * (agent.QuietUntil > simulationTime ? Settings.QuietSourceMultiplier : 1);
+                    actualSources.Add(new RoomNoiseSource(amplifier.Id, guest.GuestId, guest.RoomId, NoiseCategory.Amplifier, volume));
+                    sources[guest.RoomId] += volume;
+                }
                 bool television = agent.Activity == GuestActivity.LoudRoom || agent.Activity == GuestActivity.WatchTV;
                 bool phone = agent.Activity == GuestActivity.PhoneCall;
                 bool shower = agent.Activity == GuestActivity.Shower;

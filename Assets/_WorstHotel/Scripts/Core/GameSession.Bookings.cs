@@ -2,6 +2,15 @@ namespace WorstHotel
 {
     public sealed partial class GameSession
     {
+        public CommandResult DecideSpecialBooking(int actorId, string id, int roomId, bool accept, int revision)
+        {
+            var allowed = CanManageFutureBookings(actorId);
+            if (!allowed.Success) return GuestCommand(allowed);
+            if (ForwardLan(accept ? LanCommandKind.AcceptSpecialBooking : LanCommandKind.DeclineSpecialBooking,
+                id, roomId, reservationRevision: revision)) return CommandResult.Ok(LastMessage);
+            return GuestCommand(Simulation.DecideSpecialBooking(actorId, id, roomId, accept, revision));
+        }
+
         public CommandResult AcceptBooking(int actorId, string offerId, int roomId, int price)
         {
             if (Simulation?.AutomaticBookingsEnabled == true)

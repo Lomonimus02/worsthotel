@@ -13,7 +13,7 @@ namespace WorstHotel
         AnswerServiceCall, TalkServiceGuest, DiscussRoomConcern,
         AcceptBooking, CancelBooking, SetBookingPrice, BeginBoilerMaintenance,
         PurchaseBoilerUpgrade, PurchaseElectricalUpgrade, EndServicePhoneConversation, SelectBoilerService,
-        SetRoomSalesPolicy, ReassignBooking, OfferLuggage, PurchaseInsulation, RestoreNorthWing
+        SetRoomSalesPolicy, ReassignBooking, OfferLuggage, PurchaseInsulation, RestoreNorthWing, AcceptSpecialBooking, DeclineSpecialBooking, UnplugGuestAmplifier
     }
 
     [Serializable] public sealed class LanCommand
@@ -54,9 +54,9 @@ namespace WorstHotel
     /// <summary>Small, versioned LAN boundary. A network connection, never a payload, selects its staff identity.</summary>
     public static class LanProtocol
     {
-        public const int Version = 21, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
+        public const int Version = 22, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
         public const ushort DefaultPort = 7777;
-        public const string BuildCompatibility = "worst-hotel-0.6.0-diegetic21-gzip";
+        public const string BuildCompatibility = "worst-hotel-0.6.1-strange22-gzip";
 
         public static bool ValidAddress(string value) => IPAddress.TryParse(value, out var address) &&
             address.AddressFamily == AddressFamily.InterNetwork && !address.Equals(IPAddress.Any) &&
@@ -81,7 +81,10 @@ namespace WorstHotel
                 command.expectedMaintenanceRevision >= 0 &&
                 (command.amount == (int)BoilerServiceKind.Basic || command.amount == (int)BoilerServiceKind.Full) :
                 command.expectedMaintenanceRevision == -1) &&
-            (command.kind == LanCommandKind.ReassignBooking ? command.expectedReservationRevision >= 1 :
+            ((command.kind == LanCommandKind.AcceptSpecialBooking || command.kind == LanCommandKind.DeclineSpecialBooking) ?
+                continuousOperations && !string.IsNullOrWhiteSpace(command.subject) && command.amount == 0 && command.expectedReservationRevision >= 1 &&
+                (command.kind == LanCommandKind.AcceptSpecialBooking ? command.roomId >= 101 && command.roomId <= 110 : command.roomId == 0) :
+                command.kind == LanCommandKind.ReassignBooking ? command.expectedReservationRevision >= 1 :
                 command.kind == LanCommandKind.CancelBooking || command.kind == LanCommandKind.SetBookingPrice ?
                 command.expectedReservationRevision >= 0 : command.expectedReservationRevision == -1) &&
             (UsesDirectDecision(command.kind) && continuousOperations ?

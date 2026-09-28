@@ -39,7 +39,7 @@ namespace WorstHotel
         public ElectricalCircuit Find(string circuitId) => Circuits.FirstOrDefault(circuit => circuit.Id == circuitId);
         public ElectricalCircuit CircuitForRoom(int roomId) => roomCircuits.TryGetValue(roomId, out var circuit) ? circuit : null;
 
-        public void Tick(IEnumerable<GuestStay> guests, IEnumerable<RoomState> roomStates, HeaterSystem heaters, float dt)
+        public void Tick(IEnumerable<GuestStay> guests, IEnumerable<RoomState> roomStates, HeaterSystem heaters, float dt, GuestServiceSystem services = null)
         {
             if (ReadOnlyMirror) return;
             if (!Number.IsFinite(dt) || dt < 0) throw new ArgumentOutOfRangeException(nameof(dt));
@@ -64,6 +64,9 @@ namespace WorstHotel
                     (guest.Agent.ActivityStaged && (guest.Agent.Activity == GuestActivity.LoudRoom ||
                         guest.Agent.Activity == GuestActivity.WatchTV) ? Settings.LoudActivityLoad : 0));
                 pending.Add(new PowerConsumer("guest:" + guest.GuestId, guest.RoomId, roomCircuits[guest.RoomId].Id, demand, 0));
+                var amplifier = services?.ActiveAmplifier(guest);
+                if (amplifier != null) pending.Add(new PowerConsumer("equipment:" + amplifier.Id, guest.RoomId,
+                    roomCircuits[guest.RoomId].Id, guest.Application.Special.AmplifierLoad, 0));
             }
             foreach (var heater in heaters.Items)
             {

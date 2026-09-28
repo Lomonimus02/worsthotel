@@ -1,5 +1,12 @@
 ## Prototype 0.6.0 — embodied interaction and physical hotel information
 
+## Prototype 0.6.1 — Strange guests & special stays
+
+Rare premium reservation letters now appear in the physical ledger, with explicit room selection and accept/decline. Ordinary reservations remain automatic. The touring musician brings a suitcase, heavy instrument case and amplifier; delivered equipment participates in actual circuit load and causal room noise during finite rehearsal slots. Quiet requests reuse guest memory; a contextual unplug request also removes the load during a blackout. The overpacker brings six real bags under one luggage responsibility. The night owl uses an after-midnight outing return, TV/shower and shifted sleep through normal guest schedules.
+
+Existing luggage bodies, storage, cart, keys, privacy, relocation, checkout accounting and restored rooms are reused. Special parcels have authored collider/mass/mesh variants, modest guest outfits and original amplifier audio. LAN carries exact parcel binding and distinct guest appearance, including late join; compatibility is 0.6.1 / protocol 22 / model schema 18. See [milestone notes](STRANGE_GUESTS_061.md) for tuning and verification limits.
+
+
 Normal play uses a tiny dot and contextual verbs. Separate physical books at reception contain reservations/sales, known guest requests, accounts and renovation purchases; their pages anchor to a close-up camera. A workbench manual contains boiler procedures and maintenance selection. Wall clocks, local machine meters, small labels and physical luggage tags replace persistent statistics and explanatory boards. A ringing phone answers on first use, raises its handset and only then reveals the caller; guests use brief subtitles and contextual replies after a real knock. Privacy, delivery access and cart physics are retained. Accessibility toggles remain in the session menu; exact statistics remain behind F2.
 
 North Wing now costs $4500, compared with $1600 starting cash. At $180 per occupied room-night and $350 daily operating expense, the missing $2900 corresponds to roughly four fully occupied six-room days before maintenance/refunds, or eight four-room days. This is a tuning baseline, not a measured demand simulation. LAN compatibility advances to 0.6.0 / protocol 21.

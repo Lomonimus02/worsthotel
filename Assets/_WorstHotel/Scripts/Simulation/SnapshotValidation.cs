@@ -21,6 +21,9 @@ namespace WorstHotel
         internal static void Booking(BookingSnapshot b)
         {
             Require(b!=null && b.Profile!=null,"Missing booking profile."); Text(b.Id);Text(b.GuestName);Require(b.ReferencePrice>0,"Invalid reference price.");
+            EnumValue(b.SpecialKind);
+            var special=SpecialGuestDefinition.For(b.SpecialKind);
+            Require(special==null || b.ReferencePrice==special.Payment && b.Profile.Kind==special.BaseKind, "Special booking definition differs.");
             var p=b.Profile;EnumValue(p.Kind);Require(((int)p.Traits & ~63)==0,"Invalid traits.");Text(p.Label);Text(p.Description,2048,true);
             Require(p.ReferencePrice>0,"Invalid profile price.");Nonnegative(p.HeatingDemand,p.ColdPenaltyWeight,p.PriceSensitivity,p.Patience,p.NoiseTolerance,p.NeedPatience);
             Range(p.ColdThreshold,-100,100);Range(p.PreferredTemperatureMin,-100,100);Range(p.PreferredTemperatureMax,-100,100);
@@ -97,7 +100,7 @@ namespace WorstHotel
             OptionalId(s.UpgradedCircuitId,32);
             Require(string.IsNullOrEmpty(s.UpgradedCircuitId) || continuous && cs.Any(c=>c.Id==s.UpgradedCircuitId), "Invalid purchased branch.");
             foreach(var c in cs){Text(c.Id,32);Nonnegative(c.ActualRequestedLoad,c.LoadOverride,c.OverloadSeconds);Require(c.TripCount>=0,"Invalid trip count.");}
-            var consumers=Array(s.Consumers,24);Unique(consumers.Select(c=>c.Id));foreach(var c in consumers){Text(c.Id);OptionalId(c.CircuitId,32);Require(Room(c.RoomId,true) && (string.IsNullOrEmpty(c.CircuitId)||cs.Any(x=>x.Id==c.CircuitId)),"Invalid consumer placement.");Nonnegative(c.RequestedLoad,c.DeliveredLoad);Require(c.DeliveredLoad<=c.RequestedLoad,"Invalid delivered power.");}
+            var consumers=Array(s.Consumers,40);Unique(consumers.Select(c=>c.Id));foreach(var c in consumers){Text(c.Id);OptionalId(c.CircuitId,32);Require(Room(c.RoomId,true) && (string.IsNullOrEmpty(c.CircuitId)||cs.Any(x=>x.Id==c.CircuitId)),"Invalid consumer placement.");Nonnegative(c.RequestedLoad,c.DeliveredLoad);Require(c.DeliveredLoad<=c.RequestedLoad,"Invalid delivered power.");}
             var heaters=Array(s.Heaters,6);Unique(heaters.Select(h=>h.Id));foreach(var h in heaters){Text(h.Id);Require(Room(h.RoomId,true),"Invalid heater placement.");Range(h.HeatOutput,float.Epsilon);Range(h.ElectricalLoad,float.Epsilon);}
             var keys=Array(s.Keys,10);Require(keys.Length==rs.Length,"Incomplete keys.");Unique(keys.Select(k=>k.RoomId));Unique(keys.Where(k=>k.PlayerId>=0).Select(k=>k.PlayerId));
             Unique(keys.Where(k=>!string.IsNullOrEmpty(k.GuestId)).Select(k=>k.GuestId));

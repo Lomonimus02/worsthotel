@@ -4,6 +4,12 @@ namespace WorstHotel
 {
     public sealed partial class GameSession
     {
+        public CommandResult AskToUnplugAmplifier(int playerId, string guestId)
+        {
+            if (ForwardLan(LanCommandKind.UnplugGuestAmplifier, guestId)) return CommandResult.Ok(LastMessage);
+            if (!HasGuestConversation(playerId, guestId)) return CommandResult.Fail("Knock and speak to the guest first.");
+            return GuestCommand(Simulation.AskToUnplugAmplifier(playerId, guestId));
+        }
         public CommandResult RequestQuiet(int playerId, string guestId)
         {
             if (ForwardLan(LanCommandKind.RequestQuiet, guestId)) return CommandResult.Ok(LastMessage);

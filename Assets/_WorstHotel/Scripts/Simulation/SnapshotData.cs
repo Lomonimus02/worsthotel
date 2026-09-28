@@ -10,7 +10,7 @@ namespace WorstHotel
         internal static string OptionalId(string id) => string.IsNullOrEmpty(id) ? null : id;
         internal static bool SameIdentity(GuestStay a,GuestStay b)
         {
-            if(a.GuestId!=b.GuestId || a.Name!=b.Name || a.Price!=b.Price || a.Application.ReferencePrice!=b.Application.ReferencePrice || (a.Agent==null)!=(b.Agent==null))return false;
+            if(a.Application.SpecialKind!=b.Application.SpecialKind || a.GuestId!=b.GuestId || a.Name!=b.Name || a.Price!=b.Price || a.Application.ReferencePrice!=b.Application.ReferencePrice || (a.Agent==null)!=(b.Agent==null))return false;
             var x=a.Application.Archetype;var y=b.Application.Archetype;
             if(x.Kind!=y.Kind || x.Traits!=y.Traits || x.Label!=y.Label || x.Description!=y.Description || x.ReferencePrice!=y.ReferencePrice)return false;
             var xn=x.Needs;var yn=y.Needs;
@@ -34,8 +34,8 @@ namespace WorstHotel
             new NeedProfile(p.PreferredTemperatureMin,p.PreferredTemperatureMax,p.ToleranceTemperatureMin,p.ToleranceTemperatureMax,
                 p.PreferredNoise,p.NeedNoiseTolerance,p.NeedPatience));
         internal static BookingSnapshot Capture(BookingApplication b) => new BookingSnapshot
-            { Id=b.Id, GuestName=b.GuestName, ReferencePrice=b.ReferencePrice, Profile=Capture(b.Archetype) };
-        internal static BookingApplication Booking(BookingSnapshot b) => new BookingApplication(b.Id,b.GuestName,Profile(b.Profile),b.ReferencePrice);
+            { Id=b.Id, GuestName=b.GuestName, ReferencePrice=b.ReferencePrice, SpecialKind=b.SpecialKind, Profile=Capture(b.Archetype) };
+        internal static BookingApplication Booking(BookingSnapshot b) => new BookingApplication(b.Id,b.GuestName,Profile(b.Profile),b.ReferencePrice,b.SpecialKind);
         internal static AssignmentSnapshot Capture(BookingAssignment a) => new AssignmentSnapshot
             { RoomId=a.RoomId, BookingId=a.BookingId, Price=a.Price, ActorId=a.ActorId };
         internal static BookingAssignment Assignment(AssignmentSnapshot a) => new BookingAssignment(a.RoomId,a.BookingId,a.Price,a.ActorId);

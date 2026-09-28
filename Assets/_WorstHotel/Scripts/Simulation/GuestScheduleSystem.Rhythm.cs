@@ -36,6 +36,13 @@ namespace WorstHotel
                 hour * (Next(ref returnRandom) * 2 - 1) * rhythm.OutingReturnJitterHours,
                 arrivalAt + Math.Min(gap, (sleep - (double)arrivalAt) / 3),
                 sleep - Math.Min(gap, (sleep - (double)arrivalAt) / 3));
+            var special = application.Special;
+            if (special != null && special.SleepHour >= 0)
+            {
+                sleep = (float)Clamp(calendar.At(arrivalDay + 1, special.SleepHour), arrivalAt + gap, checkout - gap * 2);
+                wake = (float)Clamp(calendar.At(arrivalDay + 1, special.WakeHour), sleep + gap, checkout - gap);
+                outing = (float)Clamp(calendar.At(arrivalDay + 1, special.ReturnHour), arrivalAt + gap, sleep - gap);
+            }
             if (!(arrivalAt < outing && outing < sleep && sleep < wake && wake < checkout))
                 throw new ArgumentException("The dated guest timing cannot be represented by this calendar.");
             return new GuestDailyTiming(sleep, wake, outing);
@@ -43,7 +50,7 @@ namespace WorstHotel
 
         static double Clamp(double value, double min, double max) => Math.Max(min, Math.Min(max, value));
 
-        GuestScheduleEntry[] BuildRhythmActivities(GuestStay guest, ref uint random)
+        GuestScheduleEntry[] BuildRhythmActivities(GuestStay guest, ref uint random, float secondsPerHour)
         {
             var result = new GuestScheduleEntry[24];
             var profile = guest.Application.Archetype;
@@ -78,6 +85,9 @@ namespace WorstHotel
                     duration *= Settings.ColdShowerDurationMultiplier;
                 result[index] = new GuestScheduleEntry(activity, duration);
             }
+            if (guest.Application.Special != null)
+                foreach (var slot in guest.Application.Special.Activities)
+                    result[slot.Index] = new GuestScheduleEntry(slot.Activity, slot.Hours * secondsPerHour);
             return result;
         }
     }

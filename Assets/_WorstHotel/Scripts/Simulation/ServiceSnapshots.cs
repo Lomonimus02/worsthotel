@@ -36,10 +36,11 @@ namespace WorstHotel
     [Serializable] public sealed class ServiceItemSnapshot
     {
         public string Id, GuestId;
-        public int PlayerId, LastPlayerId, RoomId, Generation;
+        public int PlayerId, LastPlayerId, RoomId, Generation, LuggageIndex;
+        public LuggagePayload Payload;
         public ServiceItemKind Kind;
         public ServiceItemLocation Location;
-        public bool StaffHandling, LuggageOfferAnswered;
+        public bool StaffHandling, LuggageOfferAnswered, EquipmentSwitchedOff;
     }
 
     public sealed partial class GuestServiceSystem
@@ -60,8 +61,8 @@ namespace WorstHotel
                 Status = p.Status, DueNotified = p.DueNotified }).ToArray(),
             Items = items.Select(i => new ServiceItemSnapshot { Id = i.Id, GuestId = SnapshotData.OptionalId(i.GuestId),
                 PlayerId = i.PlayerId ?? -1, LastPlayerId = i.LastPlayerId ?? -1, RoomId = i.RoomId ?? 0,
-                Generation = i.Generation, Kind = i.Kind, Location = i.Location,
-                StaffHandling = i.StaffHandling, LuggageOfferAnswered = i.LuggageOfferAnswered }).ToArray()
+                Generation = i.Generation, Kind = i.Kind, Location = i.Location, Payload = i.Payload, LuggageIndex = i.LuggageIndex,
+                StaffHandling = i.StaffHandling, LuggageOfferAnswered = i.LuggageOfferAnswered, EquipmentSwitchedOff = i.EquipmentSwitchedOff }).ToArray()
         };
 
         internal void RestoreSnapshot(ServiceLayerSnapshot data)
@@ -75,9 +76,9 @@ namespace WorstHotel
             foreach (var p in data.Promises) promises.Add(new PromiseWakeUp(p.Id, p.GuestId, p.RoomId, p.DueTime)
                 { Status = p.Status, DueNotified = p.DueNotified, CompletedAt = p.CompletedAt });
             foreach (var i in data.Items) items.Add(new ServiceItemState(i.Id, i.Kind, i.Generation, SnapshotData.OptionalId(i.GuestId))
-                { Location = i.Location, PlayerId = i.PlayerId < 0 ? (int?)null : i.PlayerId,
+                { Payload = i.Payload, LuggageIndex = i.LuggageIndex, Location = i.Location, PlayerId = i.PlayerId < 0 ? (int?)null : i.PlayerId,
                   LastPlayerId = i.LastPlayerId < 0 ? (int?)null : i.LastPlayerId, RoomId = i.RoomId == 0 ? (int?)null : i.RoomId,
-                  StaffHandling = i.StaffHandling, LuggageOfferAnswered = i.LuggageOfferAnswered });
+                  StaffHandling = i.StaffHandling, LuggageOfferAnswered = i.LuggageOfferAnswered, EquipmentSwitchedOff = i.EquipmentSwitchedOff });
             RestoreResponses(data);
             RestoreIntents(data);
         }
@@ -110,7 +111,7 @@ namespace WorstHotel
             var cases = Array(s.Cases, continuous ? 256 : 32);
             var promises = Array(s.Promises, continuous ? 128 : 6);
             // One luggage identity per retained guest and at most six slots of each stock kind.
-            var items = Array(s.Items, continuous ? 160 : 24);
+            var items = Array(s.Items, continuous ? 256 : 24);
             Unique(cases.Select(c => c.Id)); Unique(cases.Select(c => c.GuestId + "/" + c.Kind));
             Unique(cases.Where(c => c.Status == ServiceStatus.Requested || c.Status == ServiceStatus.Acknowledged ||
                 c.Status == ServiceStatus.InProgress).Select(c => c.GuestId));
@@ -157,15 +158,23 @@ namespace WorstHotel
             foreach (var i in items)
             {
                 Text(i.Id, 256); OptionalId(i.GuestId); EnumValue(i.Kind); EnumValue(i.Location);
+                Require(!i.EquipmentSwitchedOff || i.Kind == ServiceItemKind.Luggage && i.Payload == LuggagePayload.Amplifier, "Only an amplifier has a mains switch.");
                 Require(i.Generation >= 0 && i.PlayerId >= -1 && i.PlayerId <= 1 && i.LastPlayerId >= -1 && i.LastPlayerId <= 1 &&
                     Room(i.RoomId, true), "Invalid service item state.");
                 Require((i.Location == ServiceItemLocation.HeldByPlayer) == (i.PlayerId >= 0), "Invalid service item ownership.");
                 Require(string.IsNullOrEmpty(i.GuestId) || guests.Contains(i.GuestId), "Unknown service item guest.");
                 if (i.Kind == ServiceItemKind.Luggage)
-                    Require(!string.IsNullOrEmpty(i.GuestId) && (i.Id == "luggage:" + i.GuestId ||
-                        i.Id == "luggage:" + i.GuestId + ":2"), "Invalid luggage identity.");
+                {
+                    var owner = snapshot.Guests.FirstOrDefault(g => g.Application.Id == i.GuestId);
+                    Require(owner != null, "Luggage has no owner.");
+                    var application = SnapshotData.Booking(owner.Application);
+                    Require(i.LuggageIndex >= 0 && i.LuggageIndex < GuestServiceSystem.LuggageCount(application) &&
+                        i.Id == GuestServiceSystem.LuggageId(i.GuestId, i.LuggageIndex) &&
+                        i.Payload == (application.Special?.Baggage[i.LuggageIndex] ?? LuggagePayload.Suitcase), "Invalid luggage payload or identity.");
+                }
                 else
                 {
+                    Require(i.Payload == LuggagePayload.Suitcase && i.LuggageIndex == 0, "Stock cannot contain equipment.");
                     string prefix = i.Kind == ServiceItemKind.Blanket ? "blanket:" : "bulb:";
                     Require(Enumerable.Range(0, 6).Any(slot => i.Id == prefix + slot), "Invalid stock identity.");
                     Require(i.Location != ServiceItemLocation.Stored, "Only luggage belongs in luggage storage.");

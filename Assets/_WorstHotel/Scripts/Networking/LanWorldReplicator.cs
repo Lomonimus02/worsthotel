@@ -175,7 +175,8 @@ namespace WorstHotel
                 bool door = doors.TryGetValue(pair.Key, out var control) && control;
                 objectFrames.Add(new LanWorldObject { id = pair.Key, position = pair.Value.position,
                     rotation = pair.Value.rotation, active = pair.Value.gameObject.activeSelf,
-                    isDoor = door, doorOpen = door && control.IsOpen });
+                    isDoor = door, doorOpen = door && control.IsOpen,
+                    serviceItemId = pair.Value.GetComponent<ServiceSupplyItem>()?.ItemId });
             }
             frame.objects = objectFrames.ToArray();
             var visualFrames = new List<LanWorldVisual>(visuals.Count);
@@ -224,6 +225,7 @@ namespace WorstHotel
                 if (state != null && state.id != null && objects.TryGetValue(state.id, out var target) && target)
                 {
                     target.SetPositionAndRotation(state.position, state.rotation);
+                    if (target.TryGetComponent<ServiceSupplyItem>(out var parcel)) parcel.ApplyReplicaItemId(state.serviceItemId);
                     if (target.gameObject.activeSelf != state.active) target.gameObject.SetActive(state.active);
                     if (state.isDoor && doors.TryGetValue(state.id, out var door) && door) door.ApplyReplicaState(state.doorOpen);
                 }

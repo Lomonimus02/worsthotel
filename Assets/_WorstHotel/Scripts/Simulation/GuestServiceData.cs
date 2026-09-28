@@ -52,6 +52,8 @@ namespace WorstHotel
     {
         public string Id { get; }
         public ServiceItemKind Kind { get; }
+        public LuggagePayload Payload { get; internal set; }
+        public int LuggageIndex { get; internal set; }
         public ServiceItemLocation Location { get; internal set; } = ServiceItemLocation.OnShelf;
         public int? PlayerId { get; internal set; }
         public int? LastPlayerId { get; internal set; }
@@ -60,6 +62,7 @@ namespace WorstHotel
         public int Generation { get; internal set; }
         public bool StaffHandling { get; internal set; }
         public bool LuggageOfferAnswered { get; internal set; }
+        public bool EquipmentSwitchedOff { get; internal set; }
         internal ServiceItemState(string id, ServiceItemKind kind, int generation, string guest = null)
         { Id = id; Kind = kind; Generation = generation; GuestId = guest; }
     }

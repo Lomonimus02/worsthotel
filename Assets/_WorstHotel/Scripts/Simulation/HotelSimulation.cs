@@ -183,8 +183,8 @@ namespace WorstHotel
                 {
                     Housekeeping.Tick(step);
                     UpdateQuietRequests(Elapsed + step);
-                    Electrical.Tick(guests, rooms.Values, Heaters, step);
-                    Noise.Tick(guests, rooms.Values, Elapsed + step);
+                    Electrical.Tick(guests, rooms.Values, Heaters, step, Services);
+                    Noise.Tick(guests, rooms.Values, Elapsed + step, Services);
                 }
                 RefreshGuestLoad();
                 bool wasWarning = Boiler.Pressure >= settings.Boiler.WarningPressure;

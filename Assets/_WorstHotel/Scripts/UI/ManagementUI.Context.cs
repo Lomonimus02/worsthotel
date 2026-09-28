@@ -52,6 +52,7 @@ namespace WorstHotel
             var agent = guest?.Agent;
             if (simulation == null || agent == null || !agent.InAssignedRoom || !agent.ActivityStaged ||
                 agent.State == GuestAgentState.Sleeping || agent.QuietUntil > simulation.Clock.SimulationTime) return false;
+            if (simulation.Noise.Sources.Any(s => s.SourceGuestId == guest.GuestId && s.Category == NoiseCategory.Amplifier && s.Active)) return true;
             bool television = agent.Activity == GuestActivity.LoudRoom || agent.Activity == GuestActivity.WatchTV;
             return agent.NoiseOutput > .1f && (agent.Activity == GuestActivity.PhoneCall || television &&
                 (simulation.Electrical == null || simulation.Electrical.CircuitForRoom(guest.RoomId)?.HasPower == true));
@@ -146,6 +147,9 @@ namespace WorstHotel
             }
             if (canTalk)
             {
+                if (Session.Simulation.CanAskToUnplugAmplifier(guest.GuestId))
+                    contextChoices.Add(("Ask to unplug the amplifier", () =>
+                    { contextHasResponse = true; Session.AskToUnplugAmplifier(owner, guest.GuestId); }));
                 if (noisy) contextChoices.Add(("Ask to keep it down", () =>
                 { contextHasResponse = true; Session.RequestQuiet(owner, guest.GuestId); }));
                 if (cases.Length > 0 && !guest.Compensated && canDecide)

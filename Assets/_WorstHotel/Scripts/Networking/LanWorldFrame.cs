@@ -28,6 +28,7 @@ namespace WorstHotel
     public sealed class LanWorldObject
     {
         public string id;
+        public string serviceItemId;
         public Vector3 position;
         public Quaternion rotation;
         public bool active;
@@ -59,6 +60,7 @@ namespace WorstHotel
     {
         public string id, name;
         public GuestKind kind;
+        public SpecialGuestKind specialKind;
         public int appearanceIndex;
         public bool bodyVisible = true;
         public bool phoneVisible;

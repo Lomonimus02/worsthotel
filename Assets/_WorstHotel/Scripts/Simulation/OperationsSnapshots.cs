@@ -10,11 +10,12 @@ namespace WorstHotel
         public float PeriodStartedAt;
         public bool NorthWingRestored, Room102Insulated;
         public SalesSnapshot Sales;
+        public SpecialBookingSnapshot SpecialBookings;
         public ReceiptSnapshot[] PeriodReceipts;
         public ScheduledOfferSnapshot[] Offers;
         public ReservationSnapshot[] Reservations;
         public OperationsSettings ToSettings() => new OperationsSettings(SecondsPerDay, StartHour, ReportHour,
-            ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour, ReportHistoryLimit, Sales?.Settings?.ToSettings());
+            ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour, ReportHistoryLimit, Sales?.Settings?.ToSettings(), SpecialBookings?.Settings);
     }
     [Serializable] public sealed class ScheduledOfferSnapshot
     {
@@ -61,7 +62,7 @@ namespace WorstHotel
             PeriodMaintenanceSpend = PeriodMaintenanceSpend,
             PeriodCapitalSpend = PeriodCapitalSpend,
             NorthWingRestored = NorthWingRestored, Room102Insulated = Room102Insulated,
-            Sales = CaptureSales(),
+            Sales = CaptureSales(), SpecialBookings = CaptureSpecialBookings(),
             OffersThroughDay = offersThroughDay, ServiceDay = operatingServiceDay,
             PeriodReceipts = periodReceipts.Select(SnapshotData.Capture).ToArray(),
             Offers = bookingOffers.Select(SnapshotData.Capture).ToArray(), Reservations = reservations.Select(SnapshotData.Capture).ToArray()
@@ -77,7 +78,7 @@ namespace WorstHotel
             periodReceipts.Clear(); periodReceipts.AddRange(data.PeriodReceipts.Select(SnapshotData.Receipt));
             bookingOffers.Clear(); bookingOffers.AddRange(data.Offers.Select(SnapshotData.Offer));
             reservations.Clear(); reservations.AddRange(data.Reservations.Select(SnapshotData.Reservation));
-            RestoreSales(data.Sales);
+            RestoreSales(data.Sales); RestoreSpecialBookings(data.SpecialBookings);
             Economy.RestoreOperatingSequence(ReportSequence);
         }
     }
@@ -169,6 +170,7 @@ namespace WorstHotel
             }
             foreach (var receipt in receipts)
                 Require(model.Guests.Any(guest => guest.Application.Id == receipt.GuestId && guest.ReceiptPosted), "Unposted checkout receipt.");
+            SpecialBookings(model, expected.SpecialBookings, calendar, schedules);
         }
 
         static void ValidateScheduledOffer(ScheduledOfferSnapshot offer, HotelCalendar calendar, GuestScheduleSystem schedules)

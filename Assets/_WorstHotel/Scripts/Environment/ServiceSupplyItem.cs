@@ -23,6 +23,7 @@ namespace WorstHotel
         HotelSimulation simulation;
         PlayerInteractor carrier;
         Renderer[] visuals;
+        SpecialLuggageAppearance appearance;
         Collider[] shapes;
         ServiceItemLocation? shownLocation;
         int shownGeneration = -1;
@@ -37,6 +38,7 @@ namespace WorstHotel
 
         void Awake()
         {
+            appearance = GetComponent<SpecialLuggageAppearance>();
             Body = GetComponent<Rigidbody>(); PlacementCollider = GetComponent<Collider>();
             visuals = GetComponentsInChildren<Renderer>(true); shapes = GetComponentsInChildren<Collider>(true);
             presentation = FindAnyObjectByType<GuestPresentation>();
@@ -49,17 +51,18 @@ namespace WorstHotel
             var current = GameSession.Instance ? GameSession.Instance.Simulation : null;
             if (simulation != current)
             {
+                if (HasAuthority) DetachCart();
                 if (carrier && carrier.HeldBody == Body) carrier.ReleaseGrab();
                 carrier = null; simulation = current; shownLocation = null; shownGeneration = -1; LastCarrierId = null;
-                if (luggageSlot >= 0 && simulation?.ContinuousOperations == true) itemId = null;
+                if (HasAuthority && luggageSlot >= 0 && simulation?.ContinuousOperations == true) itemId = null;
             }
-            if (luggageSlot >= 0)
+            if (HasAuthority && luggageSlot >= 0)
             {
                 string nextId = simulation != null ? ContinuousLuggageId() : null;
                 if (itemId != nextId) { DetachCart(); itemId = nextId; shownLocation = null; shownGeneration = -1; luggageRest = 0; }
             }
             // Replicas get physical visibility and pose from the host; local model must not move a replica body.
-            if (!HasAuthority) return;
+            if (!HasAuthority) { if (appearance && State != null) appearance.ConfigureShape(State); return; }
             var state = State;
             if (state == null) { SetVisible(false); Body.isKinematic = true; return; }
             if (state.Kind == ServiceItemKind.Luggage) { TickLuggage(state); return; }
@@ -127,25 +130,65 @@ namespace WorstHotel
                 Body.isKinematic = !visible;
                 Body.useGravity = visible && !ownCarry;
                 Body.constraints = ownCarry ? RigidbodyConstraints.FreezeAll : RigidbodyConstraints.None;
-                Body.mass = state.Id.EndsWith(":2", StringComparison.Ordinal) ? 8 : 5;
+                Body.mass = state.Payload == LuggagePayload.InstrumentCase ? 12 : state.Payload == LuggagePayload.Amplifier ? 10 : state.LuggageIndex > 0 ? 8 : 5;
+                if (appearance) appearance.ConfigureShape(state);
                 Body.linearDamping = .5f; Body.angularDamping = 2.2f;
                 shownLocation = state.Location; shownGeneration = state.Generation;
             }
             if (!visible) return;
             if (ownCarry && presentation.TryGetGuestTransform(state.GuestId, out var owner))
             {
-                float side = LuggageCountForOwner(state.GuestId) > 1 ? (state.Id.EndsWith(":2", StringComparison.Ordinal) ? -.38f : .38f) : .15f;
-                Body.position = owner.position - owner.forward * .58f + owner.right * side + Vector3.up * .39f;
-                Body.rotation = owner.rotation;
+                int count = GuestServiceSystem.LuggageCount(guest.Application), index = state.LuggageIndex;
+                float side = count > 1 ? (index % 2 == 0 ? -.44f : .44f) : .15f;
+                float behind = .65f + index / 2 * .62f;
+                if (guest.Application.SpecialKind == SpecialGuestKind.TouringMusician)
+                { side = index == 1 ? 0 : index == 0 ? -.46f : .46f; behind = index == 1 ? 1.30f : .65f; }
+                // A short two-abreast train brings every bag through the same entrance route.
+                // It becomes independent rigid bodies when staff agree to take responsibility.
+                if (guest.Application.Special != null && guest.Agent.InAssignedRoom)
+                {
+                    // An unassisted guest still brings the actual parcels across the room.
+                    // Finish only at the physical delivery mat, never when check-in is clicked.
+                    foreach (var zone in deliveryZones)
+                    {
+                        if (!zone || zone.roomId != guest.RoomId) continue;
+                        Vector3 offset = count == 3 ? new Vector3(side, .44f, index == 1 ? .4f : -.3f) :
+                            new Vector3(count > 1 ? (index % 2 == 0 ? -.41f : .41f) : 0, .44f, -.5f + index / 2 * .5f);
+                        Vector3 target = zone.transform.TransformPoint(offset);
+                        Body.position = Vector3.MoveTowards(Body.position, target, Time.deltaTime * 1.6f);
+                        Body.rotation = Quaternion.RotateTowards(Body.rotation, zone.transform.rotation, Time.deltaTime * 160);
+                        if (Vector3.Distance(Body.position, target) < .04f) simulation.Services.SettleOwnLuggage(state.Id);
+                        break;
+                    }
+                }
+                else
+                {
+                    bool waiting = guest.Agent.State == GuestAgentState.WaitingForCheckIn;
+                    // Reception faces a solid counter. Stage parcels on its lobby side,
+                    // independent of the guest's conversational facing rotation.
+                    Vector3 direction = waiting ? Vector3.forward : owner.forward;
+                    Vector3 lateral = waiting ? Vector3.right : owner.right;
+                    // Leave the authored reception-to-corridor lane at z=.35 clear.
+                    float waitingClearance = waiting && guest.Application.Special != null ? 1.25f : 0;
+                    Vector3 target = owner.position - direction * (behind + waitingClearance) + lateral * side + Vector3.up * .44f;
+                    Body.position = waiting ? Vector3.MoveTowards(Body.position, target, Time.deltaTime * 2.4f) : target;
+                    Body.rotation = waiting ? Quaternion.identity : owner.rotation;
+                }
                 Body.linearVelocity = Body.angularVelocity = Vector3.zero;
-                if (guest.Agent.InAssignedRoom)
+                if (guest.Agent.InAssignedRoom && guest.Application.Special == null)
                     simulation.Services.SettleOwnLuggage(state.Id);
             }
             string status = state.Location == ServiceItemLocation.Stored ? "STORED" : state.Location == ServiceItemLocation.Delivered ? "DELIVERED" :
                 state.StaffHandling ? "TO ROOM " + guest.RoomId : "WITH GUEST";
             if (identityLabel) identityLabel.text = "ROOM " + guest.RoomId + "\n" + guest.Name;
-            GetComponent<PhysicsPickup>().itemName = guest.Name + " · room " + guest.RoomId + "\n" + status +
+            GetComponent<PhysicsPickup>().itemName = (state.Payload == LuggagePayload.InstrumentCase ? "Instrument case · heavy\n" : state.Payload == LuggagePayload.Amplifier ? "Amplifier\n" : "Suitcase " + (state.LuggageIndex + 1) + "\n") + guest.Name + " · room " + guest.RoomId + "\n" + status +
                 (state.StaffHandling ? "" : " · offer help to the owner");
+            if (state.Payload == LuggagePayload.Amplifier && state.StaffHandling && state.Location == ServiceItemLocation.Delivered)
+            {
+                bool inside = false;
+                foreach (var zone in deliveryZones) if (zone && zone.roomId == guest.RoomId && zone.Contains(Body.worldCenterOfMass)) inside = true;
+                if (!inside) { state.Location = ServiceItemLocation.Dropped; GameSession.Instance.RaiseChanged(); }
+            }
             if (ownCarry || state.Location == ServiceItemLocation.HeldByPlayer || state.Location == ServiceItemLocation.Delivered || OnCart) { luggageRest = 0; return; }
             if (LocalCoopBootstrap.Instance && LocalCoopBootstrap.Instance.IsPaused) return;
             luggageRest = Body.linearVelocity.sqrMagnitude < .08f && Body.angularVelocity.sqrMagnitude < .3f ? luggageRest + Time.deltaTime : 0;
@@ -166,7 +209,16 @@ namespace WorstHotel
             }
         }
 
-        static int LuggageCountForOwner(string id) => GuestServiceSystem.LuggageCount(id);
+        public static Transform FindLuggageTransform(string id)
+        {
+            foreach (var body in luggageBodies) if (body && body.itemId == id && body.State != null) return body.transform;
+            return null;
+        }
+        public void ApplyReplicaItemId(string id)
+        {
+            if (HasAuthority || luggageSlot < 0) return;
+            itemId = id;
+        }
         public void DetachCart()
         {
             if (CargoJoint) Destroy(CargoJoint);
@@ -202,6 +254,7 @@ namespace WorstHotel
             shownVisible = visible;
             foreach (var visual in visuals) if (visual) visual.enabled = visible;
             foreach (var shape in shapes) if (shape) shape.enabled = visible;
+            if (appearance) appearance.Show(State?.Payload ?? LuggagePayload.Suitcase, visible);
         }
 
         public override bool TryBeginCarry(PlayerInteractor player)

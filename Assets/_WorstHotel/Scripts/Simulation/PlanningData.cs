@@ -110,11 +110,14 @@ namespace WorstHotel
         public GuestProfile Archetype { get; }
         public int ReferencePrice { get; }
 
-        public BookingApplication(string id, string guestName, GuestProfile archetype, int referencePrice)
+        public SpecialGuestKind SpecialKind { get; }
+        public SpecialGuestDefinition Special => SpecialGuestDefinition.For(SpecialKind);
+        public BookingApplication(string id, string guestName, GuestProfile archetype, int referencePrice, SpecialGuestKind specialKind = SpecialGuestKind.None)
         {
             if (string.IsNullOrWhiteSpace(id) || referencePrice <= 0) throw new ArgumentException("Invalid booking application.");
             Id = id; GuestName = guestName; Archetype = archetype ?? throw new ArgumentNullException(nameof(archetype));
-            ReferencePrice = referencePrice;
+            ReferencePrice = referencePrice; SpecialKind = specialKind;
+            if (!Enum.IsDefined(typeof(SpecialGuestKind), specialKind)) throw new ArgumentException("Invalid special guest kind.");
         }
     }
 

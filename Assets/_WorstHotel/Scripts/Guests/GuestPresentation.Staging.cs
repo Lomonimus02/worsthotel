@@ -31,7 +31,7 @@ namespace WorstHotel
                     agent.Activity == GuestActivity.AdjustRadiator ? "RadiatorAnchor" :
                     agent.Activity == GuestActivity.CallReception ? "RoomPhoneAnchor" :
                     agent.Activity == GuestActivity.PhoneCall ? "PhoneAnchor" :
-                    agent.Activity == GuestActivity.Unpack || agent.Activity == GuestActivity.Pack ? "UnpackAnchor" :
+                    agent.Activity == GuestActivity.Rehearsal || agent.Activity == GuestActivity.Unpack || agent.Activity == GuestActivity.Pack ? "UnpackAnchor" :
                     agent.Activity == GuestActivity.LoudRoom || agent.Activity == GuestActivity.WatchTV ? "Radio / RestAnchor" : "RestAnchor";
             if (guest.Route != null && guest.Waypoint < guest.Route.Points.Count)
                 destination += " " + guest.Route.Points[guest.Waypoint].ToString("F1");

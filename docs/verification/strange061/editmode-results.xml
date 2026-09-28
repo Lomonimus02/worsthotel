@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="6" result="Passed" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-28 20:02:03Z" end-time="2026-09-28 20:02:06Z" duration="2.7911077">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="845" result="Passed" start-time="2026-09-28 20:02:03Z" end-time="2026-09-28 20:02:06Z" duration="2.791108" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="2017" name="WorstHotel.Tests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="845" result="Passed" start-time="2026-09-28 20:02:03Z" end-time="2026-09-28 20:02:06Z" duration="2.777268" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="34184" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="2018" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="845" result="Passed" start-time="2026-09-28 20:02:03Z" end-time="2026-09-28 20:02:06Z" duration="2.768654" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2019" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="845" result="Passed" start-time="2026-09-28 20:02:03Z" end-time="2026-09-28 20:02:06Z" duration="2.761385" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1990" name="SpecialGuestTests" fullname="WorstHotel.Tests.SpecialGuestTests" classname="WorstHotel.Tests.SpecialGuestTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-28 20:02:03Z" end-time="2026-09-28 20:02:06Z" duration="2.750693" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="ParameterizedMethod" id="1994" name="DeliveredAmplifierUsesActualCircuitNoiseQuietRequestAndStopsWhenCarried" fullname="WorstHotel.Tests.SpecialGuestTests.DeliveredAmplifierUsesActualCircuitNoiseQuietRequestAndStopsWhenCarried" classname="WorstHotel.Tests.SpecialGuestTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-28 20:02:03Z" end-time="2026-09-28 20:02:04Z" duration="0.763502" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1992" name="DeliveredAmplifierUsesActualCircuitNoiseQuietRequestAndStopsWhenCarried(102)" fullname="WorstHotel.Tests.SpecialGuestTests.DeliveredAmplifierUsesActualCircuitNoiseQuietRequestAndStopsWhenCarried(102)" methodname="DeliveredAmplifierUsesActualCircuitNoiseQuietRequestAndStopsWhenCarried" classname="WorstHotel.Tests.SpecialGuestTests" runstate="Runnable" seed="2050463072" result="Passed" start-time="2026-09-28 20:02:03Z" end-time="2026-09-28 20:02:04Z" duration="0.484213" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1993" name="DeliveredAmplifierUsesActualCircuitNoiseQuietRequestAndStopsWhenCarried(108)" fullname="WorstHotel.Tests.SpecialGuestTests.DeliveredAmplifierUsesActualCircuitNoiseQuietRequestAndStopsWhenCarried(108)" methodname="DeliveredAmplifierUsesActualCircuitNoiseQuietRequestAndStopsWhenCarried" classname="WorstHotel.Tests.SpecialGuestTests" runstate="Runnable" seed="1118850401" result="Passed" start-time="2026-09-28 20:02:04Z" end-time="2026-09-28 20:02:04Z" duration="0.273177" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1997" name="NightOwlActuallyReturnsWatchesTelevisionAndShowersAfterMidnight" fullname="WorstHotel.Tests.SpecialGuestTests.NightOwlActuallyReturnsWatchesTelevisionAndShowersAfterMidnight" methodname="NightOwlActuallyReturnsWatchesTelevisionAndShowersAfterMidnight" classname="WorstHotel.Tests.SpecialGuestTests" runstate="Runnable" seed="1990619247" result="Passed" start-time="2026-09-28 20:02:04Z" end-time="2026-09-28 20:02:05Z" duration="0.705602" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1991" name="RareEnquiriesRequireExplicitDecisionWhileOrdinarySalesContinue" fullname="WorstHotel.Tests.SpecialGuestTests.RareEnquiriesRequireExplicitDecisionWhileOrdinarySalesContinue" methodname="RareEnquiriesRequireExplicitDecisionWhileOrdinarySalesContinue" classname="WorstHotel.Tests.SpecialGuestTests" runstate="Runnable" seed="1403659142" result="Passed" start-time="2026-09-28 20:02:05Z" end-time="2026-09-28 20:02:05Z" duration="0.576993" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1995" name="ScheduledRehearsalAndOrdinaryHeaterCanTripTheRealBreakerTogether" fullname="WorstHotel.Tests.SpecialGuestTests.ScheduledRehearsalAndOrdinaryHeaterCanTripTheRealBreakerTogether" methodname="ScheduledRehearsalAndOrdinaryHeaterCanTripTheRealBreakerTogether" classname="WorstHotel.Tests.SpecialGuestTests" runstate="Runnable" seed="680032357" result="Passed" start-time="2026-09-28 20:02:05Z" end-time="2026-09-28 20:02:06Z" duration="0.256452" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1996" name="SixBagsUseOneResponsibilityAndExistingStorageCarryDelivery" fullname="WorstHotel.Tests.SpecialGuestTests.SixBagsUseOneResponsibilityAndExistingStorageCarryDelivery" methodname="SixBagsUseOneResponsibilityAndExistingStorageCarryDelivery" classname="WorstHotel.Tests.SpecialGuestTests" runstate="Runnable" seed="2140728141" result="Passed" start-time="2026-09-28 20:02:06Z" end-time="2026-09-28 20:02:06Z" duration="0.439713" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
