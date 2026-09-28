@@ -70,21 +70,7 @@ namespace WorstHotel
         {
             if (!coop) return;
             bool connecting = IsClientReplica && !HasSnapshot;
-            if (!MenuOpen && !connecting)
-            {
-                if (IsActive || IsSolo)
-                {
-                    Ensure();
-                    GUI.depth = -80;
-                    var oldMatrix = GUI.matrix;
-                    GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(Screen.width / 1600f, Screen.height / 900f, 1));
-                    Fill(new Rect(820, 16, 760, 35), new Color(.055f, .075f, .065f, .94f));
-                    Label(new Rect(834, 22, 732, 25), Status + "   ·   Esc / Start: " + (IsSolo ? "session menu" : "connection menu"), Small, LightPaper);
-                    GUI.matrix = oldMatrix;
-                    GUI.depth = 0;
-                }
-                return;
-            }
+            if (!MenuOpen && !connecting) return;
             Ensure();
             if (addressField == null)
             {
@@ -128,6 +114,9 @@ namespace WorstHotel
                 if ((Debug.isDebugBuild || Application.isEditor) && MenuButton(new Rect(327, 637, 930, 42), "Development only / local split-screen")) StartLocalMode();
                 Label(new Rect(327, 693, 930, 40), "Menu: mouse or arrows / D-pad + Enter / A. Esc / Start returns to the hotel.\nSOLO uses one device. Development split-screen requires two; F10 returns here.", Small, Muted);
             }
+            if (MenuButton(new Rect(327, 791, 285, 36), "Subtitles: " + (HotelAccessibility.Subtitles ? "ON" : "OFF"))) HotelAccessibility.Subtitles = !HotelAccessibility.Subtitles;
+            if (MenuButton(new Rect(627, 791, 285, 36), "Prompts: " + (HotelAccessibility.Prompts ? "ON" : "OFF"))) HotelAccessibility.Prompts = !HotelAccessibility.Prompts;
+            if (MenuButton(new Rect(927, 791, 330, 36), "Detailed labels: " + (HotelAccessibility.EnhancedLabels ? "ON" : "OFF"))) HotelAccessibility.EnhancedLabels = !HotelAccessibility.EnhancedLabels;
             menuButtonCount = menuButtonIndex;
             if (menuFocus >= menuButtonCount) menuFocus = 0;
             GUI.matrix = previous; GUI.depth = 0;

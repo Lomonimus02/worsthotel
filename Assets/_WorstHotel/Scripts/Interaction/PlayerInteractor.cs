@@ -18,6 +18,7 @@ namespace WorstHotel
         public PhysicsPickup FocusedPickup { get; private set; }
         public bool HasWorldAuthority { get; private set; } = true;
         public string ReplicaCaption { get; private set; }
+        public string ReplicaDetailedCaption { get; private set; }
         public bool ReplicaUsable { get; private set; }
         public bool ReplicaPickup { get; private set; }
         [Range(1, 5)] public float reach = 3.1f;
@@ -48,13 +49,13 @@ namespace WorstHotel
         {
             if (HasWorldAuthority && !authority) CancelInteraction();
             HasWorldAuthority = authority;
-            if (authority) { ReplicaCaption = null; ReplicaUsable = ReplicaPickup = false; }
+            if (authority) { ReplicaCaption = ReplicaDetailedCaption = null; ReplicaUsable = ReplicaPickup = false; }
         }
 
-        public void ApplyReplicaPrompt(string caption, bool usable, bool pickup)
+        public void ApplyReplicaPrompt(string caption, bool usable, bool pickup, string detailedCaption = null)
         {
             if (HasWorldAuthority) return;
-            ReplicaCaption = caption; ReplicaUsable = usable; ReplicaPickup = pickup;
+            ReplicaCaption = caption; ReplicaDetailedCaption = detailedCaption; ReplicaUsable = usable; ReplicaPickup = pickup;
         }
 
         private void Update()
@@ -83,6 +84,7 @@ namespace WorstHotel
                 }
                 if (CanUseWorld && owner.Input.SecondaryPressed && Focused) Focused.SecondaryInteract(this);
             }
+            if (!HeldBody && FocusedPickup && (!Focused || !Focused.CanInteract(this)) && owner.Input.PrimaryPressed) BeginGrab(FocusedPickup);
             if (heldInteraction && IsInteracting) heldInteraction.HoldInteract(this, Time.deltaTime);
         }
 

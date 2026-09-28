@@ -21,16 +21,7 @@ namespace WorstHotel
         public IEnumerable<string> ServiceOptionTitles => serviceChoices.Select(choice => choice.title);
         public string FocusedServiceOption => (IsServiceBoardOpen || IsWakePhoneOpen) && focus >= 0 && focus < serviceChoices.Count ? serviceChoices[focus].title : null;
 
-        public void OpenReceptionServiceBoard(int actorId)
-        {
-            if (!Session || Session.Simulation?.Services == null) return;
-            if (IsOpen) Close();
-            Open(actorId);
-            if (!IsOpen) return;
-            showingOperations = false; showingServiceBoard = true; wakePhone = false; servicePage = 0;
-            selectedServiceCase = null; serviceHasResponse = false;
-            UpdateServicePanel();
-        }
+        public void OpenReceptionServiceBoard(int actorId) => OpenBook(actorId, HotelBook.Services);
 
         public void OpenWakePhone(int actorId)
         {
@@ -38,10 +29,14 @@ namespace WorstHotel
             if (IsOpen) Close();
             Open(actorId);
             if (!IsOpen) return;
+            ReleaseBook(); spokenLine = null;
             showingOperations = false; wakePhone = true; showingServiceBoard = false; servicePage = 0;
             callingPromise = null;
             phoneResponseId = null;
             phoneSimulation = Session.Simulation;
+            var incoming = Session.Simulation.Services.IncomingCall;
+            if (incoming != null && Session.AnswerIncomingServiceCall(actorId, incoming.Id).Success)
+            { phoneResponseId = incoming.Id; phoneAnswerRequestedAt = Time.unscaledTime; }
             selectedServiceCase = null; serviceHasResponse = false;
             UpdateServicePanel();
         }

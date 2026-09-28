@@ -20,7 +20,7 @@ namespace WorstHotel
         readonly Dictionary<DoorInteractable, bool> doorStates = new Dictionary<DoorInteractable, bool>();
         readonly List<AudioSource> pausedSources = new List<AudioSource>();
         readonly float[] stepDistance = new float[2];
-        AudioSource hum, hiss, effects, ui;
+        AudioSource hum, hiss, effects, ui, roomKnock;
         AudioSource[] feet;
         ParticleSystem steam, drops, sparks;
         Material particleMaterial;
@@ -39,6 +39,8 @@ namespace WorstHotel
             hiss = Source("Pressure hiss", true); hiss.clip = clips[Sound.Hiss];
             effects = Source("Hotel mechanical and notification sounds", false);
             ui = Source("Reception UI clicks", false);
+            roomKnock = Source("Door knock", false); roomKnock.minDistance = 1; roomKnock.maxDistance = 12; roomKnock.rolloffMode = AudioRolloffMode.Linear;
+            pausedSources.Add(roomKnock);
             feet = new[] { Source("Staff 1 footsteps", false), Source("Staff 2 footsteps", false) };
             feet[0].panStereo = -.16f; feet[1].panStereo = .16f;
             pausedSources.AddRange(new[] { hum, hiss, effects, feet[0], feet[1] });
@@ -59,7 +61,11 @@ namespace WorstHotel
         public static void PlayRoomKnock(Vector3 position)
         {
             if (!Instance || !Instance.CanEmitGameplayCue() || !Instance.effects) return;
-            Instance.effects.PlayOneShot(Instance.clips[Sound.Knock], Instance.masterVolume * .55f * Audibility(position, 10));
+            var coop = LocalCoopBootstrap.Instance;
+            bool split = coop && !coop.IsSolo && coop.LanRole == LanRole.Offline;
+            Instance.roomKnock.transform.position = position;
+            Instance.roomKnock.spatialBlend = split ? 0 : 1;
+            Instance.roomKnock.PlayOneShot(Instance.clips[Sound.Knock], Instance.masterVolume * .55f * (split ? Audibility(position, 10) : 1));
         }
 
         AudioSource Source(string label, bool loop)

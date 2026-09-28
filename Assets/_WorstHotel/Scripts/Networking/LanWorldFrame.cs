@@ -22,7 +22,7 @@ namespace WorstHotel
         public Quaternion rotation, cameraLocalRotation;
         public Vector2 movement;
         public bool usingHands, usable, pickup, uiBlocked;
-        public string caption, heldId;
+        public string caption, detailedCaption, heldId, subtitle;
     }
     [Serializable]
     public sealed class LanWorldObject

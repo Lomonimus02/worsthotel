@@ -55,19 +55,9 @@ namespace WorstHotel
                 label.text = roomId.ToString(CultureInfo.InvariantCulture) + "\n—";
                 return;
             }
-            bool reserved = session.Phase == DayPhase.Planning ? plan != null && plan.TryGetAssignment(roomId, out _) : room.Reserved;
-            string status = !room.Operational ? "WING CLOSED" : room.Occupied ? "OCCUPIED" : room.DepartingGuestId != null ? "GUEST LEAVING" :
-                room.TurnoverState == HousekeepingState.Cleaning ? "CLEANING" : room.Cleanliness == Cleanliness.Dirty ?
-                (reserved ? "WAIT CLEAN" : "DIRTY") : reserved ? "RESERVED" : "READY";
-            string reading = room.Temperature.ToString("0.0", CultureInfo.InvariantCulture) + "°C";
-            if (session.Simulation != null && session.Simulation.TryGetRoomThermalBreakdown(roomId, out var thermal, out _))
-                reading += " " + ThermalLabels.Trend(thermal).ToLowerInvariant();
-            // OFF belongs to this electrical branch. The thermometer still reads the
-            // real room, including any central heating that continues during a power cut.
-            label.text = roomId.ToString(CultureInfo.InvariantCulture) + " / " + room.CircuitId + (room.HasPower ? "" : " OFF") +
-                "\n" + status + "\n" + reading;
-            label.color = !room.HasPower ? new Color(1, .52f, .26f) : room.Occupied ? new Color(.96f, .88f, .66f) :
-                reserved ? new Color(1f, .77f, .38f) : new Color(.67f, .88f, .74f);
+            // Room numbers are signage; bookings and preparation live in the reservation book.
+            label.text = roomId.ToString(CultureInfo.InvariantCulture);
+            label.color = new Color(.95f, .84f, .58f);
         }
     }
 }

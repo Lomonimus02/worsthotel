@@ -175,6 +175,7 @@ namespace WorstHotel
             if (ManagementUI.Instance && ManagementUI.Instance.IsOpen) return;
             var coop = LocalCoopBootstrap.Instance;
             if (!coop || coop.IsPaused || coop.Players[0] == null || !coop.IsSolo && coop.Players[1] == null) return;
+            if (Mode == HotelAdvanceMode.None && !HasSleepConsentInProgress && VoteProgress(0) <= 0 && VoteProgress(1) <= 0) return;
             if (bannerStyle == null)
             {
                 bannerStyle = new GUIStyle(GUI.skin.label) { fontSize = 14, alignment = TextAnchor.MiddleCenter, wordWrap = true };

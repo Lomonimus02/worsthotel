@@ -20,7 +20,7 @@ namespace WorstHotel
         readonly List<Action> actions = new List<Action>();
         readonly List<bool> enabledActions = new List<bool>();
         GameSession Session => GameSession.Instance;
-        bool openInitially = true;
+        bool openInitially;
         void Awake() => Instance = this;
 
         public void Open(int actorId)
@@ -41,10 +41,12 @@ namespace WorstHotel
             selectedBooking = Session.Plan.Applications.FirstOrDefault()?.Id;
             SelectBooking(selectedBooking);
             actions.Clear(); enabledActions.Clear();
+            if (Session.Simulation.ContinuousOperations) BindBook(HotelBook.Reservations);
         }
 
         public void Close()
         {
+            ReleaseBook();
             if (guestContext && Session && owner >= 0 && selectedServiceGuest != null)
                 Session.CloseGuestConversation(owner, selectedServiceGuest);
             if (wakePhone && Session && owner >= 0) Session.CloseWakePhone(owner);
@@ -63,12 +65,12 @@ namespace WorstHotel
             { openInitially = false; Open(coop.LocalActorId); }
             if (!IsOpen || coop.IsPaused || Time.frameCount <= openedFrame + 1) return;
             if (owner >= coop.Players.Length || !coop.Players[owner] || !coop.IsLocalActor(owner)) { Close(); return; }
-            UpdateGuestContext();
-            UpdateServicePanel();
-            UpdateOperationsPanel();
+            if (readingBook) UpdateBookChoices();
+            else { UpdateGuestContext(); UpdateServicePanel(); UpdateOperationsPanel(); }
             if (!IsOpen) return;
             var input = coop.Players[owner].Input;
             if (pending != null) { var execute = pending; pending = null; HotelFeedback.PlayUIClick(); execute(); return; }
+            if (input.MenuCancelPressed && readingBook) { Close(); return; }
             if (input.MenuCancelPressed && IsOperationsOpen) { OperationsBack(); return; }
             if (input.MenuCancelPressed) { if (guestContext || wakePhone) Close(); else if (showingServiceBoard && selectedServiceCase != null) { selectedServiceCase = null; serviceHasResponse = false; focus = 0; } else if (showingServiceBoard) Close(); else if (selectedReview != null) selectedReview = null; else if (showingHousekeeping) { showingHousekeeping = false; focus = 0; } else if (choosingMoveRoom) { choosingMoveRoom = false; focus = 0; } else if (selectedServiceGuest != null) { selectedServiceGuest = null; focus = 0; } else Close(); return; }
             float navigation = Mathf.Abs(input.Navigate.y) > .5f ? -input.Navigate.y : input.Navigate.x;
@@ -117,6 +119,7 @@ namespace WorstHotel
             if (!IsOpen || Session == null || Session.Plan == null) return;
             Ensure();
             GUI.depth = -30;
+            if (DrawPhysicalBook() || DrawPhysicalConversation()) { GUI.depth = 0; return; }
             var matrix = GUI.matrix;
             actions.Clear(); enabledActions.Clear();
             if (Session.Phase == DayPhase.Service || showingServiceBoard || wakePhone)

@@ -48,6 +48,13 @@ namespace WorstHotel.Editor
                 new Vector3(2.00f, .47f, .045f), "Gauge ivory", true, false);
             readout.capacityReadout = HotelKitAssets.Text("Boiler actual capacity readout", readout.capacityDisplay.transform,
                 "DEMAND / EFFECTIVE CAPACITY\nRATED · RESERVE\nLOAD · STRESS", new Vector3(-.52f, 2.15f, 36.085f), .061f, HotelKitAssets.Mat("Ink").color);
+            var loadMeter = HotelKitAssets.Group("Boiler load meter", readout.capacityDisplay.transform, new Vector3(-1.12f, 2.15f, 36.04f)).transform;
+            HotelKitAssets.Box("Load meter ivory face", loadMeter, Vector3.zero, new Vector3(.65f, .32f, .03f), "Gauge ivory", false, false);
+            for (int mark = 0; mark < 7; mark++)
+                HotelKitAssets.Box("Boiler load scale", loadMeter, new Vector3(-.26f + mark * .087f, .10f, -.024f), new Vector3(.012f, .04f, .01f), mark > 4 ? "Safety red" : "Ink", false, false);
+            readout.loadNeedle = HotelKitAssets.Group("Load needle", loadMeter, new Vector3(0, -.11f, -.034f)).transform;
+            HotelKitAssets.Box("Boiler load pointer", readout.loadNeedle, new Vector3(0, .115f, 0), new Vector3(.015f, .23f, .012f), "Safety red", false, false);
+            readout.capacityReadout.transform.localPosition = new Vector3(-.08f, 2.15f, 36.00f);
             // Reuse the visible plate. Its front hitbox is clear of the gauge and the
             // emergency cabinet; the complete inspection surface is hidden in legacy mode.
             var inspectionCollider = readout.capacityDisplay.AddComponent<BoxCollider>();

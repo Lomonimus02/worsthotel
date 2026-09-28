@@ -14,6 +14,15 @@ namespace WorstHotel
             public string answeredGuestId, answeredResponseId;
         }
         readonly PhoneGrant[] phoneGrants = new PhoneGrant[2];
+        public int PhoneHolder
+        {
+            get
+            {
+                for (int i = 0; i < phoneGrants.Length; i++)
+                    if (phoneGrants[i] != null && phoneGrants[i].model == Simulation && Time.unscaledTime <= phoneGrants[i].expires) return i;
+                return -1;
+            }
+        }
         bool ServiceWorkPhase => Phase == DayPhase.Service || Phase == DayPhase.Planning;
         bool ServiceTarget(int actor, HotelInteractable target, out PlayerInteractor player) =>
             PlayerInteractor.TryGetPlayer(actor, out player) && !IsLanReplica && ServiceWorkPhase && Simulation?.Services != null &&
@@ -125,10 +134,10 @@ namespace WorstHotel
         {
             if (!(target is ReceptionPhoneInteraction) || !ServiceTarget(actor, target, out _))
                 return CommandResult.Fail("Use the physical reception telephone.");
+            phoneGrants[actor] = new PhoneGrant { model = Simulation, source = target.transform, expires = Time.unscaledTime + 60 };
             if (LanSession.Instance && LanSession.Instance.Role == LanRole.Host && actor == 1)
                 LanSession.Instance.RequestRemoteServiceDesk(true);
             else ManagementUI.Instance?.OpenWakePhone(actor);
-            phoneGrants[actor] = new PhoneGrant { model = Simulation, source = target.transform, expires = Time.unscaledTime + 60 };
             return CommandResult.Ok("Reception wake-up calls.");
         }
         public void CloseWakePhone(int actor)

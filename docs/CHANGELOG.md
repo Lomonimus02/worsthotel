@@ -1,3 +1,11 @@
+## Prototype 0.6.0 — embodied interaction and physical hotel information
+
+Normal play uses a tiny dot and contextual verbs. Separate physical books at reception contain reservations/sales, known guest requests, accounts and renovation purchases; their pages anchor to a close-up camera. A workbench manual contains boiler procedures and maintenance selection. Wall clocks, local machine meters, small labels and physical luggage tags replace persistent statistics and explanatory boards. A ringing phone answers on first use, raises its handset and only then reveals the caller; guests use brief subtitles and contextual replies after a real knock. Privacy, delivery access and cart physics are retained. Accessibility toggles remain in the session menu; exact statistics remain behind F2.
+
+North Wing now costs $4500, compared with $1600 starting cash. At $180 per occupied room-night and $350 daily operating expense, the missing $2900 corresponds to roughly four fully occupied six-room days before maintenance/refunds, or eight four-room days. This is a tuning baseline, not a measured demand simulation. LAN compatibility advances to 0.6.0 / protocol 21.
+
+Three focused PlayMode scenarios passed (physical books and initial affordability; first-use phone and knocking; cart driving). Windows compilation/build succeeded; actual player-rendered book, phone, machine and blackout images were inspected. Full manual gameplay and two-computer LAN remain pending because Computer Use could not start its helper. See [0.6.0 notes](DIEGETIC_UI_060.md).
+
 ## Prototype 0.5.3 — restore the missing luggage cart
 
 The functional brass cart was created by the lobby builder, then deleted by an obsolete decorative-cart cleanup in the service-storage builder. Removed that deletion so the cart, its Rigidbody, handle and luggage support survive scene generation beneath the BELL CART sign. Rebuilt the scene and Windows player; a focused rendered scene view confirms the cart in place. Carrying cargo and steering have not yet been manually exercised. The LAN compatibility identifier changes because older scenes have no cart to replicate. No automated tests or new harnesses.

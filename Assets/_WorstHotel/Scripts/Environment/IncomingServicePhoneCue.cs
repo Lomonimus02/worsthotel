@@ -17,7 +17,7 @@ namespace WorstHotel
         void Awake()
         {
             source = gameObject.AddComponent<AudioSource>();
-            source.playOnAwake = false; source.loop = true; source.spatialBlend = 0; source.priority = 90;
+            source.playOnAwake = false; source.loop = true; source.spatialBlend = 1; source.minDistance = 2; source.maxDistance = range; source.rolloffMode = AudioRolloffMode.Linear; source.priority = 90;
             // Original two-bell tone with a quiet gap, rather than an event/toast per ring.
             const int rate = 16000;
             var samples = new float[rate * 4];
@@ -51,7 +51,9 @@ namespace WorstHotel
                 foreach (var player in coop.Players)
                     if (player && player.PlayerCamera && coop.IsLocalActor(player.ActorId))
                         distance = Mathf.Min(distance, Vector3.Distance(transform.position, player.PlayerCamera.transform.position));
-            source.volume = volume * Mathf.Pow(1 - Mathf.Clamp01(distance / Mathf.Max(1, range)), 1.4f);
+            bool split = coop && !coop.IsSolo && coop.LanRole == LanRole.Offline;
+            source.spatialBlend = split ? 0 : 1;
+            source.volume = split ? volume * Mathf.Pow(1 - Mathf.Clamp01(distance / Mathf.Max(1, range)), 1.4f) : volume;
             if (responseId != call.Id)
             { source.Stop(); responseId = call.Id; if (!pause) source.Play(); }
             if (pause != paused) { paused = pause; if (pause) source.Pause(); else source.UnPause(); }

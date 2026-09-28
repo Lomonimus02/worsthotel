@@ -19,7 +19,7 @@ namespace WorstHotel
         int errors, actualRoomMoves, cleaningArrivals, cleaningCompletions;
         bool initialized, finished, resetVerified, capturing, heaterDemonstration;
         bool verificationLayoutRegistered;
-        bool soloTour;
+        bool soloTour, diegeticTour;
         bool presenceFixtures, presenceVerified;
         bool agencyFixtures;
         int ActiveActors => soloTour ? 1 : 2;
@@ -51,6 +51,7 @@ namespace WorstHotel
             runner.presenceFixtures = Array.IndexOf(arguments, "-verifyPresence") >= 0;
             runner.agencyFixtures = Array.IndexOf(arguments, "-verifyAgency") >= 0;
             runner.serviceFixtures = Array.IndexOf(arguments, "-verifyServices") >= 0;
+            runner.diegeticTour = Array.IndexOf(arguments, "-verifyDiegetic") >= 0;
             runner.operationsUI = Array.IndexOf(arguments, "-verifyOperationsUI") >= 0;
             runner.continuousTour = Array.IndexOf(arguments, "-verifyHotelContinuous") >= 0;
             runner.soloSleepFixture = Array.IndexOf(arguments, "-verifySoloSleep") >= 0;
@@ -73,7 +74,7 @@ namespace WorstHotel
         // This opt-in historical driver verifies the original three-shift regression flow.
         // Configure before scene Start/transport startup; ordinary production sessions never use it.
         public static bool ShouldUseLegacyFixture(string[] arguments) => arguments != null &&
-            Array.IndexOf(arguments, "-verifySoloSleep") < 0 &&
+            Array.IndexOf(arguments, "-verifySoloSleep") < 0 && Array.IndexOf(arguments, "-verifyDiegetic") < 0 &&
             Array.IndexOf(arguments, "-verifyLanSleep") < 0 &&
             Array.IndexOf(arguments, "-verifyLanContinuous") < 0 && Array.IndexOf(arguments, "-verifyOperationsUI") < 0 &&
             Array.IndexOf(arguments, "-verifyHotelContinuous") < 0;
@@ -121,7 +122,7 @@ namespace WorstHotel
             }
             finished = true;
             WriteReport(errors == 0 ? "PASS" : "FAIL");
-            Debug.Log("VERIFY: " + (soloSleepFixture ? "SOLO physical sleep verification complete" :
+            Debug.Log("VERIFY: " + (diegeticTour ? "diegetic presentation capture complete" : soloSleepFixture ? "SOLO physical sleep verification complete" :
                 operationsUI ? "operations UI verification complete" : "living three-day tour complete") + "; errors=" + errors);
             Application.Quit(errors == 0 ? 0 : 2);
         }
@@ -239,6 +240,7 @@ namespace WorstHotel
             observedSimulation = session.Simulation;
             observedSimulation.Housekeeping.Changed += ObserveCleaning;
             initialized = true;
+            if (diegeticTour) { yield return VerifyDiegeticPresentation(); yield break; }
             if (soloSleepFixture) { yield return VerifySoloSleep(); yield break; }
             if (continuousTour) { yield return VerifyContinuousHotel(); yield break; }
             if (operationsUI) { yield return VerifyOperationsUI(); yield break; }

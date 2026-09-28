@@ -44,6 +44,7 @@ namespace WorstHotel.Editor
             AddEnvironmentFeedback(gameplay, environment);
             AddProgressionPresentation(gameplay, environment);
             RelocateBoilerAssembly();
+            BuildDiegeticHotel(gameplay);
             AddElectricalPanel(gameplay);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -299,7 +300,7 @@ namespace WorstHotel.Editor
             Box("Old magazine", coffee, new Vector3(.23f, .69f, 0), new Vector3(.5f, .045f, .37f), "Luggage mustard", false, false);
             Plant(lobby, new Vector3(8.7f, 0, -3.5f));
             Plant(lobby, new Vector3(-8.7f, 0, -3.5f));
-            Sign(lobby, "EVERYTHING WORKS.*\n*Usually.", new Vector3(6, 2.37f, 5.57f), 2.8f, .86f, .13f);
+            Sign(lobby, "EVERYTHING WORKS.*\n*Usually.", new Vector3(6, 1.78f, 5.57f), 2.8f, .86f, .13f);
             foreach (float lampX in new[] { -8.6f, -1.5f })
                 Place(lamp, lobby, new Vector3(lampX, 2.25f, 5.60f));
             Place(lamp, lobby, new Vector3(8.7f, 2.25f, 5.6f));
@@ -415,13 +416,14 @@ namespace WorstHotel.Editor
             for (int i = 0; i < 11; i++)
             {
                 float a = (210 - i * 24) * Mathf.Deg2Rad;
-                var tick = Box("Gauge tick", gauge, new Vector3(Mathf.Cos(a) * .38f, Mathf.Sin(a) * .38f, -.145f), new Vector3(.027f, .10f, .01f), i > 7 ? "Safety red" : "Ink", false, false);
+                var tick = Box("Gauge tick", gauge, new Vector3(Mathf.Cos(a) * .38f, Mathf.Sin(a) * .38f, -.145f), new Vector3(.027f, .10f, .01f), i >= 3 && i <= 4 ? "Signal green" : i >= 6 ? "Safety red" : "Ink", false, false);
                 tick.transform.localEulerAngles = new Vector3(0, 0, a * Mathf.Rad2Deg - 90);
             }
             var needle = Group("Needle", gauge, new Vector3(0, 0, -.168f)).transform;
             Box("Needle blade", needle, new Vector3(0, .16f, 0), new Vector3(.032f, .38f, .02f), "Safety red", false, false);
             Sphere("Needle pin", gauge, new Vector3(0, 0, -.19f), Vector3.one * .095f, "Ink");
             needle.localEulerAngles = new Vector3(0, 0, 70);
+            Text("Gauge safe range", gauge, "35 – 55", new Vector3(-.19f, .08f, -.151f), .045f, Mat("Signal green").color);
             Text("Gauge units", gauge, "PRESSURE", new Vector3(0, -.22f, -.15f), .054f, Mat("Ink").color);
             Group("SteamAnchor", gameplay, new Vector3(-4.3f, 2.50f, 38.3f), new Vector3(0, -90, 0));
 
@@ -495,7 +497,7 @@ namespace WorstHotel.Editor
             Pipe("Cart handle", cart, new Vector3(-.58f, 1.15f, -.65f), new Vector3(.58f, 1.15f, -.65f), .09f, "Aged brass");
             controls.handle = Group("Cart handle position", cart, new Vector3(0, 1.15f, -.65f)).transform;
             var handleHit = controls.handle.gameObject.AddComponent<BoxCollider>(); handleHit.size = new Vector3(1.28f, .30f, .20f);
-            Text("Cart handle instructions", cart, "LUGGAGE SERVICE\nUSE HANDLE · PUSH · STEER", new Vector3(0, 1.38f, -.54f), .065f, Lettering);
+            Text("Cart handle instructions", cart, "GRAND HOTEL", new Vector3(0, 1.38f, -.54f), .065f, Lettering);
             foreach (var child in cart.GetComponentsInChildren<Transform>()) GameObjectUtility.SetStaticEditorFlags(child.gameObject, 0);
         }
 

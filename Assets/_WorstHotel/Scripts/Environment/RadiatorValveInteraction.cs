@@ -30,7 +30,7 @@ namespace WorstHotel
             var room = State;
             if (room == null) return;
             if (knob) knob.localRotation = Quaternion.Euler(0, 0, -65 + room.RadiatorSetting * 43.3f);
-            if (settingLabel) settingLabel.text = "RADIATOR " + room.RadiatorSetting + " / 3\n" +
+            if (settingLabel) settingLabel.text = room.RadiatorSetting + " / 3\n" +
                 (room.RadiatorSetting == 0 ? "OFF" : room.RadiatorSetting == 1 ? "LOW" : room.RadiatorSetting == 2 ? "MEDIUM" : "HIGH");
         }
     }

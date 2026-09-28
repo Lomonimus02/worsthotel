@@ -82,22 +82,28 @@ namespace WorstHotel
                     BoilerMaintenanceLabels.Remaining(session.Simulation) + " remaining · Use: inspect";
             if (actor && TryGetSelection(actor.ActorId, out var kind, out _))
                 return "Hold: start " + BoilerMaintenanceLabels.ServiceName(kind) + " · " + Mathf.RoundToInt(SetupProgress(actor.ActorId) * 100) + "%\n" +
-                    "Heating stops when setup finishes · Q / X: inspect";
-            return "Use: inspect boiler / select service\n" + BoilerMaintenanceLabels.Condition(boiler) + " condition · " +
+                    "Heating stops when setup finishes · Q / X: cancel selection";
+            return "Use: inspect boiler · Plan service in the workbench manual\n" + BoilerMaintenanceLabels.Condition(boiler) + " condition · " +
                 BoilerMaintenanceLabels.Load(boiler, session.BoilerSettings.Capacity) + " load · " + BoilerMaintenanceLabels.Stress(boiler) + " stress";
         }
 
         public override void Interact(PlayerInteractor actor)
         {
             if (!CanInteract(actor)) return;
-            if (!TryGetSelection(actor.ActorId, out _, out _)) { GameSession.Instance.OpenBoilerInspection(actor.ActorId); return; }
+            if (!TryGetSelection(actor.ActorId, out _, out _))
+            {
+                var session = GameSession.Instance;
+                HotelSubtitle.Say(actor.ActorId, "Boiler inspection", BoilerMaintenanceLabels.State(session.Simulation) +
+                    " · " + BoilerMaintenanceLabels.Condition(session.Simulation.Boiler) + " condition.");
+                return;
+            }
             var selection = selections[actor.ActorId]; selection.seconds = 0; selection.holding = true;
         }
 
         public override void SecondaryInteract(PlayerInteractor actor)
         {
             if (!CanInteract(actor)) return;
-            EndInteract(actor); GameSession.Instance.OpenBoilerInspection(actor.ActorId);
+            EndInteract(actor); ClearSelection(actor.ActorId);
         }
 
         public override void HoldInteract(PlayerInteractor actor, float deltaTime)

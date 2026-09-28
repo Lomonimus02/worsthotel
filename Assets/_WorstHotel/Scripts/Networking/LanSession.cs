@@ -249,6 +249,7 @@ namespace WorstHotel
                 frame.openServiceRevision = openServiceRevision;
                 frame.openBoilerRevision = openBoilerRevision;
                 frame.servicePhone = servicePhone;
+                frame.ledgerBook = remoteBook;
                 frame.hostPaused = coop.IsPaused;
                 LastModelBytes = Send(HotelMessage, remoteClient, frame, LanProtocol.MaxSnapshotBytes);
             }
@@ -259,8 +260,15 @@ namespace WorstHotel
             }
         }
 
+        HotelBook remoteBook;
         void RequestRemoteLedger(int actorId)
-        { if (Role == LanRole.Host && actorId == 1) { openLedgerRevision++; nextModel = 0; } }
+        { if (actorId == 1) RequestRemoteBook(HotelBook.Reservations); }
+        public void RequestRemoteBook(HotelBook kind)
+        {
+            if (Role != LanRole.Host || !PeerConnected) return;
+            if (coop.Players[1]) coop.Players[1].SetUIBlocked(true);
+            remoteBook = kind; openLedgerRevision++; nextModel = 0;
+        }
 
         public void RequestRemoteGuestConversation(string guestId, bool throughDoor)
         {
@@ -330,7 +338,7 @@ namespace WorstHotel
             coop.SetRemoteConnected(true);
             if (freshEpoch) { coop.ResetInputEpoch(Epoch); receivedLedgerRevision = receivedGuestRevision = receivedServiceRevision = receivedBoilerRevision = 0; }
             if (frame.openLedgerRevision > receivedLedgerRevision)
-            { receivedLedgerRevision = frame.openLedgerRevision; ManagementUI.Instance?.Open(coop.LocalActorId); }
+            { receivedLedgerRevision = frame.openLedgerRevision; ManagementUI.Instance?.OpenBook(coop.LocalActorId, frame.ledgerBook); }
             if (frame.openGuestRevision > receivedGuestRevision)
             {
                 receivedGuestRevision = frame.openGuestRevision;

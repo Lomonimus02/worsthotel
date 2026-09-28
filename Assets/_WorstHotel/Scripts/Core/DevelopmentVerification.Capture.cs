@@ -245,7 +245,7 @@ namespace WorstHotel
 
         void OnGUI()
         {
-            if (!initialized) return;
+            if (!initialized || diegeticTour) return;
             int previousDepth = GUI.depth;
             GUI.depth = -300;
             var previous = GUI.color;

@@ -66,7 +66,7 @@ namespace WorstHotel
         {
             phoneRingSeconds = Mathf.Max(0, phoneRingSeconds - Time.deltaTime);
             float wobble = phoneRingSeconds > 0 ? Mathf.Sin(Time.time * 38) * 2.3f : 0;
-            if (phoneReceiver != null) phoneReceiver.localRotation = phoneRest * Quaternion.Euler(0, 0, wobble);
+            if (phoneReceiver != null && phoneReceiver.GetComponentInParent<PhoneHandsetPresentation>() == null) phoneReceiver.localRotation = phoneRest * Quaternion.Euler(0, 0, wobble);
             SetPhoneLens(phoneRingSeconds > 0 && Mathf.Sin(Time.time * 12) > 0);
         }
 

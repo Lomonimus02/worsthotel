@@ -86,6 +86,8 @@ namespace WorstHotel
                 else if (room.PrivacyState == RoomPrivacyState.Private) responses[player.ActorId] = guest.Agent.State == GuestAgentState.Sleeping ?
                     "I'm sleeping. Please come back later" : "I'm in the shower. Please come back later";
                 else responses.Remove(player.ActorId);
+                if (responses.TryGetValue(player.ActorId, out var reply)) HotelSubtitle.Say(player.ActorId, "Room " + roomId, reply);
+                else if (guest != null) GameSession.Instance.OpenGuestConversation(player.ActorId, guest.GuestId, true);
                 return;
             }
             if (guest?.Agent == null || !guest.Agent.InAssignedRoom || room.PrivacyState == RoomPrivacyState.Private) return;

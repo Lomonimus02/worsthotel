@@ -42,7 +42,7 @@ namespace WorstHotel.Editor
             Box("Folding worktop", folding, new Vector3(0, .91f, 0), new Vector3(1.75f, .12f, .65f), "Cream linen", true);
             foreach (float x in new[] { -.69f, .69f })
                 Box("Folding table leg", folding, new Vector3(x, .43f, 0), new Vector3(.12f, .86f, .5f), "Pipe iron");
-            Sign(wing, "HEATERS\nTAKE BY HANDLE", new Vector3(10.24f, 2.10f, 2.1f), 1.7f, .54f, .09f, -90);
+            Sign(wing, "PORTABLE HEATERS", new Vector3(10.24f, 2.10f, 2.1f), 1.7f, .54f, .09f, -90);
             Sign(wing, "SORT · FOLD · RESTOCK", new Vector3(13.1f, 3.16f, 6.64f), 3.4f, .42f, .13f);
             Box("Laundry wall repair", wing, new Vector3(15.98f, 1.92f, 2.3f), new Vector3(.024f, .67f, .88f), "New plaster patch", false, false);
             Box("Service hall paint repair", wing, new Vector3(17.1f, 1.6f, -3.078f), new Vector3(.73f, .44f, .025f), "New plaster patch", false, false);

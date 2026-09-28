@@ -15,6 +15,8 @@ namespace WorstHotel
         }
         void OnGUI()
         {
+            var debug = GetComponent<DeveloperPanel>();
+            if (!debug || !debug.IsVisible) return;
             var session = GameSession.Instance;
             if (!session || session.Phase != DayPhase.Service) return;
             Ensure();

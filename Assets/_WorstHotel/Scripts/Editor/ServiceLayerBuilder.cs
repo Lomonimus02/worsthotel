@@ -74,7 +74,7 @@ namespace WorstHotel.Editor
             Box("Luggage area platform", area.transform, new Vector3(0, .12f, 0), new Vector3(2.05f, .24f, 1.87f), "Mahogany", true);
             Box("Luggage storage signpost", area.transform, new Vector3(-.97f, 1.05f, .92f), new Vector3(.09f, 1.90f, .09f), "Aged brass", true);
             Box("Luggage storage sign backing", area.transform, new Vector3(0, 1.9f, .92f), new Vector3(2.08f, .47f, .065f), "Teal upholstery", true, false);
-            Text("Luggage storage sign", area.transform, "LUGGAGE STORAGE\nPUT DOWN HERE · COLLECT LATER", new Vector3(0, 1.9f, .875f), .075f, Lettering);
+            Text("Luggage storage sign", area.transform, "LEFT LUGGAGE", new Vector3(0, 1.9f, .875f), .075f, Lettering);
             var interact = area.AddComponent<BoxCollider>(); interact.center = new Vector3(0, .85f, 0); interact.size = new Vector3(2.30f, 1.65f, 2.10f); interact.isTrigger = true;
             // The whole platform is a use target; placement is a short deliberate action while carrying.
             zone.storageBounds = interact; zone.storageAnchors = new Transform[24];
@@ -95,7 +95,7 @@ namespace WorstHotel.Editor
                     Box("Guest case leather strap", obj.transform, new Vector3(side * .21f, 0, -.192f), new Vector3(.085f, .64f, .018f), "Mahogany", true, false);
                 Box("Guest identity label", obj.transform, new Vector3(0, .02f, -.202f), new Vector3(.32f, .23f, .018f), "Cream linen", true, false);
                 var item = obj.AddComponent<ServiceSupplyItem>(); item.luggageSlot = i; item.sourceAnchor = source; item.storageZone = zone;
-                item.identityLabel = Text("Guest luggage identity", obj.transform, "LUGGAGE", new Vector3(0, .02f, -.216f), .053f, Mat("Ink").color);
+                item.identityLabel = Text("Guest luggage identity", obj.transform, "LUGGAGE", new Vector3(0, .02f, -.216f), .035f, Mat("Ink").color);
             }
         }
 
@@ -115,7 +115,7 @@ namespace WorstHotel.Editor
             incoming.ringIndicator.SetActive(false);
             var hit = phone.AddComponent<BoxCollider>(); hit.center = new Vector3(0, .12f, 0); hit.size = new Vector3(.70f, .38f, .51f);
             // Existing complaint-phone builder supplies the same handset, dial, lamp and audio anchor here.
-            calls.phoneLabel = Text("Wake telephone status", phone.transform, "RECEPTION PHONE\nNO CALLS PROMISED", new Vector3(0, .11f, -.235f), .052f, Lettering);
+            calls.phoneLabel = Text("Wake telephone status", phone.transform, "RECEPTION", new Vector3(0, .11f, -.235f), .052f, Lettering);
         }
 
         static void BuildRoomServiceControls(Transform root, int roomId, int side, float z)
@@ -145,7 +145,8 @@ namespace WorstHotel.Editor
             valve.knob = Group("Radiator setting knob", valveObject.transform).transform;
             Cylinder("Knurled valve knob", valve.knob, Vector3.zero, .135f, .105f, "Aged brass", new Vector3(90, 0, 0));
             Box("Valve white pointer", valve.knob, new Vector3(0, .075f, -.06f), new Vector3(.027f, .085f, .02f), "Gauge ivory", false, false);
-            valve.settingLabel = Text("Radiator readable setting", valveObject.transform, "RADIATOR 1 / 3\nLOW", new Vector3(0, .30f, -.08f), .060f, Mat("Ink").color);
+            Box("Radiator dial legend plate", valveObject.transform, new Vector3(0, .21f, -.066f), new Vector3(.28f, .17f, .012f), "Gauge ivory", false, false);
+            valve.settingLabel = Text("Radiator readable setting", valveObject.transform, "1 / 3\nLOW", new Vector3(0, .21f, -.08f), .039f, Mat("Ink").color);
             var presentation = Object.FindAnyObjectByType<GuestPresentation>();
             var markers = presentation.roomMarkers.Single(marker => marker.roomId == roomId);
             var radiatorPosition = valveObject.transform.position - valveObject.transform.forward * 1.33f;

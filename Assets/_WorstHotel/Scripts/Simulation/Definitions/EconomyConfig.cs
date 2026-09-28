@@ -17,7 +17,7 @@ namespace WorstHotel
         public int boilerUpgradeCost = 1800;
         public int electricalUpgradeCost = 1200;
         public int insulationUpgradeCost = 450;
-        public int wingRestorationCost = 1600;
+        public int wingRestorationCost = 4500;
         public float properRepairCondition = 95;
         public float compensationRate = 0.2f;
         public float compensationGoodwill = 10;

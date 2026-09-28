@@ -5,9 +5,10 @@ namespace WorstHotel
     /// <summary>Presentation only: the large analog dial and warning lamp read the authoritative boiler.</summary>
     public sealed class BoilerReadout : MonoBehaviour
     {
-        public Transform needle;
+        public Transform needle, loadNeedle;
         public Light warningLight;
-        public Renderer warningLens;
+        public Renderer warningLens, reliefCatchFlag;
+        MaterialPropertyBlock catchProperties;
         public TextMesh capacityReadout;
         public GameObject capacityDisplay;
         Material lensMaterial;
@@ -20,13 +21,20 @@ namespace WorstHotel
             var session = GameSession.Instance;
             if (!session || session.Simulation == null) return;
             var boiler = session.Simulation.Boiler;
+            if (reliefCatchFlag)
+            {
+                catchProperties ??= new MaterialPropertyBlock();
+                catchProperties.SetColor("_BaseColor", boiler.SoloValveLatched ? new Color(.18f, .65f, .3f) : new Color(.7f, .12f, .07f));
+                reliefCatchFlag.SetPropertyBlock(catchProperties);
+            }
             if (needle) needle.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(120, -120, boiler.Pressure / session.BoilerSettings.MaxPressure));
+            if (loadNeedle) loadNeedle.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(75, -75, Mathf.Clamp01(boiler.Load / Mathf.Max(.1f, boiler.EffectiveCapacity * 1.4f))));
             if (capacityDisplay && capacityDisplay.activeSelf != boiler.CapacityModelEnabled) capacityDisplay.SetActive(boiler.CapacityModelEnabled);
             if (capacityReadout && boiler.CapacityModelEnabled)
             {
-                capacityReadout.text = boiler.MaintenanceInProgress ?
-                    BoilerMaintenanceLabels.ServiceName(boiler.ActiveServiceKind).ToUpperInvariant() + " · HEATING OFF\n" +
-                    BoilerMaintenanceLabels.Remaining(session.Simulation) + " LEFT\nREADY " + GuestLabels.HotelMoment(session.Simulation, boiler.MaintenanceEndsAt) : CapacityLabels.BoilerReadout(boiler);
+                capacityReadout.text = boiler.MaintenanceInProgress ? "SERVICE\nHEATING OFF" :
+                    boiler.Failed ? "STOP\nSERVICE" : "LOAD  " + (CapacityBands.AtLeast(boiler.CapacityBand, CapacityBand.Overloaded) ? "OVERLOAD" :
+                    CapacityBands.AtLeast(boiler.CapacityBand, CapacityBand.Strained) ? "HIGH" : "NORMAL") + "\nSERVICE";
                 capacityReadout.color = boiler.Failed || boiler.CapacityModelEnabled && CapacityBands.AtLeast(boiler.CapacityBand, CapacityBand.Overloaded) ?
                     new Color(.65f, .12f, .06f) : new Color(.18f, .21f, .19f);
             }

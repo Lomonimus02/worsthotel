@@ -11,7 +11,7 @@ namespace WorstHotel
         public sealed class CircuitView
         {
             public string circuitId;
-            public Transform lever;
+            public Transform lever, meterNeedle;
             public TextMesh readout;
             public TextMesh consumers;
             public Renderer warningLens;
@@ -103,13 +103,13 @@ namespace WorstHotel
                 }
                 view.wasTripped = circuit.Tripped; view.wasWarning = circuit.Warning; view.initialized = true;
                 if (view.lever != null) view.lever.localRotation = Quaternion.Euler(circuit.Tripped ? 28 : -28, 0, 0);
-                string readout = simulation.ContinuousOperations ? CapacityLabels.CircuitReadout(circuit, simulation.Electrical.UpgradedCircuitId == circuit.Id) :
-                    (circuit.LoadOverride.HasValue ? "OVERRIDE " : "LOAD ") + circuit.RequestedLoad.ToString("F2") + " / " + circuit.Capacity.ToString("F2") + "\n" +
-                    (circuit.LoadOverride.HasValue ? "ACTUAL " + circuit.ActualRequestedLoad.ToString("F2") + "\n" : "") +
-                    (circuit.Tripped ? "TRIPPED · POWER OFF" : circuit.Warning ? "OVERLOAD " + Mathf.FloorToInt(circuit.OverloadSeconds) + "s" : "POWER ON");
+                string readout = circuit.Tripped ? "TRIPPED" : circuit.Warning ? "OVERLOAD" :
+                    CapacityBands.AtLeast(circuit.CapacityBand, CapacityBand.Strained) ? "HIGH" : "NORMAL";
+                if (view.meterNeedle) view.meterNeedle.localRotation = Quaternion.Euler(0, 0,
+                    Mathf.Lerp(70, -70, Mathf.Clamp01(circuit.RequestedLoad / Mathf.Max(.1f, circuit.Capacity * 1.4f))));
                 if (view.lastReadout != readout && view.readout != null)
                 { view.lastReadout = readout; view.readout.text = readout; }
-                if (view.consumers != null) view.consumers.text = ConsumerBreakdown(simulation.Electrical, view.circuitId);
+                if (view.consumers != null) view.consumers.text = view.circuitId == "A" ? "101 · 103 · 105\n107 · 109\nWEST HALL" : "102 · 104 · 106\n108 · 110\nEAST HALL / SERVICE";
                 bool capacityWarning = simulation.ContinuousOperations && CapacityBands.AtLeast(circuit.CapacityBand, CapacityBand.Strained);
                 bool severe = simulation.ContinuousOperations && circuit.CapacityBand == CapacityBand.Critical;
                 bool pulse = (circuit.Warning || severe) && !circuit.Tripped && Mathf.Sin(Time.time * 7) > 0;

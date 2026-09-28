@@ -24,6 +24,7 @@ namespace WorstHotel.Editor
             Box("Handset bridge", feedback.phoneReceiver, Vector3.zero, new Vector3(.49f, .09f, .095f), "Ink", true, false);
             foreach (int side in new[] { -1, 1 })
                 Sphere("Handset ear piece", feedback.phoneReceiver, new Vector3(side * .24f, -.02f, 0), new Vector3(.18f, .13f, .19f), "Ink");
+            phone.AddComponent<PhoneHandsetPresentation>().handset = feedback.phoneReceiver;
             Pipe("Curled receiver lead", phone.transform, new Vector3(.28f, .18f, .1f), new Vector3(.38f, .065f, -.02f), .024f, "Ink");
             feedback.phoneLens = Sphere("Complaint lamp", phone.transform, new Vector3(-.26f, .143f, -.12f), Vector3.one * .052f, "Warm lamp").GetComponent<Renderer>();
             foreach (var child in phone.GetComponentsInChildren<Transform>()) child.gameObject.isStatic = false;

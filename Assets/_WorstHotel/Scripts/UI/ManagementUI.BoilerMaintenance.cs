@@ -6,14 +6,7 @@ namespace WorstHotel
 {
     public sealed partial class ManagementUI
     {
-        public void OpenBoilerInspection(int actorId)
-        {
-            if (IsOpen) Close();
-            Open(actorId);
-            if (!IsOperationsOpen) return;
-            operationsPage = OperationsPage.Maintenance; focus = 0;
-            UpdateOperationsPanel();
-        }
+        public void OpenBoilerInspection(int actorId) => OpenBook(actorId, HotelBook.BoilerManual);
 
         void UpdateOperationsMaintenance()
         {

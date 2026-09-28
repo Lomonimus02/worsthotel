@@ -73,12 +73,6 @@ namespace WorstHotel
                 var guest = simulation.Guests.FirstOrDefault(g => g.GuestId == response.GuestId);
                 if (incident != null && guest != null && !guest.Compensated && canDecide)
                     PhoneChoice(ref y, "Offer compensation", () => { serviceHasResponse = true; Session.OfferCompensation(owner, guest.GuestId, discussionId, discussionRevision); });
-                if (incident != null || item != null)
-                    PhoneChoice(ref y, "Review guest / room choices", () =>
-                    {
-                        Session.CloseWakePhone(owner); wakePhone = false; phoneResponseId = null;
-                        selectedServiceGuest = response.GuestId; selectedServiceCase = null; focus = 0;
-                    });
                 if (incident != null && !incident.AttentionAcknowledged && canDecide)
                     PhoneChoice(ref y, "Leave the problem unresolved", () => { serviceHasResponse = true; Session.AcceptConsequences(owner, response.GuestId, discussionId, discussionRevision); });
             }

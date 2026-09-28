@@ -143,7 +143,7 @@ namespace WorstHotel
             }
             string status = state.Location == ServiceItemLocation.Stored ? "STORED" : state.Location == ServiceItemLocation.Delivered ? "DELIVERED" :
                 state.StaffHandling ? "TO ROOM " + guest.RoomId : "WITH GUEST";
-            if (identityLabel) identityLabel.text = guest.Name.Split(' ')[0] + " · " + guest.RoomId + "\n" + status;
+            if (identityLabel) identityLabel.text = "ROOM " + guest.RoomId + "\n" + guest.Name;
             GetComponent<PhysicsPickup>().itemName = guest.Name + " · room " + guest.RoomId + "\n" + status +
                 (state.StaffHandling ? "" : " · offer help to the owner");
             if (ownCarry || state.Location == ServiceItemLocation.HeldByPlayer || state.Location == ServiceItemLocation.Delivered || OnCart) { luggageRest = 0; return; }

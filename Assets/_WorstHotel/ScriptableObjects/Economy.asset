@@ -43,4 +43,4 @@ MonoBehaviour:
   boilerUpgradeCost: 1000
   electricalUpgradeCost: 800
   insulationUpgradeCost: 450
-  wingRestorationCost: 1600
+  wingRestorationCost: 4500

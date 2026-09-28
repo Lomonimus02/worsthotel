@@ -1,0 +1,14 @@
+01-clean-reception.png
+book-Reservations.png
+room-sales.png
+book-Services.png
+book-Accounts.png
+book-Renovation.png
+book-BoilerManual.png
+service-record.png
+boiler-instruments.png
+electrical-instruments.png
+blackout-A.png
+blackout-both.png
+phone-answer.png
+known-service-note.png

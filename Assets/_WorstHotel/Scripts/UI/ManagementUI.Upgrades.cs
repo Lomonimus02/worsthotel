@@ -26,10 +26,10 @@ namespace WorstHotel
             AddOperationsChoice(58, 558, 673, 37, model.Room102Insulated ? "Room 102 window work complete" :
                 "Seal Room 102 windows · $" + costs.InsulationUpgradeCost, () => Session.PurchaseInsulation(owner),
                 !model.Room102Insulated && model.Economy.Cash >= costs.InsulationUpgradeCost);
-            AddOperationsChoice(58, 702, 673, 39, model.NorthWingRestored ? "Wing open · choose rooms for sale" :
+            AddOperationsChoice(58, 702, 673, 39, model.NorthWingRestored ? "North Wing restored" :
                 "Restore North Wing · $" + costs.WingRestorationCost, () =>
-                { if (model.NorthWingRestored) ShowRoomSales(); else Session.RestoreNorthWing(owner); },
-                model.NorthWingRestored || model.Economy.Cash >= costs.WingRestorationCost);
+                { Session.RestoreNorthWing(owner); },
+                !model.NorthWingRestored && model.Economy.Cash >= costs.WingRestorationCost);
         }
 
         void DrawOperationsUpgrades()

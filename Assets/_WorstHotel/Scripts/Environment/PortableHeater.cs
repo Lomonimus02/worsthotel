@@ -115,8 +115,7 @@ namespace WorstHotel
             int room = state.RoomId ?? -1;
             if (mode == visualState && room == visualRoom) return;
             visualState = mode; visualRoom = room;
-            if (statusLabel != null) statusLabel.text = mode == 0 ? "OFF" : mode == 1 ? "CARRIED\nHEAT PAUSED" :
-                mode == 2 ? "ON\nNO ROOM" : mode == 3 ? "ON\nNO POWER" : "HEATING\nROOM " + room;
+            if (statusLabel != null) statusLabel.text = state.SwitchedOn ? "ON" : "OFF";
             if (switchLever != null) switchLever.localRotation = Quaternion.Euler(state.SwitchedOn ? -24 : 24, 0, 0);
             Color signal = mode == 4 ? new Color(1, .42f, .09f) : mode == 0 ? new Color(.09f, .12f, .10f) : new Color(.72f, .5f, .10f);
             if (statusLamp != null)

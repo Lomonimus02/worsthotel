@@ -23,7 +23,7 @@ namespace WorstHotel.Editor
             var pivot = Group("Electrical cabinet hinged cover", cabinet.transform, new Vector3(-1.10f, 1.75f, -.68f));
             Box("Solid cover", pivot.transform, new Vector3(1.10f, 0, 0), new Vector3(2.20f, 2.04f, .08f), "Boiler enamel", true);
             Box("Cover brass frame", pivot.transform, new Vector3(1.10f, .30f, -.057f), new Vector3(1.65f, .48f, .025f), "Aged brass", true, false);
-            Text("Electrical cover label", pivot.transform, "ROOM POWER\nA / B", new Vector3(1.10f, .30f, -.08f), .15f, Mat("Ink").color);
+            Text("Electrical cover label", pivot.transform, "DISTRIBUTION\nA / B", new Vector3(1.10f, .30f, -.08f), .15f, Mat("Ink").color);
             Box("Cover handle", pivot.transform, new Vector3(2.01f, -.10f, -.11f), new Vector3(.105f, .52f, .15f), "Aged brass", true, false);
             var doorBody = pivot.AddComponent<Rigidbody>(); doorBody.isKinematic = true; doorBody.interpolation = RigidbodyInterpolation.Interpolate;
             panel.cover = pivot.AddComponent<DoorInteractable>();
@@ -50,8 +50,15 @@ namespace WorstHotel.Editor
                 var lens = Sphere("Circuit " + id + " status lens", cabinet.transform, new Vector3(x, 2.94f, -.12f), new Vector3(.19f, .17f, .15f), "Warm lamp");
                 var light = lens.AddComponent<Light>(); light.type = LightType.Point; light.range = 2.0f; light.intensity = 0; light.shadows = LightShadows.None;
                 Text("External circuit " + id + " label", cabinet.transform, id, new Vector3(x, 3.16f, -.14f), .12f, Lettering);
+                var meter = Group("Ammeter " + id, cabinet.transform, new Vector3(x, 1.03f, -.26f)).transform;
+                Box("Ammeter face", meter, Vector3.zero, new Vector3(.83f, .34f, .03f), "Gauge ivory", false, false);
+                for (int mark = 0; mark <= 6; mark++)
+                    Box("Current meter scale", meter, new Vector3(-.31f + mark * .103f, .11f, -.026f), new Vector3(.012f, .04f, .01f), mark >= 5 ? "Safety red" : "Ink", false, false);
+                var meterNeedle = Group("Current needle " + id, meter, new Vector3(0, -.11f, -.033f)).transform;
+                Box("Current pointer", meterNeedle, new Vector3(0, .13f, 0), new Vector3(.018f, .25f, .01f), "Safety red", false, false);
+                readout.transform.localPosition = new Vector3(x, .74f, -.215f);
                 panel.circuits[i] = new ElectricalPanelPresentation.CircuitView
-                    { circuitId = id, lever = lever, readout = readout, consumers = consumers, warningLens = lens.GetComponent<Renderer>(), warningLight = light };
+                    { circuitId = id, lever = lever, meterNeedle = meterNeedle, readout = readout, consumers = consumers, warningLens = lens.GetComponent<Renderer>(), warningLight = light };
             }
             panel.roomLights = new ElectricalPanelPresentation.RoomPowerBinding[HotelLayout.RoomCount + 2];
             for (int i = 0; i < HotelLayout.RoomCount; i++)

@@ -22,6 +22,8 @@ namespace WorstHotel
             if (IsOpen) Close();
             Open(actorId);
             if (!IsOpen) return;
+            ReleaseBook();
+            spokenLine = null;
             selectedServiceGuest = guestId;
             contextThroughDoor = throughDoor;
             contextAwaitingEntry = false;
@@ -84,6 +86,16 @@ namespace WorstHotel
         void BuildGuestContextChoices(GuestStay guest)
         {
             contextChoices.Clear();
+            if (choosingMoveRoom)
+            {
+                foreach (var room in Session.Rooms.Where(r => r.Operational && !r.Occupied && !r.Reserved && r.DepartingGuestId == null && r.Cleanliness == Cleanliness.Clean))
+                {
+                    int id = room.Profile.Id;
+                    contextChoices.Add(("Offer room " + id, () => { contextHasResponse = true; if (Session.MoveGuest(owner, guest.GuestId, id).Success) choosingMoveRoom = false; }));
+                }
+                contextChoices.Add(("Back to conversation", () => choosingMoveRoom = false));
+                return;
+            }
             var cases = GuestConversationSituations(guest);
             bool canTalk = ContextGuestAvailable(guest) && guest.Agent.State != GuestAgentState.Sleeping &&
                 guest.Agent.Activity != GuestActivity.Shower;
@@ -116,7 +128,7 @@ namespace WorstHotel
                         { contextHasResponse = true; Session.AcknowledgeService(owner, service.Id); }));
                 }
                 else contextChoices.Add(("Review our agreement", () =>
-                { Session.CloseGuestConversation(owner, guest.GuestId); guestContext = false; ShowServices(service.Id); }));
+                { contextHasResponse = false; spokenLine = null; }));
                 if (service.Kind == ServiceKind.WakeUpCall && service.Status == ServiceStatus.InProgress)
                     contextChoices.Add((Session.Simulation.Elapsed < service.DueTime ? "Cancel promised call" : "Cancel overdue call · counts as missed", () =>
                     { contextHasResponse = true; Session.RespondToService(owner, service.Id, false); }));
@@ -144,7 +156,7 @@ namespace WorstHotel
                 }
                 if (noisy || cases.Length > 0 || guest.Agent.PendingMoveRoomId.HasValue)
                     contextChoices.Add((guest.Agent.PendingMoveRoomId.HasValue ? "Review the room change" : "Offer another room", () =>
-                    { Session.CloseGuestConversation(owner, guest.GuestId); guestContext = false; choosingMoveRoom = true; focus = 0; }));
+                    { choosingMoveRoom = true; focus = 0; }));
                 if (!noisy && cases.Length > 0 && cases.All(s => !s.AttentionAcknowledged) && canDecide)
                     contextChoices.Add(("Leave the problem unresolved", () =>
                     { contextHasResponse = true; Session.AcceptConsequences(owner, guest.GuestId, discussionId, discussionRevision); }));

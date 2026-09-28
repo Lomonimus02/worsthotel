@@ -163,7 +163,8 @@ namespace WorstHotel
                     actorId = player.ActorId, position = player.transform.position, rotation = player.transform.rotation,
                     cameraLocalRotation = player.PlayerCamera.transform.localRotation, movement = player.IsUIBlocked ? Vector2.zero : player.Input.Move,
                     usingHands = actor.IsInteracting || actor.HeldBody, uiBlocked = player.IsUIBlocked,
-                    caption = Caption(player, usable), usable = usable, pickup = actor.FocusedPickup,
+                    caption = Caption(player, usable), detailedCaption = InteractionWords.Caption(player, true),
+                    subtitle = HotelSubtitle.Current(player.ActorId), usable = usable, pickup = actor.FocusedPickup,
                     heldId = actor.HeldBody ? Id(actor.HeldBody.transform) : null
                 });
             }
@@ -200,16 +201,7 @@ namespace WorstHotel
             return frame;
         }
 
-        static string Caption(FirstPersonController player, bool usable)
-        {
-            var actor = player.Interactor;
-            if (actor.HeldBody && actor.Focused && actor.Focused.AllowsHeldItem(actor))
-                return actor.Focused.displayName + "\n" + (usable ? "[" + player.Input.PrimaryLabel + "]  " : "") +
-                    actor.Focused.GetPrompt(actor) + "\n[" + player.Input.GrabLabel + "]  Put down";
-            if (actor.HeldBody) return "[" + player.Input.GrabLabel + "]  Put down  ·  " + actor.HeldBody.name;
-            if (actor.Focused) return actor.Focused.displayName + "\n" + (usable ? "[" + player.Input.PrimaryLabel + "]  " : "") + actor.Focused.GetPrompt(actor);
-            return actor.FocusedPickup ? actor.FocusedPickup.itemName + "\n[" + player.Input.GrabLabel + "]  Carry" : null;
-        }
+        static string Caption(FirstPersonController player, bool usable) => InteractionWords.Caption(player);
 
         public bool Apply(LanWorldFrame frame)
         {
@@ -225,7 +217,8 @@ namespace WorstHotel
                 if (state == null || state.actorId < 0 || state.actorId >= coop.Players.Length) continue;
                 var player = coop.Players[state.actorId]; if (!player) continue;
                 player.ApplyReplicaPose(state.position, state.rotation, state.cameraLocalRotation, state.movement, state.usingHands);
-                player.Interactor.ApplyReplicaPrompt(state.caption, state.usable, state.pickup);
+                player.Interactor.ApplyReplicaPrompt(state.caption, state.usable, state.pickup, state.detailedCaption);
+                HotelSubtitle.Apply(state.actorId, state.subtitle);
             }
             if (frame.objects != null) foreach (var state in frame.objects)
                 if (state != null && state.id != null && objects.TryGetValue(state.id, out var target) && target)
