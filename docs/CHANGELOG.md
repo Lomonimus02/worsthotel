@@ -1,3 +1,9 @@
+## Prototype 0.6.3 — independent scheduled contract payment
+
+The ownership payment now checks actual cash at 22:00, initially on calendar day 2 after the first normal checkout. Operating costs keep their independent 06:00 schedule. Morning reports record posted transactions without moving money. Existing amounts, daily growth and next-payment expansion assessment are retained. Physical ACCOUNTS shows separate deadlines and an immediate evening receipt; failure freezes a separate notice without rewriting the previous morning report. No new permanent HUD.
+
+LAN 24 / model schema 20 carry independent report, operating-charge and contract counters, immutable receipts and the loss-period notice. Compilation, 44 focused EditMode cases, two PlayMode scenarios and the Windows build/presentation fixture passed. Human multi-day balance and two-PC LAN remain unverified. See [implementation and verification notes](FIXED_CONTRACT_063.md).
+
 ## Prototype 0.6.2 — Hotel Debt Pressure
 
 Separate daily ownership contract after ordinary cash accounting: $250 initially, +$25 per successful period, +$60 per restored room above six on the next assessment. Remaining cash pays once; insufficient funds terminate ownership instead of rolling debt forward. Physical ACCOUNTS shows coverage, costs and payment history; RENOVATION previews expansion responsibility. Paper repossession notice explains the shortfall and offers host-owned restart or main menu. No permanent quota HUD or new content systems.

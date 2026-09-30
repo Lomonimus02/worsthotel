@@ -10,6 +10,10 @@ namespace WorstHotel
         public HotelCalendar Calendar { get; }
         public int CalendarDay => Calendar?.Day ?? dayNumber;
         public int ReportSequence { get; private set; }
+        public int OperatingCostSequence { get; private set; }
+        public int PeriodOperatingSpend { get; private set; }
+        public float NextOperatingCostAt => ContinuousOperations ? Calendar.FirstOccurrenceAt(Operations.OperatingCostHour) +
+            OperatingCostSequence * Operations.SecondsPerDay : float.PositiveInfinity;
         public float NextReportAt => ContinuousOperations ? Calendar.FirstReportAt + ReportSequence * Operations.SecondsPerDay : settings.ServiceSeconds;
         readonly List<GuestReceipt> periodReceipts = new List<GuestReceipt>();
         int periodOpeningCash;
@@ -49,11 +53,12 @@ namespace WorstHotel
                     Elapsed.ToString("R") + ", delta=" + delta.ToString("R") + ", target=" + target.ToString("R"));
             while (Running && Elapsed < target)
             {
-                CloseDueOperatingReports();
+                ResolveFinancialDeadlines();
                 if (!Running) break;
                 RefreshSalesDays(Elapsed);
                 ProcessDueSalesDecisions(Elapsed);
-                float step = Math.Min(1f, Math.Min(target - Elapsed, Math.Min(NextReportAt, Calendar.At(Calendar.Day + 1, 0)) - Elapsed));
+                float financialAt = Math.Min(NextContractAt, Math.Min(NextOperatingCostAt, NextReportAt));
+                float step = Math.Min(1f, Math.Min(target - Elapsed, Math.Min(financialAt, Calendar.At(Calendar.Day + 1, 0)) - Elapsed));
                 if (Boiler.MaintenanceInProgress) step = Math.Min(step, Boiler.MaintenanceEndsAt - Elapsed);
                 if (TryGetNextSalesDecision(out float salesAt, out _, out _)) step = Math.Min(step, salesAt - Elapsed);
                 if (step <= 0 || Elapsed + step == Elapsed)
@@ -65,31 +70,46 @@ namespace WorstHotel
                 TickEarlyCheckout(Elapsed, step);
                 PostCompletedStays(Elapsed);
                 dayNumber = Calendar.Day;
-                CloseDueOperatingReports();
+                ResolveFinancialDeadlines();
             }
+        }
+
+        void ResolveFinancialDeadlines()
+        {
+            // One clock, independent schedules. Exact ties have a deterministic transaction order.
+            if (Running && Elapsed >= NextOperatingCostAt)
+            {
+                if ((long)PeriodOperatingSpend + settings.Economy.DailyOperatingCost + PeriodMaintenanceSpend + PeriodCapitalSpend > int.MaxValue)
+                    throw new InvalidOperationException("Operating expense exceeds this report's supported total.");
+                PeriodOperatingSpend += Economy.ChargeOperatingCost();
+                OperatingCostSequence++;
+                SignalEvent("Operating costs $" + settings.Economy.DailyOperatingCost + " paid. Contract deadline is separate.");
+            }
+            SettleDueOwnershipContract();
+            // Even when a same-time payment fails, publication records only already-posted transactions.
+            CloseDueOperatingReports();
         }
 
         void CloseDueOperatingReports()
         {
-            while (Running && Elapsed >= NextReportAt)
+            while (Elapsed >= NextReportAt)
             {
                 float boundary = NextReportAt;
-                var operatingReport = Economy.CloseOperatingDay(ReportSequence + 1, periodReceipts,
-                    periodOpeningCash, boundary - periodStartedAt, PeriodMaintenanceSpend, PeriodCapitalSpend);
-                LastReport = SettleOwnershipContract(operatingReport);
+                LastReport = Economy.CloseOperatingDay(ReportSequence + 1, periodReceipts,
+                    periodOpeningCash, boundary - periodStartedAt, PeriodMaintenanceSpend, PeriodCapitalSpend,
+                    PeriodOperatingSpend, PeriodContractPayment);
                 reports.Add(LastReport);
                 if (reports.Count > Operations.ReportHistoryLimit) reports.RemoveAt(0);
                 ReportSequence++;
-                if (ContractEnabled && !OwnershipLost) ContractAssessedRooms = OperationalRoomCount;
                 periodReceipts.Clear();
                 PeriodMaintenanceSpend = 0;
                 PeriodCapitalSpend = 0;
+                PeriodOperatingSpend = 0;
+                PeriodContractPayment = null;
                 periodOpeningCash = Economy.Cash;
                 periodStartedAt = boundary;
                 PruneCompletedOperatingHistory();
-                SignalEvent(OwnershipLost ? "OWNERSHIP REVOKED — contract payment short by $" + LastReport.ContractPayment.Shortfall + ". See the official notice." :
-                    ContractEnabled ? "Contract payment $" + LastReport.ContractPayment.PaidAmount + " complete. Accounts filed; next obligation $" + ContractDue + "." :
-                    "Operating report " + ReportSequence + " available — hotel remains open");
+                if (!OwnershipLost) SignalEvent("Operating report " + ReportSequence + " filed. No money is moved by the report.");
             }
         }
     }

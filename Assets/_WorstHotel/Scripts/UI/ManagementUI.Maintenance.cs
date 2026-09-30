@@ -29,19 +29,22 @@ namespace WorstHotel
             Fill(new Rect(55, 32, 850, 536), Paper);
             Border(new Rect(65, 42, 830, 516), Brass, 2);
             Label(new Rect(88, 65, 784, 52), "OWNERSHIP REVOKED", Title, Wine);
-            Label(new Rect(90, 124, 780, 50), "The 06:00 contract payment could not be met.\nThe hotel is closed. This run has ended.", Body);
-            var report = Session.Simulation.LastReport;
-            var payment = report?.ContractPayment;
+            var model = Session.Simulation;
+            var report = model.OwnershipLossReport;
+            var payment = model.LastContractPayment;
+            Label(new Rect(90, 124, 780, 50), "The contract payment " +
+                (payment == null ? "at 22:00" : "due " + GuestLabels.HotelMoment(model, payment.DueAt)) +
+                " could not be met.\nThe hotel is closed. This run has ended.", Body);
             if (payment != null)
             {
                 Label(new Rect(90, 196, 390, 98), "CONTRACT DUE   $" + payment.Due + "\nFUNDS AVAILABLE   $" + payment.FundsBeforePayment +
                     "\nACTUALLY PAID   $" + payment.PaidAmount, Body);
                 Label(new Rect(505, 196, 362, 98), "SHORTFALL   $" + payment.Shortfall + "\nROOMS ASSESSED   " + payment.AssessedRooms +
-                    "\nFINAL CASH   $" + report.Cash, Body, Wine);
+                    "\nFINAL CASH   $" + payment.CashAfterPayment, Body, Wine);
             }
             Fill(new Rect(90, 310, 780, 2), Brass);
             if (report != null)
-                Label(new Rect(90, 330, 780, 70), "Day " + report.DayNumber + " · revenue $" + report.Gross +
+                Label(new Rect(90, 330, 780, 70), "Final partial period · revenue $" + report.Gross +
                     " · refunds $" + report.Compensation + " · operations $" + report.OperatingCost +
                     "\nRepairs / maintenance $" + report.MaintenanceSpend + " · purchases / renovation $" + report.CapitalSpend +
                     "\nResult before contract: $" + report.Net + ". Unpaid bookings are not cash.", Body);

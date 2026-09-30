@@ -53,6 +53,7 @@ MonoBehaviour:
   hotelDaySeconds: 720
   openingHour: 8
   reportHour: 6
+  operatingCostHour: 6
   automaticBookings: 1
   initiallyOpenRooms: 4
   roomSalePrice: 180
@@ -66,6 +67,8 @@ MonoBehaviour:
   initialContractPayment: 250
   contractDailyIncrease: 25
   contractExtraRoomCharge: 60
+  contractPaymentHour: 22
+  firstContractPaymentDay: 2
   specialBookings:
     Enabled: 1
     FirstOfferDay: 2

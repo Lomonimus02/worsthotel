@@ -79,7 +79,7 @@ namespace WorstHotel
             CommittedBookings = PlanCommitted ? Plan.Assignments.ToArray() : Array.Empty<BookingAssignment>();
             Cash = Simulation.Economy.Cash; LastMessage = frame.lastMessage ?? "";
             reports.Clear(); reports.AddRange(Simulation.DayReports);
-            Report = Simulation.ContinuousOperations ? Simulation.LastReport :
+            Report = Simulation.OwnershipLost ? Simulation.OwnershipLossReport : Simulation.ContinuousOperations ? Simulation.LastReport :
                 Phase == DayPhase.Planning || Phase == DayPhase.Service ? null : Simulation.LastReport;
             replicaEpoch = frame.epoch; accumulator = 0;
             if (Wait) Wait.ApplyLanView(frame.waitReason, frame.waitVotes, frame.waitProgress);

@@ -98,7 +98,7 @@ namespace WorstHotel
         {
             if (Phase == DayPhase.Results) return;
             Phase = DayPhase.Results; accumulator = 0;
-            Report = Simulation.LastReport;
+            Report = Simulation.OwnershipLossReport;
             reports.Clear(); reports.AddRange(Simulation.DayReports);
             Cash = Simulation.Economy.Cash;
             LastMessage = "Ownership revoked. The contract payment could not be met.";

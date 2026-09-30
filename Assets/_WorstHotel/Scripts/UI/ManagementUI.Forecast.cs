@@ -65,11 +65,11 @@ namespace WorstHotel
             var model = Session.Simulation;
             Label(new Rect(42, 196, 705, 34), "SINCE " + GuestLabels.HotelMoment(model, model.PeriodStartedAt), Heading, Teal);
             Label(new Rect(42, 240, 705, 143), "Opening cash $" + model.PeriodOpeningCash + " → cash now $" + model.Economy.Cash +
-                "\nCollected at checkout $" + model.PeriodCheckoutIncome + " (room charges $" + model.PeriodGross + " − credits/refunds $" + model.PeriodCompensation + ")" +
-                "\nAlready paid: maintenance $" + model.PeriodMaintenanceSpend + " · capital purchases $" + model.PeriodCapitalSpend +
-                "\nBooked charges (all dates, unpaid) $" + model.UnpaidBookedRevenue + " · before future credits/refunds" +
-                "\nNext operating charge $" + Session.Economy.DailyOperatingCost + " at " + GuestLabels.HotelMoment(model, model.NextReportAt) +
-                (Session.Reports.Count == 0 ? "\nNo completed reports yet." : ""), Small, Muted);
+                "\nCheckout $" + model.PeriodCheckoutIncome + " (charges $" + model.PeriodGross + " − credits/refunds $" + model.PeriodCompensation + ")" +
+                "\nPaid: operations $" + model.PeriodOperatingSpend + " · maintenance $" + model.PeriodMaintenanceSpend + " · purchases $" + model.PeriodCapitalSpend +
+                "\nContract paid $" + (model.PeriodContractPayment?.PaidAmount ?? 0) + " · unpaid bookings $" + model.UnpaidBookedRevenue + " before refunds" +
+                "\nNext operations $" + Session.Economy.DailyOperatingCost + " · " + GuestLabels.HotelMoment(model, model.NextOperatingCostAt) +
+                (model.ContractEnabled ? "\nContract $" + model.ContractDue + " due " + GuestLabels.HotelMoment(model, model.NextContractAt) : ""), Small, Muted);
         }
     }
 }

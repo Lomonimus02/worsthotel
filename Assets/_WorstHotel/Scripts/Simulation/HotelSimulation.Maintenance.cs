@@ -9,7 +9,7 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             if (!ContinuousOperations || !Running) return CommandResult.Fail("Equipment purchases require an open continuous hotel.");
             if (actorId < 0 || actorId > 1) return CommandResult.Fail("Unknown staff member.");
-            if ((long)PeriodMaintenanceSpend + PeriodCapitalSpend + cost + settings.Economy.DailyOperatingCost > int.MaxValue)
+            if ((long)PeriodMaintenanceSpend + PeriodCapitalSpend + cost + System.Math.Max(PeriodOperatingSpend, settings.Economy.DailyOperatingCost) > int.MaxValue)
                 return CommandResult.Fail("This accounting period cannot record another equipment payment.");
             return CommandResult.Ok();
         }

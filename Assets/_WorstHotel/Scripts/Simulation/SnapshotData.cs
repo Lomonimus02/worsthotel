@@ -142,16 +142,33 @@ namespace WorstHotel
             r.Cleanliness=s.Cleanliness;r.RepairState=s.RepairState;r.TurnoverState=s.TurnoverState;
             r.OccupancyState=s.OccupancyState;r.PrivacyState=s.PrivacyState;r.DoorState=s.DoorState;
         }
-        internal static ReportSnapshot Capture(DayReport r) => new ReportSnapshot
+        internal static ReportSnapshot Capture(DayReport r) => r == null ? null : new ReportSnapshot
         {
             Day=r.DayNumber,OpeningCash=r.OpeningCash,OperatingCost=r.OperatingCost,Cash=r.Cash,Reputation=r.Reputation,ServiceSeconds=r.ServiceSeconds,MaintenanceSpend=r.MaintenanceSpend,CapitalSpend=r.CapitalSpend,
             Receipts=r.Receipts.Select(Capture).ToArray(),ContractPayment=Capture(r.ContractPayment)
         };
-        internal static DayReport Report(ReportSnapshot r) => new DayReport(r.Day,r.Receipts.Select(Receipt),
+        internal static DayReport Report(ReportSnapshot r) => r == null ? null : new DayReport(r.Day,r.Receipts.Select(Receipt),
             r.OpeningCash,r.OperatingCost,r.Cash,r.Reputation,r.ServiceSeconds,r.MaintenanceSpend,r.CapitalSpend,Payment(r.ContractPayment));
         internal static ContractPaymentSnapshot Capture(ContractPayment payment) => payment == null ? null : new ContractPaymentSnapshot
-        { Due=payment.Due,PaidAmount=payment.PaidAmount,FundsBeforePayment=payment.FundsBeforePayment,AssessedRooms=payment.AssessedRooms };
+        { Due=payment.Due,PaidAmount=payment.PaidAmount,FundsBeforePayment=payment.FundsBeforePayment,AssessedRooms=payment.AssessedRooms,
+            Period=payment.Period,DueAt=payment.DueAt };
         internal static ContractPayment Payment(ContractPaymentSnapshot payment) => payment == null ? null :
-            new ContractPayment(payment.Due,payment.PaidAmount,payment.FundsBeforePayment,payment.AssessedRooms);
+            new ContractPayment(payment.Due,payment.PaidAmount,payment.FundsBeforePayment,payment.AssessedRooms,payment.Period,payment.DueAt);
+
+        // Unity may deserialize an absent nested class as an all-default object. Only the
+        // complete empty representation denotes absence; partial/invalid records stay visible
+        // to validation. Sequence and interval checks still reject missing required payments.
+        internal static ContractPaymentSnapshot OptionalPayment(ContractPaymentSnapshot payment) =>
+            payment != null && payment.Due == 0 && payment.PaidAmount == 0 && payment.FundsBeforePayment == 0 &&
+            payment.AssessedRooms == 0 && payment.Period == 0 && payment.DueAt == 0 ? null : payment;
+
+        internal static ReportSnapshot OptionalFinancialReport(ReportSnapshot report) =>
+            report != null && report.Day == 0 && report.OpeningCash == 0 && report.OperatingCost == 0 && report.Cash == 0 &&
+            report.MaintenanceSpend == 0 && report.CapitalSpend == 0 && report.Reputation == 0 && report.ServiceSeconds == 0 &&
+            (report.Receipts == null || report.Receipts.Length == 0) && OptionalPayment(report.ContractPayment) == null ? null : report;
+
+        internal static OwnershipContractSettingsSnapshot OptionalContract(OwnershipContractSettingsSnapshot contract) =>
+            contract != null && contract.BaseDue == 0 && contract.DailyIncrease == 0 && contract.ExtraRoomCharge == 0 &&
+            contract.FirstPaymentDay == 0 && contract.PaymentHour == 0 ? null : contract;
     }
 }

@@ -25,10 +25,13 @@ namespace WorstHotel
                 {
                     for (int i = 0; i < 3; i++) yield return PressMenu(GamepadButton.DpadDown);
                     yield return PressMenu(GamepadButton.South);
+                    Require(ui.DisplayedBookText.Contains("Pay the ownership contract at 22:00."), "contract terms navigation reaches the terms page");
                     yield return Capture("contract-terms", "Contract terms, growth and first deadline on the physical page");
                     yield return PressMenu(GamepadButton.DpadDown);
                     yield return PressMenu(GamepadButton.South);
-                    yield return Capture("cash-reserve", "Current income and expense categories, cash and reserved obligations");
+                    Require(ui.DisplayedBookText.Contains("Cash on hand") && ui.DisplayedBookText.Contains("Next operations"),
+                        "terms resets focus so one down selects the cash page");
+                    yield return Capture("cash-reserve", "Current income and expenses, cash, separate operating and contract deadlines");
                 }
                 if (kind == HotelBook.Reservations)
                 {
@@ -94,20 +97,48 @@ namespace WorstHotel
                 // purchase isolate UI states; this is not evidence of natural pacing or balance.
                 session.NewGame(); model = session.Simulation;
                 facts.Add("CONTRACT PRESENTATION FIXTURE: fresh production cash, bounded clock advances, actual burner purchase; not a human playthrough.");
-                session.AdvanceTime(model.NextReportAt - model.Elapsed + .5f);
-                Require(!model.OwnershipLost && model.LastReport.ContractPayment.PaidAmount == 250, "first contract paid from the opening reserve");
+                AdvanceDiegeticContractTo(model.FirstContractAt + .25f);
+                Require(!model.OwnershipLost && model.LastContractPayment?.PaidAmount == 250 && model.ContractSequence == 1,
+                    "first contract paid at 22:00 after the first checkout window");
+                Require(model.LastReport != null && model.LastReport.ContractPayment == null,
+                    "the preceding 06:00 report contains no contract receipt");
+                var receipt = model.LastContractPayment;
+                yield return PresentBook(HotelBook.Accounts);
+                Require(ui.DisplayedBookText.Contains("Cash after payment   $1000"), "unread evening receipt opens immediately in accounts");
+                yield return Capture("contract-paid-receipt", "22:00 contract receipt available before the next morning report");
+                ui.Close();
+                Require(model.PurchaseBoilerUpgrade(0).Success, "actual burner purchase uses the $1000 evening balance before the morning charge");
+                AdvanceDiegeticContractTo(model.NextReportAt + .25f);
+                Require(!model.OwnershipLost && model.LastReport.ContractPayment == receipt && model.Economy.Cash == -350,
+                    "06:00 charges operations and reports the earlier payment without another contract attempt");
                 yield return PresentBook(HotelBook.Accounts);
                 yield return PressMenu(GamepadButton.DpadDown);
                 yield return PressMenu(GamepadButton.DpadDown);
                 yield return PressMenu(GamepadButton.South);
-                yield return Capture("contract-paid-report", "Accounts report / economic result separate from the paid contract");
+                Require(ui.DisplayedBookText.Contains("Cash after payment   $1000") && ui.DisplayedBookText.Contains("Cash at report   $-350"),
+                    "report keeps the evening receipt balance separate from the morning balance");
+                yield return Capture("contract-paid-report", "Morning report / earlier payment cash distinct from cash after purchase and operating charge");
                 ui.Close();
-                Require(model.PurchaseBoilerUpgrade(0).Success, "actual burner purchase spends the remaining reserve");
-                session.AdvanceTime(model.NextReportAt - model.Elapsed + .5f);
+                var morningReport = model.LastReport;
+                AdvanceDiegeticContractTo(model.NextContractAt);
                 Require(model.OwnershipLost && session.Phase == DayPhase.Results, "insufficient remaining cash ends ownership");
+                Require(model.LastReport == morningReport && model.LastContractPayment.PaidAmount == 0 &&
+                    session.Report == model.OwnershipLossReport, "notice uses the frozen failure period and failed 22:00 receipt");
                 yield return Capture("ownership-revoked", "Official notice / exact cash, payment and shortfall / terminal state");
             }
             finalCash = model.Economy.Cash;
+        }
+
+        void AdvanceDiegeticContractTo(float target)
+        {
+            var model = session.Simulation;
+            for (int i = 0; i < 8 && model.Running && model.Elapsed < target; i++)
+            {
+                float before = model.Elapsed;
+                session.AdvanceTime(Mathf.Min(model.Operations.SecondsPerDay, Mathf.Max(1f / session.Settings.TickRate, target - before)));
+                Require(model.Elapsed > before, "bounded presentation advance makes progress");
+            }
+            Require(model.Elapsed >= target, "contract presentation reaches its deadline in one-day advances");
         }
 
         IEnumerator PresentBook(HotelBook kind)

@@ -7,6 +7,7 @@ namespace WorstHotel
         public float SecondsPerDay { get; }
         public float StartHour { get; }
         public float ReportHour { get; }
+        public float OperatingCostHour { get; }
         public float ArrivalStartHour { get; }
         public float ArrivalEndHour { get; }
         public float SleepHour { get; }
@@ -19,15 +20,16 @@ namespace WorstHotel
         public OperationsSettings(float secondsPerDay = 720, float startHour = 8, float reportHour = 6,
             float arrivalStartHour = 14, float arrivalEndHour = 18, float sleepHour = 23,
             float checkoutHour = 10, int reportHistoryLimit = 32, SalesSettings sales = null, SpecialBookingSettings specialBookings = null,
-            OwnershipContractSettings contract = null)
+            OwnershipContractSettings contract = null, float operatingCostHour = 6)
         {
             if (!Number.IsFinite(secondsPerDay) || secondsPerDay < 24 ||
-                !ValidHour(startHour) || !ValidHour(reportHour) || !ValidHour(arrivalStartHour) ||
+                !ValidHour(startHour) || !ValidHour(reportHour) || !ValidHour(operatingCostHour) || !ValidHour(arrivalStartHour) ||
                 !ValidHour(arrivalEndHour) || !ValidHour(sleepHour) || !ValidHour(checkoutHour) ||
                 arrivalStartHour >= arrivalEndHour || sleepHour <= arrivalEndHour || checkoutHour >= arrivalStartHour ||
                 reportHistoryLimit < 1 || reportHistoryLimit > 128)
                 throw new ArgumentException("Invalid continuous hotel calendar settings.");
             SecondsPerDay = secondsPerDay; StartHour = startHour; ReportHour = reportHour;
+            OperatingCostHour = operatingCostHour;
             ArrivalStartHour = arrivalStartHour; ArrivalEndHour = arrivalEndHour;
             SleepHour = sleepHour; CheckoutHour = checkoutHour; ReportHistoryLimit = reportHistoryLimit;
             SpecialBookings = (specialBookings ?? new SpecialBookingSettings()).Copy();
@@ -60,8 +62,9 @@ namespace WorstHotel
                 return (minute / 60).ToString("00") + ":" + (minute % 60).ToString("00");
             }
         }
-        public float FirstReportAt => (float)((Settings.ReportHour > Settings.StartHour ?
-            (double)Settings.ReportHour - Settings.StartHour : 24d + Settings.ReportHour - Settings.StartHour) * Settings.SecondsPerDay / 24);
+        public float FirstReportAt => FirstOccurrenceAt(Settings.ReportHour);
+        public float FirstOccurrenceAt(float hour) => (float)((hour > Settings.StartHour ?
+            (double)hour - Settings.StartHour : 24d + hour - Settings.StartHour) * Settings.SecondsPerDay / 24);
 
         public HotelCalendar(IGameClock clock, OperationsSettings settings)
         { this.clock = clock ?? throw new ArgumentNullException(nameof(clock)); Settings = settings ?? throw new ArgumentNullException(nameof(settings)); }

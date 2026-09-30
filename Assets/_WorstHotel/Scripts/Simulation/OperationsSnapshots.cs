@@ -5,18 +5,22 @@ namespace WorstHotel
 {
     [Serializable] public sealed class OwnershipContractSettingsSnapshot
     {
-        public int BaseDue, DailyIncrease, ExtraRoomCharge;
-        public OwnershipContractSettings ToSettings() => new OwnershipContractSettings(BaseDue, DailyIncrease, ExtraRoomCharge);
+        public int BaseDue, DailyIncrease, ExtraRoomCharge, FirstPaymentDay;
+        public float PaymentHour;
+        public OwnershipContractSettings ToSettings() => new OwnershipContractSettings(BaseDue, DailyIncrease, ExtraRoomCharge, PaymentHour, FirstPaymentDay);
     }
     [Serializable] public sealed class OperationsSnapshot
     {
-        public float SecondsPerDay, StartHour, ReportHour, ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour;
+        public float SecondsPerDay, StartHour, ReportHour, OperatingCostHour, ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour;
         public int ReportHistoryLimit, ReportSequence, PeriodOpeningCash, OffersThroughDay, ServiceDay, PeriodMaintenanceSpend, PeriodCapitalSpend;
+        public int OperatingCostSequence, PeriodOperatingSpend, ContractSequence;
         public float PeriodStartedAt;
         public bool NorthWingRestored, Room102Insulated;
         public OwnershipContractSettingsSnapshot Contract;
         public int ContractBaseRooms, ContractAssessedRooms;
         public bool OwnershipLost;
+        public ContractPaymentSnapshot LastContractPayment, PeriodContractPayment;
+        public ReportSnapshot OwnershipLossReport;
         public SalesSnapshot Sales;
         public SpecialBookingSnapshot SpecialBookings;
         public ReceiptSnapshot[] PeriodReceipts;
@@ -24,7 +28,7 @@ namespace WorstHotel
         public ReservationSnapshot[] Reservations;
         public OperationsSettings ToSettings() => new OperationsSettings(SecondsPerDay, StartHour, ReportHour,
             ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour, ReportHistoryLimit, Sales?.Settings?.ToSettings(), SpecialBookings?.Settings,
-            Contract?.ToSettings());
+            SnapshotData.OptionalContract(Contract)?.ToSettings(), OperatingCostHour);
     }
     [Serializable] public sealed class ScheduledOfferSnapshot
     {
@@ -65,26 +69,34 @@ namespace WorstHotel
         OperationsSnapshot CaptureOperations() => !ContinuousOperations ? null : new OperationsSnapshot
         {
             SecondsPerDay = Operations.SecondsPerDay, StartHour = Operations.StartHour, ReportHour = Operations.ReportHour,
+            OperatingCostHour = Operations.OperatingCostHour,
             ArrivalStartHour = Operations.ArrivalStartHour, ArrivalEndHour = Operations.ArrivalEndHour,
             SleepHour = Operations.SleepHour, CheckoutHour = Operations.CheckoutHour, ReportHistoryLimit = Operations.ReportHistoryLimit,
             ReportSequence = ReportSequence, PeriodOpeningCash = periodOpeningCash, PeriodStartedAt = periodStartedAt,
             PeriodMaintenanceSpend = PeriodMaintenanceSpend,
             PeriodCapitalSpend = PeriodCapitalSpend,
+            OperatingCostSequence = OperatingCostSequence, PeriodOperatingSpend = PeriodOperatingSpend, ContractSequence = ContractSequence,
             NorthWingRestored = NorthWingRestored, Room102Insulated = Room102Insulated,
             Contract = !ContractEnabled ? null : new OwnershipContractSettingsSnapshot
-            { BaseDue = Operations.Contract.BaseDue, DailyIncrease = Operations.Contract.DailyIncrease, ExtraRoomCharge = Operations.Contract.ExtraRoomCharge },
+            { BaseDue = Operations.Contract.BaseDue, DailyIncrease = Operations.Contract.DailyIncrease, ExtraRoomCharge = Operations.Contract.ExtraRoomCharge,
+                PaymentHour = Operations.Contract.PaymentHour, FirstPaymentDay = Operations.Contract.FirstPaymentDay },
             ContractBaseRooms = ContractBaseRooms, ContractAssessedRooms = ContractAssessedRooms, OwnershipLost = OwnershipLost,
+            LastContractPayment = SnapshotData.Capture(LastContractPayment), PeriodContractPayment = SnapshotData.Capture(PeriodContractPayment),
+            OwnershipLossReport = SnapshotData.Capture(OwnershipLossReport),
             Sales = CaptureSales(), SpecialBookings = CaptureSpecialBookings(),
             OffersThroughDay = offersThroughDay, ServiceDay = operatingServiceDay,
             PeriodReceipts = periodReceipts.Select(SnapshotData.Capture).ToArray(),
             Offers = bookingOffers.Select(SnapshotData.Capture).ToArray(), Reservations = reservations.Select(SnapshotData.Capture).ToArray()
         };
-        void RestoreOperations(OperationsSnapshot data)
+        void RestoreOperations(OperationsSnapshot data, ContractPayment lastPayment, ContractPayment periodPayment, DayReport lossReport)
         {
             if (data == null) return;
             ReportSequence = data.ReportSequence; periodOpeningCash = data.PeriodOpeningCash; periodStartedAt = data.PeriodStartedAt;
             PeriodMaintenanceSpend = data.PeriodMaintenanceSpend;
             PeriodCapitalSpend = data.PeriodCapitalSpend;
+            OperatingCostSequence = data.OperatingCostSequence; PeriodOperatingSpend = data.PeriodOperatingSpend;
+            ContractSequence = data.ContractSequence; LastContractPayment = lastPayment; PeriodContractPayment = periodPayment;
+            OwnershipLossReport = lossReport;
             ContractBaseRooms = data.ContractBaseRooms; ContractAssessedRooms = data.ContractAssessedRooms; OwnershipLost = data.OwnershipLost;
             Economy.OwnershipRevoked = OwnershipLost;
             NorthWingRestored = data.NorthWingRestored; Room102Insulated = data.Room102Insulated; ApplyProgressionToRooms();
@@ -107,10 +119,11 @@ namespace WorstHotel
             Require((data != null) == (expected != null), "Continuous operations mode differs from this hotel.");
             if (data == null) return;
             var config = data.ToSettings();
-            Require(data.PeriodMaintenanceSpend >= 0 && data.PeriodCapitalSpend >= 0 &&
-                (long)data.PeriodMaintenanceSpend + data.PeriodCapitalSpend + economy.DailyOperatingCost <= int.MaxValue,
+            Require(data.PeriodMaintenanceSpend >= 0 && data.PeriodCapitalSpend >= 0 && data.PeriodOperatingSpend >= 0 &&
+                (long)data.PeriodMaintenanceSpend + data.PeriodCapitalSpend + data.PeriodOperatingSpend <= int.MaxValue,
                 "Invalid period equipment spending total.");
             Require(config.SecondsPerDay == expected.SecondsPerDay && config.StartHour == expected.StartHour && config.ReportHour == expected.ReportHour &&
+                config.OperatingCostHour == expected.OperatingCostHour &&
                 config.ArrivalStartHour == expected.ArrivalStartHour && config.ArrivalEndHour == expected.ArrivalEndHour &&
                 config.SleepHour == expected.SleepHour && config.CheckoutHour == expected.CheckoutHour && config.ReportHistoryLimit == expected.ReportHistoryLimit,
                 "Continuous calendar settings differ from this hotel.");
@@ -121,18 +134,29 @@ namespace WorstHotel
             Require(data.ReportSequence >= 0 && data.ReportSequence <= model.Day && data.ServiceDay >= 0 && data.ServiceDay <= model.Day &&
                 data.OffersThroughDay >= 0 && data.OffersThroughDay <= model.Day + 1, "Invalid operating calendar counters.");
             Range(data.PeriodStartedAt, 0, model.Time);
-            float expectedStart = data.ReportSequence == 0 ? 0 : calendar.FirstReportAt + (data.ReportSequence - 1) * config.SecondsPerDay;
-            Require(Math.Abs(data.PeriodStartedAt - expectedStart) < .01f && model.Time < calendar.FirstReportAt + data.ReportSequence * config.SecondsPerDay,
+            float expectedStart = ReportPeriodStart(calendar, data.ReportSequence + 1);
+            Require(data.PeriodStartedAt == expectedStart && data.ReportSequence == FinancialOccurrencesAt(calendar.FirstReportAt, config.SecondsPerDay, model.Time),
                 "Accounting interval does not match the calendar.");
-            Require(model.Reports.Length <= config.ReportHistoryLimit && model.LastReportDay == data.ReportSequence,
+            Require(model.Reports.Length == Math.Min(data.ReportSequence, config.ReportHistoryLimit) && model.LastReportDay == data.ReportSequence,
                 "Operating report sequence differs from retained history.");
-            foreach (var report in model.Reports) Require(report.Day <= data.ReportSequence, "Future report in history.");
+            float firstOperatingAt = calendar.FirstOccurrenceAt(config.OperatingCostHour);
+            Require(data.OperatingCostSequence == FinancialOccurrencesAt(firstOperatingAt, config.SecondsPerDay, model.Time),
+                "Operating charge sequence differs from the clock.");
+            ValidateOperatingSpend(data.PeriodOperatingSpend, expectedStart, model.Time, calendar, economy);
+            for (int index = 0; index < model.Reports.Length; index++)
+            {
+                var report = model.Reports[index];
+                Require(report.Day == data.ReportSequence - model.Reports.Length + index + 1, "Reports must retain consecutive closed periods.");
+                float start = ReportPeriodStart(calendar, report.Day), end = ReportPeriodEnd(calendar, report.Day);
+                Require(Math.Abs(report.ServiceSeconds - (end - start)) < .01f, "Report duration differs from its accounting interval.");
+                ValidateOperatingSpend(report.OperatingCost, start, end, calendar, economy);
+            }
             var receipts = Array(data.PeriodReceipts, 128); Unique(receipts.Select(item => item.GuestId));
             foreach (var receipt in receipts) { ValidateOperatingReceipt(receipt, roomIds); DepartureReceipt(receipt, model.Time); }
             Require(receipts.Sum(item => (long)item.Price) <= int.MaxValue && receipts.Sum(item => (long)item.Compensation) <= int.MaxValue,
                 "Operating receipt totals overflow.");
             Require(!data.NorthWingRestored || roomIds.Contains(110), "Opened wing has no room registry.");
-            OwnershipContract(model, expected.Contract, roomIds);
+            OwnershipContract(model, expected.Contract, roomIds, calendar, economy);
             var offers = Array(data.Offers, 24); Unique(offers.Select(item => item.Application?.Id));
             foreach (var offer in offers) ValidateScheduledOffer(offer, calendar, schedules);
             var reservations = Array(data.Reservations, 128); Unique(reservations.Select(item => item.Offer?.Application?.Id));

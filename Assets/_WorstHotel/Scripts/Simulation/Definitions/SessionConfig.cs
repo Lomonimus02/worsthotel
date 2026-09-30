@@ -37,6 +37,7 @@ namespace WorstHotel
         [Min(24)] public float hotelDaySeconds = 720;
         [Range(0, 23.99f)] public float openingHour = 8;
         [Range(0, 23.99f)] public float reportHour = 6;
+        [Range(0, 23.99f)] public float operatingCostHour = 6;
 
         [Header("Ordinary room sales")]
         public bool automaticBookings = true;
@@ -56,12 +57,15 @@ namespace WorstHotel
         [Min(1)] public int initialContractPayment = 250;
         [Min(1)] public int contractDailyIncrease = 25;
         [Min(0)] public int contractExtraRoomCharge = 60;
+        [Range(0, 23.99f)] public float contractPaymentHour = 22;
+        [Min(1)] public int firstContractPaymentDay = 2;
 
         public OperationsSettings OperationsData() => continuousOperations ?
             new OperationsSettings(hotelDaySeconds, openingHour, reportHour, sales: new SalesSettings(automaticBookings,
                 initiallyOpenRooms, roomSalePrice, bookingBaseDemand, bookingPriceElasticity, firstDayBookingHour,
                 advanceBookingHour, bookingDecisionSpacingHours, bookingSeed), specialBookings: specialBookings,
-                contract: ownershipContractEnabled ? new OwnershipContractSettings(initialContractPayment, contractDailyIncrease, contractExtraRoomCharge) : null) : null;
+                contract: ownershipContractEnabled ? new OwnershipContractSettings(initialContractPayment, contractDailyIncrease,
+                    contractExtraRoomCharge, contractPaymentHour, firstContractPaymentDay) : null, operatingCostHour: operatingCostHour) : null;
 
         public SessionSettings ToData()
         {

@@ -17,11 +17,12 @@ namespace WorstHotel
         readonly List<(string text, bool completed)> noteLines = new();
         HotelSimulation accountsModel;
         TextMesh accountsTitle;
-        int viewedAccountsReport;
+        int viewedAccountsReport, viewedAccountsPayment;
         bool accountsContractSeen;
         GUIStyle financeBody, financeHeading, financeButton;
         public HotelBook? ReadingBook => readingBook ? readingBook.kind : null;
         public IEnumerable<string> BookOptionTitles => bookChoices.Select(choice => choice.title);
+        public string DisplayedBookText => readingBook ? bookCopy : null;
         public string FocusedBookOption => readingBook && focus >= 0 && focus < bookChoices.Count ? bookChoices[focus].title : null;
 
         public void OpenBook(int actorId, HotelBook kind)
@@ -36,7 +37,9 @@ namespace WorstHotel
         void BindBook(HotelBook kind)
         {
             readingBook = DiegeticBookInteraction.Find(kind);
-            bookPage = kind == HotelBook.Accounts && !Session.Simulation.ContractEnabled ? 1 : 0;
+            var model = Session.Simulation;
+            bookPage = kind != HotelBook.Accounts ? 0 : !model.ContractEnabled ? 1 :
+                model.LastContractPayment != null && (accountsModel != model || model.LastContractPayment.Period > viewedAccountsPayment) ? 4 : 0;
             bookListPage = 0; bookDetail = false; bookLastMessage = Session.LastMessage;
             if (!readingBook) return;
             var player = LocalCoopBootstrap.Instance.Players[owner];
@@ -65,15 +68,18 @@ namespace WorstHotel
                 case HotelBook.Services: ServiceNotes(); break;
                 case HotelBook.Accounts:
                     AccountsPages();
+                    UpdateAccountsReadState();
                     break;
                 case HotelBook.Renovation:
                     bookHeading = "RENOVATION LEDGER";
-                    bookCopy = "Cash   $" + model.Economy.Cash + "\n\nBURNER · more heat capacity\nELECTRICS · more branch capacity\nROOM 102 · seal draughty windows\n\nNORTH WING · rooms 107–110\nSet rates in RESERVATIONS after work.";
+                    bookCopy = "Cash   $" + model.Economy.Cash + "\n\nBURNER · more heat capacity\nELECTRICS · more branch capacity\nROOM 102 · seal draughty windows\nNORTH WING · rooms 107–110\nSet rates in RESERVATIONS.";
                     if (model.ContractEnabled)
                         bookCopy += "\n\nCurrent payment stays $" + model.ContractDue +
                             (model.NorthWingRestored ? "\nNext payment   $" + model.NextContractDue :
                             "\nRestoration adds $" + (4L * model.ContractRoomSurcharge) + " per payment\nstarting with the next assessment.\nNext: $" + model.NextContractDue + " → $" + model.NextContractDueWithRooms(model.ContractBaseRooms + 4)) +
-                            "\n\nKeep $" + Session.Economy.DailyOperatingCost + " + $" + model.ContractDue + " for 06:00.\nSpending is your decision.";
+                            "\nDue " + GuestLabels.HotelMoment(model, model.NextContractAt) +
+                            "\nNext operations   $" + Session.Economy.DailyOperatingCost +
+                            "\n" + GuestLabels.HotelMoment(model, model.NextOperatingCostAt) + "\nSpending is your decision.";
                     operationsChoices.Clear(); UpdateOperationsUpgrades();
                     foreach (var choice in operationsChoices)
                         BookChoice(choice.title, choice.action, choice.enabled);
@@ -111,48 +117,82 @@ namespace WorstHotel
             var model = Session.Simulation;
             if (accountsModel != model)
             {
-                accountsModel = model; viewedAccountsReport = 0; accountsContractSeen = false;
+                accountsModel = model; viewedAccountsReport = 0; viewedAccountsPayment = 0; accountsContractSeen = false;
                 var book = DiegeticBookInteraction.Find(HotelBook.Accounts);
                 accountsTitle = book ? book.GetComponentsInChildren<TextMesh>().FirstOrDefault(t => t.name == "Printed book title") : null;
             }
             if (!accountsTitle) return;
-            if (readingBook && readingBook.kind == HotelBook.Accounts && bookCamera && bookCamera.Settled) accountsContractSeen = true;
-            string title = model.ContractEnabled && !accountsContractSeen ? "ACCOUNTS\nCONTRACT DUE" :
-                model.LastReport != null && model.LastReport.DayNumber > viewedAccountsReport ? "ACCOUNTS\nNEW REPORT" : "ACCOUNTS";
+            string title = model.LastContractPayment != null && model.LastContractPayment.Period > viewedAccountsPayment ? "ACCOUNTS\nNEW RECEIPT" :
+                model.LastReport != null && model.LastReport.DayNumber > viewedAccountsReport ? "ACCOUNTS\nNEW REPORT" :
+                model.ContractEnabled && !accountsContractSeen ? "ACCOUNTS\nCONTRACT DUE" : "ACCOUNTS";
             if (accountsTitle.text != title) accountsTitle.text = title;
+        }
+
+        void UpdateAccountsReadState()
+        {
+            if (!bookCamera || !bookCamera.Settled) return;
+            var page = readingBook.ScreenPage(LocalCoopBootstrap.Instance.Players[owner].PlayerCamera);
+            if (page.width <= 0 || page.height <= 0) return;
+            // Reading follows the settled, updated page, even when no IMGUI repaint is requested.
+            accountsContractSeen = true;
+            var model = Session.Simulation;
+            if (bookPage == 4 && model.LastContractPayment != null)
+                viewedAccountsPayment = Math.Max(viewedAccountsPayment, model.LastContractPayment.Period);
+            if (bookPage == 2 && bookDetail)
+            {
+                var report = Session.Reports.FirstOrDefault(r => r.DayNumber == operationsReportNumber);
+                if (report != null)
+                {
+                    viewedAccountsReport = Math.Max(viewedAccountsReport, report.DayNumber);
+                    if (report.ContractPayment != null)
+                        viewedAccountsPayment = Math.Max(viewedAccountsPayment, report.ContractPayment.Period);
+                }
+            }
+            UpdateAccountsMarker();
         }
 
         void AccountsPages()
         {
             var model = Session.Simulation;
             if (model.ContractEnabled) BookChoice("Ownership contract", () => BookPage(0));
-            BookChoice("Current cash / reserve", () => BookPage(1));
+            BookChoice("Current cash / charges", () => BookPage(1));
             BookChoice("Daily reports", () =>
             {
                 BookPage(2);
                 if (model.LastReport != null) { operationsReportNumber = model.LastReport.DayNumber; bookDetail = true; }
             });
             if (model.ContractEnabled) BookChoice("Contract terms", () => BookPage(3));
+            if (model.LastContractPayment != null) BookChoice("Latest contract receipt", () => BookPage(4));
             bookHeading = bookPage == 0 ? "OWNERSHIP CONTRACT" : bookPage == 1 ? "CASH BOOK" : "DAILY REPORTS";
             if (bookPage == 0)
             {
-                long afterOperations = (long)model.Economy.Cash - Session.Economy.DailyOperatingCost;
-                long shortfall = Math.Max(0L, (long)model.ContractDue - afterOperations);
-                bookCopy = "A harsh ownership deal: pay daily.\n\nCash now   $" + model.Economy.Cash +
-                    "\nReserve operations   $" + Session.Economy.DailyOperatingCost + "\nLeft for contract   $" + afterOperations +
-                    "\n\nDue " + GuestLabels.HotelMoment(model, model.NextReportAt) + "\nLocked payment   $" + model.ContractDue +
-                    "\n" + (shortfall == 0 ? "COVERED after operations" : "SHORT $" + shortfall + " after operations") +
-                    "\nAssessed rooms   " + model.ContractAssessedRooms + "\nNext payment   $" + model.NextContractDue +
-                    "\n\nFirst due is before 10:00 checkout.\nUnpaid bookings are not cash.\nMiss a payment: ownership revoked.";
+                long shortfall = Math.Max(0L, (long)model.ContractDue - model.Economy.Cash);
+                bookCopy = "Cash now   $" + model.Economy.Cash +
+                    "\nDue " + GuestLabels.HotelMoment(model, model.NextContractAt) + "\nLocked payment   $" + model.ContractDue +
+                    "\n" + (shortfall == 0 ? "COVERED by current cash" : "SHORT $" + shortfall + " at current cash") +
+                    "\n\nAssessed rooms   " + model.ContractAssessedRooms + "\nFollowing payment   $" + model.NextContractDue +
+                    "\n\nNext operating charge   $" + Session.Economy.DailyOperatingCost +
+                    "\n" + GuestLabels.HotelMoment(model, model.NextOperatingCostAt) +
+                    "\n\nFirst due " + GuestLabels.HotelMoment(model, model.FirstContractAt) +
+                    "\nAfter the first 10:00 checkout.\nUnpaid bookings are not cash.\nMiss a payment: ownership revoked.";
                 return;
             }
             if (bookPage == 3)
             {
                 bookHeading = "CONTRACT TERMS";
-                bookCopy = "You bought a failing hotel on harsh\nterms. Keep it by paying each day.\n\nAt 06:00, operations are charged first.\nThe contract uses the cash left over.\nThe first bill precedes 10:00 checkout." +
+                bookCopy = "Pay the ownership contract at 22:00.\nFirst: " + GuestLabels.HotelMoment(model, model.FirstContractAt) +
+                    "\nAfter the first 10:00 checkout.\n\nOperations charge separately at 06:00.\nReports at 06:00 move no cash." +
                     "\n\nDaily rise   +$" + model.ContractDailyIncrease + "\nEach restored room above " + model.ContractBaseRooms + ": +$" + model.ContractRoomSurcharge +
-                    "\nRestoration changes the next payment;\nthe current payment stays locked." +
+                    "\nThe current bill stays locked to 22:00.\nRestored rooms enter the next bill." +
                     "\n\nBookings are future income, not cash.\nRoom charges arrive at checkout.\nA short payment ends ownership.\nYour spending choices remain open.";
+                return;
+            }
+            if (bookPage == 4)
+            {
+                bookHeading = "CONTRACT RECEIPT";
+                var receipt = model.LastContractPayment;
+                bookCopy = receipt == null ? "No contract payment yet." : ContractReceiptCopy(model, receipt) +
+                    "\n\nCash now   $" + model.Economy.Cash + "\nReceipt cash is fixed at payment.\nLater transactions change cash now.";
                 return;
             }
             if (bookPage == 1)
@@ -160,15 +200,16 @@ namespace WorstHotel
                 bookCopy = "Cash on hand   $" + model.Economy.Cash + "\nSince " + GuestLabels.HotelMoment(model, model.PeriodStartedAt) +
                     "\n\nRoom charges   $" + model.PeriodGross + "\nCredits / refunds   $" + model.PeriodCompensation +
                     "\nCollected at checkout   $" + model.PeriodCheckoutIncome + "\nMaintenance paid   $" + model.PeriodMaintenanceSpend +
-                    "\nRenovation paid   $" + model.PeriodCapitalSpend + "\n\nDue " + GuestLabels.HotelMoment(model, model.NextReportAt) +
-                    "\nOperations   $" + Session.Economy.DailyOperatingCost + (model.ContractEnabled ? "\nContract   $" + model.ContractDue +
-                    "\nReserve needed   $" + ((long)Session.Economy.DailyOperatingCost + model.ContractDue) : "") +
+                    "\nRenovation paid   $" + model.PeriodCapitalSpend + "\nOperations paid   $" + model.PeriodOperatingSpend +
+                    (model.PeriodContractPayment == null ? "" : "\nContract paid   $" + model.PeriodContractPayment.PaidAmount) +
+                    "\n\nNext operations   $" + Session.Economy.DailyOperatingCost +
+                    "\n" + GuestLabels.HotelMoment(model, model.NextOperatingCostAt) +
+                    (model.ContractEnabled ? "\nContract   $" + model.ContractDue + "\n" + GuestLabels.HotelMoment(model, model.NextContractAt) : "") +
                     "\n\nUnpaid bookings   $" + model.UnpaidBookedRevenue + "\nNot spendable until checkout.";
                 return;
             }
             var reports = Session.Reports.Reverse().ToArray();
-            if (reports.Length > 0) viewedAccountsReport = reports[0].DayNumber;
-            bookCopy = "Reports are written at 06:00.\n\nChoose a day to read its accounts.\nOperating result excludes the contract.\nClosing cash includes actual payment.";
+            bookCopy = "Reports are written at 06:00.\nWriting a report moves no cash.\n\nChoose a day to read its accounts.\nOperating result excludes the contract.\nA receipt appears if paid that period.\nReport cash is the balance at 06:00.";
             if (reports.Length == 0) bookCopy += "\n\nNo completed report yet.";
             foreach (var report in reports.Skip(bookListPage * 5).Take(5))
             {
@@ -186,11 +227,15 @@ namespace WorstHotel
                 "\nMaintenance   $" + selected.MaintenanceSpend + "\nRenovation   $" + selected.CapitalSpend +
                 "\nOperating result   $" + selected.Net;
             var payment = selected.ContractPayment;
-            if (payment != null) bookCopy += "\n\nCONTRACT · " + payment.AssessedRooms + " rooms\nFunds before payment   $" + payment.FundsBeforePayment +
-                "\nDue   $" + payment.Due + "\nPaid   $" + payment.PaidAmount +
-                (payment.OwnershipLost ? "\nShortfall   $" + payment.Shortfall + "\nOWNERSHIP REVOKED" : "\nPayment complete");
-            bookCopy += "\n\nClosing cash   $" + selected.Cash;
+            if (payment != null) bookCopy += "\n\n" + ContractReceiptCopy(model, payment);
+            bookCopy += "\n\nCash at report   $" + selected.Cash;
         }
+
+        static string ContractReceiptCopy(HotelSimulation model, ContractPayment payment) =>
+            "CONTRACT " + payment.Period + " · " + payment.AssessedRooms + " rooms\n" + GuestLabels.HotelMoment(model, payment.DueAt) +
+            "\nDue $" + payment.Due + " · paid $" + payment.PaidAmount +
+            "\nFunds before payment   $" + payment.FundsBeforePayment + "\nCash after payment   $" + payment.CashAfterPayment +
+            (payment.OwnershipLost ? "\nShortfall   $" + payment.Shortfall + "\nOWNERSHIP REVOKED" : "\nPayment complete");
 
         void ReservationPages()
         {

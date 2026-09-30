@@ -48,6 +48,8 @@ namespace WorstHotel
             if(snapshot.Epoch<AppliedSnapshotEpoch || (snapshot.Epoch==AppliedSnapshotEpoch && snapshot.Sequence<=AppliedSnapshotSequence))
                 return CommandResult.Fail("Stale hotel snapshot.");
             GuestStay[] incomingGuests;DayReport[] incomingReports;MaintenanceDecision[] incomingMaintenance;
+            ContractPayment incomingLastPayment, incomingPeriodPayment;
+            DayReport incomingLossReport;
             try
             {
                 SnapshotValidation.Model(snapshot,rooms.Keys.ToArray(),LivingEnabled,Housekeeping?.Linens.Count??0,Electrical?.Circuits.Select(c=>c.Id)??Enumerable.Empty<string>());
@@ -79,6 +81,9 @@ namespace WorstHotel
                 incomingGuests=snapshot.Guests.Select(SnapshotData.Guest).ToArray();
                 incomingReports=snapshot.Reports.Select(SnapshotData.Report).ToArray();
                 incomingMaintenance=snapshot.Maintenance.Select(m=>new MaintenanceDecision(m.Day,m.ActorId,m.Choice,m.Cost,m.ConditionBefore,m.ConditionAfter,m.CashAfter)).ToArray();
+                incomingLastPayment=SnapshotData.Payment(snapshot.Operations?.LastContractPayment);
+                incomingPeriodPayment=SnapshotData.Payment(snapshot.Operations?.PeriodContractPayment);
+                incomingLossReport=SnapshotData.Report(snapshot.Operations?.OwnershipLossReport);
             }
             catch(ArgumentException error){return CommandResult.Fail("Rejected hotel snapshot: "+error.Message);}
             // No gameplay callback is emitted while installing a packet. Observers refresh once at the GameSession boundary.
@@ -102,7 +107,7 @@ namespace WorstHotel
             Services?.RestoreSnapshot(snapshot.ServiceLayer);
             reports.Clear();reports.AddRange(incomingReports);maintenance.Clear();maintenance.AddRange(incomingMaintenance);
             Economy.RestoreSnapshot(snapshot.Cash,snapshot.Reputation,reports);LastReport=reports.FirstOrDefault(r=>r.DayNumber==snapshot.LastReportDay);
-            RestoreOperations(snapshot.HasOperations?snapshot.Operations:null);
+            RestoreOperations(snapshot.HasOperations?snapshot.Operations:null, incomingLastPayment, incomingPeriodPayment, incomingLossReport);
             dayNumber=snapshot.Day;lastMaintenanceDay=snapshot.LastMaintenanceDay;debugGuestCounter=snapshot.DebugGuestCounter;Running=snapshot.Running;
             EventRevision=snapshot.EventRevision;LastEvent=snapshot.LastEvent;BoilerFailureAcknowledged=snapshot.BoilerFailureAcknowledged;
             AppliedSnapshotEpoch=snapshot.Epoch;AppliedSnapshotSequence=snapshot.Sequence;
@@ -111,33 +116,44 @@ namespace WorstHotel
 
         void ValidateContractContinuity(HotelModelSnapshot snapshot)
         {
-            if (snapshot.Epoch != AppliedSnapshotEpoch || !ContractEnabled) return;
+            if (snapshot.Epoch != AppliedSnapshotEpoch || !ContinuousOperations) return;
             var data = snapshot.Operations;
             SnapshotValidation.Require(snapshot.Time >= Elapsed && data.ReportSequence >= ReportSequence &&
-                data.ContractBaseRooms == ContractBaseRooms && data.ContractAssessedRooms >= ContractAssessedRooms,
-                "Contract state cannot move backwards within a host epoch.");
-            SnapshotValidation.Require(!Running || snapshot.Running || data.OwnershipLost,
-                "An open contract hotel can stop only by losing ownership.");
-            SnapshotValidation.Require(data.ReportSequence != ReportSequence || data.ContractAssessedRooms == ContractAssessedRooms,
-                "A contract room assessment is locked until its period closes.");
-            var closingPeriod = snapshot.Reports.FirstOrDefault(value => value.Day == ReportSequence + 1);
-            if (closingPeriod != null)
-                SnapshotValidation.Require(closingPeriod.ContractPayment.AssessedRooms == ContractAssessedRooms,
-                    "Settlement must use the room assessment already locked for that period.");
-            if (OwnershipLost)
-                SnapshotValidation.Require(data.OwnershipLost && !snapshot.Running && snapshot.Time == Elapsed &&
-                    data.ReportSequence == ReportSequence && snapshot.Cash == Economy.Cash,
-                    "Lost ownership cannot resume or settle again within the same host epoch.");
+                data.OperatingCostSequence >= OperatingCostSequence,
+                "Financial clocks cannot move backwards within a host epoch.");
             foreach (var report in reports)
             {
-                var previous = report.ContractPayment;
                 var incoming = snapshot.Reports.FirstOrDefault(value => value.Day == report.DayNumber);
-                if (previous == null || incoming == null) continue;
-                var payment = incoming.ContractPayment;
-                SnapshotValidation.Require(payment != null && payment.Due == previous.Due && payment.PaidAmount == previous.PaidAmount &&
-                    payment.FundsBeforePayment == previous.FundsBeforePayment && payment.AssessedRooms == previous.AssessedRooms &&
-                    incoming.Cash == report.Cash, "A published contract payment cannot be rewritten.");
+                if (incoming != null)
+                    SnapshotValidation.Require(SnapshotValidation.SameFinancialReport(SnapshotData.Capture(report), incoming),
+                        "A published financial report cannot be rewritten.");
             }
+            if (!ContractEnabled) return;
+            SnapshotValidation.Require(data.ContractSequence >= ContractSequence && data.ContractBaseRooms == ContractBaseRooms &&
+                data.ContractAssessedRooms >= ContractAssessedRooms, "Contract state cannot move backwards within a host epoch.");
+            SnapshotValidation.Require(!Running || snapshot.Running || data.OwnershipLost,
+                "An open contract hotel can stop only by losing ownership.");
+            SnapshotValidation.Require(data.ContractSequence != ContractSequence || data.ContractAssessedRooms == ContractAssessedRooms,
+                "A contract room assessment is locked until its payment is attempted.");
+            var incomingPayments = snapshot.Reports.Select(value => value.ContractPayment)
+                .Concat(new[] { data.LastContractPayment, data.PeriodContractPayment, data.OwnershipLossReport?.ContractPayment })
+                .Where(value => value != null).ToArray();
+            foreach (var payment in incomingPayments.Where(value => value.Period == ContractSequence + 1))
+                SnapshotValidation.Require(payment.AssessedRooms == ContractAssessedRooms,
+                    "Settlement must use the room assessment already locked for that payment.");
+            var knownPayments = reports.Select(value => value.ContractPayment)
+                .Concat(new[] { LastContractPayment, PeriodContractPayment, OwnershipLossReport?.ContractPayment })
+                .Where(value => value != null);
+            foreach (var previous in knownPayments)
+            foreach (var payment in incomingPayments.Where(value => value.Period == previous.Period))
+                SnapshotValidation.Require(SnapshotValidation.SamePayment(SnapshotData.Capture(previous), payment),
+                    "An observed contract payment cannot be rewritten when filed or retained.");
+            if (OwnershipLost)
+                SnapshotValidation.Require(data.OwnershipLost && !snapshot.Running && snapshot.Time == Elapsed &&
+                    data.ReportSequence == ReportSequence && data.OperatingCostSequence == OperatingCostSequence &&
+                    data.ContractSequence == ContractSequence && snapshot.Cash == Economy.Cash && snapshot.Reputation == Economy.Reputation &&
+                    SnapshotValidation.SameFinancialReport(SnapshotData.Capture(OwnershipLossReport), data.OwnershipLossReport),
+                    "Lost ownership cannot resume or settle again within the same host epoch.");
         }
     }
 }

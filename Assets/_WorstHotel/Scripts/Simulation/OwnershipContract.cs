@@ -8,12 +8,17 @@ namespace WorstHotel
         public int BaseDue { get; }
         public int DailyIncrease { get; }
         public int ExtraRoomCharge { get; }
+        public float PaymentHour { get; }
+        public int FirstPaymentDay { get; }
 
-        public OwnershipContractSettings(int baseDue = 250, int dailyIncrease = 25, int extraRoomCharge = 60)
+        public OwnershipContractSettings(int baseDue = 250, int dailyIncrease = 25, int extraRoomCharge = 60,
+            float paymentHour = 22, int firstPaymentDay = 2)
         {
-            if (baseDue <= 0 || dailyIncrease <= 0 || extraRoomCharge < 0)
+            if (baseDue <= 0 || dailyIncrease <= 0 || extraRoomCharge < 0 ||
+                !Number.IsFinite(paymentHour) || paymentHour < 0 || paymentHour >= 24 || firstPaymentDay < 1 || firstPaymentDay > 1000000)
                 throw new ArgumentException("A contract needs a positive initial payment and daily increase, and a nonnegative room charge.");
             BaseDue = baseDue; DailyIncrease = dailyIncrease; ExtraRoomCharge = extraRoomCharge;
+            PaymentHour = paymentHour; FirstPaymentDay = firstPaymentDay;
         }
 
         public int AmountFor(int period, int assessedRooms, int baseRooms)
@@ -32,16 +37,19 @@ namespace WorstHotel
         public int PaidAmount { get; }
         public int FundsBeforePayment { get; }
         public int AssessedRooms { get; }
+        public int Period { get; }
+        public float DueAt { get; }
         public bool OwnershipLost => PaidAmount != Due;
         public long Shortfall => Math.Max(0L, (long)Due - FundsBeforePayment);
         public int CashAfterPayment => FundsBeforePayment - PaidAmount;
 
-        public ContractPayment(int due, int paidAmount, int fundsBeforePayment, int assessedRooms)
+        public ContractPayment(int due, int paidAmount, int fundsBeforePayment, int assessedRooms, int period = 1, float dueAt = 0)
         {
             if (due <= 0 || assessedRooms < 1 || (paidAmount != 0 && paidAmount != due) ||
-                (fundsBeforePayment >= due) != (paidAmount == due))
+                (fundsBeforePayment >= due) != (paidAmount == due) || period < 1 || !Number.IsFinite(dueAt) || dueAt < 0)
                 throw new ArgumentException("Contract payment does not match its available funds.");
             Due = due; PaidAmount = paidAmount; FundsBeforePayment = fundsBeforePayment; AssessedRooms = assessedRooms;
+            Period = period; DueAt = dueAt;
         }
     }
 }

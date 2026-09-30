@@ -87,12 +87,11 @@ namespace WorstHotel
             ContractPayment contractPayment = null)
         {
             var copy = receipts.ToArray();
-            if (maintenanceSpend < 0 || capitalSpend < 0 || (long)operatingCost + maintenanceSpend + capitalSpend > int.MaxValue)
+            if (operatingCost < 0 || maintenanceSpend < 0 || capitalSpend < 0 || (long)operatingCost + maintenanceSpend + capitalSpend > int.MaxValue)
                 throw new ArgumentException("Invalid report expense totals.");
             MaintenanceSpend = maintenanceSpend;
             CapitalSpend = capitalSpend;
-            if (contractPayment != null && contractPayment.CashAfterPayment != cash)
-                throw new ArgumentException("Contract payment and closing cash disagree.");
+            // A payment is an earlier transaction; more income/costs can occur before this report.
             ContractPayment = contractPayment;
             DayNumber = dayNumber; Receipts = Array.AsReadOnly(copy); OpeningCash = openingCash;
             Gross = copy.Sum(receipt => receipt.Price); Compensation = copy.Sum(receipt => receipt.Compensation);
