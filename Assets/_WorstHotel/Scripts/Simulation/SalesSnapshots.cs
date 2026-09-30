@@ -78,7 +78,7 @@ namespace WorstHotel
             foreach (var row in policies)
                 Require(row.Revision >= 1 && row.Price >= economy.MinPrice && row.Price <= economy.MaxPrice &&
                     (row.Price - economy.MinPrice) % economy.PriceStep == 0, "Invalid room sale rate or revision.");
-            Require(model.Running ? cursors.Length == 2 && cursors.Any(row => row.ArrivalDay == model.Day) &&
+            Require(model.Running || model.Operations.OwnershipLost ? cursors.Length == 2 && cursors.Any(row => row.ArrivalDay == model.Day) &&
                 cursors.Any(row => row.ArrivalDay == model.Day + 1) : cursors.Length == 0, "Automatic-sales horizon differs from the calendar.");
             foreach (var cursor in cursors)
             {

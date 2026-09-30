@@ -5,7 +5,7 @@ namespace WorstHotel
         /// <summary>Synchronize placement/activity commands without advancing overload time or the hotel clock.</summary>
         public void RefreshElectrical()
         {
-            if (IsReadOnlyMirror) return;
+            if (IsReadOnlyMirror || OwnershipLost) return;
             if (Electrical == null) return;
             Electrical.Tick(guests, rooms.Values, Heaters, 0, Services);
             Noise.Tick(guests, rooms.Values, Elapsed, Services);
@@ -15,6 +15,7 @@ namespace WorstHotel
         public CommandResult ResetCircuit(int actorId, string circuitId)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. Start a new hotel.");
             if (Electrical == null) return CommandResult.Fail("The living hotel's electrical system is not active.");
             // Preparation and service both allow the physical breaker to be reset. Settlement never resets it automatically.
             bool wasTripped = Electrical.Find(circuitId)?.Tripped == true;
@@ -33,6 +34,7 @@ namespace WorstHotel
         public CommandResult DebugTripCircuit(string circuitId)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. Start a new hotel.");
             if (Electrical == null) return CommandResult.Fail("The living hotel's electrical system is not active.");
             var result = Electrical.ForceTrip(circuitId);
             if (result.Success) RefreshElectrical();
@@ -42,6 +44,7 @@ namespace WorstHotel
         public CommandResult DebugSetCircuitLoad(string circuitId, float? total)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. Start a new hotel.");
             if (Electrical == null) return CommandResult.Fail("The living hotel's electrical system is not active.");
             var result = Electrical.DebugOverrideLoad(circuitId, total);
             if (result.Success) RefreshElectrical();

@@ -20,6 +20,8 @@ namespace WorstHotel
         readonly List<Action> actions = new List<Action>();
         readonly List<bool> enabledActions = new List<bool>();
         GameSession Session => GameSession.Instance;
+        bool OwnershipRevoked => Session && Session.Simulation != null && Session.Simulation.OwnershipLost;
+        bool terminalNotice;
         bool openInitially;
         void Awake() => Instance = this;
 
@@ -41,35 +43,59 @@ namespace WorstHotel
             selectedBooking = Session.Plan.Applications.FirstOrDefault()?.Id;
             SelectBooking(selectedBooking);
             actions.Clear(); enabledActions.Clear();
-            if (Session.Simulation.ContinuousOperations) BindBook(HotelBook.Reservations);
+            if (Session.Simulation.ContinuousOperations && !OwnershipRevoked) BindBook(HotelBook.Reservations);
         }
 
         public void Close()
+        {
+            if (OwnershipRevoked) { ShowOwnershipLost(); return; }
+            CloseCurrentUI();
+        }
+
+        public void CloseForSessionReset() => CloseCurrentUI();
+
+        void CloseCurrentUI()
         {
             ReleaseBook();
             if (guestContext && Session && owner >= 0 && selectedServiceGuest != null)
                 Session.CloseGuestConversation(owner, selectedServiceGuest);
             if (wakePhone && Session && owner >= 0) Session.CloseWakePhone(owner);
-            owner = -1; pending = null; selectedServiceGuest = null; choosingMoveRoom = false; showingHousekeeping = false; guestContext = false;
+            owner = -1; pending = null; terminalNotice = false; selectedServiceGuest = null; choosingMoveRoom = false; showingHousekeeping = false; guestContext = false;
             showingServiceBoard = false; wakePhone = false; selectedServiceCase = null; callingPromise = null;
             showingOperations = false;
             var coop = LocalCoopBootstrap.Instance;
-            if (coop) foreach (var p in coop.Players) if (p && coop.IsLocalActor(p.ActorId)) p.SetUIBlocked(false);
+            if (coop) foreach (var p in coop.Players) if (p && coop.IsLocalActor(p.ActorId)) p.SetUIBlocked(OwnershipRevoked);
+        }
+
+        public void ShowOwnershipLost()
+        {
+            var coop = LocalCoopBootstrap.Instance;
+            if (!OwnershipRevoked || !coop || !coop.Players[coop.LocalActorId]) return;
+            if (terminalNotice && IsOpen) return;
+            CloseCurrentUI();
+            Open(coop.LocalActorId);
+            terminalNotice = IsOpen;
+            pending = null; actions.Clear(); enabledActions.Clear();
         }
 
         void Update()
         {
             var coop = LocalCoopBootstrap.Instance;
             if (!coop || Session == null || Session.Plan == null) return;
+            UpdateAccountsMarker();
+            if (OwnershipRevoked) ShowOwnershipLost();
+            else if (terminalNotice) CloseCurrentUI();
             if (openInitially && !coop.IsPaused && coop.Players[0] != null)
             { openInitially = false; Open(coop.LocalActorId); }
-            if (!IsOpen || coop.IsPaused || Time.frameCount <= openedFrame + 1) return;
+            if (!IsOpen || coop.IsPaused && !terminalNotice || Time.frameCount <= openedFrame + 1) return;
             if (owner >= coop.Players.Length || !coop.Players[owner] || !coop.IsLocalActor(owner)) { Close(); return; }
-            if (readingBook) UpdateBookChoices();
+            if (terminalNotice) UpdateOwnershipLostChoices();
+            else if (readingBook) UpdateBookChoices();
             else { UpdateGuestContext(); UpdateServicePanel(); UpdateOperationsPanel(); }
             if (!IsOpen) return;
             var input = coop.Players[owner].Input;
             if (pending != null) { var execute = pending; pending = null; HotelFeedback.PlayUIClick(); execute(); return; }
+            if (input.MenuCancelPressed && terminalNotice) return;
             if (input.MenuCancelPressed && readingBook) { Close(); return; }
             if (input.MenuCancelPressed && IsOperationsOpen) { OperationsBack(); return; }
             if (input.MenuCancelPressed) { if (guestContext || wakePhone) Close(); else if (showingServiceBoard && selectedServiceCase != null) { selectedServiceCase = null; serviceHasResponse = false; focus = 0; } else if (showingServiceBoard) Close(); else if (selectedReview != null) selectedReview = null; else if (showingHousekeeping) { showingHousekeeping = false; focus = 0; } else if (choosingMoveRoom) { choosingMoveRoom = false; focus = 0; } else if (selectedServiceGuest != null) { selectedServiceGuest = null; focus = 0; } else Close(); return; }
@@ -99,14 +125,14 @@ namespace WorstHotel
 
         int MaximumGridPrice => Session.Economy.MinPrice + ((Session.Economy.MaxPrice - Session.Economy.MinPrice) / Session.Economy.PriceStep) * Session.Economy.PriceStep;
 
-        bool ButtonAt(Rect rect, string text, Action action, bool enabled = true, bool selected = false, bool important = false)
+        bool ButtonAt(Rect rect, string text, Action action, bool enabled = true, bool selected = false, bool important = false, GUIStyle style = null)
         {
             int index = actions.Count; actions.Add(action); enabledActions.Add(enabled);
             Color background = important ? Wine : selected ? Teal : LightPaper;
             if (!enabled) background = new Color(.80f, .77f, .67f);
             Fill(rect, background);
             Border(rect, index == focus && enabled ? Brass : new Color(.62f, .54f, .38f), index == focus ? 3 : 1);
-            Label(rect, text, HotelTheme.Button, (important || selected) && enabled ? LightPaper : Ink);
+            Label(rect, text, style ?? HotelTheme.Button, (important || selected) && enabled ? LightPaper : Ink);
             bool clicked = GUI.Button(rect, GUIContent.none, GUIStyle.none);
             var staff = LocalCoopBootstrap.Instance;
             bool mouseOwner = staff && owner >= 0 && owner < staff.Players.Length && staff.Players[owner] && staff.Players[owner].Input.IsMouseLook;
@@ -118,6 +144,11 @@ namespace WorstHotel
         {
             if (!IsOpen || Session == null || Session.Plan == null) return;
             Ensure();
+            if (OwnershipRevoked)
+            {
+                DrawOwnershipLost();
+                return;
+            }
             GUI.depth = -30;
             if (DrawPhysicalBook() || DrawPhysicalConversation()) { GUI.depth = 0; return; }
             var matrix = GUI.matrix;

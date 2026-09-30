@@ -21,6 +21,15 @@ namespace WorstHotel
             {
                 yield return PresentBook(kind);
                 yield return Capture("book-" + kind, "Physical " + kind + " / actual Windows IMGUI");
+                if (kind == HotelBook.Accounts && session.Simulation.ContractEnabled)
+                {
+                    for (int i = 0; i < 3; i++) yield return PressMenu(GamepadButton.DpadDown);
+                    yield return PressMenu(GamepadButton.South);
+                    yield return Capture("contract-terms", "Contract terms, growth and first deadline on the physical page");
+                    yield return PressMenu(GamepadButton.DpadDown);
+                    yield return PressMenu(GamepadButton.South);
+                    yield return Capture("cash-reserve", "Current income and expense categories, cash and reserved obligations");
+                }
                 if (kind == HotelBook.Reservations)
                 {
                     for (int i = 0; i < 3; i++) yield return PressMenu(GamepadButton.DpadDown);
@@ -78,7 +87,27 @@ namespace WorstHotel
             ui.Close();
             yield return PresentBook(HotelBook.Services);
             yield return Capture("known-service-note", "Accepted communicated promise in physical notes");
-            ui.Close(); finalCash = model.Economy.Cash;
+            ui.Close();
+            if (model.ContractEnabled)
+            {
+                // Reuse the existing opt-in presentation pass. Explicit clock advances and a
+                // purchase isolate UI states; this is not evidence of natural pacing or balance.
+                session.NewGame(); model = session.Simulation;
+                facts.Add("CONTRACT PRESENTATION FIXTURE: fresh production cash, bounded clock advances, actual burner purchase; not a human playthrough.");
+                session.AdvanceTime(model.NextReportAt - model.Elapsed + .5f);
+                Require(!model.OwnershipLost && model.LastReport.ContractPayment.PaidAmount == 250, "first contract paid from the opening reserve");
+                yield return PresentBook(HotelBook.Accounts);
+                yield return PressMenu(GamepadButton.DpadDown);
+                yield return PressMenu(GamepadButton.DpadDown);
+                yield return PressMenu(GamepadButton.South);
+                yield return Capture("contract-paid-report", "Accounts report / economic result separate from the paid contract");
+                ui.Close();
+                Require(model.PurchaseBoilerUpgrade(0).Success, "actual burner purchase spends the remaining reserve");
+                session.AdvanceTime(model.NextReportAt - model.Elapsed + .5f);
+                Require(model.OwnershipLost && session.Phase == DayPhase.Results, "insufficient remaining cash ends ownership");
+                yield return Capture("ownership-revoked", "Official notice / exact cash, payment and shortfall / terminal state");
+            }
+            finalCash = model.Economy.Cash;
         }
 
         IEnumerator PresentBook(HotelBook kind)

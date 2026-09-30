@@ -10,12 +10,29 @@ namespace WorstHotel
         Rigidbody body;
         PhysicsMaterial wheelContact;
         PlayerInteractor driver;
+        Vector3 homePosition;
+        Quaternion homeRotation;
         readonly Dictionary<ServiceSupplyItem, float> resting = new Dictionary<ServiceSupplyItem, float>();
         readonly List<ServiceSupplyItem> cargo = new List<ServiceSupplyItem>();
         const float YawInertiaPerKg = .35f;
         const float DriverReach = 2.8f;
         static readonly List<LuggageCart> carts = new List<LuggageCart>();
         public static bool IsGuiding(int actor) => carts.Exists(cart => cart && cart.driver && cart.driver.ActorId == actor);
+        public static void ReleaseDrivers()
+        { foreach (var cart in carts) if (cart) cart.driver = null; }
+
+        public static void ResetForSession()
+        {
+            foreach (var cart in carts)
+            {
+                if (!cart || !cart.Authority || !cart.body) continue;
+                cart.driver = null;
+                foreach (var bag in cart.cargo) if (bag) bag.DetachCart();
+                cart.cargo.Clear(); cart.resting.Clear();
+                if (!cart.body.isKinematic) { cart.body.linearVelocity = Vector3.zero; cart.body.angularVelocity = Vector3.zero; }
+                cart.body.position = cart.homePosition; cart.body.rotation = cart.homeRotation;
+            }
+        }
         public static bool HasDeliveryForRoom(PlayerInteractor actor, HotelSimulation simulation, int roomId)
         {
             if (!actor || actor.HeldBody || simulation == null) return false;
@@ -33,6 +50,7 @@ namespace WorstHotel
         void Awake()
         {
             body = GetComponent<Rigidbody>(); carts.Add(this);
+            homePosition = body.position; homeRotation = body.rotation;
             body.centerOfMass = new Vector3(0, .25f, 0);
             // The elevated, offset handle tilts the automatic principal inertia frame.
             // Align it with the chassis so frozen X/Z leave the actual vertical Y free.

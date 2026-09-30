@@ -47,9 +47,10 @@ namespace WorstHotel
             if (!Number.IsFinite(target) || target <= Elapsed)
                 throw new ArgumentOutOfRangeException(nameof(delta), "Hotel step must advance a finite clock: elapsed=" +
                     Elapsed.ToString("R") + ", delta=" + delta.ToString("R") + ", target=" + target.ToString("R"));
-            while (Elapsed < target)
+            while (Running && Elapsed < target)
             {
                 CloseDueOperatingReports();
+                if (!Running) break;
                 RefreshSalesDays(Elapsed);
                 ProcessDueSalesDecisions(Elapsed);
                 float step = Math.Min(1f, Math.Min(target - Elapsed, Math.Min(NextReportAt, Calendar.At(Calendar.Day + 1, 0)) - Elapsed));
@@ -70,21 +71,25 @@ namespace WorstHotel
 
         void CloseDueOperatingReports()
         {
-            while (Elapsed >= NextReportAt)
+            while (Running && Elapsed >= NextReportAt)
             {
                 float boundary = NextReportAt;
-                LastReport = Economy.CloseOperatingDay(ReportSequence + 1, periodReceipts,
+                var operatingReport = Economy.CloseOperatingDay(ReportSequence + 1, periodReceipts,
                     periodOpeningCash, boundary - periodStartedAt, PeriodMaintenanceSpend, PeriodCapitalSpend);
+                LastReport = SettleOwnershipContract(operatingReport);
                 reports.Add(LastReport);
                 if (reports.Count > Operations.ReportHistoryLimit) reports.RemoveAt(0);
                 ReportSequence++;
+                if (ContractEnabled && !OwnershipLost) ContractAssessedRooms = OperationalRoomCount;
                 periodReceipts.Clear();
                 PeriodMaintenanceSpend = 0;
                 PeriodCapitalSpend = 0;
                 periodOpeningCash = Economy.Cash;
                 periodStartedAt = boundary;
                 PruneCompletedOperatingHistory();
-                SignalEvent("Operating report " + ReportSequence + " available — hotel remains open");
+                SignalEvent(OwnershipLost ? "OWNERSHIP REVOKED — contract payment short by $" + LastReport.ContractPayment.Shortfall + ". See the official notice." :
+                    ContractEnabled ? "Contract payment $" + LastReport.ContractPayment.PaidAmount + " complete. Accounts filed; next obligation $" + ContractDue + "." :
+                    "Operating report " + ReportSequence + " available — hotel remains open");
             }
         }
     }

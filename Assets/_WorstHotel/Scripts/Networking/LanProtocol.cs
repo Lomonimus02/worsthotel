@@ -54,9 +54,9 @@ namespace WorstHotel
     /// <summary>Small, versioned LAN boundary. A network connection, never a payload, selects its staff identity.</summary>
     public static class LanProtocol
     {
-        public const int Version = 22, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
+        public const int Version = 23, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
         public const ushort DefaultPort = 7777;
-        public const string BuildCompatibility = "worst-hotel-0.6.1-strange22-gzip";
+        public const string BuildCompatibility = "worst-hotel-0.6.1-contract23-gzip";
 
         public static bool ValidAddress(string value) => IPAddress.TryParse(value, out var address) &&
             address.AddressFamily == AddressFamily.InterNetwork && !address.Equals(IPAddress.Any) &&

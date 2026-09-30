@@ -5,7 +5,7 @@ namespace WorstHotel
     // Explicit wire data only: arrays, strings, enums and finite scalar values. No Unity or transport API.
     [Serializable] public sealed class HotelModelSnapshot
     {
-        public const int ProtocolVersion = 18;
+        public const int ProtocolVersion = 19;
         public int Version = ProtocolVersion;
         public long Epoch, Sequence;
         public int Day, LastMaintenanceDay, DebugGuestCounter, EventRevision, LastReportDay, Cash, LastRefillDay;
@@ -138,8 +138,15 @@ namespace WorstHotel
         public float Satisfaction, CheckoutAt = -1;
         public bool EarlyCheckout;
     }
+    [Serializable] public sealed class ContractPaymentSnapshot
+    { public int Due, PaidAmount, FundsBeforePayment, AssessedRooms; }
     [Serializable] public sealed class ReportSnapshot
-    { public int Day, OpeningCash, OperatingCost, Cash, MaintenanceSpend, CapitalSpend; public float Reputation, ServiceSeconds; public ReceiptSnapshot[] Receipts; }
+    {
+        public int Day, OpeningCash, OperatingCost, Cash, MaintenanceSpend, CapitalSpend;
+        public float Reputation, ServiceSeconds;
+        public ReceiptSnapshot[] Receipts;
+        public ContractPaymentSnapshot ContractPayment;
+    }
     [Serializable] public sealed class MaintenanceSnapshot
     { public int Day, ActorId, Cost, CashAfter; public MaintenanceChoice Choice; public float ConditionBefore, ConditionAfter; }
     [Serializable] public sealed class NoiseOverrideSnapshot

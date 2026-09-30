@@ -29,6 +29,7 @@ namespace WorstHotel
         public CommandResult DebugMarkRoomDirty(int roomId)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. Start a new hotel.");
             if (Housekeeping == null) return CommandResult.Fail("Living housekeeping is not active.");
             if (!rooms.TryGetValue(roomId, out var room)) return CommandResult.Fail("Unknown room.");
             if (room.Occupied || !string.IsNullOrEmpty(room.DepartingGuestId))

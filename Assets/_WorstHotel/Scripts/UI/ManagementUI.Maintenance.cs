@@ -6,6 +6,54 @@ namespace WorstHotel
 {
     public sealed partial class ManagementUI
     {
+        bool CanRestartOwnedHotel => !Session.IsLanReplica && (!LanSession.Instance || !LanSession.Instance.IsClientReplica);
+        void RestartOwnedHotel() => Session.RestartSession(owner);
+        void LeaveOwnedHotel() { if (LanSession.Instance) LanSession.Instance.LeaveToMenu(); }
+
+        void UpdateOwnershipLostChoices()
+        {
+            actions.Clear(); enabledActions.Clear();
+            if (CanRestartOwnedHotel) { actions.Add(RestartOwnedHotel); enabledActions.Add(true); }
+            actions.Add(LeaveOwnedHotel); enabledActions.Add(LanSession.Instance != null);
+            focus = Mathf.Clamp(focus, 0, actions.Count - 1);
+        }
+
+        void DrawOwnershipLost()
+        {
+            var previous = GUI.matrix;
+            GUI.depth = -500;
+            Fill(new Rect(0, 0, Screen.width, Screen.height), new Color(.05f, .06f, .05f, .97f));
+            float scale = Mathf.Min(Screen.width / 960f, Screen.height / 600f);
+            GUI.matrix = Matrix4x4.TRS(new Vector3((Screen.width - 960 * scale) / 2, (Screen.height - 600 * scale) / 2, 0),
+                Quaternion.identity, Vector3.one * scale);
+            Fill(new Rect(55, 32, 850, 536), Paper);
+            Border(new Rect(65, 42, 830, 516), Brass, 2);
+            Label(new Rect(88, 65, 784, 52), "OWNERSHIP REVOKED", Title, Wine);
+            Label(new Rect(90, 124, 780, 50), "The 06:00 contract payment could not be met.\nThe hotel is closed. This run has ended.", Body);
+            var report = Session.Simulation.LastReport;
+            var payment = report?.ContractPayment;
+            if (payment != null)
+            {
+                Label(new Rect(90, 196, 390, 98), "CONTRACT DUE   $" + payment.Due + "\nFUNDS AVAILABLE   $" + payment.FundsBeforePayment +
+                    "\nACTUALLY PAID   $" + payment.PaidAmount, Body);
+                Label(new Rect(505, 196, 362, 98), "SHORTFALL   $" + payment.Shortfall + "\nROOMS ASSESSED   " + payment.AssessedRooms +
+                    "\nFINAL CASH   $" + report.Cash, Body, Wine);
+            }
+            Fill(new Rect(90, 310, 780, 2), Brass);
+            if (report != null)
+                Label(new Rect(90, 330, 780, 70), "Day " + report.DayNumber + " · revenue $" + report.Gross +
+                    " · refunds $" + report.Compensation + " · operations $" + report.OperatingCost +
+                    "\nRepairs / maintenance $" + report.MaintenanceSpend + " · purchases / renovation $" + report.CapitalSpend +
+                    "\nResult before contract: $" + report.Net + ". Unpaid bookings are not cash.", Body);
+            Label(new Rect(90, 407, 780, 42), CanRestartOwnedHotel ? "Start a fresh hotel, or return to the main menu." :
+                "Only the host can start a fresh hotel. You may wait here or leave.", Body, Muted);
+            actions.Clear(); enabledActions.Clear();
+            if (CanRestartOwnedHotel)
+                ButtonAt(new Rect(90, 478, 370, 54), "START NEW HOTEL", RestartOwnedHotel, important: true);
+            ButtonAt(new Rect(CanRestartOwnedHotel ? 495 : 90, 478, 370, 54), "MAIN MENU", LeaveOwnedHotel, LanSession.Instance != null);
+            GUI.matrix = previous; GUI.depth = 0;
+        }
+
         void LedgerPage(string title, string subtitle)
         {
             Fill(new Rect(0, 0, 1600, 900), new Color(.08f, .09f, .07f, .92f));

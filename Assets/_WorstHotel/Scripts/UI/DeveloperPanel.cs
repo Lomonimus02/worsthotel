@@ -49,6 +49,7 @@ namespace WorstHotel
 
         void Update()
         {
+            if (Session && Session.Simulation?.OwnershipLost == true) { CloseForLan(); return; }
             if (RunPendingSleepDiagnostic()) return;
             if (Keyboard.current != null && Keyboard.current.f2Key.wasPressedThisFrame) Toggle();
             if (visible && LocalCoopBootstrap.Instance && !LocalCoopBootstrap.Instance.IsPaused)
@@ -57,6 +58,7 @@ namespace WorstHotel
 
         void Toggle()
         {
+            if (Session && Session.Simulation?.OwnershipLost == true) return;
             if (LanSession.Instance && LanSession.Instance.IsActive) return;
             var coop = LocalCoopBootstrap.Instance;
             if (!coop || !Session) return;
@@ -105,7 +107,7 @@ namespace WorstHotel
 
         void OnGUI()
         {
-            if (!visible || !Session || Session.Simulation == null) return;
+            if (!visible || !Session || Session.Simulation == null || Session.Simulation.OwnershipLost) return;
             if (body == null)
             {
                 body = new GUIStyle(GUI.skin.label) { fontSize = 16, wordWrap = true };

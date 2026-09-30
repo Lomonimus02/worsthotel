@@ -21,6 +21,8 @@ namespace WorstHotel
 
         void InitializeService()
         {
+            ManagementUI.Instance?.CloseForSessionReset();
+            LuggageCart.ResetForSession();
             Settings = config.ToData();
             Simulation = CreateSimulationForRooms(Rooms);
             Report = null; reports.Clear(); accumulator = 0;
@@ -42,6 +44,7 @@ namespace WorstHotel
 
         void Update()
         {
+            if (!IsLanReplica && Simulation != null && Simulation.OwnershipLost) { EnterOwnershipLost(); return; }
             if (IsLanReplica || LanSession.Instance && LanSession.Instance.MenuOpen) return;
             if (Simulation == null || (Phase != DayPhase.Service && Phase != DayPhase.Planning)) return;
             var coop = LocalCoopBootstrap.Instance;
@@ -83,11 +86,32 @@ namespace WorstHotel
                     Report = Simulation.LastReport;
                     reports.Clear(); reports.AddRange(Simulation.DayReports);
                 }
+                if (Simulation.OwnershipLost) EnterOwnershipLost();
                 RaiseChanged();
             }
             else if (Phase == DayPhase.Service && Simulation.IsServiceComplete) EndShift();
             else RaiseChanged();
             PauseDiagnostics.TickExit();
+        }
+
+        void EnterOwnershipLost()
+        {
+            if (Phase == DayPhase.Results) return;
+            Phase = DayPhase.Results; accumulator = 0;
+            Report = Simulation.LastReport;
+            reports.Clear(); reports.AddRange(Simulation.DayReports);
+            Cash = Simulation.Economy.Cash;
+            LastMessage = "Ownership revoked. The contract payment could not be met.";
+            if (Wait) Wait.Stop("Ownership revoked");
+            LuggageCart.ReleaseDrivers();
+            var coop = LocalCoopBootstrap.Instance;
+            if (coop)
+            {
+                foreach (var player in coop.Players) if (player) player.Interactor.CancelInteraction();
+                coop.RefreshSessionPause();
+            }
+            ManagementUI.Instance?.ShowOwnershipLost();
+            RaiseChanged();
         }
 
         public void EndShift()
@@ -133,11 +157,22 @@ namespace WorstHotel
 
         public void RestartSession(int actorId)
         {
+            bool lost = Simulation != null && Simulation.OwnershipLost;
+            if (lost && (IsLanReplica || LanSession.Instance && LanSession.Instance.IsActive && actorId != 0)) return;
             if (ForwardLan(LanCommandKind.RestartSession)) return;
             if (actorId < 0 || actorId > 1 || Phase != DayPhase.Results) return;
+            ManagementUI.Instance?.CloseForSessionReset();
+            var coop = LocalCoopBootstrap.Instance;
+            if (coop) foreach (var player in coop.Players) if (player) player.Interactor.CancelInteraction();
             NewGame();
             ReturnStaffToReception();
-            ReopenLedger(actorId);
+            if (lost)
+            {
+                ManagementUI.Instance?.CloseForSessionReset();
+                if (LanSession.Instance) LanSession.Instance.ResumeAfterOwnershipRestart();
+                if (coop) coop.SetPaused(false);
+            }
+            else ReopenLedger(actorId);
         }
 
         void ReturnStaffToReception()

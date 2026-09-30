@@ -20,6 +20,10 @@ namespace WorstHotel
                     return false;
             bool any = sleep.ready[0] || sleep.ready[1], both = sleep.ready[0] && sleep.ready[1];
             if (both && sleep.bedIds[0] == sleep.bedIds[1]) return false;
+            if (frame.model.HasOperations && frame.model.Operations?.OwnershipLost == true &&
+                (frame.model.Running || frame.model.Speed != 1 || frame.phase != DayPhase.Results ||
+                 sleep.mode != HotelAdvanceMode.None || any || sleep.until != 0 ||
+                 frame.waitVotes.Any(value => value) || frame.waitProgress.Any(value => value != 0))) return false;
             if (any)
             {
                 if (!frame.model.HasOperations || target.Calendar == null || frame.phase != DayPhase.Service ||

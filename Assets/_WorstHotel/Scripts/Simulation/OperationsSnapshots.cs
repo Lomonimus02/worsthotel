@@ -3,19 +3,28 @@ using System.Linq;
 
 namespace WorstHotel
 {
+    [Serializable] public sealed class OwnershipContractSettingsSnapshot
+    {
+        public int BaseDue, DailyIncrease, ExtraRoomCharge;
+        public OwnershipContractSettings ToSettings() => new OwnershipContractSettings(BaseDue, DailyIncrease, ExtraRoomCharge);
+    }
     [Serializable] public sealed class OperationsSnapshot
     {
         public float SecondsPerDay, StartHour, ReportHour, ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour;
         public int ReportHistoryLimit, ReportSequence, PeriodOpeningCash, OffersThroughDay, ServiceDay, PeriodMaintenanceSpend, PeriodCapitalSpend;
         public float PeriodStartedAt;
         public bool NorthWingRestored, Room102Insulated;
+        public OwnershipContractSettingsSnapshot Contract;
+        public int ContractBaseRooms, ContractAssessedRooms;
+        public bool OwnershipLost;
         public SalesSnapshot Sales;
         public SpecialBookingSnapshot SpecialBookings;
         public ReceiptSnapshot[] PeriodReceipts;
         public ScheduledOfferSnapshot[] Offers;
         public ReservationSnapshot[] Reservations;
         public OperationsSettings ToSettings() => new OperationsSettings(SecondsPerDay, StartHour, ReportHour,
-            ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour, ReportHistoryLimit, Sales?.Settings?.ToSettings(), SpecialBookings?.Settings);
+            ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour, ReportHistoryLimit, Sales?.Settings?.ToSettings(), SpecialBookings?.Settings,
+            Contract?.ToSettings());
     }
     [Serializable] public sealed class ScheduledOfferSnapshot
     {
@@ -62,6 +71,9 @@ namespace WorstHotel
             PeriodMaintenanceSpend = PeriodMaintenanceSpend,
             PeriodCapitalSpend = PeriodCapitalSpend,
             NorthWingRestored = NorthWingRestored, Room102Insulated = Room102Insulated,
+            Contract = !ContractEnabled ? null : new OwnershipContractSettingsSnapshot
+            { BaseDue = Operations.Contract.BaseDue, DailyIncrease = Operations.Contract.DailyIncrease, ExtraRoomCharge = Operations.Contract.ExtraRoomCharge },
+            ContractBaseRooms = ContractBaseRooms, ContractAssessedRooms = ContractAssessedRooms, OwnershipLost = OwnershipLost,
             Sales = CaptureSales(), SpecialBookings = CaptureSpecialBookings(),
             OffersThroughDay = offersThroughDay, ServiceDay = operatingServiceDay,
             PeriodReceipts = periodReceipts.Select(SnapshotData.Capture).ToArray(),
@@ -73,6 +85,8 @@ namespace WorstHotel
             ReportSequence = data.ReportSequence; periodOpeningCash = data.PeriodOpeningCash; periodStartedAt = data.PeriodStartedAt;
             PeriodMaintenanceSpend = data.PeriodMaintenanceSpend;
             PeriodCapitalSpend = data.PeriodCapitalSpend;
+            ContractBaseRooms = data.ContractBaseRooms; ContractAssessedRooms = data.ContractAssessedRooms; OwnershipLost = data.OwnershipLost;
+            Economy.OwnershipRevoked = OwnershipLost;
             NorthWingRestored = data.NorthWingRestored; Room102Insulated = data.Room102Insulated; ApplyProgressionToRooms();
             offersThroughDay = data.OffersThroughDay; operatingServiceDay = data.ServiceDay;
             periodReceipts.Clear(); periodReceipts.AddRange(data.PeriodReceipts.Select(SnapshotData.Receipt));
@@ -103,7 +117,7 @@ namespace WorstHotel
             Require(model.Time / (double)config.SecondsPerDay < 999999, "Calendar time exceeds the supported wire range.");
             var clock = new HotelGameClock(); clock.Advance(model.Time);
             var calendar = new HotelCalendar(clock, config);
-            Require(model.Day == (model.Running ? calendar.Day : 0), "Calendar date does not match the host clock.");
+            Require(model.Day == (model.Running || data.OwnershipLost ? calendar.Day : 0), "Calendar date does not match the host clock.");
             Require(data.ReportSequence >= 0 && data.ReportSequence <= model.Day && data.ServiceDay >= 0 && data.ServiceDay <= model.Day &&
                 data.OffersThroughDay >= 0 && data.OffersThroughDay <= model.Day + 1, "Invalid operating calendar counters.");
             Range(data.PeriodStartedAt, 0, model.Time);
@@ -118,6 +132,7 @@ namespace WorstHotel
             Require(receipts.Sum(item => (long)item.Price) <= int.MaxValue && receipts.Sum(item => (long)item.Compensation) <= int.MaxValue,
                 "Operating receipt totals overflow.");
             Require(!data.NorthWingRestored || roomIds.Contains(110), "Opened wing has no room registry.");
+            OwnershipContract(model, expected.Contract, roomIds);
             var offers = Array(data.Offers, 24); Unique(offers.Select(item => item.Application?.Id));
             foreach (var offer in offers) ValidateScheduledOffer(offer, calendar, schedules);
             var reservations = Array(data.Reservations, 128); Unique(reservations.Select(item => item.Offer?.Application?.Id));

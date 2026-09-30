@@ -51,10 +51,17 @@ namespace WorstHotel
         [Header("Special enquiries")]
         public SpecialBookingSettings specialBookings = new SpecialBookingSettings(true);
 
+        [Header("Ownership contract (continuous operations)")]
+        public bool ownershipContractEnabled;
+        [Min(1)] public int initialContractPayment = 250;
+        [Min(1)] public int contractDailyIncrease = 25;
+        [Min(0)] public int contractExtraRoomCharge = 60;
+
         public OperationsSettings OperationsData() => continuousOperations ?
             new OperationsSettings(hotelDaySeconds, openingHour, reportHour, sales: new SalesSettings(automaticBookings,
                 initiallyOpenRooms, roomSalePrice, bookingBaseDemand, bookingPriceElasticity, firstDayBookingHour,
-                advanceBookingHour, bookingDecisionSpacingHours, bookingSeed), specialBookings: specialBookings) : null;
+                advanceBookingHour, bookingDecisionSpacingHours, bookingSeed), specialBookings: specialBookings,
+                contract: ownershipContractEnabled ? new OwnershipContractSettings(initialContractPayment, contractDailyIncrease, contractExtraRoomCharge) : null) : null;
 
         public SessionSettings ToData()
         {

@@ -145,9 +145,13 @@ namespace WorstHotel
         internal static ReportSnapshot Capture(DayReport r) => new ReportSnapshot
         {
             Day=r.DayNumber,OpeningCash=r.OpeningCash,OperatingCost=r.OperatingCost,Cash=r.Cash,Reputation=r.Reputation,ServiceSeconds=r.ServiceSeconds,MaintenanceSpend=r.MaintenanceSpend,CapitalSpend=r.CapitalSpend,
-            Receipts=r.Receipts.Select(Capture).ToArray()
+            Receipts=r.Receipts.Select(Capture).ToArray(),ContractPayment=Capture(r.ContractPayment)
         };
         internal static DayReport Report(ReportSnapshot r) => new DayReport(r.Day,r.Receipts.Select(Receipt),
-            r.OpeningCash,r.OperatingCost,r.Cash,r.Reputation,r.ServiceSeconds,r.MaintenanceSpend,r.CapitalSpend);
+            r.OpeningCash,r.OperatingCost,r.Cash,r.Reputation,r.ServiceSeconds,r.MaintenanceSpend,r.CapitalSpend,Payment(r.ContractPayment));
+        internal static ContractPaymentSnapshot Capture(ContractPayment payment) => payment == null ? null : new ContractPaymentSnapshot
+        { Due=payment.Due,PaidAmount=payment.PaidAmount,FundsBeforePayment=payment.FundsBeforePayment,AssessedRooms=payment.AssessedRooms };
+        internal static ContractPayment Payment(ContractPaymentSnapshot payment) => payment == null ? null :
+            new ContractPayment(payment.Due,payment.PaidAmount,payment.FundsBeforePayment,payment.AssessedRooms);
     }
 }

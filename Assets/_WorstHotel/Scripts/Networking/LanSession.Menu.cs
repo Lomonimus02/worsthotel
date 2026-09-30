@@ -15,6 +15,14 @@ namespace WorstHotel
         GUIStyle addressField;
         int menuFocus, menuButtonIndex, menuButtonCount, requestedMenuButton = -1;
         float nextMenuNavigation;
+        bool OwnershipRevoked => GameSession.Instance && GameSession.Instance.Simulation != null && GameSession.Instance.Simulation.OwnershipLost;
+
+        public void ResumeAfterOwnershipRestart()
+        {
+            if (IsClientReplica || OwnershipRevoked) return;
+            MenuOpen = false; requestedMenuButton = -1; menuFocus = 0;
+            if (coop) coop.SetPaused(false);
+        }
 
         bool MenuButton(Rect rect, string caption, bool prominent = false)
         {
@@ -31,6 +39,7 @@ namespace WorstHotel
         void ReadMenuInput()
         {
             if (!coop) return;
+            if (OwnershipRevoked) { requestedMenuButton = -1; return; }
             if ((IsActive || IsSolo && soloStarted) && coop.Players[coop.LocalActorId] && coop.Players[coop.LocalActorId].Input.PausePressed)
             { MenuOpen = !MenuOpen; coop.SetPaused(MenuOpen); }
             if (!IsActive && !MenuOpen && Keyboard.current != null && Keyboard.current.f10Key.wasPressedThisFrame)
@@ -69,6 +78,7 @@ namespace WorstHotel
         void OnGUI()
         {
             if (!coop) return;
+            if (OwnershipRevoked) return;
             bool connecting = IsClientReplica && !HasSnapshot;
             if (!MenuOpen && !connecting) return;
             Ensure();

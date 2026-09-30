@@ -35,6 +35,7 @@ namespace WorstHotel
         {
             Require(s!=null && s.Version==HotelModelSnapshot.ProtocolVersion,"Unsupported snapshot protocol.");
             bool continuous = s.HasOperations;
+            Require(continuous || s.Operations == null, "Legacy hotel cannot contain continuous operations state.");
             Require(s.Epoch>=0 && s.Sequence>=0 && s.Day>=0 && s.Day<=(continuous?1000000:3) && s.LastMaintenanceDay>=0 && s.LastMaintenanceDay<=s.Day && s.DebugGuestCounter>=0 && s.EventRevision>=0 && s.LastRefillDay>=0 && s.LastRefillDay<=(continuous?Math.Max(1,s.Day):3),"Invalid snapshot header.");
             Nonnegative(s.Time,s.SituationTime);Require(s.Speed==1 || s.Speed==4 || s.Speed==8,"Invalid clock speed.");Range(s.Reputation,0,100);Text(s.LastEvent,2048,true);
             var rs=Array(s.Rooms,10);Unique(rs.Select(x=>x.Id));Require(rs.Length==roomIds.Count && rs.All(x=>roomIds.Contains(x.Id)),"Room set differs from this hotel.");
@@ -93,7 +94,8 @@ namespace WorstHotel
                 "Active service must retain a representable completion revision.");
             Require(!b.Failed || !b.EmergencyPatchActive, "A new failure ends the active emergency patch.");
             Require(s.HasOperations || (b.Stress01 == 0 && !b.EmergencyPatchActive && b.MaintenanceEndsAt == 0 && b.MaintenanceRevision == 0), "Legacy boiler cannot contain continuous operating states.");
-            Require(b.MaintenanceEndsAt == 0 || (s.Running && b.MaintenanceEndsAt > s.Time && b.HeatingOutput == 0 && b.ReliefActorId == -1),
+            Require(b.MaintenanceEndsAt == 0 || ((s.Running || continuous && s.Operations?.OwnershipLost == true) &&
+                b.MaintenanceEndsAt > s.Time && b.HeatingOutput == 0 && b.ReliefActorId == -1),
                 "Invalid boiler downtime state.");
             Require(continuous || !b.CapacityUpgradePurchased, "Legacy boiler cannot contain a capacity purchase.");
             var cs=Array(s.Circuits,2);Unique(cs.Select(c=>c.Id));Require(cs.Select(c=>c.Id).OrderBy(x=>x).SequenceEqual(circuitIds.OrderBy(x=>x)),"Circuit set differs.");
@@ -131,10 +133,72 @@ namespace WorstHotel
             foreach(var r in reports)Require(r.Receipts.Sum(x=>(long)x.Price)<=int.MaxValue && r.Receipts.Sum(x=>(long)x.Compensation)<=int.MaxValue,"Report totals overflow.");
             foreach(var r in reports)Require(r.MaintenanceSpend>=0 && r.CapitalSpend>=0 && (long)r.MaintenanceSpend+r.CapitalSpend+r.OperatingCost<=int.MaxValue &&
                 (continuous || r.MaintenanceSpend==0 && r.CapitalSpend==0),"Invalid report equipment spending total.");
+            foreach (var report in reports)
+            {
+                var payment = report.ContractPayment;
+                Require(continuous || payment == null, "Legacy report cannot contain an ownership payment.");
+                if (payment == null) continue;
+                Require(payment.Due > 0 && payment.AssessedRooms >= 1 && payment.AssessedRooms <= rs.Length &&
+                    (payment.PaidAmount == 0 || payment.PaidAmount == payment.Due) &&
+                    (payment.FundsBeforePayment >= payment.Due) == (payment.PaidAmount == payment.Due), "Invalid contract payment.");
+                Require((long)payment.FundsBeforePayment - payment.PaidAmount == report.Cash, "Contract payment and closing cash disagree.");
+                // DebugSetCash deliberately changes cash without rewriting opening cash or receipts.
+                // Preserve that existing allowance; the actual payment must still reconcile exactly.
+            }
             Require(s.LastReportDay==0 || reports.Any(r=>r.Day==s.LastReportDay),"Missing last report.");
             var maintenance=Array(s.Maintenance,2);Unique(maintenance.Select(m=>m.Day));foreach(var m in maintenance){EnumValue(m.Choice);Require(m.Day>=1 && m.Day<=2 && m.Day<=s.LastMaintenanceDay && m.ActorId>=0 && m.Cost>=0,"Invalid maintenance.");Range(m.ConditionBefore,0,100);Range(m.ConditionAfter,0,100);}
             var overrides=Array(s.NoiseOverrides,10);Unique(overrides.Select(n=>n.RoomId));foreach(var n in overrides){Require(Room(n.RoomId),"Invalid noise override.");Unit(n.Value);}
         }
+        internal static void OwnershipContract(HotelModelSnapshot model, OwnershipContractSettings expected, int[] roomIds)
+        {
+            var data = model.Operations;
+            Require((data.Contract != null) == (expected != null), "Ownership contract mode differs from this hotel.");
+            if (expected == null)
+            {
+                Require(!data.OwnershipLost && data.ContractBaseRooms == 0 && data.ContractAssessedRooms == 0 &&
+                    model.Reports.All(report => report.ContractPayment == null), "Disabled contract contains ownership state.");
+                return;
+            }
+            var config = data.Contract.ToSettings();
+            Require(config.BaseDue == expected.BaseDue && config.DailyIncrease == expected.DailyIncrease &&
+                config.ExtraRoomCharge == expected.ExtraRoomCharge, "Ownership contract settings differ from this hotel.");
+            // The room registry includes the closed North Wing. Sale policies and occupancy do not set this baseline.
+            int baseRooms = roomIds.Count(id => id <= 106);
+            int operationalRooms = data.NorthWingRestored ? roomIds.Length : baseRooms;
+            bool ValidAssessment(int count) => count == baseRooms || data.NorthWingRestored && count == operationalRooms;
+            Require(baseRooms > 0 && data.ContractBaseRooms == baseRooms && ValidAssessment(data.ContractAssessedRooms),
+                "Invalid locked contract room assessment.");
+            Require(data.ReportSequence != 0 || data.ContractAssessedRooms == baseRooms,
+                "The first contract period must retain its opening room assessment.");
+            Require(!data.OwnershipLost || !model.Running && model.Speed == 1 && data.ReportSequence > 0,
+                "Lost ownership must stop an already settled hotel.");
+            Require(model.Reports.Length == Math.Min(data.ReportSequence, data.ReportHistoryLimit),
+                "Contract report history is incomplete.");
+            int previousRooms = baseRooms;
+            for (int index = 0; index < model.Reports.Length; index++)
+            {
+                var report = model.Reports[index];
+                Require(report.Day == data.ReportSequence - model.Reports.Length + index + 1,
+                    "Contract reports must retain consecutive closed periods.");
+                var payment = report.ContractPayment;
+                Require(payment != null && ValidAssessment(payment.AssessedRooms) && payment.AssessedRooms >= previousRooms &&
+                    (report.Day != 1 || payment.AssessedRooms == baseRooms), "Missing or invalid historical contract assessment.");
+                Require(payment.Due == config.AmountFor(report.Day, payment.AssessedRooms, baseRooms),
+                    "Historical contract due differs from its locked assessment.");
+                Require((payment.PaidAmount == 0) == (data.OwnershipLost && report.Day == data.ReportSequence),
+                    "Contract payment outcome differs from ownership state.");
+                previousRooms = payment.AssessedRooms;
+            }
+            Require(data.ContractAssessedRooms >= previousRooms, "Contract room assessment cannot shrink after settlement.");
+            if (!data.OwnershipLost) return;
+            var last = model.Reports[model.Reports.Length - 1];
+            Require(last.ContractPayment.AssessedRooms == data.ContractAssessedRooms && model.Cash == last.Cash &&
+                data.PeriodOpeningCash == last.Cash && data.PeriodReceipts.Length == 0 &&
+                data.PeriodMaintenanceSpend == 0 && data.PeriodCapitalSpend == 0 &&
+                Math.Abs(model.Time - data.PeriodStartedAt) < .01f,
+                "Lost ownership must preserve its final payment and stop at the closing boundary.");
+        }
+
         internal static void Plan(PlanningSnapshot s,IEnumerable<int> rooms,EconomySettings economy)
         {
             Require(s!=null,"Missing plan.");var offers=Array(s.Applications,8);foreach(var b in offers)Booking(b);Unique(offers.Select(b=>b.Id));

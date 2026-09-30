@@ -9,6 +9,7 @@ namespace WorstHotel
         public CommandResult SetRadiatorSetting(int actorId, int roomId, int setting)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. Start a new hotel.");
             if (actorId < 0 || actorId > 1 || !rooms.TryGetValue(roomId, out var room) || setting < 0 || setting > 3)
                 return CommandResult.Fail("Choose a real room and radiator level 0–3.");
             if (room.RadiatorSetting == setting) return CommandResult.Ok("Radiator setting unchanged.");
@@ -29,6 +30,7 @@ namespace WorstHotel
         public CommandResult BreakRoomLamp(int roomId)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. Start a new hotel.");
             if (!rooms.TryGetValue(roomId, out var room)) return CommandResult.Fail("Unknown room.");
             room.LampCondition = 0; room.LampBroken = true;
             return CommandResult.Ok("Room " + roomId + " bedside lamp burnt out by developer command.");

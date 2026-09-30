@@ -125,6 +125,7 @@ namespace WorstHotel
         public CommandResult SignalGuestLeft(string guestId)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. The hotel is closed.");
             // Exit completion remains valid after accounts close. All other guest commands still require Running.
             var guest = LivingEnabled && guestId != null ? guests.FirstOrDefault(stay => stay.GuestId == guestId) : null;
             if (guest == null || guest.Agent.State != GuestAgentState.Leaving) return CommandResult.Fail("Guest is not leaving the hotel.");

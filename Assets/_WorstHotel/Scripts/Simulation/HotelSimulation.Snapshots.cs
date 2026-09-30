@@ -52,6 +52,7 @@ namespace WorstHotel
             {
                 SnapshotValidation.Model(snapshot,rooms.Keys.ToArray(),LivingEnabled,Housekeeping?.Linens.Count??0,Electrical?.Circuits.Select(c=>c.Id)??Enumerable.Empty<string>());
                 SnapshotValidation.OperationsModel(snapshot, Operations, settings.Economy, rooms.Keys.ToArray(), Schedules);
+                ValidateContractContinuity(snapshot);
                 SnapshotValidation.SalesModel(snapshot, Operations?.Sales, settings.Economy, rooms.Keys.ToArray(), SalesDecisionAt);
                 if (snapshot.Boiler.CapacityUpgradePurchased)
                 {
@@ -106,6 +107,37 @@ namespace WorstHotel
             EventRevision=snapshot.EventRevision;LastEvent=snapshot.LastEvent;BoilerFailureAcknowledged=snapshot.BoilerFailureAcknowledged;
             AppliedSnapshotEpoch=snapshot.Epoch;AppliedSnapshotSequence=snapshot.Sequence;
             return CommandResult.Ok("Host hotel state applied.");
+        }
+
+        void ValidateContractContinuity(HotelModelSnapshot snapshot)
+        {
+            if (snapshot.Epoch != AppliedSnapshotEpoch || !ContractEnabled) return;
+            var data = snapshot.Operations;
+            SnapshotValidation.Require(snapshot.Time >= Elapsed && data.ReportSequence >= ReportSequence &&
+                data.ContractBaseRooms == ContractBaseRooms && data.ContractAssessedRooms >= ContractAssessedRooms,
+                "Contract state cannot move backwards within a host epoch.");
+            SnapshotValidation.Require(!Running || snapshot.Running || data.OwnershipLost,
+                "An open contract hotel can stop only by losing ownership.");
+            SnapshotValidation.Require(data.ReportSequence != ReportSequence || data.ContractAssessedRooms == ContractAssessedRooms,
+                "A contract room assessment is locked until its period closes.");
+            var closingPeriod = snapshot.Reports.FirstOrDefault(value => value.Day == ReportSequence + 1);
+            if (closingPeriod != null)
+                SnapshotValidation.Require(closingPeriod.ContractPayment.AssessedRooms == ContractAssessedRooms,
+                    "Settlement must use the room assessment already locked for that period.");
+            if (OwnershipLost)
+                SnapshotValidation.Require(data.OwnershipLost && !snapshot.Running && snapshot.Time == Elapsed &&
+                    data.ReportSequence == ReportSequence && snapshot.Cash == Economy.Cash,
+                    "Lost ownership cannot resume or settle again within the same host epoch.");
+            foreach (var report in reports)
+            {
+                var previous = report.ContractPayment;
+                var incoming = snapshot.Reports.FirstOrDefault(value => value.Day == report.DayNumber);
+                if (previous == null || incoming == null) continue;
+                var payment = incoming.ContractPayment;
+                SnapshotValidation.Require(payment != null && payment.Due == previous.Due && payment.PaidAmount == previous.PaidAmount &&
+                    payment.FundsBeforePayment == previous.FundsBeforePayment && payment.AssessedRooms == previous.AssessedRooms &&
+                    incoming.Cash == report.Cash, "A published contract payment cannot be rewritten.");
+            }
         }
     }
 }

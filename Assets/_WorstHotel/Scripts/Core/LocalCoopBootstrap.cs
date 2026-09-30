@@ -258,6 +258,7 @@ namespace WorstHotel
             bool next = LanRole == LanRole.Offline ? manuallyPaused || WaitingForDevices || !hasFocus :
                 manuallyPaused || (lan && lan.MenuOpen) ||
                 (LanRole == LanRole.Client && (remoteHostPaused || lan && !lan.HasSnapshot));
+            next |= GameSession.Instance && GameSession.Instance.Simulation != null && GameSession.Instance.Simulation.OwnershipLost;
             bool changed = next != IsPaused;
             if (next != IsPaused)
             {
@@ -273,6 +274,8 @@ namespace WorstHotel
             manuallyPaused = paused;
             RefreshPause();
         }
+
+        public void RefreshSessionPause() => RefreshPause();
 
         private void OnApplicationFocus(bool focus)
         {
@@ -296,6 +299,7 @@ namespace WorstHotel
 
         private void OnGUI()
         {
+            if (GameSession.Instance && GameSession.Instance.Simulation != null && GameSession.Instance.Simulation.OwnershipLost) return;
             if (Players[0] == null) return;
             if (LanRole != LanRole.Offline) return;
             if (LanSession.Instance && LanSession.Instance.MenuOpen) return;

@@ -62,6 +62,10 @@ MonoBehaviour:
   advanceBookingHour: 16
   bookingDecisionSpacingHours: 0.4
   bookingSeed: 73129
+  ownershipContractEnabled: 1
+  initialContractPayment: 250
+  contractDailyIncrease: 25
+  contractExtraRoomCharge: 60
   specialBookings:
     Enabled: 1
     FirstOfferDay: 2

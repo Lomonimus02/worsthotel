@@ -231,7 +231,9 @@ namespace WorstHotel.Tests
             Assert.That(reported.Hotel.Boiler.Condition, Is.EqualTo(control.Hotel.Boiler.Condition).Within(.001f));
             Assert.That(reported.Hotel.Boiler.Pressure, Is.EqualTo(control.Hotel.Boiler.Pressure).Within(.001f));
             Assert.That(reported.Hotel.Electrical.Find("A").Tripped, Is.True);
-            Assert.That(reported.Rooms.Where(room => room.Profile.Id <= 103).All(room => !room.HasPower), Is.True);
+            // Branch A now serves odd-numbered west rooms, not the old contiguous 101–103 layout.
+            Assert.That(reported.Rooms.Where(room => reported.Hotel.Electrical.CircuitForRoom(room.Profile.Id)?.Id == "A")
+                .All(room => !room.HasPower), Is.True);
             Assert.That(reported.Hotel.Heaters.Find("calendar-heater"), Is.SameAs(heater));
             Assert.That(heater.SwitchedOn && heater.Powered, Is.True);
             Assert.That(heater.RoomId, Is.EqualTo(104));

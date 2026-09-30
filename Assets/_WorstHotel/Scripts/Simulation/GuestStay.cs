@@ -75,6 +75,7 @@ namespace WorstHotel
         public int OperatingCost { get; }
         public int MaintenanceSpend { get; }
         public int CapitalSpend { get; }
+        public ContractPayment ContractPayment { get; }
         public int Net => Gross - Compensation - OperatingCost - MaintenanceSpend - CapitalSpend;
         public int Cash { get; }
         public float Reputation { get; }
@@ -82,13 +83,17 @@ namespace WorstHotel
         public float ServiceSeconds { get; }
 
         public DayReport(int dayNumber, IEnumerable<GuestReceipt> receipts, int openingCash, int operatingCost,
-            int cash, float reputation, float serviceSeconds, int maintenanceSpend = 0, int capitalSpend = 0)
+            int cash, float reputation, float serviceSeconds, int maintenanceSpend = 0, int capitalSpend = 0,
+            ContractPayment contractPayment = null)
         {
             var copy = receipts.ToArray();
             if (maintenanceSpend < 0 || capitalSpend < 0 || (long)operatingCost + maintenanceSpend + capitalSpend > int.MaxValue)
                 throw new ArgumentException("Invalid report expense totals.");
             MaintenanceSpend = maintenanceSpend;
             CapitalSpend = capitalSpend;
+            if (contractPayment != null && contractPayment.CashAfterPayment != cash)
+                throw new ArgumentException("Contract payment and closing cash disagree.");
+            ContractPayment = contractPayment;
             DayNumber = dayNumber; Receipts = Array.AsReadOnly(copy); OpeningCash = openingCash;
             Gross = copy.Sum(receipt => receipt.Price); Compensation = copy.Sum(receipt => receipt.Compensation);
             OperatingCost = operatingCost; Cash = cash; Reputation = reputation; ServiceSeconds = serviceSeconds;

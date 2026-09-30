@@ -65,6 +65,7 @@ namespace WorstHotel
             NoiseSettings = living != null ? noise ?? new NoiseSettings() : null;
             rooms = (roomStates ?? throw new ArgumentNullException(nameof(roomStates))).ToDictionary(room => room.Profile.Id);
             ApplyProgressionToRooms();
+            InitializeContract();
             InitializeRoomKeys();
             InitializeSales();
             HousekeepingSettings = living != null ? housekeeping ?? new HousekeepingSettings() : null;
@@ -252,6 +253,7 @@ namespace WorstHotel
         public CommandResult SetRoomTemperature(int roomId, float temperature)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. Start a new hotel first.");
             if (!Number.IsFinite(temperature)) return CommandResult.Fail("Temperature must be finite.");
             if (!rooms.TryGetValue(roomId, out var room)) return CommandResult.Fail("Room not found.");
             room.Temperature = temperature;
@@ -261,6 +263,7 @@ namespace WorstHotel
         public CommandResult SetRoomNoise(int roomId, float noise)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. Start a new hotel first.");
             if (!Number.IsFinite(noise) || noise < 0 || noise > 1) return CommandResult.Fail("Noise must be between zero and one.");
             if (!rooms.TryGetValue(roomId, out var room)) return CommandResult.Fail("Room not found.");
             if (LivingEnabled)

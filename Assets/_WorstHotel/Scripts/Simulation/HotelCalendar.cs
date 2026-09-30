@@ -14,10 +14,12 @@ namespace WorstHotel
         public int ReportHistoryLimit { get; }
         public SalesSettings Sales { get; }
         public SpecialBookingSettings SpecialBookings { get; }
+        public OwnershipContractSettings Contract { get; }
 
         public OperationsSettings(float secondsPerDay = 720, float startHour = 8, float reportHour = 6,
             float arrivalStartHour = 14, float arrivalEndHour = 18, float sleepHour = 23,
-            float checkoutHour = 10, int reportHistoryLimit = 32, SalesSettings sales = null, SpecialBookingSettings specialBookings = null)
+            float checkoutHour = 10, int reportHistoryLimit = 32, SalesSettings sales = null, SpecialBookingSettings specialBookings = null,
+            OwnershipContractSettings contract = null)
         {
             if (!Number.IsFinite(secondsPerDay) || secondsPerDay < 24 ||
                 !ValidHour(startHour) || !ValidHour(reportHour) || !ValidHour(arrivalStartHour) ||
@@ -29,6 +31,7 @@ namespace WorstHotel
             ArrivalStartHour = arrivalStartHour; ArrivalEndHour = arrivalEndHour;
             SleepHour = sleepHour; CheckoutHour = checkoutHour; ReportHistoryLimit = reportHistoryLimit;
             SpecialBookings = (specialBookings ?? new SpecialBookingSettings()).Copy();
+            Contract = contract;
             Sales = sales ?? new SalesSettings();
             Sales.ValidateCalendar(startHour, arrivalStartHour);
         }

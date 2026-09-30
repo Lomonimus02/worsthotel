@@ -9,9 +9,17 @@ namespace WorstHotel
         int lastOperatingReport;
         internal void RestoreOperatingSequence(int number) => lastOperatingReport = number;
 
+        internal void PayOwnershipContract(int amount)
+        {
+            if (ReadOnlyMirror || OwnershipRevoked || amount <= 0 || Cash < amount)
+                throw new InvalidOperationException("Contract payment is not authorized or affordable.");
+            Cash -= amount;
+        }
+
         internal void PostCheckout(GuestReceipt receipt)
         {
             if (ReadOnlyMirror) throw new InvalidOperationException(HotelSimulation.MirrorMessage);
+            if (OwnershipRevoked) throw new InvalidOperationException("Closed ownership cannot collect future checkout income.");
             if (receipt == null) throw new ArgumentNullException(nameof(receipt));
             long next = (long)Cash + receipt.Net;
             if (next > int.MaxValue || next < int.MinValue) throw new InvalidOperationException("Checkout exceeds the supported cash range.");

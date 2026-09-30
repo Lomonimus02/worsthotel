@@ -55,7 +55,8 @@ namespace WorstHotel
                 frame.openGuestRevision > 0 && string.IsNullOrWhiteSpace(frame.conversationGuestId))
                 return CommandResult.Fail("Invalid host frame.");
             if (!IsLanReplica) return CommandResult.Fail("Only a read-only replica accepts host state.");
-            if (frame.model.HasOperations && (frame.model.Operations == null || frame.day != frame.model.Day || frame.phase != DayPhase.Service || frame.planCommitted))
+            if (frame.model.HasOperations && (frame.model.Operations == null || frame.day != frame.model.Day ||
+                frame.phase != (frame.model.Operations.OwnershipLost ? DayPhase.Results : DayPhase.Service) || frame.planCommitted))
                 return CommandResult.Fail("Invalid continuous host frame.");
             bool fresh = replicaEpoch != frame.epoch;
             var previousPhase = Phase;
@@ -94,7 +95,8 @@ namespace WorstHotel
 
         public void ExecuteLanCommand(int playerId, LanCommand command)
         {
-            if (IsLanReplica || playerId != 1 || command == null) return;
+            // A lost hotel's restart belongs to the host, including calls that bypass the transport envelope.
+            if (IsLanReplica || playerId != 1 || command == null || Simulation.OwnershipLost) return;
             switch (command.kind)
             {
                 case LanCommandKind.Assign: Assign(playerId, command.subject, command.roomId, command.amount); break;

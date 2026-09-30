@@ -101,6 +101,8 @@ namespace WorstHotel
         {
             if (!spawn || !body) return;
             Interactor.CancelInteraction();
+            var bookFocus = PlayerCamera.GetComponent<BookCameraFocus>();
+            if (bookFocus) { bookFocus.enabled = false; bookFocus.enabled = true; }
             body.enabled = false;
             transform.SetPositionAndRotation(spawn.position, spawn.rotation);
             pitch = verticalSpeed = stride = 0;

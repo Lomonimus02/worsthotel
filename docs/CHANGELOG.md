@@ -1,4 +1,8 @@
-## Prototype 0.6.0 — embodied interaction and physical hotel information
+## Prototype 0.6.2 — Hotel Debt Pressure
+
+Separate daily ownership contract after ordinary cash accounting: $250 initially, +$25 per successful period, +$60 per restored room above six on the next assessment. Remaining cash pays once; insufficient funds terminate ownership instead of rolling debt forward. Physical ACCOUNTS shows coverage, costs and payment history; RENOVATION previews expansion responsibility. Paper repossession notice explains the shortfall and offers host-owned restart or main menu. No permanent quota HUD or new content systems.
+
+LAN 23 / model schema 19 carry locked assessments and payments. Eight focused contract cases, 42-case calendar/economy regression and one physical-book/terminal scene scenario passed; Windows build succeeded. Human multi-day balance and two-PC LAN remain unverified. See [scope, tuning and evidence](DEBT_PRESSURE_062.md).
 
 ## Prototype 0.6.1 — Strange guests & special stays
 
@@ -6,6 +10,8 @@ Rare premium reservation letters now appear in the physical ledger, with explici
 
 Existing luggage bodies, storage, cart, keys, privacy, relocation, checkout accounting and restored rooms are reused. Special parcels have authored collider/mass/mesh variants, modest guest outfits and original amplifier audio. LAN carries exact parcel binding and distinct guest appearance, including late join; compatibility is 0.6.1 / protocol 22 / model schema 18. See [milestone notes](STRANGE_GUESTS_061.md) for tuning and verification limits.
 
+
+## Prototype 0.6.0 — embodied interaction and physical hotel information
 
 Normal play uses a tiny dot and contextual verbs. Separate physical books at reception contain reservations/sales, known guest requests, accounts and renovation purchases; their pages anchor to a close-up camera. A workbench manual contains boiler procedures and maintenance selection. Wall clocks, local machine meters, small labels and physical luggage tags replace persistent statistics and explanatory boards. A ringing phone answers on first use, raises its handset and only then reveals the caller; guests use brief subtitles and contextual replies after a real knock. Privacy, delivery access and cart physics are retained. Accessibility toggles remain in the session menu; exact statistics remain behind F2.
 

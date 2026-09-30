@@ -63,6 +63,7 @@ namespace WorstHotel
         public CommandResult ClearRoomNoiseOverride(int roomId)
         {
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (OwnershipLost) return CommandResult.Fail("Ownership revoked. Start a new hotel.");
             if (!LivingEnabled) return CommandResult.Fail("The living noise system is not active.");
             var result = Noise.SetNoiseOverride(roomId, null);
             if (result.Success) RefreshElectrical();

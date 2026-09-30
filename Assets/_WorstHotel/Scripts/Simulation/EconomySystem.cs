@@ -8,6 +8,7 @@ namespace WorstHotel
     {
         public int Cash { get; private set; }
         public float Reputation { get; private set; }
+        internal bool OwnershipRevoked;
         private readonly EconomySettings settings;
         private readonly Dictionary<int, DayReport> settledDays = new Dictionary<int, DayReport>();
 
@@ -20,6 +21,7 @@ namespace WorstHotel
         public CommandResult ReserveCompensation(GuestStay stay)
         {
             if (ReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
+            if (OwnershipRevoked) return CommandResult.Fail("Ownership revoked. This hotel's accounts are closed.");
             if (stay == null) return CommandResult.Fail("Guest not found.");
             if (stay.Compensated) return CommandResult.Fail("A compensation credit has already been promised to this guest.");
             stay.Compensated = true;
@@ -72,6 +74,7 @@ namespace WorstHotel
         public CommandResult TrySpend(int cost)
         {
             if (ReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
+            if (OwnershipRevoked) return CommandResult.Fail("Ownership revoked. This hotel's accounts are closed.");
             if (cost < 0) return CommandResult.Fail("A purchase cost cannot be negative.");
             if (Cash < cost) return CommandResult.Fail("Not enough cash for this maintenance choice.");
             Cash -= cost;
@@ -81,6 +84,7 @@ namespace WorstHotel
         public CommandResult DebugSetCash(float amount)
         {
             if (ReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
+            if (OwnershipRevoked) return CommandResult.Fail("Ownership revoked. Start a new hotel to change its finances.");
             if (!Number.IsFinite(amount)) return CommandResult.Fail("Cash must be finite.");
             double rounded = Math.Round((double)amount, MidpointRounding.AwayFromZero);
             if (rounded < int.MinValue || rounded > int.MaxValue) return CommandResult.Fail("Cash is outside the supported integer range.");
