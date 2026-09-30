@@ -17,6 +17,10 @@ namespace WorstHotel
         public bool WorkerAvailable => false;
         public event Action<HousekeepingTask, string> Changed;
         public event Action<LinenBundleState, string> LinenChanged;
+        internal Func<LinenBundleState, CommandResult> ValidateSupplyDeposit;
+        internal event Action<LinenBundleState> DirtyLinenDeposited;
+        internal event Action<int> BedPrepared;
+        internal bool PaidLaundryEnabled;
         private readonly Dictionary<int, RoomState> rooms;
         private readonly Dictionary<int, HousekeepingTask> tasks = new Dictionary<int, HousekeepingTask>();
         private readonly Dictionary<string, LinenBundleState> linens;
@@ -104,8 +108,11 @@ namespace WorstHotel
             if (task == null || task.Generation != linen.Generation || task.DirtyLinenId != id ||
                 task.Step != RoomPreparationStep.DeliverDirtyLinen || !Eligible(rooms[task.RoomId]))
                 return CommandResult.Fail("This bundle does not belong to an available room's current turnover.");
+            var supplyAllowed = ValidateSupplyDeposit?.Invoke(linen) ?? CommandResult.Ok();
+            if (!supplyAllowed.Success) return supplyAllowed;
             linen.Location = LinenLocation.InHamper; linen.PlayerId = null;
             task.Step = RoomPreparationStep.NeedsCleanLinen;
+            DirtyLinenDeposited?.Invoke(linen);
             Changed?.Invoke(task, "dirty linen deposited; the bed needs a clean set");
             LinenChanged?.Invoke(linen, "deposited in the dirty-linen hamper");
             return CommandResult.Ok("Dirty linen deposited. Fetch a clean set from the shelf.");
@@ -157,6 +164,7 @@ namespace WorstHotel
             tasks.Remove(roomId); ordered.Remove(task);
             Changed?.Invoke(task, "clean linen fitted; room ready for key handoff");
             LinenChanged?.Invoke(linen, "fitted to room " + roomId + " bed");
+            BedPrepared?.Invoke(roomId);
             return CommandResult.Ok("Room " + roomId + " is ready for its next guest.");
         }
 
@@ -176,6 +184,7 @@ namespace WorstHotel
         {
             if (ReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
             if (day < 1 || day < LastRefillDay) return CommandResult.Fail("A linen refill needs the current or a later positive planning day.");
+            if (PaidLaundryEnabled) return CommandResult.Fail("Clean linen returns only through the paid laundry service.");
             if (day == LastRefillDay) return CommandResult.Ok("This day's linen stock has already been replenished.");
             var replenished = Linens.Where(item => item.Kind == LinenKind.Clean && item.Location == LinenLocation.Consumed).ToArray();
             foreach (var linen in replenished)

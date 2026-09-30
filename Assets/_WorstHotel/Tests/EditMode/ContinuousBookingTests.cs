@@ -104,10 +104,10 @@ namespace WorstHotel.Tests
         {
             var fixture = Create();
             var hotel = fixture.Hotel;
-            Assert.That(hotel.BookingOffers.Count, Is.EqualTo(16));
-            Assert.That(hotel.BookingOffers.Select(offer => offer.Id).Distinct().Count(), Is.EqualTo(16));
-            Assert.That(hotel.BookingOffers.Count(offer => offer.ArrivalDay == 1), Is.EqualTo(8));
-            Assert.That(hotel.BookingOffers.Count(offer => offer.ArrivalDay == 2), Is.EqualTo(8));
+            Assert.That(hotel.BookingOffers.Count, Is.EqualTo(2 * SalesSettings.DecisionsPerDay));
+            Assert.That(hotel.BookingOffers.Select(offer => offer.Id).Distinct().Count(), Is.EqualTo(2 * SalesSettings.DecisionsPerDay));
+            Assert.That(hotel.BookingOffers.Count(offer => offer.ArrivalDay == 1), Is.EqualTo(SalesSettings.DecisionsPerDay));
+            Assert.That(hotel.BookingOffers.Count(offer => offer.ArrivalDay == 2), Is.EqualTo(SalesSettings.DecisionsPerDay));
             foreach (var offer in hotel.BookingOffers)
             {
                 Assert.That(offer.Id, Is.EqualTo(offer.Application.Id));
@@ -344,9 +344,9 @@ namespace WorstHotel.Tests
             var fixture = Create();
             AdvanceTo(fixture, fixture.Hotel.Calendar.At(4, 8));
             Assert.That(fixture.Hotel.CalendarDay, Is.EqualTo(4));
-            Assert.That(fixture.Hotel.BookingOffers.Count(offer => offer.ArrivalDay == 4), Is.EqualTo(8));
-            Assert.That(fixture.Hotel.BookingOffers.Count(offer => offer.ArrivalDay == 5), Is.EqualTo(8));
-            Assert.That(fixture.Hotel.BookingOffers.Count, Is.EqualTo(16));
+            Assert.That(fixture.Hotel.BookingOffers.Count(offer => offer.ArrivalDay == 4), Is.EqualTo(SalesSettings.DecisionsPerDay));
+            Assert.That(fixture.Hotel.BookingOffers.Count(offer => offer.ArrivalDay == 5), Is.EqualTo(SalesSettings.DecisionsPerDay));
+            Assert.That(fixture.Hotel.BookingOffers.Count, Is.EqualTo(2 * SalesSettings.DecisionsPerDay));
             Assert.That(fixture.Hotel.BookingOffers.Where(offer => offer.Application.Archetype.Kind == GuestKind.Business)
                 .All(offer => offer.Application.ReferencePrice == 450), Is.True);
             Assert.That(fixture.Hotel.Boiler.Failed, Is.False, "The isolated healthy fixture has no demand/wear cause; calendar day is not a failure trigger.");
@@ -381,6 +381,7 @@ namespace WorstHotel.Tests
             var report = fixture.Hotel.LastReport;
             var receipt = report.Receipts.Single(item => item.GuestId == guest.GuestId);
             Assert.That(receipt.Net, Is.EqualTo(afterCheckout - beforeCheckout));
+            Assert.That(receipt.AgreedPrice, Is.EqualTo(guest.Price), "Existing served-receipt construction keeps its agreed price by default.");
             Assert.That(report.Gross, Is.EqualTo(guest.Price));
             Assert.That(report.OpeningCash, Is.EqualTo(-100));
             Assert.That(fixture.Hotel.Economy.Cash, Is.EqualTo(afterCheckout - 450));
@@ -403,11 +404,35 @@ namespace WorstHotel.Tests
             AdvanceTo(fixture, offer.CheckoutAt + .25f);
             Assert.That(guest.ReceiptPosted, Is.True);
             Assert.That(fixture.Hotel.Economy.Cash, Is.EqualTo(-100));
+            var currentReceipt = fixture.Hotel.CurrentReceipts.Single(item => item.GuestId == guest.GuestId);
+            Assert.That(currentReceipt.AgreedPrice, Is.EqualTo(guest.Price));
+            Assert.That(currentReceipt.AgreedPrice, Is.GreaterThan(0));
+            Assert.That(currentReceipt.Price, Is.Zero);
+            Assert.That(currentReceipt.Compensation, Is.Zero);
+            Assert.That(currentReceipt.Net, Is.Zero);
+            var mirror = Create().Hotel;
+            mirror.EnableReadOnlyMirror();
+            var currentWire = UnityEngine.JsonUtility.FromJson<HotelModelSnapshot>(
+                UnityEngine.JsonUtility.ToJson(fixture.Hotel.CaptureSnapshot(640, 1)));
+            Require(mirror.ApplySnapshot(currentWire));
+            Assert.That(mirror.CurrentReceipts.Single().AgreedPrice, Is.EqualTo(guest.Price));
+            Assert.That(mirror.CurrentReceipts.Single().Net, Is.Zero);
             AdvanceTo(fixture, 1380);
             var receipt = fixture.Hotel.LastReport.Receipts.Single(item => item.GuestId == guest.GuestId);
+            Assert.That(receipt.AgreedPrice, Is.EqualTo(guest.Price));
             Assert.That(receipt.Price, Is.Zero);
+            Assert.That(receipt.Compensation, Is.Zero);
             Assert.That(receipt.Net, Is.Zero);
             Assert.That(fixture.Hotel.Economy.Cash, Is.EqualTo(350 - 2 * 450));
+            var reportWire = UnityEngine.JsonUtility.FromJson<HotelModelSnapshot>(
+                UnityEngine.JsonUtility.ToJson(fixture.Hotel.CaptureSnapshot(640, 2)));
+            Require(mirror.ApplySnapshot(reportWire));
+            var restored = mirror.LastReport.Receipts.Single(item => item.GuestId == guest.GuestId);
+            Assert.That(restored.AgreedPrice, Is.EqualTo(guest.Price));
+            Assert.That(restored.Price, Is.Zero);
+            Assert.That(restored.Net, Is.Zero);
+            Assert.That(mirror.LastReport.Gross, Is.Zero);
+            Assert.That(mirror.Economy.Cash, Is.EqualTo(fixture.Hotel.Economy.Cash));
         }
 
         [Test]

@@ -47,6 +47,8 @@ namespace WorstHotel
         public string GuestId { get; }
         public string Name { get; }
         public int RoomId { get; }
+        /// <summary>The booked amount, retained even when no room time was charged. Never used in settlement totals.</summary>
+        public int AgreedPrice { get; }
         public int Price { get; }
         public float Satisfaction { get; }
         public int Compensation { get; }
@@ -57,9 +59,10 @@ namespace WorstHotel
         public string DepartureReason { get; }
 
         public GuestReceipt(string guestId, string name, int roomId, int price, float satisfaction, int compensation, string review,
-            bool earlyCheckout = false, float checkoutAt = -1, string departureReason = null)
+            bool earlyCheckout = false, float checkoutAt = -1, string departureReason = null, int agreedPrice = 0)
         {
             GuestId = guestId; Name = name; RoomId = roomId; Price = price;
+            AgreedPrice = agreedPrice == 0 ? price : agreedPrice;
             Satisfaction = satisfaction; Compensation = compensation; Review = review;
             EarlyCheckout = earlyCheckout; CheckoutAt = checkoutAt; DepartureReason = departureReason;
         }
@@ -75,8 +78,10 @@ namespace WorstHotel
         public int OperatingCost { get; }
         public int MaintenanceSpend { get; }
         public int CapitalSpend { get; }
+        public int LaundrySpend { get; }
+        public int BulbSpend { get; }
         public ContractPayment ContractPayment { get; }
-        public int Net => Gross - Compensation - OperatingCost - MaintenanceSpend - CapitalSpend;
+        public int Net => Gross - Compensation - OperatingCost - MaintenanceSpend - CapitalSpend - LaundrySpend - BulbSpend;
         public int Cash { get; }
         public float Reputation { get; }
         public float AverageSatisfaction { get; }
@@ -84,13 +89,16 @@ namespace WorstHotel
 
         public DayReport(int dayNumber, IEnumerable<GuestReceipt> receipts, int openingCash, int operatingCost,
             int cash, float reputation, float serviceSeconds, int maintenanceSpend = 0, int capitalSpend = 0,
-            ContractPayment contractPayment = null)
+            ContractPayment contractPayment = null, int laundrySpend = 0, int bulbSpend = 0)
         {
             var copy = receipts.ToArray();
-            if (operatingCost < 0 || maintenanceSpend < 0 || capitalSpend < 0 || (long)operatingCost + maintenanceSpend + capitalSpend > int.MaxValue)
+            if (operatingCost < 0 || maintenanceSpend < 0 || capitalSpend < 0 || laundrySpend < 0 || bulbSpend < 0 ||
+                (long)operatingCost + maintenanceSpend + capitalSpend + laundrySpend + bulbSpend > int.MaxValue)
                 throw new ArgumentException("Invalid report expense totals.");
             MaintenanceSpend = maintenanceSpend;
             CapitalSpend = capitalSpend;
+            LaundrySpend = laundrySpend;
+            BulbSpend = bulbSpend;
             // A payment is an earlier transaction; more income/costs can occur before this report.
             ContractPayment = contractPayment;
             DayNumber = dayNumber; Receipts = Array.AsReadOnly(copy); OpeningCash = openingCash;

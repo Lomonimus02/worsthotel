@@ -63,9 +63,12 @@ MonoBehaviour:
   advanceBookingHour: 16
   bookingDecisionSpacingHours: 0.4
   bookingSeed: 73129
+  bookingReputationBaseline: 60
+  bookingMinimumReputationDemand: 0.8
+  bookingMaximumReputationDemand: 1.1
   ownershipContractEnabled: 1
-  initialContractPayment: 250
-  contractDailyIncrease: 25
+  initialContractPayment: 350
+  contractDailyIncrease: 50
   contractExtraRoomCharge: 60
   contractPaymentHour: 22
   firstContractPaymentDay: 2

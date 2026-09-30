@@ -23,7 +23,7 @@ namespace WorstHotel
             Require(cashBefore == ContinuousCapitalFixtureCash - session.Economy.DailyOperatingCost &&
                 boiler.Failed && circuit.Tripped && model.DayReports.Count == 1, "funded capital test follows unchanged first-boundary assertions");
             WriteStage("continuous-capital-ready");
-            yield return Until(() => boiler.CapacityUpgradePurchased && model.Electrical.UpgradedCircuitId == "B", 50,
+            yield return Until(() => boiler.CapacityUpgradePurchased && model.Electrical.IsCapacityUpgraded("B"), 50,
                 "actual client controller purchases both capacity categories through NGO");
             Require(boiler.Failed && boiler.Condition == conditionBefore && circuit.Tripped && !circuit.HasPower,
                 "paid upgrades neither repair the failed boiler nor reset the tripped circuit");
@@ -43,12 +43,20 @@ namespace WorstHotel
                 "rejected duplicate boiler purchase does not charge");
             WriteStage("continuous-duplicate-boiler-rejected");
             yield return Stage("continuous-other-circuit-sent", 12);
-            yield return Until(() => session.LastMessage == "The hotel's electrical capacity upgrade is already installed.", 8,
-                "normal host command rejects purchasing the other branch");
-            Require(model.Electrical.UpgradedCircuitId == "B" && model.Electrical.Find("A").Capacity == otherCapacityBefore &&
+            yield return Until(() => model.Electrical.IsCapacityUpgraded("A"), 8,
+                "normal host command purchases the other branch independently");
+            capitalCost += session.Economy.ElectricalUpgradeCost;
+            Require(model.Electrical.IsCapacityUpgraded("B") &&
+                Mathf.Approximately(model.Electrical.Find("A").Capacity, otherCapacityBefore + model.Electrical.Settings.CapacityUpgradeAmount) &&
                 model.Economy.Cash == cashBefore - capitalCost && model.PeriodCapitalSpend == capitalCost,
-                "one electrical purchase remains enforced without an extra debit");
-            WriteStage("continuous-other-circuit-rejected");
+                "both electrical purchases debit exactly once");
+            WriteStage("continuous-other-circuit-installed");
+            yield return Stage("continuous-duplicate-circuit-sent", 12);
+            yield return Until(() => session.LastMessage == "This circuit's capacity upgrade is already installed.", 8,
+                "duplicate electrical purchase is rejected");
+            Require(model.Economy.Cash == cashBefore - capitalCost && model.PeriodCapitalSpend == capitalCost,
+                "duplicate electrical purchase does not charge");
+            WriteStage("continuous-duplicate-circuit-rejected");
 
             yield return Stage("continuous-maintenance-selected", 20);
             yield return Until(() => !coop.Players[1].IsUIBlocked, 8,
@@ -109,7 +117,7 @@ namespace WorstHotel
                 Require(model.Economy.Cash == ContinuousCapitalFixtureCash + model.DayReports.Sum(value => value.Receipts.Sum(receipt => receipt.Net)) -
                     sequence * session.Economy.DailyOperatingCost - capitalCost - session.Economy.ProperRepairCost,
                     "cash reconciles with initial diagnostic funds, actual receipts, three distinct bills and one-time equipment payments");
-                Require(boiler.CapacityUpgradePurchased && model.Electrical.UpgradedCircuitId == "B" && circuit.Tripped &&
+                Require(boiler.CapacityUpgradePurchased && model.Electrical.IsCapacityUpgraded("A") && model.Electrical.IsCapacityUpgraded("B") && circuit.Tripped &&
                     rooms.Single(room => room.Profile.Id == 106).Cleanliness == Cleanliness.Dirty && model.Housekeeping.Find(106) == turnover &&
                     turnover.DirtyLinenId == dirtyId && turnover.Generation == dirtyGeneration && model.Keys.Find(101).Location == RoomKeyLocation.OnRack,
                     "upgrades, untouched trip, dirty turnover identity and unissued room key survive later dates");
@@ -118,7 +126,7 @@ namespace WorstHotel
                 WriteStage("continuous-report-" + sequence + "-ready");
                 yield return Stage("continuous-report-" + sequence + "-observed", 20);
             }
-            facts.Add("RemotePaidUpgrades=True UpgradeDoesNotRepair=True DuplicateCapitalRejected=True OtherBranchRejected=True RemotePaidMaintenance=True MaintenanceDowntime=True DuplicateMaintenanceRejected=True MaintenanceRestored=True ThreeAccountingBoundaries=True ContinuousCapitalVerified=True");
+            facts.Add("RemotePaidUpgrades=True UpgradeDoesNotRepair=True DuplicateCapitalRejected=True BothBranchesPurchased=True RemotePaidMaintenance=True MaintenanceDowntime=True DuplicateMaintenanceRejected=True MaintenanceRestored=True ThreeAccountingBoundaries=True ContinuousCapitalVerified=True");
         }
 
         void AdvanceContinuousDiagnosticTo(float target, string label)
@@ -166,13 +174,13 @@ namespace WorstHotel
             yield return ContinuousChoose("Back to operations");
             yield return ContinuousChoose("Capacity upgrades");
             if (capture) yield return Capture("client-continuous-capital-before");
-            yield return ContinuousChoose("Buy boiler capacity upgrade");
+            yield return ContinuousChoose("Install new burner");
             yield return Until(() => mirror.Boiler.CapacityUpgradePurchased, 8, "authoritative boiler purchase returns to readonly mirror");
             Require(mirror.Boiler.Failed && mirror.Boiler.Condition == conditionBefore &&
                 Mathf.Approximately(mirror.Boiler.RatedCapacity, ratedBefore * session.BoilerSettings.Capacity.CapacityUpgradeMultiplier),
                 "client sees actual extra boiler capacity without a repair");
-            yield return ContinuousChoose("Upgrade circuit B");
-            yield return Until(() => mirror.Electrical.UpgradedCircuitId == "B" && mirror.PeriodCapitalSpend == capitalCost, 8,
+            yield return ContinuousChoose("Upgrade B");
+            yield return Until(() => mirror.Electrical.IsCapacityUpgraded("B") && mirror.PeriodCapitalSpend == capitalCost, 8,
                 "authoritative branch purchase and full capital ledger return");
             Require(mirror.Electrical.Find("B").Tripped && !mirror.Electrical.Find("B").HasPower &&
                 Mathf.Approximately(mirror.Electrical.Find("B").Capacity, circuitBefore + mirror.Electrical.Settings.CapacityUpgradeAmount) &&
@@ -185,9 +193,15 @@ namespace WorstHotel
             // do not bypass a disabled UI control, inject an RPC or mutate the local mirror.
             session.PurchaseBoilerUpgrade(1); WriteStage("continuous-duplicate-boiler-sent");
             yield return Stage("continuous-duplicate-boiler-rejected", 12);
-            session.PurchaseElectricalUpgrade(1, "A"); WriteStage("continuous-other-circuit-sent");
-            yield return Stage("continuous-other-circuit-rejected", 12);
-            Require(mirror.Economy.Cash == cashBefore - capitalCost && mirror.Electrical.UpgradedCircuitId == "B", "negative capital requests cannot alter replica balances or chosen branch");
+            yield return ContinuousChoose("Upgrade A"); WriteStage("continuous-other-circuit-sent");
+            yield return Stage("continuous-other-circuit-installed", 12);
+            capitalCost += session.Economy.ElectricalUpgradeCost;
+            yield return Until(() => mirror.Electrical.IsCapacityUpgraded("A") && mirror.PeriodCapitalSpend == capitalCost, 8,
+                "both branch purchases return through the normal snapshot");
+            Require(mirror.Economy.Cash == cashBefore - capitalCost && mirror.Electrical.IsCapacityUpgraded("B"), "second branch charges once and retains the first purchase");
+            session.PurchaseElectricalUpgrade(1, "A"); WriteStage("continuous-duplicate-circuit-sent");
+            yield return Stage("continuous-duplicate-circuit-rejected", 12);
+            Require(mirror.Economy.Cash == cashBefore - capitalCost, "duplicate branch cannot charge again");
             yield return ContinuousChoose("Back to operations");
             yield return ContinuousChoose("Boiler maintenance");
             int selectionCash = mirror.Economy.Cash;
@@ -246,7 +260,7 @@ namespace WorstHotel
                     "replicated reports retain equipment expenses exactly once");
                 Require(mirror.Economy.Cash == ContinuousCapitalFixtureCash + session.Reports.Sum(value => value.Receipts.Sum(receipt => receipt.Net)) -
                     sequence * session.Economy.DailyOperatingCost - capitalCost - session.Economy.ProperRepairCost &&
-                    mirror.Boiler.CapacityUpgradePurchased && mirror.Electrical.UpgradedCircuitId == "B" && mirror.Electrical.Find("B").Tripped &&
+                    mirror.Boiler.CapacityUpgradePurchased && mirror.Electrical.IsCapacityUpgraded("A") && mirror.Electrical.IsCapacityUpgraded("B") && mirror.Electrical.Find("B").Tripped &&
                     rooms.Single(room => room.Profile.Id == 106).Cleanliness == Cleanliness.Dirty,
                     "replica cash reconciles while installed capacities and physical problems carry across dates");
                 yield return ContinuousChoose("Operating report " + sequence);
@@ -254,7 +268,7 @@ namespace WorstHotel
                 yield return ContinuousChoose("Back to reports");
                 WriteStage("continuous-report-" + sequence + "-observed");
             }
-            facts.Add("RemotePaidUpgrades=True UpgradeDoesNotRepair=True DuplicateCapitalRejected=True OtherBranchRejected=True RemotePaidMaintenance=True MaintenanceDowntime=True DuplicateMaintenanceRejected=True MaintenanceRestored=True ThreeAccountingBoundaries=True ContinuousCapitalVerified=True");
+            facts.Add("RemotePaidUpgrades=True UpgradeDoesNotRepair=True DuplicateCapitalRejected=True BothBranchesPurchased=True RemotePaidMaintenance=True MaintenanceDowntime=True DuplicateMaintenanceRejected=True MaintenanceRestored=True ThreeAccountingBoundaries=True ContinuousCapitalVerified=True");
             facts.Add("ThreeAccountingBoundaries ends after D4 06:00 from D1 08:00; bounded host diagnostic advances, not 72 hours of human play or three paid guest cohorts. All equipment choices used actual client controller through normal NGO authorization; duplicate attempts used labelled ordinary session commands.");
         }
     }

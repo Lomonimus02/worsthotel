@@ -164,7 +164,7 @@ namespace WorstHotel.Tests
             fixture.Electrical.Changed += (circuit, _) =>
             {
                 changes++;
-                Assert.That(fixture.Electrical.UpgradedCircuitId, Is.EqualTo("A"));
+                Assert.That(fixture.Electrical.IsCapacityUpgraded("A"), Is.True);
                 Assert.That(circuit.Capacity, Is.EqualTo(4));
                 Assert.That(circuit.Stress01, Is.EqualTo(stress));
             };
@@ -214,21 +214,21 @@ namespace WorstHotel.Tests
         }
 
         [Test]
-        public void TheHotelHasOneElectricalPurchaseRatherThanOnePurchasePerBranch()
+        public void EachBranchHasOneIndependentElectricalPurchase()
         {
             var fixture = new CircuitFixture();
             Assert.That(Install(fixture.Electrical, "C").Success, Is.False);
-            Assert.That(fixture.Electrical.UpgradedCircuitId, Is.Empty);
+            Assert.That(fixture.Electrical.Circuits.Any(c => fixture.Electrical.IsCapacityUpgraded(c.Id)), Is.False);
             Assert.That(Invoke<CommandResult>(fixture.Electrical, "CanInstallCapacityUpgrade", "B").Success, Is.True);
-            Assert.That(fixture.Electrical.UpgradedCircuitId, Is.Empty);
+            Assert.That(fixture.Electrical.Circuits.Any(c => fixture.Electrical.IsCapacityUpgraded(c.Id)), Is.False);
             Assert.That(Install(fixture.Electrical, "B").Success, Is.True);
+            Assert.That(Install(fixture.Electrical, "A").Success, Is.True);
             Assert.That(Install(fixture.Electrical, "A").Success, Is.False);
             Assert.That(Install(fixture.Electrical, "B").Success, Is.False);
-            Assert.That(fixture.Electrical.UpgradedCircuitId, Is.EqualTo("B"));
+            Assert.That(fixture.Electrical.IsCapacityUpgraded("B"), Is.True);
             Assert.That(fixture.B.Capacity, Is.EqualTo(4));
-            Assert.That(fixture.A.Capacity, Is.EqualTo(3));
-            fixture.Tick(18);
-            Assert.That(fixture.A.Tripped, Is.True, "Upgrading the other branch cannot secretly relieve these appliances.");
+            Assert.That(fixture.A.Capacity, Is.EqualTo(4));
+            Assert.That(fixture.Electrical.IsCapacityUpgraded("A"), Is.True);
         }
 
         [Test]
@@ -244,7 +244,7 @@ namespace WorstHotel.Tests
             Assert.That(Install(boiler).Success, Is.False);
             Assert.That(Install(electrical, "A").Success, Is.False);
             Assert.That(boiler.CapacityUpgradePurchased, Is.False);
-            Assert.That(electrical.UpgradedCircuitId, Is.Empty);
+            Assert.That(electrical.Circuits.Any(c => electrical.IsCapacityUpgraded(c.Id)), Is.False);
         }
 
         [Test]
@@ -257,7 +257,7 @@ namespace WorstHotel.Tests
             Assert.That(Install(roundedAway.Electrical, "A").Success, Is.False);
             var overflow = new CircuitFixture(capacity: float.MaxValue, increase: float.MaxValue);
             Assert.That(Install(overflow.Electrical, "A").Success, Is.False);
-            Assert.That(overflow.Electrical.UpgradedCircuitId, Is.Empty);
+            Assert.That(overflow.Electrical.Circuits.Any(c => overflow.Electrical.IsCapacityUpgraded(c.Id)), Is.False);
             Assert.That(overflow.A.Capacity, Is.EqualTo(float.MaxValue));
         }
 

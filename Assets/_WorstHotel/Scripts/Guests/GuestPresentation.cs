@@ -28,7 +28,9 @@ namespace WorstHotel
             public GuestAgentState State;
             public GuestActivity Activity;
             public bool InsideRoom, RouteComplete;
-            public int AppearanceIndex, ReceptionSlot;
+            public int AppearanceIndex, ReceptionSlot = -1;
+            public bool WaitingForReception, Detouring;
+            public float TrafficSeconds;
             public float PoseBlend, SettlingTime, BlockedSeconds;
             public int RecoveryCount;
             public string PathStatus = "Following authored route";
@@ -60,20 +62,22 @@ namespace WorstHotel
 
         public bool TryGetGuestReceptionSlot(string id, out int slot)
         {
-            if (guests.TryGetValue(id, out var guest)) { slot = guest.ReceptionSlot; return true; }
+            if (guests.TryGetValue(id, out var guest)) { slot = guest.ReceptionSlot; return slot >= 0; }
             slot = -1; return false;
         }
 
         static bool NeedsReceptionSlot(GuestAgent agent) => agent != null &&
-            agent.State != GuestAgentState.CheckingOut && agent.State != GuestAgentState.Leaving && agent.State != GuestAgentState.Left;
+            (agent.State == GuestAgentState.Arriving || agent.State == GuestAgentState.WaitingForCheckIn ||
+             agent.State == GuestAgentState.GoingToServiceReception || agent.State == GuestAgentState.WaitingAtServiceReception);
 
         int FreeReceptionSlot()
         {
             for (int slot = 0; slot < receptionPlaces.Length; slot++)
             {
+                if (!receptionPlaces[slot]) continue;
                 bool used = false;
                 foreach (var guest in guests.Values)
-                    if (guest.ReceptionSlot == slot && NeedsReceptionSlot(guest.Stay.Agent)) { used = true; break; }
+                    if (guest.ReceptionSlot == slot) { used = true; break; }
                 if (!used) return slot;
             }
             return -1;
@@ -218,10 +222,11 @@ namespace WorstHotel
                 Debug.LogError("Living guests require authored reception and room markers. Rebuild the prototype scene.");
                 return;
             }
-            int receptionSlot = simulation.ContinuousOperations ? FreeReceptionSlot() : index % receptionPlaces.Length;
-            // An overlap may briefly retain departing bodies. Their slots are reusable;
-            // if all actual stays still need a slot, keep the next arrival outside until one frees.
-            if (receptionSlot < 0) return;
+            bool needsPlace = NeedsReceptionSlot(stay.Agent);
+            int receptionSlot = needsPlace ? AcquireReceptionSlot(stay.GuestId) : -1;
+            // Only actual arrivals/waiters require a queue berth before creating their body.
+            // A returning service visitor can wait inside their room until a berth is free.
+            if (receptionSlot < 0 && needsPlace && stay.Agent.State != GuestAgentState.GoingToServiceReception) return;
             int appearance = simulation.ContinuousOperations ? StableAppearanceIndex(stay.GuestId) : index;
             var guest = new VisualGuest
             {
@@ -238,8 +243,9 @@ namespace WorstHotel
             guest.Root.gameObject.AddComponent<GuestPhysicalReaction>().Initialize(guest.Body);
             guests.Add(stay.GuestId, guest);
             simulation.RegisterGuestPhysicalStaging(stay.GuestId);
-            var reception = receptionPlaces[receptionSlot];
-            SetRoute(guest, AuthoredGuestRoute.Arrival(reception.position), RoutePurpose.Reception);
+            Vector3 reception = receptionSlot >= 0 ? receptionPlaces[receptionSlot].position : new Vector3(.55f, .01f, .35f);
+            if (stay.Agent.State == GuestAgentState.Arriving || stay.Agent.State == GuestAgentState.WaitingForCheckIn)
+                SetRoute(guest, AuthoredGuestRoute.Arrival(reception), RoutePurpose.Reception);
             if (stay.Agent.State == GuestAgentState.GoingToRoom)
             {
                 if (stay.Agent.IsRelocating && stay.Agent.TransferFromRoomId.HasValue &&
@@ -252,7 +258,7 @@ namespace WorstHotel
                 }
                 else
                 {
-                    guest.Root.position = reception.position;
+                    guest.Root.position = reception;
                     SetRoute(guest, AuthoredGuestRoute.ToRoom(guest.Root.position, room, false), RoutePurpose.Room);
                 }
             }
@@ -288,7 +294,7 @@ namespace WorstHotel
                 // Reconstruct a newly bound presentation at its known semantic location;
                 // normal visits retain their existing body and follow the full physical route.
                 guest.InsideRoom = stay.Agent.State == GuestAgentState.GoingToServiceReception;
-                guest.Root.position = guest.InsideRoom ? room.roomTarget.position : reception.position;
+                guest.Root.position = guest.InsideRoom ? room.roomTarget.position : reception;
             }
             else if (stay.Agent.HasReachedRoom)
             {
@@ -305,6 +311,7 @@ namespace WorstHotel
         void LateUpdate()
         {
             if (session != GameSession.Instance) Bind();
+            PruneReceptionRequests();
             if (refreshPending) Refresh();
             if (session == null || simulation == null) return;
             var coop = LocalCoopBootstrap.Instance;
@@ -342,6 +349,7 @@ namespace WorstHotel
                 }
                 ReportVacatedRooms(guest, false);
                 if (guest.RouteComplete) OnRouteComplete(guest);
+                ReleaseClearedReceptionSlot(guest);
                 RetryCompletedResponseRoute(guest);
                 bool doingActivity = guest.InsideRoom && guest.RouteComplete && guest.Stay.Agent.IsRoomState;
                 UpdateStaging(guest, doingActivity);
@@ -437,7 +445,8 @@ namespace WorstHotel
         static void SetRoute(VisualGuest guest, AuthoredGuestRoute route, RoutePurpose purpose)
         {
             guest.Route = route; guest.Purpose = purpose; guest.Waypoint = 0; guest.RouteComplete = false;
-            guest.SettlingTime = 0; guest.BlockedSeconds = 0; guest.DoorClosedAfterCrossing = false;
+            guest.SettlingTime = 0; guest.BlockedSeconds = 0; guest.TrafficSeconds = 0;
+            guest.Detouring = false; guest.DoorClosedAfterCrossing = false;
             guest.PathStatus = "Following authored route";
         }
 
@@ -456,25 +465,30 @@ namespace WorstHotel
                 Vector3 destination = guest.Route.Points[guest.Waypoint];
                 Vector3 offset = destination - guest.Root.position;
                 float distance = offset.magnitude;
-                if (distance < .015f) { guest.Waypoint++; continue; }
+                if (distance < .015f) { guest.Waypoint++; guest.Detouring = false; guest.TrafficSeconds = 0; continue; }
                 float step = Mathf.Min(distance, remaining, .15f);
                 if (BlockedByEnvironment(guest, destination, step))
                 {
                     RecoverRoute(guest, delta);
                     return moved;
                 }
-                guest.BlockedSeconds = 0; guest.PathStatus = "Following authored route";
+                guest.PathStatus = "Following authored route";
                 guest.Root.rotation = Quaternion.RotateTowards(guest.Root.rotation, Quaternion.LookRotation(offset), 280 * delta);
                 var nextPosition = Vector3.MoveTowards(guest.Root.position, destination, step);
                 if (!GuestPhysicalReaction.TryWalk(guest.Root, nextPosition, out nextPosition))
-                { guest.PathStatus = "Waiting for a person / cart to pass"; return moved; }
+                { RecoverTraffic(guest, delta); return moved; }
                 guest.Root.position = nextPosition;
+                guest.BlockedSeconds = 0;
                 if (guest.Purpose == RoutePurpose.Room || guest.Purpose == RoutePurpose.Transfer || guest.Purpose == RoutePurpose.Exit ||
                     guest.Purpose == RoutePurpose.Away || guest.Purpose == RoutePurpose.Return ||
                     guest.Purpose == RoutePurpose.ServiceReception || guest.Purpose == RoutePurpose.ServiceReturn)
                     guest.InsideRoom = AuthoredGuestRoute.IsOnRoomSide(guest.Root.position, guest.Room);
+                // Sideways sliding can move a body without making useful forward progress.
+                if (distance - Vector3.Distance(nextPosition, destination) < step * .35f)
+                { RecoverTraffic(guest, delta); return true; }
+                guest.TrafficSeconds = 0;
                 remaining -= step; moved = true;
-                if (Vector3.Distance(guest.Root.position, destination) < .015f) guest.Waypoint++;
+                if (Vector3.Distance(guest.Root.position, destination) < .015f) { guest.Waypoint++; guest.Detouring = false; }
                 ClosePassedDoor(guest);
             }
             guest.RouteComplete = guest.Waypoint >= guest.Route.Points.Count;
@@ -613,6 +627,8 @@ namespace WorstHotel
                 Destroy(guest.Root.gameObject);
             }
             guests.Remove(id);
+            receptionRequests.Remove(id);
+            refreshPending = true;
         }
 
         void ReportVacatedRooms(VisualGuest guest, bool bodyRemoved)
@@ -768,6 +784,7 @@ namespace WorstHotel
                     Destroy(guest.Root.gameObject);
                 }
             guests.Clear();
+            receptionRequests.Clear();
         }
     }
 }

@@ -53,11 +53,13 @@ namespace WorstHotel
                     Elapsed.ToString("R") + ", delta=" + delta.ToString("R") + ", target=" + target.ToString("R"));
             while (Running && Elapsed < target)
             {
+                TickSupplies();
                 ResolveFinancialDeadlines();
                 if (!Running) break;
                 RefreshSalesDays(Elapsed);
                 ProcessDueSalesDecisions(Elapsed);
                 float financialAt = Math.Min(NextContractAt, Math.Min(NextOperatingCostAt, NextReportAt));
+                financialAt = Math.Min(financialAt, NextSupplyDeliveryAt);
                 float step = Math.Min(1f, Math.Min(target - Elapsed, Math.Min(financialAt, Calendar.At(Calendar.Day + 1, 0)) - Elapsed));
                 if (Boiler.MaintenanceInProgress) step = Math.Min(step, Boiler.MaintenanceEndsAt - Elapsed);
                 if (TryGetNextSalesDecision(out float salesAt, out _, out _)) step = Math.Min(step, salesAt - Elapsed);
@@ -65,6 +67,7 @@ namespace WorstHotel
                     throw new InvalidOperationException("The hotel clock cannot represent another simulation step.");
                 RefreshBookingSchedule(Elapsed + step);
                 TickStep(step);
+                TickSupplies();
                 RefreshSalesDays(Elapsed);
                 ProcessDueSalesDecisions(Elapsed);
                 TickEarlyCheckout(Elapsed, step);
@@ -79,7 +82,7 @@ namespace WorstHotel
             // One clock, independent schedules. Exact ties have a deterministic transaction order.
             if (Running && Elapsed >= NextOperatingCostAt)
             {
-                if ((long)PeriodOperatingSpend + settings.Economy.DailyOperatingCost + PeriodMaintenanceSpend + PeriodCapitalSpend > int.MaxValue)
+                if ((long)PeriodOperatingSpend + settings.Economy.DailyOperatingCost + PeriodMaintenanceSpend + PeriodCapitalSpend + PeriodLaundrySpend + PeriodBulbSpend > int.MaxValue)
                     throw new InvalidOperationException("Operating expense exceeds this report's supported total.");
                 PeriodOperatingSpend += Economy.ChargeOperatingCost();
                 OperatingCostSequence++;
@@ -97,13 +100,15 @@ namespace WorstHotel
                 float boundary = NextReportAt;
                 LastReport = Economy.CloseOperatingDay(ReportSequence + 1, periodReceipts,
                     periodOpeningCash, boundary - periodStartedAt, PeriodMaintenanceSpend, PeriodCapitalSpend,
-                    PeriodOperatingSpend, PeriodContractPayment);
+                    PeriodOperatingSpend, PeriodContractPayment, PeriodLaundrySpend, PeriodBulbSpend);
                 reports.Add(LastReport);
                 if (reports.Count > Operations.ReportHistoryLimit) reports.RemoveAt(0);
                 ReportSequence++;
                 periodReceipts.Clear();
                 PeriodMaintenanceSpend = 0;
                 PeriodCapitalSpend = 0;
+                PeriodLaundrySpend = 0;
+                PeriodBulbSpend = 0;
                 PeriodOperatingSpend = 0;
                 PeriodContractPayment = null;
                 periodOpeningCash = Economy.Cash;

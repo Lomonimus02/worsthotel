@@ -11,13 +11,14 @@ namespace WorstHotel.Tests
         [UnityTest, Category("ContinuousOperations")]
         public IEnumerator ContinuousPhysicalLedgerUpgradesPreserveRealLoadAndNeedActualBreakerReset()
         {
+            bootstrap.ConfigureSolo(); UnityEngine.InputSystem.InputSystem.RemoveDevice(padB); padB = null;
             var session = GameSession.Instance;
             // LABELLED INITIAL MODEL FIXTURE: enough cash to buy both categories, one quiet
             // checked-in guest104. No guest navigation or natural earnings claim is made.
             // Production consumer demand, upgrade amounts, costs and circuit timers are unchanged.
             waitScenarioSessionConfig = Object.Instantiate(session.config);
             maintenanceFixtureEconomy = Object.Instantiate(session.config.economy);
-            maintenanceFixtureEconomy.startingCash = maintenanceFixtureEconomy.boilerUpgradeCost + maintenanceFixtureEconomy.electricalUpgradeCost + 500;
+            maintenanceFixtureEconomy.startingCash = maintenanceFixtureEconomy.boilerUpgradeCost + 2 * maintenanceFixtureEconomy.electricalUpgradeCost + 500;
             waitScenarioSessionConfig.economy = maintenanceFixtureEconomy;
             waitScenarioLivingConfig = Object.Instantiate(session.config.living);
             waitScenarioLivingConfig.firstActivityDelay = 1000;
@@ -79,13 +80,8 @@ namespace WorstHotel.Tests
             float condition = model.Boiler.Condition, rated = model.Boiler.RatedCapacity;
             float effective = model.Boiler.EffectiveCapacity, boilerDemand = model.Boiler.Load;
             float stress = model.Boiler.Stress01;
-            var terminal = Object.FindAnyObjectByType<ReceptionTerminal>();
-            yield return FaceStation(bootstrap.Players[0], padA, terminal, terminal.transform.position + Vector3.up * .35f);
-            QueueUse(padA, true);
-            yield return WaitForCondition(() => ManagementUI.Instance.IsOperationsOpen, 2, "The real reception ledger must open before authorizing purchases.");
-            QueueUse(padA, false); yield return null; yield return null;
-            yield return ChooseOperationsOption("Capacity upgrades");
-            yield return ChooseOperationsOption("Buy boiler capacity upgrade");
+            yield return ReadPhysicalBook(HotelBook.Renovation);
+            yield return ChooseBook("Install new burner");
             Assert.That(model.Boiler.CapacityUpgradePurchased, Is.True);
             Assert.That(model.Boiler.RatedCapacity, Is.EqualTo(rated * session.BoilerSettings.Capacity.CapacityUpgradeMultiplier).Within(.0001f));
             Assert.That(model.Boiler.EffectiveCapacity, Is.EqualTo(effective * session.BoilerSettings.Capacity.CapacityUpgradeMultiplier).Within(.0001f));
@@ -102,9 +98,9 @@ namespace WorstHotel.Tests
                     stressAtPurchase = changed.Stress01;
             };
             model.Electrical.Changed += observePurchase;
-            try { yield return ChooseOperationsOption("Upgrade circuit B"); }
+            try { yield return ChooseBook("Upgrade B"); }
             finally { model.Electrical.Changed -= observePurchase; }
-            Assert.That(model.Electrical.UpgradedCircuitId, Is.EqualTo("B"));
+            Assert.That(model.Electrical.IsCapacityUpgraded("B"), Is.True);
             Assert.That(circuit.Capacity, Is.EqualTo(originalCapacity + model.Electrical.Settings.CapacityUpgradeAmount));
             Assert.That(untouched.Capacity, Is.EqualTo(untouchedCapacity));
             Assert.That(circuit.ActualRequestedLoad, Is.EqualTo(demand).Within(.0001f));
@@ -120,27 +116,44 @@ namespace WorstHotel.Tests
             Assert.That(model.PeriodCapitalSpend, Is.EqualTo(totalCost));
             Assert.That(session.PurchaseBoilerUpgrade(1).Success, Is.False);
             Assert.That(session.PurchaseElectricalUpgrade(1, "B").Success, Is.False);
-            Assert.That(session.PurchaseElectricalUpgrade(1, "A").Success, Is.False, "Only one branch can be upgraded in this hotel.");
+            yield return ChooseBook("Upgrade A");
+            totalCost += session.Economy.ElectricalUpgradeCost;
+            Assert.That(model.Electrical.IsCapacityUpgraded("A"), Is.True);
+            Assert.That(model.Electrical.IsCapacityUpgraded("B"), Is.True);
+            Assert.That(untouched.Capacity, Is.EqualTo(untouchedCapacity + model.Electrical.Settings.CapacityUpgradeAmount));
+            Assert.That(session.PurchaseElectricalUpgrade(1, "A").Success, Is.False);
             Assert.That(session.PurchaseElectricalUpgrade(0, "unknown").Success, Is.False);
             Assert.That(model.Economy.Cash, Is.EqualTo(cash - totalCost));
             Assert.That(model.PeriodCapitalSpend, Is.EqualTo(totalCost));
             var panel = Object.FindAnyObjectByType<ElectricalPanelPresentation>();
             var view = panel.circuits.Single(item => item.circuitId == "B");
+            var otherView = panel.circuits.Single(item => item.circuitId == "A");
             yield return WaitForCondition(() => view.readout.text.Contains("UPGRADED") && view.readout.text.Contains("TRIPPED") &&
-                view.readout.text.Contains(" / " + circuit.Capacity.ToString("F2") + " u"), 2,
-                "The actual panel must show the new capacity and still-tripped state together.");
+                view.readout.text.Contains(" / " + circuit.Capacity.ToString("F2") + " u") &&
+                otherView.readout.text.Contains("UPGRADED") &&
+                otherView.readout.text.Contains(" / " + untouched.Capacity.ToString("F2") + " u"), 2,
+                "The actual panel must show both purchased capacities and preserve the still-tripped branch.");
             var gauge = Object.FindAnyObjectByType<BoilerReadout>();
-            Assert.That(gauge.capacityReadout.text, Does.Contain("UPGRADED").And.Contain("FAILED"));
-            yield return ChooseOperationsOption("Close / keep working");
+            Assert.That(gauge.capacityReadout.text, Does.Contain("STOP"));
+            var progression = Object.FindAnyObjectByType<HotelProgressionPresentation>();
+            Assert.That(progression.boilerBurner.activeSelf && progression.electricalA.activeSelf && progression.electricalB.activeSelf, Is.True);
+            yield return ChooseBook("Close book");
             Vector3 coverAim = panel.cover.transform.TransformPoint(new Vector3(1.10f, 0, 0));
-            yield return PositionEmptyActorForLinen(0, new Vector3(coverAim.x, .08f, coverAim.z - 2.7f), coverAim);
+            // The cabinet now faces into the service wing, not along world +Z.
+            Vector3 panelApproach = coverAim - panel.transform.forward * 1.45f; panelApproach.y = .08f;
+            yield return PositionEmptyActorForLinen(0, panelApproach, coverAim);
             yield return AimAtKeyScenarioPoint(bootstrap.Players[0], padA, () => coverAim);
             Assert.That(bootstrap.Players[0].Interactor.Focused, Is.SameAs(panel.cover));
             QueueUse(padA, true); yield return null; yield return null;
             QueueUse(padA, false);
             yield return WaitForCondition(() => panel.cover.IsPassageOpen, 2, "The actual cover must clear the upgraded circuit's breaker.");
             var breaker = panel.GetComponentsInChildren<ElectricalBreakerControl>().Single(item => item.circuitId == "B");
-            yield return UseElectricalServiceControl(breaker, breaker.transform.position);
+            Vector3 breakerApproach = breaker.transform.position - panel.transform.forward * 1.45f; breakerApproach.y = .08f;
+            yield return PositionEmptyActorForLinen(0, breakerApproach, breaker.transform.position);
+            yield return AimAtKeyScenarioPoint(bootstrap.Players[0], padA, () => breaker.transform.position);
+            Assert.That(bootstrap.Players[0].Interactor.Focused, Is.SameAs(breaker));
+            QueueUse(padA, true); yield return null; yield return null;
+            QueueUse(padA, false); yield return null; yield return null;
             Assert.That(circuit.HasPower && !circuit.Tripped, Is.True);
             int trips = circuit.TripCount;
             session.AdvanceTime(model.Electrical.Settings.TripSeconds * 2 + 1);
@@ -152,7 +165,7 @@ namespace WorstHotel.Tests
             foreach (var consumer in model.Electrical.Consumers.Where(item => item.CircuitId == "B"))
                 Assert.That(consumer.RequestedLoad, Is.EqualTo(beforeConsumers[consumer.Id]), "The improvement cannot secretly remove a real consumer.");
             Assert.That(heaters.All(item => item.State.SwitchedOn && item.State.Powered && item.State.EffectiveHeatOutput > 0), Is.True);
-            Assert.That(untouched.Capacity, Is.EqualTo(untouchedCapacity));
+            Assert.That(untouched.Capacity, Is.EqualTo(untouchedCapacity + model.Electrical.Settings.CapacityUpgradeAmount));
             Assert.That(model.Boiler.Failed, Is.True);
             Assert.That(model.PeriodCapitalSpend, Is.EqualTo(totalCost));
             Assert.That(model.PeriodMaintenanceSpend, Is.Zero);

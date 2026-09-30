@@ -1,0 +1,8 @@
+Day,Startingcash,Roomreceipts(gross),Refunds,Operating,Maintenance/repair,Upgrade,Contractpaid,Cashafterpayment,Earlycheckout,Boilerfailures
+1,1600,600,300,0,0,0,0,,2,0
+2,1900,1800,450,350,350,0,350,1900,3,0
+3,2200,1500,150,350,900,0,400,1750,1,1
+4,1900,1800,450,350,900,0,450,1400,3,1
+5,1550,2100,525,350,900,0,500,1375,3,1
+6,1375,1500,150,350,900,0,550,925,1,2
+7,925,2400,750,350,750,0,600,625,5,1

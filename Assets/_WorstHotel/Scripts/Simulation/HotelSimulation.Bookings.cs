@@ -193,8 +193,7 @@ namespace WorstHotel
             {
                 PruneCompletedOperatingHistory();
                 Services?.BeginOperatingDay(day, Calendar.At(day + 2, 0));
-                // Only used/consumed linen slots are replenished by the existing system.
-                Housekeeping?.RefillForDay(day);
+                // Calendar changes do not buy supplies. Paid laundry owns clean-stock returns.
                 operatingServiceDay = day;
             }
             for (int offerDay = Math.Max(day, offersThroughDay + 1); offerDay <= day + 1; offerDay++)
@@ -251,7 +250,7 @@ namespace WorstHotel
                 var receipt = LivingEnabled && (!guest.Agent.HasReachedRoom || guest.Elapsed <= 0) ?
                     new GuestReceipt(guest.GuestId, guest.Name, guest.RoomId, 0,
                         guest.Agent.WaitingSeconds > 0 || guest.Agent.CheckedIn ? 0 : 75, 0,
-                        "No room time was received. No stay was charged.") : Economy.CalculateReceipt(guest, Satisfaction.Evaluate(guest));
+                        "No room time was received. No stay was charged.", agreedPrice: guest.Price) : Economy.CalculateReceipt(guest, Satisfaction.Evaluate(guest));
                 Economy.PostCheckout(receipt);
                 periodReceipts.Add(receipt);
                 guest.ReceiptPosted = true;

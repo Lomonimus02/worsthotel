@@ -8,7 +8,7 @@ namespace WorstHotel
         public string Id { get; }
         public IReadOnlyList<int> RoomIds { get; }
         public float Capacity => (float)((double)settings.CircuitCapacity +
-            (system.UpgradedCircuitId == Id ? settings.CapacityUpgradeAmount : 0));
+            (system.IsCapacityUpgraded(Id) ? settings.CapacityUpgradeAmount : 0));
         public float RatedCapacity => Capacity;
         public float LoadRatio => (float)Math.Min(float.MaxValue, (double)RequestedLoad / Capacity);
         public float Reserve => Capacity - RequestedLoad;

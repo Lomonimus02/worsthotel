@@ -1,0 +1,5 @@
+Day,Startingcash,Roomreceipts(gross),Refunds,Operating,Maintenance/repair,Upgrade,QuotaPaid,Cashafterpayment,Earlycheckout,Boilerfailures,Laundry,Bulbs,CleanLinenAvailable,CleanReserve,DirtyWaiting,LinenAtLaundry,BulbsAvailable,BulbsInTransit,NextDeliveryAt,Reputation,DemandMultiplier,SalesDecisions,BookingsCreated,PeakCheckedIn,NoCleanSeconds,UnreadyArrivalSeconds,EndCash,RoomsSold,GuestsCheckedIn,GuestsPaid,LostReceipts,QuotaDue
+1,1600,180,90,0,0,0,0,,1,1,0,0,10,0,0,0,3,0,Infinity,60,1,24,12,6,0,0,1690,6,6,1,0,0
+2,1690,1260,270,350,900,0,350,900,3,0,0,0,3,0,7,0,3,0,Infinity,54.75,0.9825,12,6,6,0,21.80001,1080,6,6,7,0,350
+3,1080,720,0,350,200,0,400,850,0,1,0,0,0,0,12,0,3,0,Infinity,53.82531,0.9794177,12,6,4,343.378326,249.173126,850,6,4,4,0,400
+4,850,720,0,350,200,0,450,570,0,1,0,0,0,0,16,0,3,0,Infinity,56.0664024,0.986888,12,6,4,720.2013,592.7935,570,6,0,4,360,450

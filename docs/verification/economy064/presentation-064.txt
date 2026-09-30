@@ -1,0 +1,39 @@
+Built-player living-hotel diagnostic tour / SOLO
+ApplicationVersion=0.6.4 UnityVersion=6000.3.2f1 InputBackgroundPolicy=ResetAndDisableNonBackgroundDevices VerificationPadLayout=WorstHotelVerificationGamepad
+Outcome=PASS Errors=0 ResetVerified=False
+Mode=Solo SyntheticPads=1
+OperationsUIOnly=False OperationsUIVerified=False
+PresenceFixturesRequested=False GuestPresenceVerified=False
+ServiceFixturesRequested=False GuestServicesVerified=False
+Owned synthetic input; diagnostic8x clock is NOT player WAIT. Production GameSession.Update, guest schedules, doors and routes remain active. No starting housekeeper.
+Diagnostic model key pickup/giving follows a rack-retrieval time estimate at real reception; physical rack grab and instant handoff are tested separately in PlayMode. There is no check-in hold timer.
+Graphics=NVIDIA GeForce RTX 2060 SUPER Resolution=960x600 RuntimeSeconds=32,0
+Hidden-window player-loop timing is NOT a rendered-performance benchmark. GPU captures require manual visual review.
+OffscreenGPUAvailable=True Captures=21
+Reports=2 FinalCash=100 FinalReputation=0
+PhysicalRelocations=0 ModelBedActions=0 ModelLinenTurnovers=0
+Heater powered-interval temperature: start=0,00 peak=0,00. This observation alone is not a thermal counterfactual.
+SoloComposition=True StaffObjects=1 ActiveCameras=1 Listeners=1 SyntheticPads=1 Day=1
+DIEGETIC PRESENTATION FIXTURE: explicit viewpoint placement, book opening and known guest setup. Physical input is checked separately by three focused PlayMode scenarios. Human walk-through remains required.
+Capture 01-clean-reception: Normal HUD / current reception layout.
+Capture book-Reservations: Physical Reservations / actual Windows IMGUI.
+Capture room-sales: Reservation book sales page.
+Capture book-Services: Physical Services / actual Windows IMGUI.
+Capture book-Accounts: Physical Accounts / actual Windows IMGUI.
+Capture contract-terms: Contract terms, growth and first deadline on the physical page.
+Capture cash-reserve: Current income and expenses, cash, separate operating and contract deadlines.
+Capture book-Renovation: Physical Renovation / actual Windows IMGUI.
+Capture book-BoilerManual: Physical BoilerManual / actual Windows IMGUI.
+Capture service-record: Manual inspection and service page.
+Capture boiler-instruments: Physical pressure / load / catch / labels.
+Capture electrical-instruments: Local ammeters and actual A/B circuit labels.
+Capture blackout-A: A off / B on: actual lights and surfaces.
+Capture blackout-both: Both branches off / no failure banner.
+Capture phone-answer: Caller disclosed only after answering / physical lifted handset.
+Capture known-service-note: Accepted communicated promise in physical notes.
+CONTRACT PRESENTATION FIXTURE: fresh production cash, bounded clock advances, actual insulation purchase; not a human playthrough.
+Capture contract-paid-receipt: 22:00 contract receipt available before the next morning report.
+Capture guest-unserved-receipt: Original booked amount, zero actual charge and existing unserved explanation.
+Capture contract-report-summary: Morning income, expenses and cash in the physical accounts book.
+Capture contract-paid-report: Morning report / earlier payment cash distinct from cash after purchase and operating charge.
+Capture ownership-revoked: Official notice / exact cash, payment and shortfall / terminal state.

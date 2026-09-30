@@ -112,6 +112,7 @@ namespace WorstHotel
             InitializeDecisionResponses();
             roomSystem = new RoomSystem(settings, infrastructure);
             InitializeServices(services);
+            InitializeSupplies();
             InitializeInfrastructureHistory();
         }
 
@@ -360,7 +361,7 @@ namespace WorstHotel
                 new GuestReceipt(guest.GuestId, guest.Name, guest.RoomId, 0, guest.Agent.WaitingSeconds > 0 || guest.Agent.CheckedIn ? 0 : 75, 0,
                     guest.Agent.CheckedIn ? "Check-in started but I received no room time. No stay was charged." :
                     guest.Agent.WaitingSeconds > 0 ? "I reached reception but never received my room. No stay was charged." :
-                    "I did not check in. No stay was charged and I cannot judge the room.") :
+                    "I did not check in. No stay was charged and I cannot judge the room.", agreedPrice: guest.Price) :
                 Economy.CalculateReceipt(guest, Satisfaction.Evaluate(guest))).ToArray();
             LastReport = Economy.Settle(dayNumber, receipts, Elapsed);
             reports.Add(LastReport);

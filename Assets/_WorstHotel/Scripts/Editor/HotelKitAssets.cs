@@ -52,6 +52,23 @@ namespace WorstHotel.Editor
 
         internal static Material Mat(string name) => Materials[name];
 
+        // Additive scene upgrades reuse authored assets without regenerating materials or textures.
+        internal static void LoadExisting()
+        {
+            Materials.Clear();
+            foreach (var guid in AssetDatabase.FindAssets("t:Material", new[] { Root + "/Art/Materials" }))
+            {
+                var material = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
+                if (material) Materials[material.name] = material;
+            }
+            foreach (var guid in AssetDatabase.FindAssets("SoftBlock t:Mesh", new[] { Root + "/Art/Models" }))
+            {
+                SoftBlock = AssetDatabase.LoadAssetAtPath<Mesh>(AssetDatabase.GUIDToAssetPath(guid));
+                if (SoftBlock) break;
+            }
+            if (!SoftBlock) throw new System.InvalidOperationException("Existing SoftBlock mesh is required.");
+        }
+
         static void MakeWorldTextMaterial()
         {
             const string path = Root + "/Art/Materials/World lettering.mat";

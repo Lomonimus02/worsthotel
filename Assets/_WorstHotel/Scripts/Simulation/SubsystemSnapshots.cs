@@ -48,9 +48,10 @@ namespace WorstHotel
         internal bool ReadOnlyMirror;
         internal CircuitSnapshot[] CaptureSnapshot() => Circuits.Select(c=>new CircuitSnapshot{Id=c.Id,ActualRequestedLoad=c.ActualRequestedLoad,HasLoadOverride=c.LoadOverride.HasValue,LoadOverride=c.LoadOverride??0,OverloadSeconds=c.OverloadSeconds,Warning=c.Warning,Tripped=c.Tripped,TripCount=c.TripCount}).ToArray();
         internal ConsumerSnapshot[] CaptureConsumers() => Consumers.Select(c=>new ConsumerSnapshot{Id=c.Id,RoomId=c.RoomId??0,CircuitId=SnapshotData.OptionalId(c.CircuitId),RequestedLoad=c.RequestedLoad,DeliveredLoad=c.DeliveredLoad}).ToArray();
-        internal void RestoreSnapshot(CircuitSnapshot[] circuits,ConsumerSnapshot[] consumers,string upgradedCircuitId)
+        internal void RestoreSnapshot(CircuitSnapshot[] circuits,ConsumerSnapshot[] consumers,string[] purchasedCircuitIds)
         {
-            UpgradedCircuitId = upgradedCircuitId ?? string.Empty;
+            upgradedCircuitIds.Clear();
+            foreach (var id in purchasedCircuitIds) upgradedCircuitIds.Add(id);
             foreach(var s in circuits){var c=Find(s.Id);c.ActualRequestedLoad=s.ActualRequestedLoad;c.LoadOverride=s.HasLoadOverride?s.LoadOverride:(float?)null;c.OverloadSeconds=s.OverloadSeconds;c.Warning=s.Warning;c.Tripped=s.Tripped;c.TripCount=s.TripCount;}
             Consumers=Array.AsReadOnly(consumers.Select(c=>new PowerConsumer(c.Id,c.RoomId==0?(int?)null:c.RoomId,SnapshotData.OptionalId(c.CircuitId),c.RequestedLoad,c.DeliveredLoad)).ToArray());
         }

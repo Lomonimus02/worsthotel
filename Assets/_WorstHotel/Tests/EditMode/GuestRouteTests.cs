@@ -73,7 +73,7 @@ namespace WorstHotel.Tests
                     var delta = to - from;
                     if (delta.magnitude > .001f)
                     foreach (var hit in Physics.CapsuleCastAll(from + Vector3.up * .45f, from + Vector3.up * 1.60f,
-                        .23f, delta.normalized, delta.magnitude, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+                        .32f, delta.normalized, delta.magnitude, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
                     {
                         var shape = hit.collider;
                         if (shape.attachedRigidbody || shape.GetComponentInParent<DoorInteractable>() ||
@@ -116,7 +116,8 @@ namespace WorstHotel.Tests
                 var visit = AuthoredGuestRoute.ToServiceReception(room.radiatorAnchor.position, room, reception.position, true);
                 Assert.That(visit.Door, Is.SameAs(room.door));
                 Assert.That(visit.DoorCrossing, Is.GreaterThanOrEqualTo(0));
-                Assert.That(visit.Points.All(point => point.z >= 0), Is.True, "A service conversation never sends the guest outside.");
+                Assert.That(visit.Points.All(point => point.z > presentation.arrivalSpawn.position.z + 1), Is.True,
+                    "The incoming service lane remains inside the lobby, not at the exterior spawn.");
                 Assert.That(Vector3.Distance(visit.Points.Last(), reception.position), Is.LessThan(.001f));
                 var returned = AuthoredGuestRoute.ToRoom(visit.Points.Last(), room, false);
                 Assert.That(returned.Door, Is.SameAs(room.door));
@@ -126,11 +127,57 @@ namespace WorstHotel.Tests
         }
 
         [Test]
+        public void ExpandedReceptionAndCorridorTrafficHasSeparateApproachesAndClearAuthoredSegments()
+        {
+            var presentation = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<GuestPresentation>(true)).Single();
+            Assert.That(presentation.roomMarkers.Select(room => room.roomId), Is.EquivalentTo(Enumerable.Range(101, 10)));
+            Assert.That(presentation.receptionPlaces.Length, Is.EqualTo(6), "Queue capacity is not hotel capacity.");
+            Physics.SyncTransforms();
+            foreach (var reception in presentation.receptionPlaces)
+            {
+                var arrival = AuthoredGuestRoute.Arrival(reception.position);
+                Assert.That(arrival.Points[1].z, Is.LessThan(0));
+                foreach (var room in presentation.roomMarkers)
+                {
+                    var entry = AuthoredGuestRoute.ToRoom(reception.position, room, false);
+                    var exit = AuthoredGuestRoute.Exit(room.roomTarget.position, room, presentation.arrivalSpawn.position, true);
+                    Assert.That(entry.Points.Any(point => point.x == .55f && point.z >= 6), Is.True);
+                    Assert.That(exit.Points.Any(point => point.x == -.55f && point.z >= 6), Is.True);
+                    AssertClearPublicSegments(presentation.arrivalSpawn.position, arrival);
+                    AssertClearPublicSegments(reception.position, entry);
+                    AssertClearPublicSegments(room.roomTarget.position, exit);
+                }
+            }
+        }
+
+        static void AssertClearPublicSegments(Vector3 from, AuthoredGuestRoute route)
+        {
+            from.y = .01f;
+            foreach (var to in route.Points)
+            {
+                var delta = to - from;
+                if (delta.magnitude > .001f)
+                    foreach (var hit in Physics.CapsuleCastAll(from + Vector3.up * .42f, from + Vector3.up * 1.65f,
+                        .32f, delta.normalized, delta.magnitude, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+                    {
+                        var shape = hit.collider;
+                        if (shape.attachedRigidbody || shape.GetComponentInParent<DoorInteractable>() ||
+                            shape.GetComponentInParent<FirstPersonController>()) continue;
+                        // This route describes the restored wing; its construction barrier is
+                        // removed by HotelProgressionPresentation when restoration is purchased.
+                        if (shape.transform.parent && shape.transform.parent.name == "North Wing locked construction barrier") continue;
+                        Assert.Fail("Public route intersects " + shape.name + " between " + from + " and " + to);
+                    }
+                from = to;
+            }
+        }
+
+        [Test]
         public void ExitAfterInterruptedRoomEntryAlignsWithAndGatesEachActualDoorwayDespiteStaleInsideFlag()
         {
             var presentation = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<GuestPresentation>(true)).Single();
-            Assert.That(presentation.roomMarkers.Length, Is.EqualTo(6));
+            Assert.That(presentation.roomMarkers.Length, Is.EqualTo(10));
             foreach (var room in presentation.roomMarkers)
             {
                 var doorway = room.door.transform.position;

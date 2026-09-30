@@ -166,8 +166,8 @@ namespace WorstHotel
                 yield return CaptureOperationsPage("08-operations-maintenance", "Operations overview during maintenance");
                 yield return ChooseOperationsUI("Capacity upgrades");
                 yield return CaptureOperationsPage("09-upgrades", "Boiler and circuit upgrade choices / price and capacity");
-                yield return ChooseOperationsUI("Upgrade circuit B");
-                Require(model.Electrical.UpgradedCircuitId == "B" && model.Electrical.Find("B").Tripped,
+                yield return ChooseOperationsUI("Upgrade B");
+                Require(model.Electrical.IsCapacityUpgraded("B") && model.Electrical.Find("B").Tripped,
                     "actual controller purchases capacity without resetting the circuit");
                 yield return CaptureOperationsPage("10-upgrade-installed", "Purchased circuit capacity / trip remains unresolved");
                 yield return ChooseOperationsUI("Back to operations");

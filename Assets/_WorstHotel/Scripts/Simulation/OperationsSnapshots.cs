@@ -14,6 +14,8 @@ namespace WorstHotel
         public float SecondsPerDay, StartHour, ReportHour, OperatingCostHour, ArrivalStartHour, ArrivalEndHour, SleepHour, CheckoutHour;
         public int ReportHistoryLimit, ReportSequence, PeriodOpeningCash, OffersThroughDay, ServiceDay, PeriodMaintenanceSpend, PeriodCapitalSpend;
         public int OperatingCostSequence, PeriodOperatingSpend, ContractSequence;
+        public int PeriodLaundrySpend, PeriodBulbSpend;
+        public SupplySnapshot Supplies;
         public float PeriodStartedAt;
         public bool NorthWingRestored, Room102Insulated;
         public OwnershipContractSettingsSnapshot Contract;
@@ -47,12 +49,12 @@ namespace WorstHotel
     internal static partial class SnapshotData
     {
         internal static ReceiptSnapshot Capture(GuestReceipt receipt) => new ReceiptSnapshot
-        { GuestId=receipt.GuestId,Name=receipt.Name,RoomId=receipt.RoomId,Price=receipt.Price,
+        { GuestId=receipt.GuestId,Name=receipt.Name,RoomId=receipt.RoomId,Price=receipt.Price,AgreedPrice=receipt.AgreedPrice,
             Compensation=receipt.Compensation,Satisfaction=receipt.Satisfaction,Review=receipt.Review,
             EarlyCheckout=receipt.EarlyCheckout,CheckoutAt=receipt.CheckoutAt,DepartureReason=receipt.DepartureReason };
         internal static GuestReceipt Receipt(ReceiptSnapshot receipt) => new GuestReceipt(receipt.GuestId,receipt.Name,
             receipt.RoomId,receipt.Price,receipt.Satisfaction,receipt.Compensation,receipt.Review,
-            receipt.EarlyCheckout,receipt.CheckoutAt,receipt.DepartureReason);
+            receipt.EarlyCheckout,receipt.CheckoutAt,receipt.DepartureReason,receipt.AgreedPrice);
         internal static ScheduledOfferSnapshot Capture(ScheduledBookingOffer o) => new ScheduledOfferSnapshot
         { Application = Capture(o.Application), ArrivalDay = o.ArrivalDay, ArrivalAt = o.ArrivalAt,
             SleepAt = o.SleepAt, WakeAt = o.WakeAt, CheckoutAt = o.CheckoutAt };
@@ -75,6 +77,7 @@ namespace WorstHotel
             ReportSequence = ReportSequence, PeriodOpeningCash = periodOpeningCash, PeriodStartedAt = periodStartedAt,
             PeriodMaintenanceSpend = PeriodMaintenanceSpend,
             PeriodCapitalSpend = PeriodCapitalSpend,
+            PeriodLaundrySpend = PeriodLaundrySpend, PeriodBulbSpend = PeriodBulbSpend, Supplies = CaptureSupplies(),
             OperatingCostSequence = OperatingCostSequence, PeriodOperatingSpend = PeriodOperatingSpend, ContractSequence = ContractSequence,
             NorthWingRestored = NorthWingRestored, Room102Insulated = Room102Insulated,
             Contract = !ContractEnabled ? null : new OwnershipContractSettingsSnapshot
@@ -94,6 +97,8 @@ namespace WorstHotel
             ReportSequence = data.ReportSequence; periodOpeningCash = data.PeriodOpeningCash; periodStartedAt = data.PeriodStartedAt;
             PeriodMaintenanceSpend = data.PeriodMaintenanceSpend;
             PeriodCapitalSpend = data.PeriodCapitalSpend;
+            PeriodLaundrySpend = data.PeriodLaundrySpend; PeriodBulbSpend = data.PeriodBulbSpend;
+            RestoreSupplies(data.Supplies);
             OperatingCostSequence = data.OperatingCostSequence; PeriodOperatingSpend = data.PeriodOperatingSpend;
             ContractSequence = data.ContractSequence; LastContractPayment = lastPayment; PeriodContractPayment = periodPayment;
             OwnershipLossReport = lossReport;
@@ -120,7 +125,8 @@ namespace WorstHotel
             if (data == null) return;
             var config = data.ToSettings();
             Require(data.PeriodMaintenanceSpend >= 0 && data.PeriodCapitalSpend >= 0 && data.PeriodOperatingSpend >= 0 &&
-                (long)data.PeriodMaintenanceSpend + data.PeriodCapitalSpend + data.PeriodOperatingSpend <= int.MaxValue,
+                data.PeriodLaundrySpend >= 0 && data.PeriodBulbSpend >= 0 &&
+                (long)data.PeriodMaintenanceSpend + data.PeriodCapitalSpend + data.PeriodOperatingSpend + data.PeriodLaundrySpend + data.PeriodBulbSpend <= int.MaxValue,
                 "Invalid period equipment spending total.");
             Require(config.SecondsPerDay == expected.SecondsPerDay && config.StartHour == expected.StartHour && config.ReportHour == expected.ReportHour &&
                 config.OperatingCostHour == expected.OperatingCostHour &&
@@ -238,6 +244,7 @@ namespace WorstHotel
             Text(receipt.GuestId); Text(receipt.Name); Text(receipt.Review, 4096, true);
             Require(rooms.Contains(receipt.RoomId) && receipt.Price >= 0 && receipt.Compensation >= 0 && receipt.Compensation <= receipt.Price,
                 "Invalid operating receipt."); Range(receipt.Satisfaction, 0, 100);
+            ReceiptAgreedPrice(receipt);
         }
     }
 }

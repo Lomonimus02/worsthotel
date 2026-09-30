@@ -14,7 +14,7 @@ namespace WorstHotel
             bool opened = model.NorthWingRestored;
             Set(wingBarrier, !opened); Set(wingCorridorLights, opened);
             Set(boilerBurner, model.Boiler.CapacityUpgradePurchased); Set(insulatedWindow, model.Room102Insulated);
-            Set(electricalA, model.Electrical?.UpgradedCircuitId == "A"); Set(electricalB, model.Electrical?.UpgradedCircuitId == "B");
+            Set(electricalA, model.Electrical?.IsCapacityUpgraded("A") == true); Set(electricalB, model.Electrical?.IsCapacityUpgraded("B") == true);
             string status = opened ? "NORTH WING  /  107 - 110\nGUEST ROOMS" :
                 "NORTH WING  /  CLOSED\nRESTORATION PENDING";
             if (wingSign && wingSign.text != status) wingSign.text = status;

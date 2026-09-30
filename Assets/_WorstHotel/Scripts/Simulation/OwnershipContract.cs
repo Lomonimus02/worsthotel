@@ -11,7 +11,7 @@ namespace WorstHotel
         public float PaymentHour { get; }
         public int FirstPaymentDay { get; }
 
-        public OwnershipContractSettings(int baseDue = 250, int dailyIncrease = 25, int extraRoomCharge = 60,
+        public OwnershipContractSettings(int baseDue = 350, int dailyIncrease = 50, int extraRoomCharge = 60,
             float paymentHour = 22, int firstPaymentDay = 2)
         {
             if (baseDue <= 0 || dailyIncrease <= 0 || extraRoomCharge < 0 ||

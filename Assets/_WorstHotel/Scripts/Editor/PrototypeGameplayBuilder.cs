@@ -92,7 +92,7 @@ namespace WorstHotel.Editor
             var session = Asset<SessionConfig>(root + "PrototypeSession.asset", x =>
             { x.guestArchetypes = new[] { budget, cold, business }; x.rooms = rooms; x.boiler = boiler; x.economy = economy; x.tickRate = 5; x.serviceSeconds = 300; x.totalDays = 3; x.day3BusinessReferencePrice = 525;
                 x.continuousOperations = true; x.hotelDaySeconds = 720; x.openingHour = 8; x.reportHour = 6;
-                x.ownershipContractEnabled = true; x.initialContractPayment = 250; x.contractDailyIncrease = 25; x.contractExtraRoomCharge = 60;
+                x.ownershipContractEnabled = true; x.initialContractPayment = 350; x.contractDailyIncrease = 50; x.contractExtraRoomCharge = 60;
                 x.contractPaymentHour = 22; x.firstContractPaymentDay = 2; x.operatingCostHour = 6;
                 x.automaticBookings = true; x.initiallyOpenRooms = 4; x.roomSalePrice = 180;
                 x.bookingBaseDemand = .9f; x.bookingPriceElasticity = 1.5f; x.firstDayBookingHour = 8.5f;

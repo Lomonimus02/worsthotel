@@ -261,6 +261,8 @@ namespace WorstHotel
         }
 
         HotelBook remoteBook;
+        public bool IsRemoteReadingBook(HotelBook kind) => Role == LanRole.Host && PeerConnected &&
+            coop && coop.Players[1] && coop.Players[1].IsUIBlocked && remoteBook == kind;
         void RequestRemoteLedger(int actorId)
         { if (actorId == 1) RequestRemoteBook(HotelBook.Reservations); }
         public void RequestRemoteBook(HotelBook kind)
@@ -291,7 +293,7 @@ namespace WorstHotel
 
         public bool SubmitCommand(LanCommandKind kind, string subject = null, int roomId = 0, int amount = 0, int reservationRevision = -1,
             string directIntentId = null, int directIntentRevision = -1, int maintenanceRevision = -1,
-            int policyRevision = -1, bool openForSale = false)
+            int policyRevision = -1, bool openForSale = false, int supplyRevision = -1)
         {
             if (!IsClientReplica || !HasSnapshot || !PeerConnected || MenuOpen) return false;
             var session = GameSession.Instance;
@@ -299,7 +301,7 @@ namespace WorstHotel
                 phase = session.Phase, kind = kind, subject = subject, roomId = roomId, amount = amount,
                 expectedReservationRevision = reservationRevision, expectedDirectIntentId = directIntentId,
                 expectedDirectIntentRevision = directIntentRevision, expectedMaintenanceRevision = maintenanceRevision,
-                expectedPolicyRevision = policyRevision, openForSale = openForSale };
+                expectedPolicyRevision = policyRevision, openForSale = openForSale, expectedSupplyRevision = supplyRevision };
             Send(CommandMessage, NetworkManager.ServerClientId, command, LanProtocol.MaxCommandBytes);
             return true;
         }

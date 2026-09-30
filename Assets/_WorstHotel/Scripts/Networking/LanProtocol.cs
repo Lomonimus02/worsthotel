@@ -13,7 +13,8 @@ namespace WorstHotel
         AnswerServiceCall, TalkServiceGuest, DiscussRoomConcern,
         AcceptBooking, CancelBooking, SetBookingPrice, BeginBoilerMaintenance,
         PurchaseBoilerUpgrade, PurchaseElectricalUpgrade, EndServicePhoneConversation, SelectBoilerService,
-        SetRoomSalesPolicy, ReassignBooking, OfferLuggage, PurchaseInsulation, RestoreNorthWing, AcceptSpecialBooking, DeclineSpecialBooking, UnplugGuestAmplifier
+        SetRoomSalesPolicy, ReassignBooking, OfferLuggage, PurchaseInsulation, RestoreNorthWing, AcceptSpecialBooking, DeclineSpecialBooking, UnplugGuestAmplifier,
+        OrderLaundry, OrderBulbs
     }
 
     [Serializable] public sealed class LanCommand
@@ -24,6 +25,7 @@ namespace WorstHotel
         public int expectedReservationRevision = -1;
         public int expectedMaintenanceRevision = -1;
         public int expectedPolicyRevision = -1;
+        public int expectedSupplyRevision = -1;
         public bool openForSale;
         public string expectedDirectIntentId;
         public int expectedDirectIntentRevision = -1;
@@ -54,9 +56,9 @@ namespace WorstHotel
     /// <summary>Small, versioned LAN boundary. A network connection, never a payload, selects its staff identity.</summary>
     public static class LanProtocol
     {
-        public const int Version = 24, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
+        public const int Version = 26, MaxInputBytes = 4096, MaxCommandBytes = 2048, MaxSnapshotBytes = 524288;
         public const ushort DefaultPort = 7777;
-        public const string BuildCompatibility = "worst-hotel-0.6.3-contract24-gzip";
+        public const string BuildCompatibility = "worst-hotel-0.6.5-supplies26-gzip";
 
         public static bool ValidAddress(string value) => IPAddress.TryParse(value, out var address) &&
             address.AddressFamily == AddressFamily.InterNetwork && !address.Equals(IPAddress.Any) &&
@@ -71,6 +73,9 @@ namespace WorstHotel
             (command.subject == null || command.subject.Length <= (UsesResponseIdentity(command.kind) ? 512 : 128)) &&
             command.amount >= 0 && command.amount <= 100000 &&
             command.kind != LanCommandKind.BeginBoilerMaintenance &&
+            ((command.kind == LanCommandKind.OrderLaundry || command.kind == LanCommandKind.OrderBulbs) ?
+                continuousOperations && command.expectedSupplyRevision >= 0 && command.amount == 0 && command.roomId == 0 &&
+                string.IsNullOrEmpty(command.subject) : command.expectedSupplyRevision == -1) &&
             (!automaticBookingsEnabled || command.kind != LanCommandKind.AcceptBooking && command.kind != LanCommandKind.SetBookingPrice) &&
             (command.kind == LanCommandKind.SetRoomSalesPolicy ? continuousOperations && automaticBookingsEnabled &&
                 command.expectedPolicyRevision >= 1 && string.IsNullOrEmpty(command.subject) && command.roomId >= 101 && command.roomId <= 110 :

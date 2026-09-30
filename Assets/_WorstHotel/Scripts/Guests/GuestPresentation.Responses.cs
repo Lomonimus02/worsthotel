@@ -12,17 +12,31 @@ namespace WorstHotel
             if (string.IsNullOrEmpty(agent.ResponseActionId) || (!agent.IsServiceReceptionTrip && !responseActivity))
             {
                 guest.ResponseActionId = null;
+                guest.WaitingForReception = false;
                 return false;
             }
+            if (agent.State == GuestAgentState.GoingToServiceReception && !HasReceptionSlot(guest))
+            {
+                guest.ReceptionSlot = AcquireReceptionSlot(guest.Id);
+                if (guest.ReceptionSlot < 0)
+                {
+                    guest.WaitingForReception = true;
+                    guest.Route = null; guest.RouteComplete = false;
+                    guest.PathStatus = "Waiting in room for reception space";
+                    return true;
+                }
+            }
             bool changed = guest.ResponseActionId != agent.ResponseActionId || guest.ResponseActionVersion != agent.ResponseActionVersion ||
-                guest.State != agent.State || guest.Activity != agent.Activity;
+                guest.State != agent.State || guest.Activity != agent.Activity || guest.WaitingForReception;
             if (!changed) return true;
+            guest.WaitingForReception = false;
             guest.ResponseActionId = agent.ResponseActionId; guest.ResponseActionVersion = agent.ResponseActionVersion;
             guest.ResponseArrivalReported = false; guest.ResponseRetryAfter = 0;
             guest.State = agent.State; guest.Activity = agent.Activity;
             switch (agent.State)
             {
                 case GuestAgentState.GoingToServiceReception:
+                    if (!HasReceptionSlot(guest)) return true;
                     SetRoute(guest, AuthoredGuestRoute.ToServiceReception(guest.Root.position, guest.Room,
                         receptionPlaces[guest.ReceptionSlot].position, guest.InsideRoom), RoutePurpose.ServiceReception);
                     break;

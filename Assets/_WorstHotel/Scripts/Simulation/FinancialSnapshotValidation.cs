@@ -56,9 +56,9 @@ namespace WorstHotel
         static void FinancialReport(ReportSnapshot report, IReadOnlyCollection<int> roomIds, int maximumDay, float time, bool continuous)
         {
             Require(report != null && report.Day >= 1 && report.Day <= maximumDay && report.OperatingCost >= 0 &&
-                report.MaintenanceSpend >= 0 && report.CapitalSpend >= 0 &&
-                (long)report.OperatingCost + report.MaintenanceSpend + report.CapitalSpend <= int.MaxValue &&
-                (continuous || report.MaintenanceSpend == 0 && report.CapitalSpend == 0 && report.ContractPayment == null),
+                report.MaintenanceSpend >= 0 && report.CapitalSpend >= 0 && report.LaundrySpend >= 0 && report.BulbSpend >= 0 &&
+                (long)report.OperatingCost + report.MaintenanceSpend + report.CapitalSpend + report.LaundrySpend + report.BulbSpend <= int.MaxValue &&
+                (continuous || report.MaintenanceSpend == 0 && report.CapitalSpend == 0 && report.LaundrySpend == 0 && report.BulbSpend == 0 && report.ContractPayment == null),
                 "Invalid financial report.");
             Range(report.Reputation, 0, 100); Range(report.ServiceSeconds);
             var receipts = Array(report.Receipts, continuous ? 128 : 6);
@@ -69,6 +69,7 @@ namespace WorstHotel
                 Require(roomIds.Contains(receipt.RoomId) && receipt.Price >= 0 && receipt.Compensation >= 0 &&
                     receipt.Compensation <= receipt.Price, "Invalid report receipt.");
                 Range(receipt.Satisfaction, 0, 100); DepartureReceipt(receipt, time);
+                ReceiptAgreedPrice(receipt);
             }
             Require(receipts.Sum(receipt => (long)receipt.Price) <= int.MaxValue &&
                 receipts.Sum(receipt => (long)receipt.Compensation) <= int.MaxValue, "Report totals overflow.");
@@ -76,6 +77,15 @@ namespace WorstHotel
             // DebugSetCash intentionally bypasses the transaction ledger. Also, normal spending
             // and checkout income may follow a payment before the report's closing cash is read.
         }
+
+        static void ReceiptAgreedPrice(ReceiptSnapshot receipt)
+        {
+            // Zero also accepts older snapshots whose receipt did not retain this metadata.
+            Require(receipt.AgreedPrice >= 0 && (receipt.AgreedPrice == 0 || receipt.AgreedPrice >= receipt.Price),
+                "Invalid agreed receipt price.");
+        }
+
+        static int EffectiveAgreedPrice(ReceiptSnapshot receipt) => receipt.AgreedPrice == 0 ? receipt.Price : receipt.AgreedPrice;
 
         static void FinancialPayment(ContractPaymentSnapshot payment, int roomCount)
         {
@@ -92,6 +102,7 @@ namespace WorstHotel
         internal static bool SameFinancialReceipts(ReceiptSnapshot[] a, ReceiptSnapshot[] b) =>
             a != null && b != null && a.Length == b.Length && a.Zip(b, (x, y) =>
                 x.GuestId == y.GuestId && x.Name == y.Name && x.RoomId == y.RoomId && x.Price == y.Price &&
+                EffectiveAgreedPrice(x) == EffectiveAgreedPrice(y) &&
                 x.Compensation == y.Compensation && x.Satisfaction == y.Satisfaction && x.Review == y.Review &&
                 x.EarlyCheckout == y.EarlyCheckout && x.CheckoutAt == y.CheckoutAt && x.DepartureReason == y.DepartureReason).All(equal => equal);
 
@@ -99,6 +110,7 @@ namespace WorstHotel
             a == null || b == null ? a == null && b == null :
             a.Day == b.Day && a.OpeningCash == b.OpeningCash && a.Cash == b.Cash && a.OperatingCost == b.OperatingCost &&
             a.MaintenanceSpend == b.MaintenanceSpend && a.CapitalSpend == b.CapitalSpend && a.ServiceSeconds == b.ServiceSeconds &&
+            a.LaundrySpend == b.LaundrySpend && a.BulbSpend == b.BulbSpend &&
             (!includeReputation || a.Reputation == b.Reputation) && SamePayment(a.ContractPayment, b.ContractPayment) &&
             SameFinancialReceipts(a.Receipts, b.Receipts);
 
@@ -195,12 +207,14 @@ namespace WorstHotel
                 // Closing reputation is computed after the failure summary was frozen.
                 Require(SameFinancialReport(loss, model.Reports.Last(), false) && data.PeriodReceipts.Length == 0 &&
                     data.PeriodOpeningCash == model.Cash && data.PeriodMaintenanceSpend == 0 && data.PeriodCapitalSpend == 0 &&
+                    data.PeriodLaundrySpend == 0 && data.PeriodBulbSpend == 0 &&
                     data.PeriodOperatingSpend == 0 && data.PeriodContractPayment == null,
                     "Coincident failure and report close must preserve the same posted transactions.");
             }
             else
                 Require(loss.OpeningCash == data.PeriodOpeningCash && loss.OperatingCost == data.PeriodOperatingSpend &&
                     loss.MaintenanceSpend == data.PeriodMaintenanceSpend && loss.CapitalSpend == data.PeriodCapitalSpend &&
+                    loss.LaundrySpend == data.PeriodLaundrySpend && loss.BulbSpend == data.PeriodBulbSpend &&
                     loss.Reputation == model.Reputation && SameFinancialReceipts(loss.Receipts, data.PeriodReceipts),
                     "Ownership loss report differs from the frozen open period.");
         }

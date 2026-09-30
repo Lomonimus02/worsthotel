@@ -1,3 +1,19 @@
+## Prototype 0.6.5 — operating economy and supplies
+
+Paid laundry ($18/set) and bulb packs (3/$45) return at the next future 06:00 delivery. Physical hamper, linen bundles and shelves remain; no free continuous-day restocks or automatic orders. Blankets return through completed turnover. A physical supply ledger and delivery note live in the existing laundry room; ACCOUNTS separates laundry and bulbs. Ordinary demand now reads a modest 0.80/1.00/1.10 reputation curve at 0/60/100, with original pricing, reputation generation and special offers preserved. LAN 26 / model schema 22 carry host-authoritative purchases and pending stock.
+
+Ten simultaneous physical stays were observed; the labelled equipped fixture physically staged all ten guests at their beds and recorded ten receipts/exits, without more navigation changes. Four-day production-model observations with/without supply orders are retained separately. Contract, overhead, expansion and existing equipment prices are frozen; no retuning from this sample. [Implementation, raw results and verification limits](OPERATING_SUPPLIES_065.md).
+
+## Prototype 0.6.4 — economy pressure & expansion viability
+
+Follow-up requested by the user: compact top-right NEXT QUOTA, CASH and payment deadline during play. Cream text without a panel, scoped to each local camera; hidden in books, menus and on ownership loss. Cash remains the actual spendable balance, not cash after a reserved payment. Two existing contract PlayMode scenarios now check this display and its updates.
+
+Day 2 at 22:00 now requires $350, increasing by $50 each successful day; Day 1 remains payment-free. Starting cash, operations, upgrade costs and the provisional +$240 restored-wing assessment are unchanged. Purchases can still jeopardize the next payment; actual-cash failure remains terminal.
+
+Physical ACCOUNTS now exposes current/published guest receipts with agreed price, charged amount, existing refund, net collection and existing explanations, including zero-charge unserved stays. Long entries paginate; no permanent HUD or new penalties. Reception slots are temporary FIFO leases rather than a lifetime stay cap. Separate travel lanes, body-checked bounded detours and small furniture-clearance fixes preserve real arrival callbacks. Electrical A and B can each be upgraded for $800 to 6.5 capacity; restoration upgrades neither. LAN 25 / model schema 21 carry both purchases and receipt metadata.
+
+Focused checks: 73 EditMode cases, 3 PlayMode scenarios, Windows build and hidden built-player presentation pass succeeded. Production-model samples: A survived seven days ($970 after the final payment), B lost ownership on Day 7 ($280 available/$600 due), C survived ($625 after payment, $875 at midnight). Separate labelled expanded-scene diagnostic observed eight simultaneous physical stays, all four wing rooms, complete exits and $900 collected after refunds ($540 from the wing). It used explicit restoration funding and is not a normal-progression profitability result. No retuning from these samples. [Raw data, implementation and limitations](ECONOMY_PRESSURE_064.md).
+
 ## Prototype 0.6.3 — independent scheduled contract payment
 
 The ownership payment now checks actual cash at 22:00, initially on calendar day 2 after the first normal checkout. Operating costs keep their independent 06:00 schedule. Morning reports record posted transactions without moving money. Existing amounts, daily growth and next-payment expansion assessment are retained. Physical ACCOUNTS shows separate deadlines and an immediate evening receipt; failure freezes a separate notice without rewriting the previous morning report. No new permanent HUD.

@@ -1,0 +1,80 @@
+0.000 START ISOLATED PHYSICAL DIAGNOSTIC, not A/B/C, natural-profit evidence or human play. Actual solo GameSession and GuestPresentation; one labelled debug grant pays only the legal wing restoration. Current ordinary offers manually committed at180 with near-immediate fixture arrivals through validated CommitBooking; original offer sleep/wake/checkout retained; no current stay/satisfaction/collider/position/receipt overrides. Guest callbacks remain physical (physicalGuests:true). Clock8x, owned virtual pad/focus adapter. Single timed MODEL staff actions incl. keys, blankets, services and natural-failure repair, NOT physical staff play. Stop at first cohort paid-and-exited, D3, ownership loss or 10 wall minutes; capacity/survival never asserted.
+0.000 DIAGNOSTIC_SETUP_GRANT baseline=1600; topup=4500; fundedCash=6100; only to fund wing, not earned profit; no further grants.
+0.000 EXPANSION legalPrice=4500; cashBeforePurchase=6100; cashAfterPurchase=1600; every open policy180.
+0.000 DIAGNOSTIC_BOOKING_FIXTURE stay-1-1; room=107; price=180; automatic=false; originalArrival=180; fixtureArrival=1; originalSleep=447,3675; originalWake=725,7786; originalCheckout=780
+0.000 DIAGNOSTIC_BOOKING_FIXTURE stay-1-2; room=108; price=180; automatic=false; originalArrival=190,9091; fixtureArrival=3; originalSleep=455,7486; originalWake=712,0056; originalCheckout=780
+0.000 DIAGNOSTIC_BOOKING_FIXTURE stay-1-3; room=109; price=180; automatic=false; originalArrival=201,8182; fixtureArrival=5; originalSleep=443,7495; originalWake=676,2358; originalCheckout=780
+0.000 DIAGNOSTIC_BOOKING_FIXTURE stay-1-4; room=110; price=180; automatic=false; originalArrival=212,7273; fixtureArrival=7; originalSleep=446,6341; originalWake=732,2592; originalCheckout=780
+0.000 DIAGNOSTIC_BOOKING_FIXTURE stay-1-5; room=101; price=180; automatic=false; originalArrival=223,6364; fixtureArrival=9; originalSleep=453,2626; originalWake=708,4825; originalCheckout=780
+0.000 DIAGNOSTIC_BOOKING_FIXTURE stay-1-6; room=103; price=180; automatic=false; originalArrival=234,5455; fixtureArrival=11; originalSleep=444,4588; originalWake=696,1441; originalCheckout=780
+0.000 DIAGNOSTIC_BOOKING_FIXTURE stay-1-7; room=104; price=180; automatic=false; originalArrival=245,4545; fixtureArrival=13; originalSleep=444,26; originalWake=687,7007; originalCheckout=780
+0.000 DIAGNOSTIC_BOOKING_FIXTURE stay-1-8; room=105; price=180; automatic=false; originalArrival=256,3636; fixtureArrival=15; originalSleep=446,6328; originalWake=705,6909; originalCheckout=780
+0.000 MONEY cash=1600; gross=0; refunds=0; operating=0; maintenance=0; capital=4500; contracts=0
+0.000 BOOKING stay-1-1; automatic=False; room=107; price=180; arrivalDay=1
+0.000 BOOKING stay-1-2; automatic=False; room=108; price=180; arrivalDay=1
+0.000 BOOKING stay-1-3; automatic=False; room=109; price=180; arrivalDay=1
+0.000 BOOKING stay-1-4; automatic=False; room=110; price=180; arrivalDay=1
+0.000 BOOKING stay-1-5; automatic=False; room=101; price=180; arrivalDay=1
+0.000 BOOKING stay-1-6; automatic=False; room=103; price=180; arrivalDay=1
+0.000 BOOKING stay-1-7; automatic=False; room=104; price=180; arrivalDay=1
+0.000 BOOKING stay-1-8; automatic=False; room=105; price=180; arrivalDay=1
+0.000 DAY D1; cash=1600; expanded=True; checkedIn=0; reached=0; roots=0; visibleStayers=0
+1.000 LUGGAGE guest=stay-1-1; luggage:stay-1-1; room=107; location=OnShelf; physicalBody=True
+3.000 LUGGAGE guest=stay-1-2; luggage:stay-1-2; room=108; location=OnShelf; physicalBody=True
+5.200 LUGGAGE guest=stay-1-3; luggage:stay-1-3; room=109; location=OnShelf; physicalBody=True
+7.200 LUGGAGE guest=stay-1-4; luggage:stay-1-4; room=110; location=OnShelf; physicalBody=True
+11.200 LUGGAGE guest=stay-1-6; luggage:stay-1-6; room=103; location=OnShelf; physicalBody=True
+11.200 LUGGAGE guest=stay-1-6; luggage:stay-1-6:2; room=103; location=OnShelf; physicalBody=True
+13.200 LUGGAGE guest=stay-1-7; luggage:stay-1-7; room=104; location=OnShelf; physicalBody=True
+15.200 LUGGAGE guest=stay-1-8; luggage:stay-1-8; room=105; location=OnShelf; physicalBody=True
+55.200 PHYSICAL_CAPACITY_PEAK count=1; guests=stay-1-5:room101
+58.000 PHYSICAL_CAPACITY_PEAK count=2; guests=stay-1-1:room107|stay-1-5:room101
+58.000 LUGGAGE guest=stay-1-1; luggage:stay-1-1; room=107; location=Delivered; physicalBody=True
+63.600 PHYSICAL_CAPACITY_PEAK count=3; guests=stay-1-1:room107|stay-1-2:room108|stay-1-5:room101
+63.600 LUGGAGE guest=stay-1-2; luggage:stay-1-2; room=108; location=Delivered; physicalBody=True
+66.400 PHYSICAL_CAPACITY_PEAK count=4; guests=stay-1-1:room107|stay-1-2:room108|stay-1-5:room101|stay-1-6:room103
+66.400 LUGGAGE guest=stay-1-6; luggage:stay-1-6; room=103; location=Delivered; physicalBody=True
+66.400 LUGGAGE guest=stay-1-6; luggage:stay-1-6:2; room=103; location=Delivered; physicalBody=True
+67.000 PHYSICAL_CAPACITY_PEAK count=5; guests=stay-1-1:room107|stay-1-2:room108|stay-1-5:room101|stay-1-6:room103|stay-1-7:room104
+67.000 LUGGAGE guest=stay-1-7; luggage:stay-1-7; room=104; location=Delivered; physicalBody=True
+75.200 PHYSICAL_CAPACITY_PEAK count=6; guests=stay-1-1:room107|stay-1-2:room108|stay-1-3:room109|stay-1-5:room101|stay-1-6:room103|stay-1-7:room104
+75.200 LUGGAGE guest=stay-1-3; luggage:stay-1-3; room=109; location=Delivered; physicalBody=True
+79.000 PHYSICAL_CAPACITY_PEAK count=7; guests=stay-1-1:room107|stay-1-2:room108|stay-1-3:room109|stay-1-5:room101|stay-1-6:room103|stay-1-7:room104|stay-1-8:room105
+79.000 LUGGAGE guest=stay-1-8; luggage:stay-1-8; room=105; location=Delivered; physicalBody=True
+80.400 PHYSICAL_CAPACITY_PEAK count=8; guests=stay-1-1:room107|stay-1-2:room108|stay-1-3:room109|stay-1-4:room110|stay-1-5:room101|stay-1-6:room103|stay-1-7:room104|stay-1-8:room105
+80.400 LUGGAGE guest=stay-1-4; luggage:stay-1-4; room=110; location=Delivered; physicalBody=True
+100.200 MONEY cash=1250; gross=0; refunds=0; operating=0; maintenance=350; capital=4500; contracts=0
+203.798 RECEIPT stay-1-7; gross=180; refund=90; net=90; early=True
+203.798 MONEY cash=1340; gross=180; refunds=90; operating=0; maintenance=350; capital=4500; contracts=0
+212.598 RECEIPT stay-1-5; gross=180; refund=90; net=90; early=True
+212.598 MONEY cash=1430; gross=360; refunds=180; operating=0; maintenance=350; capital=4500; contracts=0
+215.798 RECEIPT stay-1-6; gross=180; refund=90; net=90; early=True
+215.798 MONEY cash=1520; gross=540; refunds=270; operating=0; maintenance=350; capital=4500; contracts=0
+231.398 RECEIPT stay-1-3; gross=180; refund=90; net=90; early=True
+231.398 MONEY cash=1610; gross=720; refunds=360; operating=0; maintenance=350; capital=4500; contracts=0
+232.198 LUGGAGE guest=stay-1-7; luggage:stay-1-7; room=104; location=Delivered; physicalBody=False
+240.198 BOOKING stay-2-1; automatic=True; room=101; price=180; arrivalDay=2
+249.397 LUGGAGE guest=stay-1-6; luggage:stay-1-6; room=103; location=Delivered; physicalBody=False
+249.397 LUGGAGE guest=stay-1-6; luggage:stay-1-6:2; room=103; location=Delivered; physicalBody=False
+252.197 BOOKING stay-2-2; automatic=True; room=103; price=180; arrivalDay=2
+264.198 BOOKING stay-2-3; automatic=True; room=104; price=180; arrivalDay=2
+270.398 RECEIPT stay-1-8; gross=180; refund=90; net=90; early=True
+270.398 MONEY cash=1700; gross=900; refunds=450; operating=0; maintenance=350; capital=4500; contracts=0
+276.199 BOOKING stay-2-4; automatic=True; room=105; price=180; arrivalDay=2
+288.199 BOOKING stay-2-5; automatic=True; room=107; price=180; arrivalDay=2
+293.400 LUGGAGE guest=stay-1-3; luggage:stay-1-3; room=109; location=Delivered; physicalBody=False
+300.200 BOOKING stay-2-6; automatic=True; room=108; price=180; arrivalDay=2
+311.001 LUGGAGE guest=stay-1-8; luggage:stay-1-8; room=105; location=Delivered; physicalBody=False
+312.001 BOOKING stay-2-7; automatic=True; room=109; price=180; arrivalDay=2
+336.002 BOOKING stay-2-9; automatic=True; room=110; price=180; arrivalDay=2
+414.407 RECEIPT stay-1-1; gross=180; refund=90; net=90; early=True
+414.407 MONEY cash=1790; gross=1080; refunds=540; operating=0; maintenance=350; capital=4500; contracts=0
+464.010 LUGGAGE guest=stay-1-1; luggage:stay-1-1; room=107; location=Delivered; physicalBody=False
+480.011 DAY D2; cash=1790; expanded=True; checkedIn=2; reached=2; roots=2; visibleStayers=2
+660.022 MONEY cash=1440; gross=1080; refunds=540; operating=350; maintenance=350; capital=4500; contracts=0
+780.029 RECEIPT stay-1-2; gross=180; refund=0; net=180; early=False
+780.029 RECEIPT stay-1-4; gross=180; refund=0; net=180; early=False
+780.029 MONEY cash=1800; gross=1440; refunds=540; operating=350; maintenance=350; capital=4500; contracts=0
+829.432 LUGGAGE guest=stay-1-2; luggage:stay-1-2; room=108; location=Delivered; physicalBody=False
+841.833 LUGGAGE guest=stay-1-4; luggage:stay-1-4; room=110; location=Delivered; physicalBody=False
+841.833 STOP FIRST_COHORT_COMPLETED; All fixture bookings reached their natural paid/zero-receipt settlement and physical exit. Read per-guest outcomes and maxima; completion does not assert that all guests checked in or reached rooms.

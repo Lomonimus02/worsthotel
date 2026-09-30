@@ -9,13 +9,31 @@ namespace WorstHotel.Tests
         static LanCommand Valid() => new LanCommand
         { epoch = 41, sequence = 3, day = 1, phase = DayPhase.Planning, kind = LanCommandKind.Assign, roomId = 101, subject = "day1-guest1", amount = 180 };
 
+        [TestCase(LanCommandKind.OrderLaundry)]
+        [TestCase(LanCommandKind.OrderBulbs)]
+        public void SupplyOrdersNeedExactRevisionAndCannotSupplyTheirOwnPrice(LanCommandKind kind)
+        {
+            var command = new LanCommand { epoch = 41, sequence = 3, day = 1, phase = DayPhase.Service,
+                kind = kind, expectedSupplyRevision = 5 };
+            var copy = JsonUtility.FromJson<LanCommand>(JsonUtility.ToJson(command));
+            Assert.That(LanProtocol.ValidCommand(copy, 41, 2, 2, DayPhase.Service, true), Is.True);
+            Assert.That(copy.expectedSupplyRevision, Is.EqualTo(5));
+            Assert.That(LanProtocol.ValidCommand(copy, 41, 3, 2, DayPhase.Service, true), Is.False);
+            copy.amount = 1;
+            Assert.That(LanProtocol.ValidCommand(copy, 41, 2, 2, DayPhase.Service, true), Is.False);
+            copy.amount = 0; copy.expectedSupplyRevision = -1;
+            Assert.That(LanProtocol.ValidCommand(copy, 41, 2, 2, DayPhase.Service, true), Is.False);
+            copy.expectedSupplyRevision = 5; copy.kind = LanCommandKind.RequestQuiet;
+            Assert.That(LanProtocol.ValidCommand(copy, 41, 2, 2, DayPhase.Service, true), Is.False);
+        }
+
         [Test]
         public void CommandEnvelopeRejectsStaleCrossDayCrossPhaseUnknownAndOversizedIntents()
         {
             Assert.That(LanProtocol.ValidCommand(Valid(), 41, 2, 1, DayPhase.Planning), Is.True);
             var corruptions = new Action<LanCommand>[]
             {
-                c => c.version++, c => c.epoch = 40, c => c.sequence = 2, c => c.sequence = -1,
+                c => c.version++, c => c.version--, c => c.epoch = 40, c => c.sequence = 2, c => c.sequence = -1,
                 c => c.day = 2, c => c.phase = DayPhase.Service, c => c.kind = (LanCommandKind)999,
                 c => c.roomId = 999, c => c.subject = new string('x', 129), c => c.amount = -1, c => c.amount = 100001
             };

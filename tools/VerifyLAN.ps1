@@ -92,7 +92,7 @@ try {
                 'AutomaticBooking=True', 'Reassignment=True', 'AgreedPricePreserved=True', 'StaleRevisionRejected=True', 'StalePolicyRejected=True',
                 'Cancellation=True', 'MidnightPersistence=True', 'ReportOnce=True', 'PostBoundaryReassignment=True',
                 'RemotePaidUpgrades=True', 'UpgradeDoesNotRepair=True',
-                'DuplicateCapitalRejected=True', 'OtherBranchRejected=True', 'RemotePaidMaintenance=True',
+                'DuplicateCapitalRejected=True', 'BothBranchesPurchased=True', 'RemotePaidMaintenance=True',
                 'MaintenanceDowntime=True', 'DuplicateMaintenanceRejected=True', 'MaintenanceRestored=True',
                 'ThreeAccountingBoundaries=True', 'ContinuousCapitalVerified=True')) {
                 if ($report -notmatch [regex]::Escape($evidence)) { throw "$side lacks continuous evidence $evidence. Inspect $runPath" }

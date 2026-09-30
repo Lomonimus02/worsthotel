@@ -145,10 +145,12 @@ namespace WorstHotel
         internal static ReportSnapshot Capture(DayReport r) => r == null ? null : new ReportSnapshot
         {
             Day=r.DayNumber,OpeningCash=r.OpeningCash,OperatingCost=r.OperatingCost,Cash=r.Cash,Reputation=r.Reputation,ServiceSeconds=r.ServiceSeconds,MaintenanceSpend=r.MaintenanceSpend,CapitalSpend=r.CapitalSpend,
+            LaundrySpend=r.LaundrySpend,BulbSpend=r.BulbSpend,
             Receipts=r.Receipts.Select(Capture).ToArray(),ContractPayment=Capture(r.ContractPayment)
         };
         internal static DayReport Report(ReportSnapshot r) => r == null ? null : new DayReport(r.Day,r.Receipts.Select(Receipt),
-            r.OpeningCash,r.OperatingCost,r.Cash,r.Reputation,r.ServiceSeconds,r.MaintenanceSpend,r.CapitalSpend,Payment(r.ContractPayment));
+            r.OpeningCash,r.OperatingCost,r.Cash,r.Reputation,r.ServiceSeconds,r.MaintenanceSpend,r.CapitalSpend,Payment(r.ContractPayment),
+            laundrySpend:r.LaundrySpend,bulbSpend:r.BulbSpend);
         internal static ContractPaymentSnapshot Capture(ContractPayment payment) => payment == null ? null : new ContractPaymentSnapshot
         { Due=payment.Due,PaidAmount=payment.PaidAmount,FundsBeforePayment=payment.FundsBeforePayment,AssessedRooms=payment.AssessedRooms,
             Period=payment.Period,DueAt=payment.DueAt };
@@ -164,7 +166,8 @@ namespace WorstHotel
 
         internal static ReportSnapshot OptionalFinancialReport(ReportSnapshot report) =>
             report != null && report.Day == 0 && report.OpeningCash == 0 && report.OperatingCost == 0 && report.Cash == 0 &&
-            report.MaintenanceSpend == 0 && report.CapitalSpend == 0 && report.Reputation == 0 && report.ServiceSeconds == 0 &&
+            report.MaintenanceSpend == 0 && report.CapitalSpend == 0 && report.LaundrySpend == 0 && report.BulbSpend == 0 &&
+            report.Reputation == 0 && report.ServiceSeconds == 0 &&
             (report.Receipts == null || report.Receipts.Length == 0) && OptionalPayment(report.ContractPayment) == null ? null : report;
 
         internal static OwnershipContractSettingsSnapshot OptionalContract(OwnershipContractSettingsSnapshot contract) =>

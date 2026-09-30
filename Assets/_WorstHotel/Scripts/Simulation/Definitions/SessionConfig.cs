@@ -49,13 +49,16 @@ namespace WorstHotel
         [Range(0, 23.99f)] public float advanceBookingHour = 16;
         [Min(.01f)] public float bookingDecisionSpacingHours = .4f;
         public int bookingSeed = 73129;
+        [Range(1, 99)] public float bookingReputationBaseline = 60;
+        [Range(.01f, 1)] public float bookingMinimumReputationDemand = .8f;
+        [Min(1)] public float bookingMaximumReputationDemand = 1.1f;
         [Header("Special enquiries")]
         public SpecialBookingSettings specialBookings = new SpecialBookingSettings(true);
 
         [Header("Ownership contract (continuous operations)")]
         public bool ownershipContractEnabled;
-        [Min(1)] public int initialContractPayment = 250;
-        [Min(1)] public int contractDailyIncrease = 25;
+        [Min(1)] public int initialContractPayment = 350;
+        [Min(1)] public int contractDailyIncrease = 50;
         [Min(0)] public int contractExtraRoomCharge = 60;
         [Range(0, 23.99f)] public float contractPaymentHour = 22;
         [Min(1)] public int firstContractPaymentDay = 2;
@@ -63,7 +66,8 @@ namespace WorstHotel
         public OperationsSettings OperationsData() => continuousOperations ?
             new OperationsSettings(hotelDaySeconds, openingHour, reportHour, sales: new SalesSettings(automaticBookings,
                 initiallyOpenRooms, roomSalePrice, bookingBaseDemand, bookingPriceElasticity, firstDayBookingHour,
-                advanceBookingHour, bookingDecisionSpacingHours, bookingSeed), specialBookings: specialBookings,
+                advanceBookingHour, bookingDecisionSpacingHours, bookingSeed, bookingReputationBaseline,
+                bookingMinimumReputationDemand, bookingMaximumReputationDemand), specialBookings: specialBookings,
                 contract: ownershipContractEnabled ? new OwnershipContractSettings(initialContractPayment, contractDailyIncrease,
                     contractExtraRoomCharge, contractPaymentHour, firstContractPaymentDay) : null, operatingCostHour: operatingCostHour) : null;
 

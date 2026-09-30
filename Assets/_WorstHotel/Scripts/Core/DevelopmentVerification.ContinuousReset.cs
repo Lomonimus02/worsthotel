@@ -53,7 +53,7 @@ namespace WorstHotel
                 !item.IsCarried && item.State != null && ReferenceEquals(item.State, fresh.Heaters.Find(item.heaterId))) &&
                 fresh.Heaters.Items.All(item => !item.SwitchedOn && item.EffectiveHeatOutput == 0 && item.DemandedElectricalLoad == 0),
                 "both authored heaters have new registry state and are switched off, uncarried and drawing no power");
-            Require(fresh.Electrical != null && string.IsNullOrEmpty(fresh.Electrical.UpgradedCircuitId) &&
+            Require(fresh.Electrical != null && (!fresh.Electrical.IsCapacityUpgraded("A") && !fresh.Electrical.IsCapacityUpgraded("B")) &&
                 fresh.Electrical.Circuits.All(circuit => !circuit.Tripped && circuit.TripCount == 0 && circuit.HasPower),
                 "fresh circuits have power with no old trips or purchased branch upgrade");
             Require(!fresh.Boiler.Failed && !fresh.Boiler.EmergencyPatchActive && !fresh.Boiler.MaintenanceInProgress &&

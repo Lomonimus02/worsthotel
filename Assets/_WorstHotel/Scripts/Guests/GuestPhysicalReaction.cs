@@ -100,16 +100,19 @@ namespace WorstHotel
             return false;
         }
 
-        static bool Clear(Transform guest, Vector3 move)
+        static bool Clear(Transform guest, Vector3 move) => SegmentClear(guest, guest.position, guest.position + move);
+
+        public static bool SegmentClear(Transform guest, Vector3 from, Vector3 to)
         {
+            var move = to - from;
             if (move.sqrMagnitude < .000001f) return true;
-            foreach (var hit in Physics.CapsuleCastAll(guest.position + Vector3.up * .42f,
-                guest.position + Vector3.up * 1.65f, .32f, move.normalized, move.magnitude + .025f,
+            foreach (var hit in Physics.CapsuleCastAll(from + Vector3.up * .42f,
+                from + Vector3.up * 1.65f, .32f, move.normalized, move.magnitude + .025f,
                 Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
             {
                 if (hit.transform.IsChildOf(guest)) continue;
                 // Escape an existing contact, but never step farther into it.
-                if (hit.distance <= .001f && Vector3.Dot(move, guest.position + Vector3.up - hit.collider.bounds.center) > 0) continue;
+                if (hit.distance <= .001f && Vector3.Dot(move, from + Vector3.up - hit.collider.bounds.center) > 0) continue;
                 var door = hit.collider.GetComponentInParent<DoorInteractable>();
                 if (door && door.IsPassageOpen) continue;
                 if (hit.rigidbody && !hit.rigidbody.isKinematic && hit.rigidbody.mass < 20) continue;

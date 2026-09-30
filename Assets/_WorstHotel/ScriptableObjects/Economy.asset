@@ -44,3 +44,7 @@ MonoBehaviour:
   electricalUpgradeCost: 800
   insulationUpgradeCost: 450
   wingRestorationCost: 4500
+  laundrySetCost: 18
+  bulbPackSize: 3
+  bulbPackCost: 45
+  supplyDeliveryHour: 6

@@ -100,8 +100,8 @@ namespace WorstHotel
                 "Invalid boiler downtime state.");
             Require(continuous || !b.CapacityUpgradePurchased, "Legacy boiler cannot contain a capacity purchase.");
             var cs=Array(s.Circuits,2);Unique(cs.Select(c=>c.Id));Require(cs.Select(c=>c.Id).OrderBy(x=>x).SequenceEqual(circuitIds.OrderBy(x=>x)),"Circuit set differs.");
-            OptionalId(s.UpgradedCircuitId,32);
-            Require(string.IsNullOrEmpty(s.UpgradedCircuitId) || continuous && cs.Any(c=>c.Id==s.UpgradedCircuitId), "Invalid purchased branch.");
+            var purchased=Array(s.UpgradedCircuitIds,2);Unique(purchased);
+            foreach(var id in purchased){Text(id,32);Require(continuous && cs.Any(c=>c.Id==id), "Invalid purchased branch.");}
             foreach(var c in cs){Text(c.Id,32);Nonnegative(c.ActualRequestedLoad,c.LoadOverride,c.OverloadSeconds);Require(c.TripCount>=0,"Invalid trip count.");}
             var consumers=Array(s.Consumers,40);Unique(consumers.Select(c=>c.Id));foreach(var c in consumers){Text(c.Id);OptionalId(c.CircuitId,32);Require(Room(c.RoomId,true) && (string.IsNullOrEmpty(c.CircuitId)||cs.Any(x=>x.Id==c.CircuitId)),"Invalid consumer placement.");Nonnegative(c.RequestedLoad,c.DeliveredLoad);Require(c.DeliveredLoad<=c.RequestedLoad,"Invalid delivered power.");}
             var heaters=Array(s.Heaters,6);Unique(heaters.Select(h=>h.Id));foreach(var h in heaters){Text(h.Id);Require(Room(h.RoomId,true),"Invalid heater placement.");Range(h.HeatOutput,float.Epsilon);Range(h.ElectricalLoad,float.Epsilon);}

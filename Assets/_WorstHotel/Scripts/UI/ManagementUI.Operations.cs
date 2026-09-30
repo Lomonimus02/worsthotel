@@ -253,14 +253,14 @@ namespace WorstHotel
             {
                 Label(new Rect(42, 200, 705, 68), selectedReview.RoomId + " · " + selectedReview.Name + "\nSatisfaction " + selectedReview.Satisfaction.ToString("F0") + "/100 · paid $" + selectedReview.Net, Heading);
                 string earlyCheckout = GuestLabels.EarlyCheckoutReceiptSummary(selectedReview, Session.Simulation);
-                if (earlyCheckout != null)
-                    Label(new Rect(42, 278, 705, 101), earlyCheckout + "\nAgreed $" + selectedReview.Price + " − credits/refunds $" +
-                        selectedReview.Compensation + " = paid $" + selectedReview.Net, Small, Wine);
-                Label(new Rect(42, earlyCheckout != null ? 392 : 306, 705, earlyCheckout != null ? 284 : 370), "“" + selectedReview.Review + "”", Body);
+                Label(new Rect(42, 278, 705, 118), GuestReceiptStatus(selectedReview) + "\n" + GuestReceiptAmounts(selectedReview), Small, Wine);
+                Label(new Rect(42, 407, 705, 269), (earlyCheckout == null ? "" : earlyCheckout + "\n\n") +
+                    "“" + selectedReview.Review + "”", Body);
                 return;
             }
-            Label(new Rect(42, 195, 705, 86), "PERIOD " + report.DayNumber + " · Revenue $" + report.Gross + " − credits/refunds $" + report.Compensation +
+            Label(new Rect(42, 195, 705, 116), "PERIOD " + report.DayNumber + " · Revenue $" + report.Gross + " − credits/refunds $" + report.Compensation +
                 "\nOperations $" + report.OperatingCost + " · maintenance $" + report.MaintenanceSpend + " · capital $" + report.CapitalSpend +
+                "\nLaundry service $" + report.LaundrySpend + " · bulb orders $" + report.BulbSpend +
                 "\nNet $" + report.Net + " · opening cash $" + report.OpeningCash + " → closing $" + report.Cash +
                 "\nThese costs are already posted. Existing stays and physical work continue.", Small, Muted);
             if (report.Receipts.Count == 0) Label(new Rect(42, 317, 705, 80), "No stays settled during this period.\nGuests still staying will pay when their own stay ends.", Body, Muted);

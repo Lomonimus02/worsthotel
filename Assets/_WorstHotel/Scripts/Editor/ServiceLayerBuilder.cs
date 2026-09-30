@@ -67,9 +67,9 @@ namespace WorstHotel.Editor
         static void BuildServiceLuggage(Transform root, Transform items)
         {
             // BuildLobby already creates the functional cart. Keep it when adding luggage storage.
-            // Keep the complete solid use volume clear of the z=.35 reception arrival lane,
+            // Leave two distinct reception lanes clear (incoming -.65, outgoing .35),
             // including the guest capsule radius at the fifth and sixth waiting positions.
-            var area = Group("Guest luggage storage area", root, new Vector3(-8.1f, 0, -1.10f));
+            var area = Group("Guest luggage storage area", root, new Vector3(-8.1f, 0, -2.0f));
             var zone = area.AddComponent<LuggageStorageZone>(); zone.displayName = "Guest luggage storage";
             Box("Luggage area platform", area.transform, new Vector3(0, .12f, 0), new Vector3(2.05f, .24f, 1.87f), "Mahogany", true);
             Box("Luggage storage signpost", area.transform, new Vector3(-.97f, 1.05f, .92f), new Vector3(.09f, 1.90f, .09f), "Aged brass", true);

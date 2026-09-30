@@ -283,7 +283,8 @@ namespace WorstHotel.Tests
             Assert.Throws<ArgumentException>(() => new HousekeepingSettings(float.NaN));
             Assert.Throws<ArgumentException>(() => new HousekeepingSettings(float.PositiveInfinity));
             Assert.Throws<ArgumentException>(() => new HousekeepingSettings(cleanLinenPerDay: 0));
-            Assert.Throws<ArgumentException>(() => new HousekeepingSettings(cleanLinenPerDay: 7));
+            Assert.Throws<ArgumentException>(() => new HousekeepingSettings(cleanLinenPerDay: 11));
+            Assert.That(new HousekeepingSettings(cleanLinenPerDay: 10).CleanLinenPerDay, Is.EqualTo(10));
             var f = Create(101); var sim = f.Simulation; var task = sim.Housekeeping.Find(101);
             Assert.That(sim.PickUpLinen(-1, task.DirtyLinenId).Success, Is.False);
             Assert.That(sim.PickUpLinen(0, "missing").Success, Is.False);

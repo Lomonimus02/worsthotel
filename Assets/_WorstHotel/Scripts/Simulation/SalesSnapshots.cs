@@ -8,8 +8,10 @@ namespace WorstHotel
         public bool Enabled;
         public int InitiallyOpenRooms, InitialPrice, Seed;
         public float BaseDemand, PriceElasticity, FirstDayDecisionStartHour, AdvanceDecisionStartHour, DecisionSpacingHours;
+        public float ReputationBaseline, MinimumReputationDemand, MaximumReputationDemand;
         public SalesSettings ToSettings() => new SalesSettings(Enabled, InitiallyOpenRooms, InitialPrice, BaseDemand,
-            PriceElasticity, FirstDayDecisionStartHour, AdvanceDecisionStartHour, DecisionSpacingHours, Seed);
+            PriceElasticity, FirstDayDecisionStartHour, AdvanceDecisionStartHour, DecisionSpacingHours, Seed,
+            ReputationBaseline, MinimumReputationDemand, MaximumReputationDemand);
     }
     [Serializable] public sealed class RoomSalesPolicySnapshot
     {
@@ -37,7 +39,9 @@ namespace WorstHotel
                 Settings = new SalesSettingsSnapshot { Enabled = settings.Enabled, InitiallyOpenRooms = settings.InitiallyOpenRooms,
                     InitialPrice = settings.InitialPrice, BaseDemand = settings.BaseDemand, PriceElasticity = settings.PriceElasticity,
                     FirstDayDecisionStartHour = settings.FirstDayDecisionStartHour, AdvanceDecisionStartHour = settings.AdvanceDecisionStartHour,
-                    DecisionSpacingHours = settings.DecisionSpacingHours, Seed = settings.Seed },
+                    DecisionSpacingHours = settings.DecisionSpacingHours, Seed = settings.Seed,
+                    ReputationBaseline = settings.ReputationBaseline, MinimumReputationDemand = settings.MinimumReputationDemand,
+                    MaximumReputationDemand = settings.MaximumReputationDemand },
                 Rooms = roomSalesPolicies.Select(row => new RoomSalesPolicySnapshot { RoomId = row.RoomId,
                     OpenForSale = row.OpenForSale, Price = row.Price, Revision = row.Revision }).ToArray(),
                 Days = salesDays.Select(row => new SalesDayCursorSnapshot { ArrivalDay = row.ArrivalDay, NextOfferIndex = row.NextOfferIndex }).ToArray()
@@ -65,7 +69,9 @@ namespace WorstHotel
                 config.InitialPrice == expected.InitialPrice && config.BaseDemand == expected.BaseDemand &&
                 config.PriceElasticity == expected.PriceElasticity && config.FirstDayDecisionStartHour == expected.FirstDayDecisionStartHour &&
                 config.AdvanceDecisionStartHour == expected.AdvanceDecisionStartHour && config.DecisionSpacingHours == expected.DecisionSpacingHours &&
-                config.Seed == expected.Seed, "Automatic-sales configuration differs from this hotel.");
+                config.Seed == expected.Seed && config.ReputationBaseline == expected.ReputationBaseline &&
+                config.MinimumReputationDemand == expected.MinimumReputationDemand && config.MaximumReputationDemand == expected.MaximumReputationDemand,
+                "Automatic-sales configuration differs from this hotel.");
             var policies = Array(value.Rooms, 10); Unique(policies.Select(row => row.RoomId));
             var cursors = Array(value.Days, 2); Unique(cursors.Select(row => row.ArrivalDay));
             if (!config.Enabled)

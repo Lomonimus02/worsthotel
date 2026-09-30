@@ -11,6 +11,9 @@ namespace WorstHotel
         public IReadOnlyList<RoomSalesPolicy> RoomSalesPolicies => roomSalesPolicies.AsReadOnly();
         public IReadOnlyList<SalesDayCursor> SalesDecisionCursors => salesDays.AsReadOnly();
         public bool AutomaticBookingsEnabled => Operations?.Sales.Enabled == true;
+        public float ReputationDemandMultiplier => Operations?.Sales.ReputationDemandMultiplier(Economy.Reputation) ?? 1;
+        public string DemandReputationLabel => SalesSettings.ReputationLabel(Economy.Reputation);
+        public string DemandLabel => Operations?.Sales.DemandLabel(Economy.Reputation) ?? "Normal";
         public float NextSalesDecisionAt => TryGetNextSalesDecision(out float at, out _, out _) ? at : float.PositiveInfinity;
 
         void InitializeSales()
@@ -94,7 +97,7 @@ namespace WorstHotel
                 foreach (var policy in roomSalesPolicies.Where(item => item.OpenForSale).OrderBy(item => item.Price).ThenBy(item => item.RoomId))
                 {
                     if (!CanReserveInterval(policy.RoomId, offer.ArrivalAt, offer.CheckoutAt).Success ||
-                        !forceDemand && roll >= Operations.Sales.DemandProbability(offer.Application.ReferencePrice, policy.Price)) continue;
+                        !forceDemand && roll >= Operations.Sales.DemandProbability(offer.Application.ReferencePrice, policy.Price, Economy.Reputation)) continue;
                     // Same validated reservation/physical arrival pipeline, with explicit automatic origin.
                     var result = CommitBooking(offer, policy.RoomId, policy.Price, -1, true);
                     if (result.Success || reservations.Count >= 128) break;

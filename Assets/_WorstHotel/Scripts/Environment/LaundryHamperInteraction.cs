@@ -21,7 +21,11 @@ namespace WorstHotel
         {
             var housekeeping = GameSession.Instance ? GameSession.Instance.Simulation?.Housekeeping : null;
             if (statusLabel && housekeeping != null)
-                statusLabel.text = "DIRTY LINEN\n" + housekeeping.Linens.Count(linen => linen.Location == LinenLocation.InHamper) + " bundles delivered";
+            {
+                var model = GameSession.Instance.Simulation;
+                int count = model.ContinuousOperations ? model.DirtyLinenWaiting : housekeeping.Linens.Count(linen => linen.Location == LinenLocation.InHamper);
+                statusLabel.text = "DIRTY LINEN\n" + count + " waiting for laundry";
+            }
         }
     }
 }

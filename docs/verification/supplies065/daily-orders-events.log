@@ -1,0 +1,101 @@
+BOOKING 15.19999 stay-1-1 arrivalDay=1 price=180 room=101
+BOOKING 27.00003 stay-1-2 arrivalDay=1 price=180 room=102
+BOOKING 39.0000763 stay-1-3 arrivalDay=1 price=180 room=103
+BOOKING 51.0001221 stay-1-4 arrivalDay=1 price=180 room=104
+BOOKING 63.0001678 stay-1-5 arrivalDay=1 price=180 room=105
+BOOKING 75 stay-1-6 arrivalDay=1 price=180 room=106
+CHECKIN 192.7982 stay-1-1
+CHECKIN 203.598038 stay-1-2
+232.797592 SUPPLY_ROUND_SCHEDULED day=1; due=244,8405
+BOOKING 240.197479 stay-2-1 arrivalDay=2 price=180 room=101
+244.9974 MODEL_SUPPLY_ROUND day=1; at=244.9974; dirtyWaiting=0; cleanReserve=0; linenAtLaundry=0; bulbsAvailable=3; bulbsInTransit=0; noUIInteraction=true
+244.9974 LAUNDRY_NOT_ORDERED no dirty sets ready at this round; later deposits wait for the next daily round
+BOOKING 252.1973 stay-2-2 arrivalDay=2 price=180 room=102
+CHECKIN 261.397552 stay-1-3
+BOOKING 264.197723 stay-2-3 arrivalDay=2 price=180 room=103
+CHECKIN 266.59787 stay-1-4
+CHECKIN 271.7982 stay-1-5
+BOOKING 276.198456 stay-2-4 arrivalDay=2 price=180 room=104
+CHECKIN 276.9985 stay-1-6
+BOOKING 288.1992 stay-2-5 arrivalDay=2 price=180 room=105
+BOOKING 300.199921 stay-2-6 arrivalDay=2 price=180 room=106
+RECEIPT 476.6107 stay-1-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+RECEIPT 491.000671 stay-1-3 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 660.011 maintenance=0 capital=0 operating=350
+COST 746.6163 maintenance=200 capital=0 operating=0
+RECEIPT 780.0183 stay-1-1 agreed=180 gross=180 refunds=0 net=180 satisfaction=93.22986 early=False
+RECEIPT 780.0183 stay-1-2 agreed=180 gross=180 refunds=0 net=180 satisfaction=85.8728 early=False
+RECEIPT 780.0183 stay-1-4 agreed=180 gross=180 refunds=0 net=180 satisfaction=90.08043 early=False
+RECEIPT 780.0183 stay-1-5 agreed=180 gross=180 refunds=0 net=180 satisfaction=90.40433 early=False
+COST 830.6214 maintenance=350 capital=0 operating=0
+COST 884.8247 maintenance=350 capital=0 operating=0
+CHECKIN 933.4277 stay-2-1
+933.4277 SUPPLY_ROUND_SCHEDULED day=2; due=945,4705
+945.6284 MODEL_SUPPLY_ROUND day=2; at=945.6284; dirtyWaiting=5; cleanReserve=0; linenAtLaundry=0; bulbsAvailable=3; bulbsInTransit=0; noUIInteraction=true
+945.6284 SUPPLY_ORDER command=OrderLaundry; revision=5; success=True; message=Laundry sent. Clean sets return at the scheduled delivery.; cashBefore=1250; debit=90; cashAfter=1160
+SUPPLY_SPEND at=945,8284; laundry=90; bulbs=0
+BOOKING 960.0293 stay-3-1 arrivalDay=3 price=180 room=101
+CHECKIN 962.0294 stay-2-2
+CHECKIN 967.229736 stay-2-3
+BOOKING 972.03 stay-3-2 arrivalDay=3 price=180 room=102
+CHECKIN 972.430054 stay-2-4
+CHECKIN 977.6304 stay-2-6
+BOOKING 984.030762 stay-3-3 arrivalDay=3 price=180 room=103
+BOOKING 1008.03223 stay-3-5 arrivalDay=3 price=180 room=104
+CHECKIN 1018.23285 stay-2-5
+BOOKING 1020.03296 stay-3-6 arrivalDay=3 price=180 room=105
+BOOKING 1032.03125 stay-3-7 arrivalDay=3 price=180 room=106
+CONTRACT 1140,005 due=350 paid=350 cashAfter=810
+RECEIPT 1194.19165 stay-2-2 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+RECEIPT 1195.79126 stay-2-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 1229.99268 maintenance=200 capital=0 operating=0
+RECEIPT 1256.18628 stay-2-3 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 1380.156 maintenance=0 capital=0 operating=350
+RECEIPT 1500.12671 stay-2-1 agreed=180 gross=180 refunds=0 net=180 satisfaction=94.56819 early=False
+RECEIPT 1500.12671 stay-2-4 agreed=180 gross=180 refunds=0 net=180 satisfaction=76.34599 early=False
+RECEIPT 1500.12671 stay-2-5 agreed=180 gross=180 refunds=0 net=180 satisfaction=85.57713 early=False
+CHECKIN 1654.689 stay-3-1
+1654.689 SUPPLY_ROUND_SCHEDULED day=3; due=1666,732
+1666.886 MODEL_SUPPLY_ROUND day=3; at=1666.886; dirtyWaiting=7; cleanReserve=0; linenAtLaundry=0; bulbsAvailable=3; bulbsInTransit=0; noUIInteraction=true
+1666.886 SUPPLY_ORDER command=OrderLaundry; revision=15; success=True; message=Laundry sent. Clean sets return at the scheduled delivery.; cashBefore=1070; debit=126; cashAfter=944
+SUPPLY_SPEND at=1667,086; laundry=126; bulbs=0
+BOOKING 1680.08276 stay-4-1 arrivalDay=4 price=180 room=101
+CHECKIN 1683.48193 stay-3-2
+CHECKIN 1688.88062 stay-3-3
+BOOKING 1692.07983 stay-4-2 arrivalDay=4 price=180 room=102
+CHECKIN 1694.2793 stay-3-5
+CHECKIN 1699.678 stay-3-6
+BOOKING 1704.0769 stay-4-3 arrivalDay=4 price=180 room=103
+CHECKIN 1705.07666 stay-3-7
+BOOKING 1716.074 stay-4-4 arrivalDay=4 price=180 room=104
+BOOKING 1728.071 stay-4-5 arrivalDay=4 price=180 room=105
+BOOKING 1740.06812 stay-4-6 arrivalDay=4 price=180 room=106
+RECEIPT 1852.44067 stay-3-7 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+CONTRACT 1860,039 due=400 paid=400 cashAfter=634
+COST 1884.033 maintenance=200 capital=0 operating=0
+RECEIPT 1897.82959 stay-3-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+RECEIPT 1917.0249 stay-3-3 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 2100.156 maintenance=0 capital=0 operating=350
+RECEIPT 2220.12671 stay-3-1 agreed=180 gross=180 refunds=0 net=180 satisfaction=92.8785858 early=False
+RECEIPT 2220.12671 stay-3-2 agreed=180 gross=180 refunds=0 net=180 satisfaction=82.6531 early=False
+RECEIPT 2220.12671 stay-3-5 agreed=180 gross=180 refunds=0 net=180 satisfaction=64.958725 early=False
+CHECKIN 2374.689 stay-4-1
+2374.689 SUPPLY_ROUND_SCHEDULED day=4; due=2386,732
+2386.886 MODEL_SUPPLY_ROUND day=4; at=2386.886; dirtyWaiting=6; cleanReserve=0; linenAtLaundry=0; bulbsAvailable=3; bulbsInTransit=0; noUIInteraction=true
+2386.886 SUPPLY_ORDER command=OrderLaundry; revision=24; success=True; message=Laundry sent. Clean sets return at the scheduled delivery.; cashBefore=804; debit=108; cashAfter=696
+SUPPLY_SPEND at=2387,086; laundry=108; bulbs=0
+CHECKIN 2403.482 stay-4-2
+CHECKIN 2408.88062 stay-4-3
+BOOKING 2412.07983 stay-5-2 arrivalDay=5 price=180 room=101
+CHECKIN 2414.2793 stay-4-4
+CHECKIN 2419.678 stay-4-5
+BOOKING 2424.077 stay-5-3 arrivalDay=5 price=180 room=102
+CHECKIN 2425.07666 stay-4-6
+BOOKING 2436.074 stay-5-4 arrivalDay=5 price=180 room=103
+BOOKING 2448.071 stay-5-5 arrivalDay=5 price=180 room=104
+BOOKING 2460.068 stay-5-6 arrivalDay=5 price=180 room=105
+BOOKING 2472.06519 stay-5-7 arrivalDay=5 price=180 room=106
+CONTRACT 2580,039 due=450 paid=450 cashAfter=246
+COST 2595.635 maintenance=200 capital=0 operating=0
+RECEIPT 2596.43481 stay-4-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+RECEIPT 2631.62622 stay-4-3 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True

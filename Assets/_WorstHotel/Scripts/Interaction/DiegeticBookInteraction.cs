@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace WorstHotel
 {
-    public enum HotelBook { Reservations, Services, Accounts, Renovation, BoilerManual }
+    public enum HotelBook { Reservations, Services, Accounts, Renovation, BoilerManual, Supplies }
 
     public sealed class DiegeticBookInteraction : HotelInteractable
     {
         public HotelBook kind;
         public string ShortTitle => kind switch {
             HotelBook.Reservations => "reservations", HotelBook.Services => "notes",
-            HotelBook.Accounts => "accounts", HotelBook.Renovation => "renovation plans", _ => "manual" };
+            HotelBook.Accounts => "accounts", HotelBook.Renovation => "renovation plans", HotelBook.Supplies => "supply ledger", _ => "manual" };
         public static DiegeticBookInteraction Find(HotelBook kind) =>
             FindObjectsByType<DiegeticBookInteraction>(FindObjectsSortMode.None).FirstOrDefault(book => book.kind == kind);
         public override string GetPrompt(PlayerInteractor actor) => "Read " + ShortTitle;

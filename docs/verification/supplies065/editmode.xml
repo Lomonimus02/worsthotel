@@ -1,0 +1,914 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="136" result="Passed" total="136" passed="136" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-30 13:13:55Z" end-time="2026-09-30 13:13:59Z" duration="3,5992576">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="901" result="Passed" start-time="2026-09-30 13:13:55Z" end-time="2026-09-30 13:13:59Z" duration="3.599258" total="136" passed="136" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="2086" name="WorstHotel.Tests.dll" fullname="C:/Normal/Programs/Game/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="901" result="Passed" start-time="2026-09-30 13:13:55Z" end-time="2026-09-30 13:13:59Z" duration="3.583615" total="136" passed="136" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="333300" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="2087" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="901" result="Passed" start-time="2026-09-30 13:13:55Z" end-time="2026-09-30 13:13:59Z" duration="3.571924" total="136" passed="136" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2088" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="901" result="Passed" start-time="2026-09-30 13:13:55Z" end-time="2026-09-30 13:13:59Z" duration="3.561240" total="136" passed="136" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1154" name="ContinuousBookingTests" fullname="WorstHotel.Tests.ContinuousBookingTests" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-09-30 13:13:55Z" end-time="2026-09-30 13:13:56Z" duration="1.099091" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="ParameterizedMethod" id="1170" name="AGuestWithoutActualRoomTimeIsNeverCharged" fullname="WorstHotel.Tests.ContinuousBookingTests.AGuestWithoutActualRoomTimeIsNeverCharged" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-30 13:13:55Z" end-time="2026-09-30 13:13:56Z" duration="0.391659" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1168" name="AGuestWithoutActualRoomTimeIsNeverCharged(False)" fullname="WorstHotel.Tests.ContinuousBookingTests.AGuestWithoutActualRoomTimeIsNeverCharged(False)" methodname="AGuestWithoutActualRoomTimeIsNeverCharged" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="1314165227" result="Passed" start-time="2026-09-30 13:13:55Z" end-time="2026-09-30 13:13:55Z" duration="0.239317" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1169" name="AGuestWithoutActualRoomTimeIsNeverCharged(True)" fullname="WorstHotel.Tests.ContinuousBookingTests.AGuestWithoutActualRoomTimeIsNeverCharged(True)" methodname="AGuestWithoutActualRoomTimeIsNeverCharged" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="1733737752" result="Passed" start-time="2026-09-30 13:13:55Z" end-time="2026-09-30 13:13:56Z" duration="0.148382" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1165" name="AStaleBookingEditCannotOverwriteAnotherStaffDecision" fullname="WorstHotel.Tests.ContinuousBookingTests.AStaleBookingEditCannotOverwriteAnotherStaffDecision" methodname="AStaleBookingEditCannotOverwriteAnotherStaffDecision" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="516716640" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.003059" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1164" name="CancelledFutureStayNeverMaterializesAndReleasesItsRoomInterval" fullname="WorstHotel.Tests.ContinuousBookingTests.CancelledFutureStayNeverMaterializesAndReleasesItsRoomInterval" methodname="CancelledFutureStayNeverMaterializesAndReleasesItsRoomInterval" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="2024173790" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.018736" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1167" name="CheckoutPostsIncomeOnceAndFollowingReportDisplaysItWithoutPayingAgain" fullname="WorstHotel.Tests.ContinuousBookingTests.CheckoutPostsIncomeOnceAndFollowingReportDisplaysItWithoutPayingAgain" methodname="CheckoutPostsIncomeOnceAndFollowingReportDisplaysItWithoutPayingAgain" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="844272309" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.185367" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1161" name="ConsecutiveNightsStillWaitForPreviousBodyExitAndLinenBeforeReusingTheRoom" fullname="WorstHotel.Tests.ContinuousBookingTests.ConsecutiveNightsStillWaitForPreviousBodyExitAndLinenBeforeReusingTheRoom" methodname="ConsecutiveNightsStillWaitForPreviousBodyExitAndLinenBeforeReusingTheRoom" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="260562322" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.116399" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1159" name="DirtyReservationIsAllowedButCheckInWaitsForRealLinenPreparationAndKey" fullname="WorstHotel.Tests.ContinuousBookingTests.DirtyReservationIsAllowedButCheckInWaitsForRealLinenPreparationAndKey" methodname="DirtyReservationIsAllowedButCheckInWaitsForRealLinenPreparationAndKey" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="2114731991" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.014733" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1171" name="InvalidBookingCommandsAreAtomicAndDoNotEmitSuccessEvents" fullname="WorstHotel.Tests.ContinuousBookingTests.InvalidBookingCommandsAreAtomicAndDoNotEmitSuccessEvents" methodname="InvalidBookingCommandsAreAtomicAndDoNotEmitSuccessEvents" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="1063248889" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.000733" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1162" name="MaterializedScheduleSleepsOverMidnightWakesNextMorningAndChecksOutOnce" fullname="WorstHotel.Tests.ContinuousBookingTests.MaterializedScheduleSleepsOverMidnightWakesNextMorningAndChecksOutOnce" methodname="MaterializedScheduleSleepsOverMidnightWakesNextMorningAndChecksOutOnce" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="1201344592" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.074223" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1157" name="NextNightReservationPreservesTheCurrentOccupantAndTheirPhysicalKey" fullname="WorstHotel.Tests.ContinuousBookingTests.NextNightReservationPreservesTheCurrentOccupantAndTheirPhysicalKey" methodname="NextNightReservationPreservesTheCurrentOccupantAndTheirPhysicalKey" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="680999904" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.013363" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1158" name="OverlappingStayAndDuplicateOfferAreRejectedWithoutMutatingEitherBooking" fullname="WorstHotel.Tests.ContinuousBookingTests.OverlappingStayAndDuplicateOfferAreRejectedWithoutMutatingEitherBooking" methodname="OverlappingStayAndDuplicateOfferAreRejectedWithoutMutatingEitherBooking" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="1469637530" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.000726" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1163" name="PriceAndCancellationAreEditableOnlyBeforeArrival" fullname="WorstHotel.Tests.ContinuousBookingTests.PriceAndCancellationAreEditableOnlyBeforeArrival" methodname="PriceAndCancellationAreEditableOnlyBeforeArrival" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="1871449775" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.014602" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1172" name="ReadOnlyMirrorCannotAcceptCancelOrEditBookings" fullname="WorstHotel.Tests.ContinuousBookingTests.ReadOnlyMirrorCannotAcceptCancelOrEditBookings" methodname="ReadOnlyMirrorCannotAcceptCancelOrEditBookings" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="1170818148" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.000481" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1160" name="ReservationAndReceptionArrivalDoNotBypassPhysicalKeyHandoff" fullname="WorstHotel.Tests.ContinuousBookingTests.ReservationAndReceptionArrivalDoNotBypassPhysicalKeyHandoff" methodname="ReservationAndReceptionArrivalDoNotBypassPhysicalKeyHandoff" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="819464553" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.013678" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1156" name="ReservationDoesNotMaterializeBeforeItsDueTimeOrTurnFutureRoomIntoAnOccupant" fullname="WorstHotel.Tests.ContinuousBookingTests.ReservationDoesNotMaterializeBeforeItsDueTimeOrTurnFutureRoomIntoAnOccupant" methodname="ReservationDoesNotMaterializeBeforeItsDueTimeOrTurnFutureRoomIntoAnOccupant" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="634595923" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.064792" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1166" name="RollingApplicationsContinueAfterDayThreeWithoutPriceEscalationOrForcedFailure" fullname="WorstHotel.Tests.ContinuousBookingTests.RollingApplicationsContinueAfterDayThreeWithoutPriceEscalationOrForcedFailure" methodname="RollingApplicationsContinueAfterDayThreeWithoutPriceEscalationOrForcedFailure" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="935253748" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.176949" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1155" name="RollingOffersCoverTodayAndTomorrowWithAbsoluteSingleNightDates" fullname="WorstHotel.Tests.ContinuousBookingTests.RollingOffersCoverTodayAndTomorrowWithAbsoluteSingleNightDates" methodname="RollingOffersCoverTodayAndTomorrowWithAbsoluteSingleNightDates" classname="WorstHotel.Tests.ContinuousBookingTests" runstate="Runnable" seed="191881604" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.001744" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1173" name="ContinuousCalendarTests" fullname="WorstHotel.Tests.ContinuousCalendarTests" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" testcasecount="22" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:57Z" duration="0.446889" total="22" passed="22" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1174" name="CalendarReadsTheExistingClockAndSeparatesMidnightFromReporting" fullname="WorstHotel.Tests.ContinuousCalendarTests.CalendarReadsTheExistingClockAndSeparatesMidnightFromReporting" methodname="CalendarReadsTheExistingClockAndSeparatesMidnightFromReporting" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1860485442" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.002121" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1181" name="CappedReportHistoryDoesNotResetAccountingOrImposeTheLegacyThreeDayLimit" fullname="WorstHotel.Tests.ContinuousCalendarTests.CappedReportHistoryDoesNotResetAccountingOrImposeTheLegacyThreeDayLimit" methodname="CappedReportHistoryDoesNotResetAccountingOrImposeTheLegacyThreeDayLimit" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="836237400" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.074630" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1187" name="ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput" fullname="WorstHotel.Tests.ContinuousCalendarTests.ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.037195" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1184" name="ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput(1.0f)" fullname="WorstHotel.Tests.ContinuousCalendarTests.ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput(1.0f)" methodname="ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="784081981" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.012246" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1185" name="ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput(4.0f)" fullname="WorstHotel.Tests.ContinuousCalendarTests.ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput(4.0f)" methodname="ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1109375471" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.011292" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1186" name="ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput(8.0f)" fullname="WorstHotel.Tests.ContinuousCalendarTests.ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput(8.0f)" methodname="ClockSpeedDoesNotMultiplyExplicitTicksOrAdvanceWithoutElapsedInput" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1130547280" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.011309" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1175" name="ConfiguredCalendarUsesItsOwnDurationAndOpeningHour" fullname="WorstHotel.Tests.ContinuousCalendarTests.ConfiguredCalendarUsesItsOwnDurationAndOpeningHour" methodname="ConfiguredCalendarUsesItsOwnDurationAndOpeningHour" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1179305963" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.000352" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1177" name="EmptyOperationsStartOnceWithoutCreatingBookingsOrReceipts" fullname="WorstHotel.Tests.ContinuousCalendarTests.EmptyOperationsStartOnceWithoutCreatingBookingsOrReceipts" methodname="EmptyOperationsStartOnceWithoutCreatingBookingsOrReceipts" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1376605696" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.000713" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1179" name="FirstExactReportChargesOncePreservesReputationAndDoesNotEndOperations" fullname="WorstHotel.Tests.ContinuousCalendarTests.FirstExactReportChargesOncePreservesReputationAndDoesNotEndOperations" methodname="FirstExactReportChargesOncePreservesReputationAndDoesNotEndOperations" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1903484954" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:56Z" duration="0.015458" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1191" name="FractionalStepAcrossAReportConsumesItsRemainderWithoutClosingTwice" fullname="WorstHotel.Tests.ContinuousCalendarTests.FractionalStepAcrossAReportConsumesItsRemainderWithoutClosingTwice" methodname="FractionalStepAcrossAReportConsumesItsRemainderWithoutClosingTwice" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="518339678" result="Passed" start-time="2026-09-30 13:13:56Z" end-time="2026-09-30 13:13:57Z" duration="0.035827" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1190" name="InvalidOperationsSettingsAndCalendarInputsAreRejected" fullname="WorstHotel.Tests.ContinuousCalendarTests.InvalidOperationsSettingsAndCalendarInputsAreRejected" methodname="InvalidOperationsSettingsAndCalendarInputsAreRejected" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1081070025" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.001676" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1196" name="InvalidTickCannotChangeCalendarOrAccounting" fullname="WorstHotel.Tests.ContinuousCalendarTests.InvalidTickCannotChangeCalendarOrAccounting" methodname="InvalidTickCannotChangeCalendarOrAccounting" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1525913181" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.011552" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1195" name="MaximumFiniteDayDurationHasAFiniteFirstReportBoundary" fullname="WorstHotel.Tests.ContinuousCalendarTests.MaximumFiniteDayDurationHasAFiniteFirstReportBoundary" methodname="MaximumFiniteDayDurationHasAFiniteFirstReportBoundary" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="223298808" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.000192" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1178" name="MidnightChangesCalendarDayWithoutPostingDailyExpense" fullname="WorstHotel.Tests.ContinuousCalendarTests.MidnightChangesCalendarDayWithoutPostingDailyExpense" methodname="MidnightChangesCalendarDayWithoutPostingDailyExpense" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1965573135" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.008700" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1180" name="OneLargeTickPostsEveryCrossedReportAndMatchesSmallerTicks" fullname="WorstHotel.Tests.ContinuousCalendarTests.OneLargeTickPostsEveryCrossedReportAndMatchesSmallerTicks" methodname="OneLargeTickPostsEveryCrossedReportAndMatchesSmallerTicks" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1697307569" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.179383" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1176" name="OpeningAtReportHourDoesNotImmediatelyChargeAnEmptyDay" fullname="WorstHotel.Tests.ContinuousCalendarTests.OpeningAtReportHourDoesNotImmediatelyChargeAnEmptyDay" methodname="OpeningAtReportHourDoesNotImmediatelyChargeAnEmptyDay" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1271888905" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.000466" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1194" name="OperationsCannotOpenAnAlreadyAdvancedClockOrPartiallyInitializeTheDay" fullname="WorstHotel.Tests.ContinuousCalendarTests.OperationsCannotOpenAnAlreadyAdvancedClockOrPartiallyInitializeTheDay" methodname="OperationsCannotOpenAnAlreadyAdvancedClockOrPartiallyInitializeTheDay" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="362117062" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.000653" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1189" name="OptOutKeepsLegacyFiniteShiftAndSettlementBehavior" fullname="WorstHotel.Tests.ContinuousCalendarTests.OptOutKeepsLegacyFiniteShiftAndSettlementBehavior" methodname="OptOutKeepsLegacyFiniteShiftAndSettlementBehavior" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="686653225" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.004829" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1192" name="OversizedFiniteTickIsRejectedBeforeAnySimulationOrAccountingWork" fullname="WorstHotel.Tests.ContinuousCalendarTests.OversizedFiniteTickIsRejectedBeforeAnySimulationOrAccountingWork" methodname="OversizedFiniteTickIsRejectedBeforeAnySimulationOrAccountingWork" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1619458615" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.011202" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1193" name="PositiveDeltaBelowClockPrecisionIsRejectedBeforePostingOverdueReports" fullname="WorstHotel.Tests.ContinuousCalendarTests.PositiveDeltaBelowClockPrecisionIsRejectedBeforePostingOverdueReports" methodname="PositiveDeltaBelowClockPrecisionIsRejectedBeforePostingOverdueReports" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="384361012" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.000490" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1188" name="ReadOnlyContinuousMirrorCannotAdvanceTimePostReportsOrRestart" fullname="WorstHotel.Tests.ContinuousCalendarTests.ReadOnlyContinuousMirrorCannotAdvanceTimePostReportsOrRestart" methodname="ReadOnlyContinuousMirrorCannotAdvanceTimePostReportsOrRestart" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="1667196947" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.011195" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1183" name="RepeatedStartAndLegacyLifecycleCommandsCannotResetRunningOperations" fullname="WorstHotel.Tests.ContinuousCalendarTests.RepeatedStartAndLegacyLifecycleCommandsCannotResetRunningOperations" methodname="RepeatedStartAndLegacyLifecycleCommandsCannotResetRunningOperations" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="446304668" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.012037" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1182" name="ReportBoundaryPreservesFailurePowerHeaterLinenKeysAndOrdinaryTemperatureEvolution" fullname="WorstHotel.Tests.ContinuousCalendarTests.ReportBoundaryPreservesFailurePowerHeaterLinenKeysAndOrdinaryTemperatureEvolution" methodname="ReportBoundaryPreservesFailurePowerHeaterLinenKeysAndOrdinaryTemperatureEvolution" classname="WorstHotel.Tests.ContinuousCalendarTests" runstate="Runnable" seed="593718359" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.030831" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1244" name="ContinuousGuestServiceTests" fullname="WorstHotel.Tests.ContinuousGuestServiceTests" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" testcasecount="25" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:58Z" duration="1.087744" total="25" passed="25" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1256" name="AcceptingFutureWakePromiseEndsOnlyTheDirectDecisionAndRetainsThePromise" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.AcceptingFutureWakePromiseEndsOnlyTheDirectDecisionAndRetainsThePromise" methodname="AcceptingFutureWakePromiseEndsOnlyTheDirectDecisionAndRetainsThePromise" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="22297973" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.089037" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1254" name="CalendarRefillNeverReclaimsDeliveredActiveBlanketOrHeldAndDroppedStock" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.CalendarRefillNeverReclaimsDeliveredActiveBlanketOrHeldAndDroppedStock" methodname="CalendarRefillNeverReclaimsDeliveredActiveBlanketOrHeldAndDroppedStock" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1181845667" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.068292" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1264" name="CancelledUnreceivedParcelBecomesReclaimableWithNewGenerationAndNoDeliveryReward" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.CancelledUnreceivedParcelBecomesReclaimableWithNewGenerationAndNoDeliveryReward" methodname="CancelledUnreceivedParcelBecomesReclaimableWithNewGenerationAndNoDeliveryReward" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1707075727" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.021110" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1267" name="CheckoutOutranksDirectWaitAndReclaimsAnyUnreceivedParcelWithoutComfort" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.CheckoutOutranksDirectWaitAndReclaimsAnyUnreceivedParcelWithoutComfort" methodname="CheckoutOutranksDirectWaitAndReclaimsAnyUnreceivedParcelWithoutComfort" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="643210880" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.017950" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1250" name="ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.053887" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1247" name="ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity(32,True)" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity(32,True)" methodname="ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="79293009" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.016883" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1248" name="ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity(255,True)" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity(255,True)" methodname="ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1005903060" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.016193" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1249" name="ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity(256,False)" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity(256,False)" methodname="ContinuousServiceAdmissionUsesTheBoundedRetainedCaseCapacity" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="2028055038" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.019764" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-suite type="ParameterizedMethod" id="1272" name="CorrectKeyHandoffEndsObsoleteLuggageContactAndItsImmediateSnapshotAppliesWithoutATick" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.CorrectKeyHandoffEndsObsoleteLuggageContactAndItsImmediateSnapshotAppliesWithoutATick" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.099815" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1270" name="CorrectKeyHandoffEndsObsoleteLuggageContactAndItsImmediateSnapshotAppliesWithoutATick(True)" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.CorrectKeyHandoffEndsObsoleteLuggageContactAndItsImmediateSnapshotAppliesWithoutATick(True)" methodname="CorrectKeyHandoffEndsObsoleteLuggageContactAndItsImmediateSnapshotAppliesWithoutATick" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="2117442214" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.066580" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1271" name="CorrectKeyHandoffEndsObsoleteLuggageContactAndItsImmediateSnapshotAppliesWithoutATick(False)" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.CorrectKeyHandoffEndsObsoleteLuggageContactAndItsImmediateSnapshotAppliesWithoutATick(False)" methodname="CorrectKeyHandoffEndsObsoleteLuggageContactAndItsImmediateSnapshotAppliesWithoutATick" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="425933074" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.032216" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1253" name="DatedRoomGuardsRejectMoveOverlapAndRecheckLateCheckoutWhenAReservationIsAdded" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.DatedRoomGuardsRejectMoveOverlapAndRecheckLateCheckoutWhenAReservationIsAdded" methodname="DatedRoomGuardsRejectMoveOverlapAndRecheckLateCheckoutWhenAReservationIsAdded" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="118148761" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.108900" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1246" name="DepartedDroppedLuggageCanBePhysicallyReclaimedAndStoredWithoutAnAgreementOrBonus" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.DepartedDroppedLuggageCanBePhysicallyReclaimedAndStoredWithoutAnAgreementOrBonus" methodname="DepartedDroppedLuggageCanBePhysicallyReclaimedAndStoredWithoutAnAgreementOrBonus" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="451353669" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.017493" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1255" name="DirectDecisionHoldsAcrossBedtimeThenTimesOutExactlyOnceAndReleasesThePhoneAction" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.DirectDecisionHoldsAcrossBedtimeThenTimesOutExactlyOnceAndReleasesThePhoneAction" methodname="DirectDecisionHoldsAcrossBedtimeThenTimesOutExactlyOnceAndReleasesThePhoneAction" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1132609472" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.090527" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1263" name="DropOffRejectsUnacceptedWrongActorRoomRevisionAndGenerationWithoutConsumingTheBlanket" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.DropOffRejectsUnacceptedWrongActorRoomRevisionAndGenerationWithoutConsumingTheBlanket" methodname="DropOffRejectsUnacceptedWrongActorRoomRevisionAndGenerationWithoutConsumingTheBlanket" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1567504673" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:57Z" duration="0.017518" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1259" name="DropOffWhileAwayCrossesMidnightWithoutComfortOrRefillThenActualReturnReceivesOnce" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.DropOffWhileAwayCrossesMidnightWithoutComfortOrRefillThenActualReturnReceivesOnce" methodname="DropOffWhileAwayCrossesMidnightWithoutComfortOrRefillThenActualReturnReceivesOnce" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="174276516" result="Passed" start-time="2026-09-30 13:13:57Z" end-time="2026-09-30 13:13:58Z" duration="0.115686" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1266" name="InteriorProactiveDeliveryRecordsRealReceiptWithoutLeavingAnEmptyCompletedDropOff" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.InteriorProactiveDeliveryRecordsRealReceiptWithoutLeavingAnEmptyCompletedDropOff" methodname="InteriorProactiveDeliveryRecordsRealReceiptWithoutLeavingAnEmptyCompletedDropOff" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1712049551" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.015936" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1252" name="MidnightPreservesAcceptedPromiseResponseIdentityAndRenewsOnlyTheDailyContactAllowance" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.MidnightPreservesAcceptedPromiseResponseIdentityAndRenewsOnlyTheDailyContactAllowance" methodname="MidnightPreservesAcceptedPromiseResponseIdentityAndRenewsOnlyTheDailyContactAllowance" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1791188970" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.090622" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1269" name="OrdinaryRequestGenerationDefersDuringTheFinalContactLeadBeforeSleep" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.OrdinaryRequestGenerationDefersDuringTheFinalContactLeadBeforeSleep" methodname="OrdinaryRequestGenerationDefersDuringTheFinalContactLeadBeforeSleep" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="979316326" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.056557" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1262" name="PrivateSleepingOrShoweringGuestDoesNotReceivePendingBlanketUntilAvailable" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.PrivateSleepingOrShoweringGuestDoesNotReceivePendingBlanketUntilAvailable" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.034657" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1260" name="PrivateSleepingOrShoweringGuestDoesNotReceivePendingBlanketUntilAvailable(True)" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.PrivateSleepingOrShoweringGuestDoesNotReceivePendingBlanketUntilAvailable(True)" methodname="PrivateSleepingOrShoweringGuestDoesNotReceivePendingBlanketUntilAvailable" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="470729058" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.017170" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1261" name="PrivateSleepingOrShoweringGuestDoesNotReceivePendingBlanketUntilAvailable(False)" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.PrivateSleepingOrShoweringGuestDoesNotReceivePendingBlanketUntilAvailable(False)" methodname="PrivateSleepingOrShoweringGuestDoesNotReceivePendingBlanketUntilAvailable" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="508835660" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.016404" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1245" name="PruningKeepsActivePromiseAndRetainedIncidentLinksButDropsUnownedTerminalBranches" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.PruningKeepsActivePromiseAndRetainedIncidentLinksButDropsUnownedTerminalBranches" methodname="PruningKeepsActivePromiseAndRetainedIncidentLinksButDropsUnownedTerminalBranches" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1002377106" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.045183" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1258" name="RealKeyExchangeCompletesDirectIntentBeforeTheGuestStartsTheirTransfer" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.RealKeyExchangeCompletesDirectIntentBeforeTheGuestStartsTheirTransfer" methodname="RealKeyExchangeCompletesDirectIntentBeforeTheGuestStartsTheirTransfer" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1804540926" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.015457" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1268" name="RecoveredTemperatureCancelsAnUnneededBlanketRequestWithoutInventingAReceivedItem" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.RecoveredTemperatureCancelsAnUnneededBlanketRequestWithoutInventingAReceivedItem" methodname="RecoveredTemperatureCancelsAnUnneededBlanketRequestWithoutInventingAReceivedItem" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="688382197" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.018395" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1265" name="RelocationCancelsOldRoomParcelAndSynchronizesCurrentRemoteIntentImmediately" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.RelocationCancelsOldRoomParcelAndSynchronizesCurrentRemoteIntentImmediately" methodname="RelocationCancelsOldRoomParcelAndSynchronizesCurrentRemoteIntentImmediately" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1582604324" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.020286" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1257" name="RoomMoveWaitDoesNotRenewOnRepeatedProposalAndTimeoutReleasesOnlyDestinationReservation" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.RoomMoveWaitDoesNotRenewOnRepeatedProposalAndTimeoutReleasesOnlyDestinationReservation" methodname="RoomMoveWaitDoesNotRenewOnRepeatedProposalAndTimeoutReleasesOnlyDestinationReservation" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="376000705" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.035839" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1251" name="SaturatedResponseStorageRejectsAdmissionWithoutNullResponseOrHistoryEviction" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.SaturatedResponseStorageRejectsAdmissionWithoutNullResponseOrHistoryEviction" methodname="SaturatedResponseStorageRejectsAdmissionWithoutNullResponseOrHistoryEviction" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1152121450" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.037775" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1516" name="HousekeepingTests" fullname="WorstHotel.Tests.HousekeepingTests" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" testcasecount="17" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.057903" total="17" passed="17" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1517" name="ActualCheckoutCreatesOneDirtyBundleButDepartureMustBeAcknowledgedBeforeRemoval" fullname="WorstHotel.Tests.HousekeepingTests.ActualCheckoutCreatesOneDirtyBundleButDepartureMustBeAcknowledgedBeforeRemoval" methodname="ActualCheckoutCreatesOneDirtyBundleButDepartureMustBeAcknowledgedBeforeRemoval" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="955597580" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.031414" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1523" name="BedClaimIsExclusiveAndUnexpectedReoccupationCancelsWithoutConsumingStock" fullname="WorstHotel.Tests.HousekeepingTests.BedClaimIsExclusiveAndUnexpectedReoccupationCancelsWithoutConsumingStock" methodname="BedClaimIsExclusiveAndUnexpectedReoccupationCancelsWithoutConsumingStock" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="697415061" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000981" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1528" name="CancelDropAndTimeAloneCannotConsumeLinenWhileSeparatePlayersCanMakeSeparateBeds" fullname="WorstHotel.Tests.HousekeepingTests.CancelDropAndTimeAloneCannotConsumeLinenWhileSeparatePlayersCanMakeSeparateBeds" methodname="CancelDropAndTimeAloneCannotConsumeLinenWhileSeparatePlayersCanMakeSeparateBeds" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="1798573010" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000859" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1529" name="DiagnosticCheckoutPreservesRealTurnoverAndPhysicalDepartureTokens" fullname="WorstHotel.Tests.HousekeepingTests.DiagnosticCheckoutPreservesRealTurnoverAndPhysicalDepartureTokens" methodname="DiagnosticCheckoutPreservesRealTurnoverAndPhysicalDepartureTokens" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="1076969057" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.001369" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1530" name="DiagnosticDirtCreatesOneGenerationAndCannotAffectOccupiedOrDepartingRooms" fullname="WorstHotel.Tests.HousekeepingTests.DiagnosticDirtCreatesOneGenerationAndCannotAffectOccupiedOrDepartingRooms" methodname="DiagnosticDirtCreatesOneGenerationAndCannotAffectOccupiedOrDepartingRooms" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="1823127819" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000723" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1524" name="DirtyReservationWaitsForManualPreparationAndCorrectKeyHandoff" fullname="WorstHotel.Tests.HousekeepingTests.DirtyReservationWaitsForManualPreparationAndCorrectKeyHandoff" methodname="DirtyReservationWaitsForManualPreparationAndCorrectKeyHandoff" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="1424235695" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.005867" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1522" name="FiniteLinenRequiresItsRealSourceMatchingOwnerAndDirtyDeliveryBeforeBedWork" fullname="WorstHotel.Tests.HousekeepingTests.FiniteLinenRequiresItsRealSourceMatchingOwnerAndDirtyDeliveryBeforeBedWork" methodname="FiniteLinenRequiresItsRealSourceMatchingOwnerAndDirtyDeliveryBeforeBedWork" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="54741747" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.001776" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1533" name="FreshSessionClearsTurnoverAndLegacyKernelDoesNotInventManualChores" fullname="WorstHotel.Tests.HousekeepingTests.FreshSessionClearsTurnoverAndLegacyKernelDoesNotInventManualChores" methodname="FreshSessionClearsTurnoverAndLegacyKernelDoesNotInventManualChores" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="1249613700" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.001861" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1518" name="FutureAndWaitingNoShowReservationsDoNotDirtyUnusedRoomsOrCreateDepartureTokens" fullname="WorstHotel.Tests.HousekeepingTests.FutureAndWaitingNoShowReservationsDoNotDirtyUnusedRoomsOrCreateDepartureTokens" methodname="FutureAndWaitingNoShowReservationsDoNotDirtyUnusedRoomsOrCreateDepartureTokens" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="1177659748" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000513" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1519" name="InterruptedInitialRoomTravelKeepsRoomCleanButBlocksRecheckinUntilOldPhysicalIdentityVacates" fullname="WorstHotel.Tests.HousekeepingTests.InterruptedInitialRoomTravelKeepsRoomCleanButBlocksRecheckinUntilOldPhysicalIdentityVacates" methodname="InterruptedInitialRoomTravelKeepsRoomCleanButBlocksRecheckinUntilOldPhysicalIdentityVacates" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="1979753788" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000762" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1527" name="InvalidCommandsAndNonfiniteTimeCannotAdvanceManualWorkOrCreateStock" fullname="WorstHotel.Tests.HousekeepingTests.InvalidCommandsAndNonfiniteTimeCannotAdvanceManualWorkOrCreateStock" methodname="InvalidCommandsAndNonfiniteTimeCannotAdvanceManualWorkOrCreateStock" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="1027230516" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000959" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1532" name="NewDirtyEpisodeReusesOneWorldIdentityButRejectsOldDeliveryAndOldTaskProgress" fullname="WorstHotel.Tests.HousekeepingTests.NewDirtyEpisodeReusesOneWorldIdentityButRejectsOldDeliveryAndOldTaskProgress" methodname="NewDirtyEpisodeReusesOneWorldIdentityButRejectsOldDeliveryAndOldTaskProgress" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="689273083" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000403" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1531" name="RefillRestocksOnlyConsumedSlotsOncePerDayAndDoesNotReclaimHeldOrDroppedLinen" fullname="WorstHotel.Tests.HousekeepingTests.RefillRestocksOnlyConsumedSlotsOncePerDayAndDoesNotReclaimHeldOrDroppedLinen" methodname="RefillRestocksOnlyConsumedSlotsOncePerDayAndDoesNotReclaimHeldOrDroppedLinen" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="34902941" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000628" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1526" name="SixDirtyRoomsNeedSixManualChangesAndPreparationHasNoHiddenBusinessCharges" fullname="WorstHotel.Tests.HousekeepingTests.SixDirtyRoomsNeedSixManualChangesAndPreparationHasNoHiddenBusinessCharges" methodname="SixDirtyRoomsNeedSixManualChangesAndPreparationHasNoHiddenBusinessCharges" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="288239885" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.003103" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1525" name="StartingServiceResetsClockButDoesNotSpendTimeOrReplaceManualLinenWork" fullname="WorstHotel.Tests.HousekeepingTests.StartingServiceResetsClockButDoesNotSpendTimeOrReplaceManualLinenWork" methodname="StartingServiceResetsClockButDoesNotSpendTimeOrReplaceManualLinenWork" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="450783853" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000427" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1520" name="TransferDirtiesOnlyTheUsedOriginAndNeverTheUnreachedReservedDestination" fullname="WorstHotel.Tests.HousekeepingTests.TransferDirtiesOnlyTheUsedOriginAndNeverTheUnreachedReservedDestination" methodname="TransferDirtiesOnlyTheUsedOriginAndNeverTheUnreachedReservedDestination" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="410690572" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000926" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1521" name="WrongOrRepeatedDepartureCallbacksCannotUnlockLinenOrReleaseOccupiedRooms" fullname="WorstHotel.Tests.HousekeepingTests.WrongOrRepeatedDepartureCallbacksCannotUnlockLinenOrReleaseOccupiedRooms" methodname="WrongOrRepeatedDepartureCallbacksCannotUnlockLinenOrReleaseOccupiedRooms" classname="WorstHotel.Tests.HousekeepingTests" runstate="Runnable" seed="12506150" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000549" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1565" name="LanProtocolTests" fullname="WorstHotel.Tests.LanProtocolTests" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.009580" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="ParameterizedMethod" id="1581" name="BoilerSelectionCarriesCurrentRevisionButCompletedWorkCannotBeSubmittedOverTheWire" fullname="WorstHotel.Tests.LanProtocolTests.BoilerSelectionCarriesCurrentRevisionButCompletedWorkCannotBeSubmittedOverTheWire" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.001403" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1579" name="BoilerSelectionCarriesCurrentRevisionButCompletedWorkCannotBeSubmittedOverTheWire(Basic)" fullname="WorstHotel.Tests.LanProtocolTests.BoilerSelectionCarriesCurrentRevisionButCompletedWorkCannotBeSubmittedOverTheWire(Basic)" methodname="BoilerSelectionCarriesCurrentRevisionButCompletedWorkCannotBeSubmittedOverTheWire" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="460231701" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000669" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1580" name="BoilerSelectionCarriesCurrentRevisionButCompletedWorkCannotBeSubmittedOverTheWire(Full)" fullname="WorstHotel.Tests.LanProtocolTests.BoilerSelectionCarriesCurrentRevisionButCompletedWorkCannotBeSubmittedOverTheWire(Full)" methodname="BoilerSelectionCarriesCurrentRevisionButCompletedWorkCannotBeSubmittedOverTheWire" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="572663463" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000058" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1569" name="CommandEnvelopeRejectsStaleCrossDayCrossPhaseUnknownAndOversizedIntents" fullname="WorstHotel.Tests.LanProtocolTests.CommandEnvelopeRejectsStaleCrossDayCrossPhaseUnknownAndOversizedIntents" methodname="CommandEnvelopeRejectsStaleCrossDayCrossPhaseUnknownAndOversizedIntents" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="191448779" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000645" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1570" name="ContinuousCommandCanCrossMidnightButNotEpochPhaseOrFutureDate" fullname="WorstHotel.Tests.LanProtocolTests.ContinuousCommandCanCrossMidnightButNotEpochPhaseOrFutureDate" methodname="ContinuousCommandCanCrossMidnightButNotEpochPhaseOrFutureDate" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="1419599723" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000162" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1577" name="ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope" fullname="WorstHotel.Tests.LanProtocolTests.ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.001367" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1574" name="ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope(CancelMove)" fullname="WorstHotel.Tests.LanProtocolTests.ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope(CancelMove)" methodname="ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="1607383285" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000345" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1575" name="ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope(OfferCredit)" fullname="WorstHotel.Tests.LanProtocolTests.ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope(OfferCredit)" methodname="ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="863508454" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000067" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1576" name="ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope(AcceptConsequences)" fullname="WorstHotel.Tests.LanProtocolTests.ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope(AcceptConsequences)" methodname="ContinuousDirectDecisionRequiresBoundedExactIntentExpectationWhileLegacyKeepsItsEnvelope" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="843268859" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000057" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1578" name="DirectIpAndInputRejectInvalidBoundaryValuesWithoutRequiringNetworkingRuntime" fullname="WorstHotel.Tests.LanProtocolTests.DirectIpAndInputRejectInvalidBoundaryValuesWithoutRequiringNetworkingRuntime" methodname="DirectIpAndInputRejectInvalidBoundaryValuesWithoutRequiringNetworkingRuntime" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="568220056" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000529" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1585" name="NaturalContactCommandsAcceptBoundedCompositeResponseIds" fullname="WorstHotel.Tests.LanProtocolTests.NaturalContactCommandsAcceptBoundedCompositeResponseIds" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.001133" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1582" name="NaturalContactCommandsAcceptBoundedCompositeResponseIds(AnswerServiceCall)" fullname="WorstHotel.Tests.LanProtocolTests.NaturalContactCommandsAcceptBoundedCompositeResponseIds(AnswerServiceCall)" methodname="NaturalContactCommandsAcceptBoundedCompositeResponseIds" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="85032629" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000130" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1583" name="NaturalContactCommandsAcceptBoundedCompositeResponseIds(TalkServiceGuest)" fullname="WorstHotel.Tests.LanProtocolTests.NaturalContactCommandsAcceptBoundedCompositeResponseIds(TalkServiceGuest)" methodname="NaturalContactCommandsAcceptBoundedCompositeResponseIds" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="1925820169" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000055" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1584" name="NaturalContactCommandsAcceptBoundedCompositeResponseIds(DiscussRoomConcern)" fullname="WorstHotel.Tests.LanProtocolTests.NaturalContactCommandsAcceptBoundedCompositeResponseIds(DiscussRoomConcern)" methodname="NaturalContactCommandsAcceptBoundedCompositeResponseIds" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="1310339114" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000043" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-suite type="ParameterizedMethod" id="1573" name="ReservationEditsCarryAnExplicitRevisionThroughJson" fullname="WorstHotel.Tests.LanProtocolTests.ReservationEditsCarryAnExplicitRevisionThroughJson" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000871" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1571" name="ReservationEditsCarryAnExplicitRevisionThroughJson(CancelBooking)" fullname="WorstHotel.Tests.LanProtocolTests.ReservationEditsCarryAnExplicitRevisionThroughJson(CancelBooking)" methodname="ReservationEditsCarryAnExplicitRevisionThroughJson" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="1471680902" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000171" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1572" name="ReservationEditsCarryAnExplicitRevisionThroughJson(SetBookingPrice)" fullname="WorstHotel.Tests.LanProtocolTests.ReservationEditsCarryAnExplicitRevisionThroughJson(SetBookingPrice)" methodname="ReservationEditsCarryAnExplicitRevisionThroughJson" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="1894847356" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000049" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-suite type="ParameterizedMethod" id="1568" name="SupplyOrdersNeedExactRevisionAndCannotSupplyTheirOwnPrice" fullname="WorstHotel.Tests.LanProtocolTests.SupplyOrdersNeedExactRevisionAndCannotSupplyTheirOwnPrice" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000912" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1566" name="SupplyOrdersNeedExactRevisionAndCannotSupplyTheirOwnPrice(OrderLaundry)" fullname="WorstHotel.Tests.LanProtocolTests.SupplyOrdersNeedExactRevisionAndCannotSupplyTheirOwnPrice(OrderLaundry)" methodname="SupplyOrdersNeedExactRevisionAndCannotSupplyTheirOwnPrice" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="4715286" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000190" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1567" name="SupplyOrdersNeedExactRevisionAndCannotSupplyTheirOwnPrice(OrderBulbs)" fullname="WorstHotel.Tests.LanProtocolTests.SupplyOrdersNeedExactRevisionAndCannotSupplyTheirOwnPrice(OrderBulbs)" methodname="SupplyOrdersNeedExactRevisionAndCannotSupplyTheirOwnPrice" classname="WorstHotel.Tests.LanProtocolTests" runstate="Runnable" seed="1974812023" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000048" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+          </test-suite>
+          <test-suite type="TestFixture" id="1715" name="OperatingSuppliesTests" fullname="WorstHotel.Tests.OperatingSuppliesTests" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" testcasecount="14" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.103787" total="14" passed="14" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1718" name="BulbOrdersReserveWholePacksAndNeverOverwriteHeldStockOrRefillForFree" fullname="WorstHotel.Tests.OperatingSuppliesTests.BulbOrdersReserveWholePacksAndNeverOverwriteHeldStockOrRefillForFree" methodname="BulbOrdersReserveWholePacksAndNeverOverwriteHeldStockOrRefillForFree" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="53669587" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.027915" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1724" name="ContinuousHotelWithoutLivingSubsystemHasAnEmptySupplyRegistry" fullname="WorstHotel.Tests.OperatingSuppliesTests.ContinuousHotelWithoutLivingSubsystemHasAnEmptySupplyRegistry" methodname="ContinuousHotelWithoutLivingSubsystemHasAnEmptySupplyRegistry" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="499826653" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.001214" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1723" name="FailedOrdersDoNotChargeOrChangeStock" fullname="WorstHotel.Tests.OperatingSuppliesTests.FailedOrdersDoNotChargeOrChangeStock" methodname="FailedOrdersDoNotChargeOrChangeStock" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="2012508658" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.001169" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1731" name="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption" fullname="WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.015816" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1725" name="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;duplicate-deposit&quot;)" fullname="WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;duplicate-deposit&quot;)" methodname="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="449508274" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.004022" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1726" name="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;future-generation&quot;)" fullname="WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;future-generation&quot;)" methodname="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="1932479515" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.002221" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1727" name="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;extra-linen&quot;)" fullname="WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;extra-linen&quot;)" methodname="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="257000884" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.002230" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1728" name="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;bulb-overbook&quot;)" fullname="WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;bulb-overbook&quot;)" methodname="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="2057617048" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.002181" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1729" name="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;past-delivery&quot;)" fullname="WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;past-delivery&quot;)" methodname="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="173784100" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.002149" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1730" name="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;config&quot;)" fullname="WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(&quot;config&quot;)" methodname="InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="804367585" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.002188" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1716" name="LaundryCostsOnceReturnsLaterAndKeepsOverflowUntilAPhysicalSlotIsFree" fullname="WorstHotel.Tests.OperatingSuppliesTests.LaundryCostsOnceReturnsLaterAndKeepsOverflowUntilAPhysicalSlotIsFree" methodname="LaundryCostsOnceReturnsLaterAndKeepsOverflowUntilAPhysicalSlotIsFree" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="739892969" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.014737" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1717" name="LinenCanRunOutAndMidnightDoesNotPrepareRoomsOrReplenishIt" fullname="WorstHotel.Tests.OperatingSuppliesTests.LinenCanRunOutAndMidnightDoesNotPrepareRoomsOrReplenishIt" methodname="LinenCanRunOutAndMidnightDoesNotPrepareRoomsOrReplenishIt" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="450617430" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.025091" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1719" name="SharedDeliveryIsStrictlyFutureAndMirrorCanPreviewButCannotPurchase" fullname="WorstHotel.Tests.OperatingSuppliesTests.SharedDeliveryIsStrictlyFutureAndMirrorCanPreviewButCannotPurchase" methodname="SharedDeliveryIsStrictlyFutureAndMirrorCanPreviewButCannotPurchase" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="198888883" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.014119" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1722" name="UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned" fullname="WorstHotel.Tests.OperatingSuppliesTests.UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.002533" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1720" name="UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned(False)" fullname="WorstHotel.Tests.OperatingSuppliesTests.UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned(False)" methodname="UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="1874164114" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.001523" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1721" name="UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned(True)" fullname="WorstHotel.Tests.OperatingSuppliesTests.UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned(True)" methodname="UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned" classname="WorstHotel.Tests.OperatingSuppliesTests" runstate="Runnable" seed="1285766518" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.000349" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+          </test-suite>
+          <test-suite type="TestFixture" id="1732" name="OwnershipContractTests" fullname="WorstHotel.Tests.OwnershipContractTests" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:59Z" duration="0.547998" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1740" name="CoincidentEveningExpenseFailureAndReportCloseOnceAndRoundTripTheFrozenNotice" fullname="WorstHotel.Tests.OwnershipContractTests.CoincidentEveningExpenseFailureAndReportCloseOnceAndRoundTripTheFrozenNotice" methodname="CoincidentEveningExpenseFailureAndReportCloseOnceAndRoundTripTheFrozenNotice" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="1744537892" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.039826" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1738" name="EmptyProductionChronologyGrowsOnlyAtContractAttemptsAndMidnightDoesNotDebit" fullname="WorstHotel.Tests.OwnershipContractTests.EmptyProductionChronologyGrowsOnlyAtContractAttemptsAndMidnightDoesNotDebit" methodname="EmptyProductionChronologyGrowsOnlyAtContractAttemptsAndMidnightDoesNotDebit" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="58949426" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.080585" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1737" name="ExactCashPaysInFullAndOneShortPaysNothing" fullname="WorstHotel.Tests.OwnershipContractTests.ExactCashPaysInFullAndOneShortPaysNothing" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.071109" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1735" name="ExactCashPaysInFullAndOneShortPaysNothing(600,True)" fullname="WorstHotel.Tests.OwnershipContractTests.ExactCashPaysInFullAndOneShortPaysNothing(600,True)" methodname="ExactCashPaysInFullAndOneShortPaysNothing" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="957646087" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.041485" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1736" name="ExactCashPaysInFullAndOneShortPaysNothing(599,False)" fullname="WorstHotel.Tests.OwnershipContractTests.ExactCashPaysInFullAndOneShortPaysNothing(599,False)" methodname="ExactCashPaysInFullAndOneShortPaysNothing" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="74705101" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.027228" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1744" name="MirrorsApplyPaymentOnceRejectForgedSettlementAtomicallyAndCannotReviveOwnership" fullname="WorstHotel.Tests.OwnershipContractTests.MirrorsApplyPaymentOnceRejectForgedSettlementAtomicallyAndCannotReviveOwnership" methodname="MirrorsApplyPaymentOnceRejectForgedSettlementAtomicallyAndCannotReviveOwnership" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="2093803228" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.070650" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1739" name="NoonReportsAreCashNeutralAndDoNotMoveMorningExpensesOrEveningContracts" fullname="WorstHotel.Tests.OwnershipContractTests.NoonReportsAreCashNeutralAndDoNotMoveMorningExpensesOrEveningContracts" methodname="NoonReportsAreCashNeutralAndDoNotMoveMorningExpensesOrEveningContracts" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="364051502" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.037829" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1742" name="PostedRevenueAboveTheObligationDoesNotProtectCashSpentOnRealPurchases" fullname="WorstHotel.Tests.OwnershipContractTests.PostedRevenueAboveTheObligationDoesNotProtectCashSpentOnRealPurchases" methodname="PostedRevenueAboveTheObligationDoesNotProtectCashSpentOnRealPurchases" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="1304724838" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.034412" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1734" name="ProductionChargesAtSixAndFirstContractAtTwentyTwoAfterCheckoutWhileNullDisablesContract" fullname="WorstHotel.Tests.OwnershipContractTests.ProductionChargesAtSixAndFirstContractAtTwentyTwoAfterCheckoutWhileNullDisablesContract" methodname="ProductionChargesAtSixAndFirstContractAtTwentyTwoAfterCheckoutWhileNullDisablesContract" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="617497418" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:58Z" duration="0.059505" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1741" name="RestorationKeepsCurrent350LockedThroughMorningAndAssessesTenRoomsOnlyAfterPayment" fullname="WorstHotel.Tests.OwnershipContractTests.RestorationKeepsCurrent350LockedThroughMorningAndAssessesTenRoomsOnlyAfterPayment" methodname="RestorationKeepsCurrent350LockedThroughMorningAndAssessesTenRoomsOnlyAfterPayment" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="82047084" result="Passed" start-time="2026-09-30 13:13:58Z" end-time="2026-09-30 13:13:59Z" duration="0.072352" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1743" name="TickStopsAtFailureBeforeFutureCheckoutAndLaterCommandsCannotSpendOrRevive" fullname="WorstHotel.Tests.OwnershipContractTests.TickStopsAtFailureBeforeFutureCheckoutAndLaterCommandsCannotSpendOrRevive" methodname="TickStopsAtFailureBeforeFutureCheckoutAndLaterCommandsCannotSpendOrRevive" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="1927773275" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.033440" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1733" name="UnservedReceiptRetainsBookedPriceWithoutInventingRevenueAndMirrorsImmutably" fullname="WorstHotel.Tests.OwnershipContractTests.UnservedReceiptRetainsBookedPriceWithoutInventingRevenueAndMirrorsImmutably" methodname="UnservedReceiptRetainsBookedPriceWithoutInventingRevenueAndMirrorsImmutably" classname="WorstHotel.Tests.OwnershipContractTests" runstate="Runnable" seed="1913836119" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.045496" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="2037" name="SupplyFinanceTests" fullname="WorstHotel.Tests.SupplyFinanceTests" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" testcasecount="15" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.102623" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="2050" name="ActualOrdinaryEnquiriesRespectReputationBeforeAnyGuestReceipts" fullname="WorstHotel.Tests.SupplyFinanceTests.ActualOrdinaryEnquiriesRespectReputationBeforeAnyGuestReceipts" methodname="ActualOrdinaryEnquiriesRespectReputationBeforeAnyGuestReceipts" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="747574135" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.054888" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[First-day ordinary reservations at $180: rep0=4, rep60=4, rep100=4; seed=73129
+First-day ordinary reservations at $300: rep0=4, rep60=4, rep100=4; seed=73129
+First-day ordinary reservations at $450: rep0=4, rep60=4, rep100=4; seed=73129
+First-day ordinary reservations at $650: rep0=3, rep60=4, rep100=4; seed=73129
+]]></output>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="2049" name="BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff" fullname="WorstHotel.Tests.SupplyFinanceTests.BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.001350" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2045" name="BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff(120)" fullname="WorstHotel.Tests.SupplyFinanceTests.BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff(120)" methodname="BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1788071010" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000605" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="2046" name="BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff(180)" fullname="WorstHotel.Tests.SupplyFinanceTests.BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff(180)" methodname="BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1850535707" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000044" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="2047" name="BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff(360)" fullname="WorstHotel.Tests.SupplyFinanceTests.BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff(360)" methodname="BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="827650571" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000032" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="2048" name="BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff(650)" fullname="WorstHotel.Tests.SupplyFinanceTests.BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff(650)" methodname="BaselineKeepsExistingPriceProbabilityAndPoorReputationDoesNotTurnItOff" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1722220232" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000030" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="2051" name="InvalidSupplyAndDemandTuningIsRejected" fullname="WorstHotel.Tests.SupplyFinanceTests.InvalidSupplyAndDemandTuningIsRejected" methodname="InvalidSupplyAndDemandTuningIsRejected" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="2080009608" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000564" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="2038" name="ProductionSupplyCostsAndReputationBaselineMatchFirstPassValues" fullname="WorstHotel.Tests.SupplyFinanceTests.ProductionSupplyCostsAndReputationBaselineMatchFirstPassValues" methodname="ProductionSupplyCostsAndReputationBaselineMatchFirstPassValues" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1964081700" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000302" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="2054" name="ReportSupplyTotalsExcludeContractAndRejectExpenseOverflow" fullname="WorstHotel.Tests.SupplyFinanceTests.ReportSupplyTotalsExcludeContractAndRejectExpenseOverflow" methodname="ReportSupplyTotalsExcludeContractAndRejectExpenseOverflow" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1497366217" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000322" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="2044" name="ReputationCurveIsConservativeAndAnchoredAtSixty" fullname="WorstHotel.Tests.SupplyFinanceTests.ReputationCurveIsConservativeAndAnchoredAtSixty" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000681" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="2039" name="ReputationCurveIsConservativeAndAnchoredAtSixty(0,0.8f)" fullname="WorstHotel.Tests.SupplyFinanceTests.ReputationCurveIsConservativeAndAnchoredAtSixty(0,0.8f)" methodname="ReputationCurveIsConservativeAndAnchoredAtSixty" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1531165469" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000163" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="2040" name="ReputationCurveIsConservativeAndAnchoredAtSixty(30,0.9f)" fullname="WorstHotel.Tests.SupplyFinanceTests.ReputationCurveIsConservativeAndAnchoredAtSixty(30,0.9f)" methodname="ReputationCurveIsConservativeAndAnchoredAtSixty" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1079400869" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000030" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="2041" name="ReputationCurveIsConservativeAndAnchoredAtSixty(60,1.0f)" fullname="WorstHotel.Tests.SupplyFinanceTests.ReputationCurveIsConservativeAndAnchoredAtSixty(60,1.0f)" methodname="ReputationCurveIsConservativeAndAnchoredAtSixty" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1663914632" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000022" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="2042" name="ReputationCurveIsConservativeAndAnchoredAtSixty(80,1.05f)" fullname="WorstHotel.Tests.SupplyFinanceTests.ReputationCurveIsConservativeAndAnchoredAtSixty(80,1.05f)" methodname="ReputationCurveIsConservativeAndAnchoredAtSixty" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="868414772" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000020" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="2043" name="ReputationCurveIsConservativeAndAnchoredAtSixty(100,1.1f)" fullname="WorstHotel.Tests.SupplyFinanceTests.ReputationCurveIsConservativeAndAnchoredAtSixty(100,1.1f)" methodname="ReputationCurveIsConservativeAndAnchoredAtSixty" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="214858717" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.000019" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="2052" name="SeparateSupplyCategoriesPublishOnceAndResetWithoutAnotherDebit" fullname="WorstHotel.Tests.SupplyFinanceTests.SeparateSupplyCategoriesPublishOnceAndResetWithoutAnotherDebit" methodname="SeparateSupplyCategoriesPublishOnceAndResetWithoutAnotherDebit" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1873928235" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.023909" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="2053" name="SupplyPurchaseMaySpendContractCashAndFailureFreezesItsExpense" fullname="WorstHotel.Tests.SupplyFinanceTests.SupplyPurchaseMaySpendContractCashAndFailureFreezesItsExpense" methodname="SupplyPurchaseMaySpendContractCashAndFailureFreezesItsExpense" classname="WorstHotel.Tests.SupplyFinanceTests" runstate="Runnable" seed="1128090135" result="Passed" start-time="2026-09-30 13:13:59Z" end-time="2026-09-30 13:13:59Z" duration="0.019414" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/Lomonimus/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

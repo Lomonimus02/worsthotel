@@ -99,12 +99,12 @@ namespace WorstHotel.Tests
         [TestCase(null)]
         [TestCase("")]
         [TestCase("C")]
-        public void UnknownBranchCannotConsumeTheSingleElectricalPurchase(string circuit)
+        public void UnknownBranchCannotConsumeEitherElectricalPurchase(string circuit)
         {
             var fixture = Create(); string before = State(fixture.Hotel);
             Assert.That(fixture.Hotel.PurchaseElectricalUpgrade(0, circuit).Success, Is.False);
             Assert.That(State(fixture.Hotel), Is.EqualTo(before));
-            Assert.That(fixture.Hotel.Electrical.UpgradedCircuitId, Is.Null.Or.Empty);
+            Assert.That(fixture.Hotel.Electrical.Circuits.Any(c => fixture.Hotel.Electrical.IsCapacityUpgraded(c.Id)), Is.False);
         }
 
         [TestCase(true, 1799)]
@@ -118,25 +118,45 @@ namespace WorstHotel.Tests
             Assert.That(State(fixture.Hotel), Is.EqualTo(before));
         }
 
-        [Test]
-        public void EachUpgradeDebitsOnceAndElectricalUpgradeIsOneChoiceForTheWholeHotel()
+        [TestCase("A", "B")]
+        [TestCase("B", "A")]
+        public void EachBranchUpgradeDebitsOnceAndLeavesTheOtherAvailable(string first, string second)
         {
             var fixture = Create(); var hotel = fixture.Hotel;
             int cash = hotel.Economy.Cash;
             Require(hotel.PurchaseBoilerUpgrade(0));
-            Require(hotel.PurchaseElectricalUpgrade(1, "A"));
+            Require(hotel.PurchaseElectricalUpgrade(1, first));
             int spent = fixture.Settings.Economy.BoilerUpgradeCost + fixture.Settings.Economy.ElectricalUpgradeCost;
             Assert.That(hotel.Economy.Cash, Is.EqualTo(cash - spent));
             Assert.That(hotel.PeriodCapitalSpend, Is.EqualTo(spent));
             Assert.That(hotel.Boiler.CapacityUpgradePurchased, Is.True);
-            Assert.That(hotel.Electrical.UpgradedCircuitId, Is.EqualTo("A"));
-            Assert.That(hotel.Electrical.Find("B").Capacity, Is.EqualTo(hotel.ElectricitySettings.CircuitCapacity));
+            Assert.That(hotel.Electrical.IsCapacityUpgraded(first), Is.True);
+            Assert.That(hotel.Electrical.Find(second).Capacity, Is.EqualTo(hotel.ElectricitySettings.CircuitCapacity));
+            Require(hotel.PurchaseElectricalUpgrade(0, second));
+            spent += fixture.Settings.Economy.ElectricalUpgradeCost;
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(cash - spent));
+            Assert.That(hotel.PeriodCapitalSpend, Is.EqualTo(spent));
+            Assert.That(hotel.Electrical.Circuits.All(c => hotel.Electrical.IsCapacityUpgraded(c.Id) &&
+                c.Capacity == hotel.ElectricitySettings.CircuitCapacity + hotel.ElectricitySettings.CapacityUpgradeAmount), Is.True);
             string after = State(hotel);
             Assert.That(hotel.PurchaseBoilerUpgrade(1).Success, Is.False);
             Assert.That(hotel.PurchaseElectricalUpgrade(0, "A").Success, Is.False);
-            Assert.That(hotel.PurchaseElectricalUpgrade(0, "B").Success, Is.False,
-                "The unused other branch does not represent a second available upgrade.");
+            Assert.That(hotel.PurchaseElectricalUpgrade(0, "B").Success, Is.False);
+            Assert.That(hotel.PurchaseElectricalUpgrade(0, "unknown").Success, Is.False);
             Assert.That(State(hotel), Is.EqualTo(after));
+        }
+
+        [TestCase("A", "B")]
+        [TestCase("B", "A")]
+        public void UnaffordableSecondBranchPreservesFirstPurchaseAndCash(string first, string second)
+        {
+            var fixture = Create(cash: 1200); var hotel = fixture.Hotel;
+            Require(hotel.PurchaseElectricalUpgrade(0, first));
+            string before = State(hotel);
+            Assert.That(hotel.PurchaseElectricalUpgrade(1, second).Success, Is.False);
+            Assert.That(State(hotel), Is.EqualTo(before));
+            Assert.That(hotel.Electrical.IsCapacityUpgraded(first), Is.True);
+            Assert.That(hotel.Electrical.IsCapacityUpgraded(second), Is.False);
         }
 
         [Test]
@@ -195,7 +215,8 @@ namespace WorstHotel.Tests
         [Test]
         public void OneActualHeaterCanFitAfterChosenBranchUpgradeButTheTripNeedsResetAndTwoStillOverload()
         {
-            var fixture = Create(occupancy: 3); var hotel = fixture.Hotel;
+            // A supplies odd rooms: populate 101, 103 and 105 to produce 3 * .85 + 2 heater units.
+            var fixture = Create(occupancy: 5); var hotel = fixture.Hotel;
             AddHeater(fixture, "upgrade-heater-1", 101);
             var circuit = hotel.Electrical.Find("A");
             Assert.That(circuit.LoadOverride, Is.Null);
@@ -218,7 +239,7 @@ namespace WorstHotel.Tests
             Assert.That(circuit.ActualDeliveredLoad, Is.EqualTo(circuit.ActualRequestedLoad));
             Assert.That(hotel.Heaters.Find("upgrade-heater-1").EffectiveHeatOutput, Is.GreaterThan(0));
             int trips = circuit.TripCount;
-            AddHeater(fixture, "upgrade-heater-2", 102);
+            AddHeater(fixture, "upgrade-heater-2", 103);
             Assert.That(circuit.ActualRequestedLoad, Is.EqualTo(6.55f).Within(.0001f));
             hotel.Tick(hotel.ElectricitySettings.TripSeconds + 1);
             Assert.That(circuit.Tripped, Is.True);
@@ -265,13 +286,14 @@ namespace WorstHotel.Tests
             AdvanceTo(hotel, hotel.Calendar.At(2, 0) - 5);
             int initialCash = hotel.Economy.Cash;
             Require(hotel.PurchaseBoilerUpgrade(0)); Require(hotel.PurchaseElectricalUpgrade(0, "B"));
+            Require(hotel.PurchaseElectricalUpgrade(1, "A"));
             Require(hotel.BeginBoilerMaintenance(0));
-            int capital = fixture.Settings.Economy.BoilerUpgradeCost + fixture.Settings.Economy.ElectricalUpgradeCost;
+            int capital = fixture.Settings.Economy.BoilerUpgradeCost + 2 * fixture.Settings.Economy.ElectricalUpgradeCost;
             int maintenance = fixture.Settings.Economy.ProperRepairCost;
             Assert.That(hotel.PeriodCapitalSpend, Is.EqualTo(capital));
             AdvanceTo(hotel, hotel.Calendar.At(2, 0) + 1);
             Assert.That(hotel.Boiler.CapacityUpgradePurchased, Is.True);
-            Assert.That(hotel.Electrical.UpgradedCircuitId, Is.EqualTo("B"));
+            Assert.That(hotel.Electrical.IsCapacityUpgraded("B"), Is.True);
             Assert.That(hotel.Boiler.MaintenanceInProgress, Is.True);
             Assert.That(hotel.PeriodCapitalSpend, Is.EqualTo(capital));
             Assert.That(hotel.Economy.Cash, Is.EqualTo(initialCash - capital - maintenance));
@@ -285,7 +307,7 @@ namespace WorstHotel.Tests
             Assert.That(hotel.PeriodCapitalSpend, Is.Zero);
             Assert.That(hotel.PeriodMaintenanceSpend, Is.Zero);
             Assert.That(hotel.Boiler.CapacityUpgradePurchased, Is.True);
-            Assert.That(hotel.Electrical.UpgradedCircuitId, Is.EqualTo("B"));
+            Assert.That(hotel.Electrical.IsCapacityUpgraded("B"), Is.True);
             float rated = hotel.Boiler.RatedCapacity, branchCapacity = hotel.Electrical.Find("B").Capacity;
             int cashAfter = hotel.Economy.Cash;
             AdvanceTo(hotel, hotel.NextReportAt + .25f);
@@ -295,6 +317,8 @@ namespace WorstHotel.Tests
             Assert.That(hotel.Economy.Cash, Is.EqualTo(cashAfter - fixture.Settings.Economy.DailyOperatingCost));
             Assert.That(hotel.Boiler.RatedCapacity, Is.EqualTo(rated));
             Assert.That(hotel.Electrical.Find("B").Capacity, Is.EqualTo(branchCapacity));
+            Assert.That(hotel.Electrical.IsCapacityUpgraded("A"), Is.True);
+            Assert.That(hotel.Electrical.Find("A").Capacity, Is.EqualTo(branchCapacity));
         }
 
         [Test]
@@ -327,7 +351,7 @@ namespace WorstHotel.Tests
             var mirror = Create(); mirror.Hotel.EnableReadOnlyMirror();
             Require(mirror.Hotel.ApplySnapshot(JsonUtility.FromJson<HotelModelSnapshot>(JsonUtility.ToJson(host.Hotel.CaptureSnapshot(77, 1)))));
             Assert.That(mirror.Hotel.Boiler.RatedCapacity, Is.EqualTo(host.Hotel.Boiler.RatedCapacity));
-            Assert.That(mirror.Hotel.Electrical.UpgradedCircuitId, Is.EqualTo("B"));
+            Assert.That(mirror.Hotel.Electrical.IsCapacityUpgraded("B"), Is.True);
             Assert.That(mirror.Hotel.Electrical.Find("B").Capacity, Is.EqualTo(host.Hotel.Electrical.Find("B").Capacity));
             foreach (var hotel in new[] { mirror.Hotel, Create(open: false).Hotel, Create(open: false, continuous: false).Hotel })
             {

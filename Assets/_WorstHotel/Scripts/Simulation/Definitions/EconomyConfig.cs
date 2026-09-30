@@ -18,6 +18,11 @@ namespace WorstHotel
         public int electricalUpgradeCost = 1200;
         public int insulationUpgradeCost = 450;
         public int wingRestorationCost = 4500;
+        [Header("Operating supplies")]
+        [Min(0)] public int laundrySetCost = 18;
+        [Range(1, 6)] public int bulbPackSize = 3;
+        [Min(0)] public int bulbPackCost = 45;
+        [Range(0, 23.99f)] public float supplyDeliveryHour = 6;
         public float properRepairCondition = 95;
         public float compensationRate = 0.2f;
         public float compensationGoodwill = 10;
@@ -43,6 +48,7 @@ namespace WorstHotel
             compensationGoodwill, severeRefundThreshold, severeRefundRate, partialRefundThreshold, partialRefundRate,
             expectationSlope, minExpectation, maxExpectation, qualityPenaltyScale, patiencePenalty, initialReputation,
             reputationTarget, reputationChangeFactor, coldSeverityDegrees, degradedSeverity, brokenSeverity, dirtySeverity,
-            boilerUpgradeCost, electricalUpgradeCost, basicMaintenanceCost, insulationUpgradeCost, wingRestorationCost);
+            boilerUpgradeCost, electricalUpgradeCost, basicMaintenanceCost, insulationUpgradeCost, wingRestorationCost,
+            laundrySetCost, bulbPackSize, bulbPackCost, supplyDeliveryHour);
     }
 }

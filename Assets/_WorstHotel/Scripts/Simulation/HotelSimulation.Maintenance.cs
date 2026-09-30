@@ -6,11 +6,18 @@ namespace WorstHotel
 
         CommandResult CanPayForEquipment(int actorId, int cost)
         {
-            if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
-            if (!ContinuousOperations || !Running) return CommandResult.Fail("Equipment purchases require an open continuous hotel.");
             if (actorId < 0 || actorId > 1) return CommandResult.Fail("Unknown staff member.");
-            if ((long)PeriodMaintenanceSpend + PeriodCapitalSpend + cost + System.Math.Max(PeriodOperatingSpend, settings.Economy.DailyOperatingCost) > int.MaxValue)
-                return CommandResult.Fail("This accounting period cannot record another equipment payment.");
+            return CanPayOperatingExpense(cost);
+        }
+
+        CommandResult CanPayOperatingExpense(int cost)
+        {
+            if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
+            if (!ContinuousOperations || !Running || OwnershipLost) return CommandResult.Fail("Purchases require an open continuous hotel.");
+            if (cost < 0) return CommandResult.Fail("A purchase cost cannot be negative.");
+            if ((long)PeriodMaintenanceSpend + PeriodCapitalSpend + PeriodLaundrySpend + PeriodBulbSpend + cost +
+                System.Math.Max(PeriodOperatingSpend, settings.Economy.DailyOperatingCost) > int.MaxValue)
+                return CommandResult.Fail("This accounting period cannot record another payment.");
             return CommandResult.Ok();
         }
 

@@ -22,6 +22,8 @@ namespace WorstHotel
         public DoorInteractable Door;
         public int DoorCrossing = -1;
         const float Feet = .01f;
+        const float NorthLane = .55f, SouthLane = -.55f;
+        const float ArrivalLane = -.65f, DepartureLane = .35f;
 
         public void Add(float x, float z) => Points.Add(new Vector3(x, Feet, z));
         public void Add(Vector3 point) => Add(point.x, point.z);
@@ -37,7 +39,7 @@ namespace WorstHotel
         public static AuthoredGuestRoute Arrival(Vector3 reception)
         {
             var route = new AuthoredGuestRoute();
-            route.Add(0, .35f); route.Add(reception.x, .35f); route.Add(reception);
+            route.Add(NorthLane, ArrivalLane); route.Add(reception.x, ArrivalLane); route.Add(reception);
             return route;
         }
 
@@ -45,16 +47,19 @@ namespace WorstHotel
         {
             var route = new AuthoredGuestRoute { Door = room.door };
             float side = Mathf.Sign(room.door.transform.position.x), z = room.door.transform.position.z;
+            float lane = current.z <= z ? NorthLane : SouthLane;
             if (fromRoom) ReturnToInnerLane(route, current, side, z);
             else
             {
                 // Stay in front of the reception counter; the diagonal shortcut intersects luggage.
                 if (current.z < 6)
                 {
-                    route.Add(current.x, .35f); route.Add(side * .32f, .35f); route.Add(side * .32f, 6.6f);
+                    if (current.z < ArrivalLane) route.Add(NorthLane, ArrivalLane);
+                    route.Add(current.z < ArrivalLane ? NorthLane : current.x, DepartureLane);
+                    route.Add(lane, DepartureLane); route.Add(lane, 6.6f);
                 }
-                else route.Add(side * .32f, current.z);
-                route.Add(side * .32f, z); route.Add(Outside(room));
+                else route.Add(lane, current.z);
+                route.Add(lane, z); route.Add(Outside(room));
                 route.DoorCrossing = route.Points.Count;
                 route.Add(Inside(room));
             }
@@ -73,8 +78,10 @@ namespace WorstHotel
                 activity == GuestActivity.PhoneCall ? room.phoneAnchor :
                 activity == GuestActivity.LoudRoom || activity == GuestActivity.WatchTV ? room.loud : room.rest;
             if (target == null) { route.Add(room.roomTarget.position); return route; }
+            // The wing beds have small offsets. The valve aisle clears both their foot
+            // and the outer armchair; the deeper rest aisle stops before that chair.
             float traverseZ = activity == GuestActivity.Shower || activity == GuestActivity.Work ? z + 2.60f :
-                activity == GuestActivity.AdjustRadiator ? z - .9f : z - 1.6f;
+                activity == GuestActivity.AdjustRadiator ? z - 1.13f : z - 1.6f;
             route.Add(side * 4.18f, traverseZ); route.Add(target.position.x, traverseZ); route.Add(target.position);
             return route;
         }
@@ -90,15 +97,15 @@ namespace WorstHotel
                 ReturnToInnerLane(route, current, side, z);
                 route.Add(Inside(room));
                 route.DoorCrossing = route.Points.Count;
-                route.Add(Outside(room)); route.Add(side * .32f, z);
+                route.Add(Outside(room)); route.Add(SouthLane, z);
             }
             else
             {
-                if (current.z < 6) route.Add(current.x, .35f);
-                route.Add(side * .32f, current.z < 6 ? .35f : current.z);
+                if (current.z < 6) route.Add(current.x, DepartureLane);
+                route.Add(SouthLane, current.z < 6 ? DepartureLane : current.z);
             }
-            if (current.z >= 6) route.Add(side * .32f, 6.6f);
-            route.Add(0, .35f); route.Add(exit);
+            if (current.z >= 6) route.Add(SouthLane, 6.6f);
+            route.Add(SouthLane, DepartureLane); route.Add(SouthLane, exit.z); route.Add(exit);
             return route;
         }
 
@@ -109,7 +116,7 @@ namespace WorstHotel
             ReturnToInnerLane(route, current, side, z);
             route.Add(Inside(room));
             route.DoorCrossing = route.Points.Count;
-            route.Add(Outside(room)); route.Add(side * .32f, z);
+            route.Add(Outside(room));
             return route;
         }
 
@@ -120,8 +127,8 @@ namespace WorstHotel
         {
             // Follow the same real doorway and clear corridor as a departure, then use the
             // reception waiting lane instead of the exterior. Room ownership is unchanged.
-            var route = Exit(current, room, new Vector3(0, Feet, .35f), inRoom);
-            route.Add(reception.x, .35f); route.Add(reception);
+            var route = Exit(current, room, new Vector3(SouthLane, Feet, ArrivalLane), inRoom);
+            route.Add(reception.x, ArrivalLane); route.Add(reception);
             return route;
         }
 
@@ -146,7 +153,7 @@ namespace WorstHotel
             // Go around the north or south end of the bed, never through its middle.
             // The radiator's outer aisle also returns around the foot of the bed. Crossing
             // straight from the right-hand valve at roomZ+1.2 would cut through the mattress.
-            float z = current.z >= roomZ + 2.3f ? roomZ + 2.60f : current.x * side > 7.75f ? roomZ - .9f :
+            float z = current.z >= roomZ + 2.3f ? roomZ + 2.60f : current.x * side > 7.75f ? roomZ - 1.13f :
                 current.z <= roomZ - .8f ? roomZ - 1.6f : current.z;
             route.Add(current.x, z); route.Add(side * 4.18f, z); route.Add(side * 4.18f, roomZ);
         }

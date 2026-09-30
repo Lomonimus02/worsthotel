@@ -33,6 +33,7 @@ namespace WorstHotel.Editor
 
             // The manual sits on the existing workbench, within the boiler room's clear aisle.
             BuildHotelBook(root, HotelBook.BoilerManual, "ENGINEER'S MANUAL", new Vector3(21.60f, 1.23f, 1.40f), new Vector3(65, -90, 0), "Mahogany");
+            BuildSupplyLedger(root);
             BuildHotelClock(root, "Lobby wall clock", new Vector3(6f, 3.08f, 5.51f), 0);
             BuildHotelClock(root, "Staff room clock", new Vector3(18.25f, 2.35f, 4.62f), 0);
             BuildHotelClock(root, "Plant room clock", new Vector3(24.9f, 2.60f, 9.28f), 0);

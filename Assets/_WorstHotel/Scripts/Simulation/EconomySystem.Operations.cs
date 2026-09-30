@@ -37,10 +37,12 @@ namespace WorstHotel
 
         // All money movements are already posted. A report never debits or credits cash.
         internal DayReport CloseOperatingDay(int number, IEnumerable<GuestReceipt> receipts, int openingCash, float seconds,
-            int maintenanceSpend = 0, int capitalSpend = 0, int operatingSpend = 0, ContractPayment contractPayment = null)
+            int maintenanceSpend = 0, int capitalSpend = 0, int operatingSpend = 0, ContractPayment contractPayment = null,
+            int laundrySpend = 0, int bulbSpend = 0)
         {
             if (ReadOnlyMirror) throw new InvalidOperationException(HotelSimulation.MirrorMessage);
-            if (number != lastOperatingReport + 1 || receipts == null || !Number.IsFinite(seconds) || seconds <= 0 || maintenanceSpend < 0 || capitalSpend < 0 || operatingSpend < 0)
+            if (number != lastOperatingReport + 1 || receipts == null || !Number.IsFinite(seconds) || seconds <= 0 || maintenanceSpend < 0 || capitalSpend < 0 || operatingSpend < 0 ||
+                laundrySpend < 0 || bulbSpend < 0)
                 throw new ArgumentException("Operating reports must close consecutive positive intervals exactly once.");
             var copy = receipts.ToArray();
             if (copy.Any(receipt => receipt == null) || copy.Select(receipt => receipt.GuestId).Distinct().Count() != copy.Length)
@@ -48,7 +50,8 @@ namespace WorstHotel
             float nextReputation = Reputation;
             if (copy.Length > 0)
                 nextReputation = Number.Clamp(Reputation + (copy.Average(receipt => receipt.Satisfaction) - settings.ReputationTarget) * settings.ReputationChangeFactor, 0, 100);
-            var report = new DayReport(number, copy, openingCash, operatingSpend, Cash, nextReputation, seconds, maintenanceSpend, capitalSpend, contractPayment);
+            var report = new DayReport(number, copy, openingCash, operatingSpend, Cash, nextReputation, seconds, maintenanceSpend, capitalSpend, contractPayment,
+                laundrySpend, bulbSpend);
             Reputation = nextReputation;
             lastOperatingReport = number;
             return report;

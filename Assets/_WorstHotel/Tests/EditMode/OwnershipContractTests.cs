@@ -74,6 +74,31 @@ namespace WorstHotel.Tests
         }
 
         [Test]
+        public void UnservedReceiptRetainsBookedPriceWithoutInventingRevenueAndMirrorsImmutably()
+        {
+            var host = Create(Isolated(new OwnershipContractSettings()));
+            var offer = host.BookingOffers.First(item => item.ArrivalDay == 1);
+            Require(host.AcceptBooking(0, offer.Id, 101, 300));
+            AdvanceTo(host, offer.CheckoutAt + .25f); // Deliberately never check in this fixture guest.
+            var receipt = host.CurrentReceipts.Single();
+            Assert.That(receipt.AgreedPrice, Is.EqualTo(300));
+            Assert.That(receipt.Price, Is.Zero);
+            Assert.That(receipt.Compensation, Is.Zero);
+            Assert.That(receipt.Net, Is.Zero);
+            Assert.That(host.Economy.Cash, Is.EqualTo(1250), "Only the ordinary 06:00 bill moved money.");
+            var mirror = Create(Isolated(new OwnershipContractSettings())); mirror.EnableReadOnlyMirror();
+            Require(mirror.ApplySnapshot(Wire(host, 1)));
+            Assert.That(mirror.CurrentReceipts.Single().AgreedPrice, Is.EqualTo(300));
+            AdvanceTo(host, host.NextReportAt);
+            Require(mirror.ApplySnapshot(Wire(host, 2)));
+            Assert.That(mirror.LastReport.Receipts.Single().AgreedPrice, Is.EqualTo(300));
+            string before = State(mirror);
+            var forged = Wire(host, 3); forged.Reports.Last().Receipts[0].AgreedPrice = 301;
+            Assert.That(mirror.ApplySnapshot(forged).Success, Is.False, "Published receipt metadata cannot be rewritten.");
+            Assert.That(State(mirror), Is.EqualTo(before));
+        }
+
+        [Test]
         public void ProductionChargesAtSixAndFirstContractAtTwentyTwoAfterCheckoutWhileNullDisablesContract()
         {
             var hotel = Create();
@@ -83,8 +108,8 @@ namespace WorstHotel.Tests
             Assert.That(hotel.RoomSalesPolicies.Count(policy => policy.OpenForSale), Is.EqualTo(4));
             Assert.That(hotel.ContractBaseRooms, Is.EqualTo(6));
             Assert.That(hotel.ContractAssessedRooms, Is.EqualTo(6));
-            Assert.That(hotel.ContractDue, Is.EqualTo(250));
-            Assert.That(hotel.NextContractDue, Is.EqualTo(275));
+            Assert.That(hotel.ContractDue, Is.EqualTo(350));
+            Assert.That(hotel.NextContractDue, Is.EqualTo(400));
             Assert.That(hotel.NextReportAt, Is.EqualTo(hotel.Calendar.At(2, 6)));
             Assert.That(hotel.Operations.OperatingCostHour, Is.EqualTo(6));
             Assert.That(hotel.Operations.Contract.PaymentHour, Is.EqualTo(22));
@@ -97,6 +122,9 @@ namespace WorstHotel.Tests
                 "The first deadline follows the first night's normal checkout opportunity.");
             CloseSales(hotel); // An intentionally empty first night isolates the production opening reserve.
 
+            AdvanceTo(hotel, hotel.Calendar.At(1, 22));
+            Assert.That(hotel.ContractSequence, Is.Zero, "There is no Day 1 payment.");
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(1600));
             AdvanceTo(hotel, hotel.Calendar.At(2, 6) - .25f);
             Assert.That(hotel.Economy.Cash, Is.EqualTo(1600));
             Assert.That(hotel.OperatingCostSequence, Is.Zero);
@@ -114,7 +142,7 @@ namespace WorstHotel.Tests
             Assert.That(hotel.OperatingCostSequence, Is.EqualTo(1));
             Assert.That(hotel.PeriodOperatingSpend, Is.Zero, "The report clears already-posted expenses.");
             Assert.That(hotel.ContractSequence, Is.Zero);
-            Assert.That(hotel.ContractDue, Is.EqualTo(250));
+            Assert.That(hotel.ContractDue, Is.EqualTo(350));
             Assert.That(hotel.LastContractPayment, Is.Null);
 
             AdvanceTo(hotel, hotel.NextContractAt - .25f);
@@ -126,14 +154,14 @@ namespace WorstHotel.Tests
             Assert.That(payment, Is.Not.Null);
             Assert.That(payment.Period, Is.EqualTo(1));
             Assert.That(payment.DueAt, Is.EqualTo(hotel.Calendar.At(2, 22)));
-            Assert.That(payment.Due, Is.EqualTo(250));
-            Assert.That(payment.PaidAmount, Is.EqualTo(250));
+            Assert.That(payment.Due, Is.EqualTo(350));
+            Assert.That(payment.PaidAmount, Is.EqualTo(350));
             Assert.That(payment.FundsBeforePayment, Is.EqualTo(1250));
             Assert.That(payment.AssessedRooms, Is.EqualTo(6));
             Assert.That(payment.OwnershipLost, Is.False);
             Assert.That(payment.Shortfall, Is.Zero);
-            Assert.That(payment.CashAfterPayment, Is.EqualTo(1000));
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(1000));
+            Assert.That(payment.CashAfterPayment, Is.EqualTo(900));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(900));
             Assert.That(hotel.PeriodContractPayment, Is.SameAs(payment));
             Assert.That(hotel.ContractSequence, Is.EqualTo(1));
             Assert.That(hotel.ReportSequence, Is.EqualTo(1));
@@ -174,7 +202,7 @@ namespace WorstHotel.Tests
         public void ExactCashPaysInFullAndOneShortPaysNothing(int openingCash, bool succeeds)
         {
             // Labelled cash fixture is set before the morning operating charge, not at collection.
-            var hotel = Create(Isolated(new OwnershipContractSettings()), openingCash);
+            var hotel = Create(Isolated(new OwnershipContractSettings(baseDue: 250, dailyIncrease: 25)), openingCash);
             CloseNextPeriod(hotel);
 
             var report = hotel.LastReport;
@@ -232,18 +260,18 @@ namespace WorstHotel.Tests
             Assert.That(hotel.ReportSequence, Is.Zero);
             Assert.That(hotel.ContractSequence, Is.Zero);
             Assert.That(hotel.OperatingCostSequence, Is.Zero);
-            Assert.That(hotel.ContractDue, Is.EqualTo(250));
+            Assert.That(hotel.ContractDue, Is.EqualTo(350));
             Assert.That(hotel.Economy.Cash, Is.EqualTo(1600));
 
             CloseNextPeriod(hotel);
             Assert.That(hotel.Economy.Cash, Is.EqualTo(1250));
-            Assert.That(hotel.ContractDue, Is.EqualTo(250));
+            Assert.That(hotel.ContractDue, Is.EqualTo(350));
             Assert.That(hotel.ContractSequence, Is.Zero);
             AdvanceTo(hotel, hotel.NextContractAt);
             var first = hotel.LastContractPayment;
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(1000));
-            Assert.That(hotel.ContractDue, Is.EqualTo(275));
-            Assert.That(hotel.NextContractDue, Is.EqualTo(300));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(900));
+            Assert.That(hotel.ContractDue, Is.EqualTo(400));
+            Assert.That(hotel.NextContractDue, Is.EqualTo(450));
             Assert.That(hotel.NextContractAt, Is.EqualTo(hotel.Calendar.At(3, 22)));
             hotel.Tick(0);
             hotel.Tick(.25f);
@@ -251,28 +279,28 @@ namespace WorstHotel.Tests
             Assert.That(hotel.ReportSequence, Is.EqualTo(1));
             Assert.That(hotel.ContractSequence, Is.EqualTo(1));
             Assert.That(hotel.OperatingCostSequence, Is.EqualTo(1));
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(1000));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(900));
 
             CloseNextPeriod(hotel);
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(650));
-            Assert.That(hotel.ContractDue, Is.EqualTo(275));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(550));
+            Assert.That(hotel.ContractDue, Is.EqualTo(400));
             Assert.That(hotel.LastReport.ContractPayment, Is.SameAs(first));
-            Assert.That(hotel.LastReport.Cash, Is.EqualTo(650));
-            Assert.That(first.CashAfterPayment, Is.EqualTo(1000), "The next morning's expense follows the frozen payment receipt.");
+            Assert.That(hotel.LastReport.Cash, Is.EqualTo(550));
+            Assert.That(first.CashAfterPayment, Is.EqualTo(900), "The next morning's expense follows the frozen payment receipt.");
             Assert.That(hotel.LastReport.Cash, Is.EqualTo(hotel.LastReport.OpeningCash + hotel.LastReport.Net - first.PaidAmount));
             Assert.That(hotel.PeriodContractPayment, Is.Null);
             Assert.That(hotel.PeriodOperatingSpend, Is.Zero);
             AdvanceTo(hotel, hotel.NextContractAt);
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(375));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(150));
             Assert.That(hotel.LastContractPayment.Period, Is.EqualTo(2));
-            Assert.That(hotel.LastContractPayment.Due, Is.EqualTo(275));
-            Assert.That(hotel.ContractDue, Is.EqualTo(300));
-            Assert.That(hotel.NextContractDue, Is.EqualTo(325));
-            Assert.That(first.Due, Is.EqualTo(250), "Published payment history remains immutable.");
+            Assert.That(hotel.LastContractPayment.Due, Is.EqualTo(400));
+            Assert.That(hotel.ContractDue, Is.EqualTo(450));
+            Assert.That(hotel.NextContractDue, Is.EqualTo(500));
+            Assert.That(first.Due, Is.EqualTo(350), "Published payment history remains immutable.");
 
             CloseNextPeriod(hotel);
             var morning = hotel.LastReport;
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(25));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(-200));
             Assert.That(hotel.ContractSequence, Is.EqualTo(2));
             Assert.That(hotel.ReportSequence, Is.EqualTo(3));
             Assert.That(hotel.Running, Is.True);
@@ -282,13 +310,13 @@ namespace WorstHotel.Tests
             Assert.That(hotel.ReportSequence, Is.EqualTo(3));
             Assert.That(hotel.OperatingCostSequence, Is.EqualTo(3));
             Assert.That(hotel.LastReport, Is.SameAs(morning));
-            Assert.That(hotel.DayReports.Select(report => report.ContractPayment?.Due ?? 0), Is.EqualTo(new[] { 0, 250, 275 }));
-            Assert.That(hotel.LastContractPayment.Due, Is.EqualTo(300));
+            Assert.That(hotel.DayReports.Select(report => report.ContractPayment?.Due ?? 0), Is.EqualTo(new[] { 0, 350, 400 }));
+            Assert.That(hotel.LastContractPayment.Due, Is.EqualTo(450));
             Assert.That(hotel.LastContractPayment.PaidAmount, Is.Zero);
-            Assert.That(hotel.LastContractPayment.Shortfall, Is.EqualTo(275));
+            Assert.That(hotel.LastContractPayment.Shortfall, Is.EqualTo(650));
             Assert.That(hotel.OwnershipLossReport.ContractPayment, Is.SameAs(hotel.LastContractPayment));
-            Assert.That(hotel.OwnershipLossReport.Cash, Is.EqualTo(25));
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(25));
+            Assert.That(hotel.OwnershipLossReport.Cash, Is.EqualTo(-200));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(-200));
             Assert.That(hotel.OwnershipLost, Is.True);
             Assert.That(hotel.Running, Is.False);
         }
@@ -296,7 +324,7 @@ namespace WorstHotel.Tests
         [Test]
         public void NoonReportsAreCashNeutralAndDoNotMoveMorningExpensesOrEveningContracts()
         {
-            var hotel = Create(new OperationsSettings(reportHour: 12, contract: new OwnershipContractSettings(),
+            var hotel = Create(new OperationsSettings(reportHour: 12, contract: new OwnershipContractSettings(baseDue: 250, dailyIncrease: 25),
                 operatingCostHour: 6));
             Assert.That(hotel.NextReportAt, Is.EqualTo(hotel.Calendar.At(1, 12)));
             CloseNextPeriod(hotel);
@@ -354,7 +382,7 @@ namespace WorstHotel.Tests
         public void CoincidentEveningExpenseFailureAndReportCloseOnceAndRoundTripTheFrozenNotice()
         {
             var operations = new OperationsSettings(reportHour: 22,
-                contract: new OwnershipContractSettings(paymentHour: 22, firstPaymentDay: 2), operatingCostHour: 22);
+                contract: new OwnershipContractSettings(baseDue: 250, dailyIncrease: 25, paymentHour: 22, firstPaymentDay: 2), operatingCostHour: 22);
             // Labelled cash fixture: 949 - day-one expense 350 - day-two expense 350 = 249.
             var host = Create(operations, cash: 949);
             var mirror = Create(operations, cash: 949);
@@ -414,14 +442,14 @@ namespace WorstHotel.Tests
         }
 
         [Test]
-        public void RestorationKeepsCurrent250LockedThroughMorningAndAssessesTenRoomsOnlyAfterPayment()
+        public void RestorationKeepsCurrent350LockedThroughMorningAndAssessesTenRoomsOnlyAfterPayment()
         {
             var hotel = Create(cash: 10000); // Labelled capital fixture, not a claim that the wing was earned.
             var policy = hotel.RoomSalesPolicies.Single(row => row.RoomId == 106);
             Assert.That(policy.OpenForSale, Is.False);
             Require(hotel.SetRoomSalesPolicy(0, 106, true, policy.Price, policy.Revision));
-            Assert.That(hotel.ContractDue, Is.EqualTo(250));
-            Assert.That(hotel.NextContractDue, Is.EqualTo(275));
+            Assert.That(hotel.ContractDue, Is.EqualTo(350));
+            Assert.That(hotel.NextContractDue, Is.EqualTo(400));
             Assert.That(hotel.ContractAssessedRooms, Is.EqualTo(6));
 
             Require(hotel.RestoreNorthWing(0));
@@ -429,8 +457,8 @@ namespace WorstHotel.Tests
             Assert.That(hotel.RoomSalesPolicies.Where(row => row.RoomId >= 107).All(row => !row.OpenForSale), Is.True);
             Assert.That(hotel.ContractBaseRooms, Is.EqualTo(6));
             Assert.That(hotel.ContractAssessedRooms, Is.EqualTo(6));
-            Assert.That(hotel.ContractDue, Is.EqualTo(250));
-            Assert.That(hotel.NextContractDue, Is.EqualTo(275 + 240));
+            Assert.That(hotel.ContractDue, Is.EqualTo(350));
+            Assert.That(hotel.NextContractDue, Is.EqualTo(400 + 240));
             Assert.That(hotel.PeriodCapitalSpend, Is.EqualTo(4500));
             Assert.That(hotel.Economy.Cash, Is.EqualTo(5500));
             CloseSales(hotel);
@@ -444,37 +472,37 @@ namespace WorstHotel.Tests
             Assert.That(hotel.PeriodCapitalSpend, Is.Zero);
             Assert.That(hotel.PeriodOperatingSpend, Is.Zero);
             Assert.That(hotel.ContractAssessedRooms, Is.EqualTo(6));
-            Assert.That(hotel.ContractDue, Is.EqualTo(250));
-            Assert.That(hotel.NextContractDue, Is.EqualTo(515));
+            Assert.That(hotel.ContractDue, Is.EqualTo(350));
+            Assert.That(hotel.NextContractDue, Is.EqualTo(640));
             Assert.That(hotel.ContractSequence, Is.Zero);
 
             AdvanceTo(hotel, hotel.NextContractAt);
             Assert.That(hotel.LastContractPayment.AssessedRooms, Is.EqualTo(6));
-            Assert.That(hotel.LastContractPayment.PaidAmount, Is.EqualTo(250));
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(4900));
+            Assert.That(hotel.LastContractPayment.PaidAmount, Is.EqualTo(350));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(4800));
             Assert.That(hotel.ContractAssessedRooms, Is.EqualTo(10));
-            Assert.That(hotel.ContractDue, Is.EqualTo(515));
-            Assert.That(hotel.NextContractDue, Is.EqualTo(540));
+            Assert.That(hotel.ContractDue, Is.EqualTo(640));
+            Assert.That(hotel.NextContractDue, Is.EqualTo(690));
 
             CloseNextPeriod(hotel);
             Assert.That(hotel.LastReport.ContractPayment.AssessedRooms, Is.EqualTo(6));
-            Assert.That(hotel.LastReport.ContractPayment.PaidAmount, Is.EqualTo(250));
+            Assert.That(hotel.LastReport.ContractPayment.PaidAmount, Is.EqualTo(350));
             Assert.That(hotel.LastReport.CapitalSpend, Is.Zero);
             Assert.That(hotel.LastReport.OperatingCost, Is.EqualTo(350));
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(4550));
-            Assert.That(hotel.ContractDue, Is.EqualTo(515));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(4450));
+            Assert.That(hotel.ContractDue, Is.EqualTo(640));
             AdvanceTo(hotel, hotel.NextContractAt);
             Assert.That(hotel.LastContractPayment.AssessedRooms, Is.EqualTo(10));
-            Assert.That(hotel.LastContractPayment.PaidAmount, Is.EqualTo(515));
-            Assert.That(hotel.Economy.Cash, Is.EqualTo(4035));
-            Assert.That(hotel.ContractDue, Is.EqualTo(540), "The room surcharge is not compounded each day.");
+            Assert.That(hotel.LastContractPayment.PaidAmount, Is.EqualTo(640));
+            Assert.That(hotel.Economy.Cash, Is.EqualTo(3810));
+            Assert.That(hotel.ContractDue, Is.EqualTo(690), "The room surcharge is not compounded each day.");
         }
 
         [Test]
         public void PostedRevenueAboveTheObligationDoesNotProtectCashSpentOnRealPurchases()
         {
             const int openingCash = 1300;
-            var hotel = Create(Isolated(new OwnershipContractSettings()), openingCash);
+            var hotel = Create(Isolated(new OwnershipContractSettings(baseDue: 250, dailyIncrease: 25)), openingCash);
             var guest = CheckInGuest(hotel, 650);
             hotel.Tick(1);
             Assert.That(guest.Elapsed, Is.GreaterThan(0));
@@ -527,7 +555,7 @@ namespace WorstHotel.Tests
         [Test]
         public void TickStopsAtFailureBeforeFutureCheckoutAndLaterCommandsCannotSpendOrRevive()
         {
-            var hotel = Create(Isolated(new OwnershipContractSettings(baseDue: 1300)));
+            var hotel = Create(Isolated(new OwnershipContractSettings(baseDue: 1300, dailyIncrease: 25)));
             // Book the second night so its genuine checkout is after the first evening deadline.
             var guest = CheckInGuest(hotel, 180, arrivalDay: 2);
             float boundary = hotel.Calendar.At(2, 22);
@@ -573,8 +601,8 @@ namespace WorstHotel.Tests
         [Test]
         public void MirrorsApplyPaymentOnceRejectForgedSettlementAtomicallyAndCannotReviveOwnership()
         {
-            var host = Create(Isolated(new OwnershipContractSettings()));
-            var mirror = Create(Isolated(new OwnershipContractSettings()));
+            var host = Create(Isolated(new OwnershipContractSettings(baseDue: 250, dailyIncrease: 25)));
+            var mirror = Create(Isolated(new OwnershipContractSettings(baseDue: 250, dailyIncrease: 25)));
             mirror.EnableReadOnlyMirror();
             var opening = Wire(host, 1);
             Require(mirror.ApplySnapshot(opening));

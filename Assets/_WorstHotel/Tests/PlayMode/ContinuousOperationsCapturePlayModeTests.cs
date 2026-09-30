@@ -91,8 +91,8 @@ namespace WorstHotel.Tests
             yield return ReopenReceptionOperations();
             Assert.That(ui.DisplayedOperationsOverview, Does.Contain("OFF · maintenance until"));
             yield return ChooseOperationsOption("Capacity upgrades");
-            yield return ChooseOperationsOption("Upgrade circuit B");
-            Assert.That(model.Electrical.UpgradedCircuitId, Is.EqualTo("B"));
+            yield return ChooseOperationsOption("Upgrade B");
+            Assert.That(model.Electrical.IsCapacityUpgraded("B"), Is.True);
             Assert.That(model.Electrical.Find("B").Tripped, Is.True);
             yield return ChooseOperationsOption("Back to operations");
             yield return ChooseOperationsOption("Daily reports");

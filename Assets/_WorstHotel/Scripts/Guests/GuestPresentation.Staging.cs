@@ -114,6 +114,7 @@ namespace WorstHotel
             if (guest.BlockedSeconds < 2.5f || guest.Route == null || guest.Waypoint >= guest.Route.Points.Count) return;
             guest.BlockedSeconds = 0;
             guest.RecoveryCount++;
+            if (guest.Detouring) return;
             var origin = guest.Root.position;
             var target = guest.Route.Points[guest.Waypoint];
             // Local detours are accepted only when both swept capsule segments are clear. Never
@@ -125,65 +126,17 @@ namespace WorstHotel
                     var candidate = origin + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
                     if (guest.InsideRoom && !AuthoredGuestRoute.IsOnRoomSide(candidate, guest.Room)) continue;
                     if (!guest.InsideRoom && AuthoredGuestRoute.IsOnRoomSide(candidate, guest.Room)) continue;
-                    if (!SegmentClear(guest, origin, candidate) || !SegmentClear(guest, candidate, target)) continue;
+                    if (!guest.InsideRoom && candidate.z >= 6 && Mathf.Abs(candidate.x) > 1.3f) continue;
+                    if (!GuestPhysicalReaction.SegmentClear(guest.Root, origin, candidate) ||
+                        !GuestPhysicalReaction.SegmentClear(guest.Root, candidate, target)) continue;
                     guest.Route.Points.Insert(guest.Waypoint, candidate);
                     if (guest.Route.DoorCrossing >= guest.Waypoint) guest.Route.DoorCrossing++;
+                    guest.Detouring = true;
                     guest.PathStatus = "Local clear detour";
                     return;
                 }
-            if (guest.RecoveryCount % 3 != 0) return;
-            // A stale corner/waypoint must not keep an NPC walking into the same obstruction
-            // forever. After three failed local searches reset at most one metre within the
-            // same physical space, then rebuild the route from the actual position. This does
-            // not acknowledge an arrival, clear ownership, or cross a locked doorway.
-            for (int direction = 0; direction < 8; direction++)
-            {
-                float angle = direction * Mathf.PI / 4;
-                var candidate = origin + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * .8f;
-                if (AuthoredGuestRoute.IsOnRoomSide(candidate, guest.Room) != guest.InsideRoom ||
-                    !SegmentClear(guest, origin, candidate) || !StandingSpaceClear(guest, candidate)) continue;
-                guest.Root.position = candidate;
-                break;
-            }
-            var purpose = guest.Purpose;
-            AuthoredGuestRoute rebuilt;
-            switch (purpose)
-            {
-                case RoutePurpose.Reception:
-                    rebuilt = AuthoredGuestRoute.Arrival(receptionPlaces[guest.ReceptionSlot].position);
-                    break;
-                case RoutePurpose.Activity:
-                    rebuilt = AuthoredGuestRoute.Activity(guest.Root.position, guest.Room, guest.Activity, guest.State == GuestAgentState.Sleeping);
-                    break;
-                case RoutePurpose.Exit:
-                    rebuilt = AuthoredGuestRoute.Exit(guest.Root.position, guest.Room, arrivalSpawn.position, guest.InsideRoom);
-                    break;
-                case RoutePurpose.Away:
-                    rebuilt = AuthoredGuestRoute.GuestAway(guest.Root.position, guest.Room, arrivalSpawn.position);
-                    break;
-                case RoutePurpose.ServiceReception:
-                    rebuilt = AuthoredGuestRoute.ToServiceReception(guest.Root.position, guest.Room,
-                        receptionPlaces[guest.ReceptionSlot].position, guest.InsideRoom);
-                    break;
-                case RoutePurpose.Transfer:
-                    rebuilt = AuthoredGuestRoute.LeaveRoom(guest.Root.position, guest.Room);
-                    break;
-                default:
-                    rebuilt = AuthoredGuestRoute.ToRoom(guest.Root.position, guest.Room, guest.InsideRoom);
-                    break;
-            }
-            SetRoute(guest, rebuilt, purpose);
-            guest.PathStatus = "Recovered nearby / rebuilt route";
-        }
-
-        static bool StandingSpaceClear(VisualGuest guest, Vector3 position)
-        {
-            foreach (var shape in Physics.OverlapCapsule(position + Vector3.up * .45f,
-                position + Vector3.up * 1.60f, .23f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
-                if (shape && !shape.transform.IsChildOf(guest.Root) && !shape.attachedRigidbody &&
-                    !shape.GetComponentInParent<GuestReceptionInteraction>() &&
-                    !shape.GetComponentInParent<FirstPersonController>() && !shape.GetComponentInParent<DoorInteractable>()) return false;
-            return true;
+            // Keep the original gated waypoint when no swept detour is possible. No local
+            // reset/teleport: a cleared obstruction is retried on the next walking update.
         }
     }
 }

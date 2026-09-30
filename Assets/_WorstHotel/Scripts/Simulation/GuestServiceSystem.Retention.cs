@@ -46,7 +46,11 @@ namespace WorstHotel
                 if (retainedGuestIds.Contains(item.GuestId) && historyOwnerIds.Contains(item.GuestId)) continue;
                 var guest = Guest(item.GuestId);
                 if (guest != null && !Departed(guest)) continue;
-                item.GuestId = null; item.RoomId = null; item.Generation++;
+                item.GuestId = null;
+                // A used blanket still belongs to this room until its bed turnover completes.
+                if (!simulation.ContinuousOperations || item.Kind != ServiceItemKind.Blanket ||
+                    item.Location != ServiceItemLocation.Delivered) item.RoomId = null;
+                if (item.Generation < int.MaxValue) item.Generation++;
             }
         }
     }

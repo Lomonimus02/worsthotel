@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-30 13:17:46Z" end-time="2026-09-30 13:18:10Z" duration="23,4986734">
+  <test-suite type="TestSuite" id="1108" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="100" result="Passed" start-time="2026-09-30 13:17:46Z" end-time="2026-09-30 13:18:10Z" duration="23.498673" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1105" name="WorstHotel.PlayModeTests.dll" fullname="C:/Normal/Programs/Game/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="100" result="Passed" start-time="2026-09-30 13:17:46Z" end-time="2026-09-30 13:18:10Z" duration="23.493072" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="339444" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1106" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="100" result="Passed" start-time="2026-09-30 13:17:46Z" end-time="2026-09-30 13:18:10Z" duration="23.492256" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1107" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="100" result="Passed" start-time="2026-09-30 13:17:46Z" end-time="2026-09-30 13:18:10Z" duration="23.491488" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="100" result="Passed" start-time="2026-09-30 13:17:46Z" end-time="2026-09-30 13:18:10Z" duration="23.490178" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1075" name="OwnershipContractBookPaymentPurchaseAndTerminalNotice" fullname="WorstHotel.Tests.Phase1PlayModeTests.OwnershipContractBookPaymentPurchaseAndTerminalNotice" methodname="OwnershipContractBookPaymentPurchaseAndTerminalNotice" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="327921439" result="Passed" start-time="2026-09-30 13:17:46Z" end-time="2026-09-30 13:18:04Z" duration="17.503939" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="Category" value="AutomaticSales" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1074" name="PhysicalSupplyBookOrdersOnceAndDeliveryAppearsOnExistingShelf" fullname="WorstHotel.Tests.Phase1PlayModeTests.PhysicalSupplyBookOrdersOnceAndDeliveryAppearsOnExistingShelf" methodname="PhysicalSupplyBookOrdersOnceAndDeliveryAppearsOnExistingShelf" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2139372655" result="Passed" start-time="2026-09-30 13:18:04Z" end-time="2026-09-30 13:18:10Z" duration="5.970859" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="OperatingSupplies" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="Category" value="AutomaticSales" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/Lomonimus/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

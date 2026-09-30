@@ -44,11 +44,12 @@ namespace WorstHotel
             }
             Fill(new Rect(90, 310, 780, 2), Brass);
             if (report != null)
-                Label(new Rect(90, 330, 780, 70), "Final partial period · revenue $" + report.Gross +
+                Label(new Rect(90, 325, 780, 92), "Final partial period · revenue $" + report.Gross +
                     " · refunds $" + report.Compensation + " · operations $" + report.OperatingCost +
                     "\nRepairs / maintenance $" + report.MaintenanceSpend + " · purchases / renovation $" + report.CapitalSpend +
+                    "\nLaundry service $" + report.LaundrySpend + " · bulb orders $" + report.BulbSpend +
                     "\nResult before contract: $" + report.Net + ". Unpaid bookings are not cash.", Body);
-            Label(new Rect(90, 407, 780, 42), CanRestartOwnedHotel ? "Start a fresh hotel, or return to the main menu." :
+            Label(new Rect(90, 427, 780, 42), CanRestartOwnedHotel ? "Start a fresh hotel, or return to the main menu." :
                 "Only the host can start a fresh hotel. You may wait here or leave.", Body, Muted);
             actions.Clear(); enabledActions.Clear();
             if (CanRestartOwnedHotel)

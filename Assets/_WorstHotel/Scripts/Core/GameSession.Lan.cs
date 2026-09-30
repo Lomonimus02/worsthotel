@@ -10,12 +10,12 @@ namespace WorstHotel
         public bool IsLanReplica => Simulation != null && Simulation.IsReadOnlyMirror;
         bool ForwardLan(LanCommandKind kind, string subject = null, int room = 0, int amount = 0, int reservationRevision = -1,
             string directIntentId = null, int directIntentRevision = -1, int maintenanceRevision = -1,
-            int policyRevision = -1, bool openForSale = false)
+            int policyRevision = -1, bool openForSale = false, int supplyRevision = -1)
         {
             var lan = LanSession.Instance;
             if (!lan || !lan.IsClientReplica) return false;
             LastMessage = lan.SubmitCommand(kind, subject, room, amount, reservationRevision, directIntentId, directIntentRevision,
-                maintenanceRevision, policyRevision, openForSale) ? "Sent to the host…" : "Waiting for the host connection.";
+                maintenanceRevision, policyRevision, openForSale, supplyRevision) ? "Sent to the host…" : "Waiting for the host connection.";
             return true;
         }
 
@@ -109,6 +109,8 @@ namespace WorstHotel
                     if (Enum.IsDefined(typeof(MaintenanceChoice), command.amount)) ChooseMaintenance(playerId, (MaintenanceChoice)command.amount);
                     break;
                 case LanCommandKind.PurchaseBoilerUpgrade: PurchaseBoilerUpgrade(playerId); break;
+                case LanCommandKind.OrderLaundry: OrderLaundry(playerId, command.expectedSupplyRevision); break;
+                case LanCommandKind.OrderBulbs: OrderBulbs(playerId, command.expectedSupplyRevision); break;
                 case LanCommandKind.PurchaseInsulation: PurchaseInsulation(playerId); break;
                 case LanCommandKind.RestoreNorthWing: RestoreNorthWing(playerId); break;
                 case LanCommandKind.PurchaseElectricalUpgrade: PurchaseElectricalUpgrade(playerId, command.subject); break;

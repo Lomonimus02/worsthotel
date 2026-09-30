@@ -14,12 +14,12 @@ namespace WorstHotel
                 !model.Boiler.CapacityUpgradePurchased && model.Economy.Cash >= costs.BoilerUpgradeCost);
             if (model.Electrical != null)
             {
-                bool available = string.IsNullOrEmpty(model.Electrical.UpgradedCircuitId);
                 for (int i = 0; i < 2; i++)
                 {
                     string id = i == 0 ? "A" : "B";
+                    bool available = !model.Electrical.IsCapacityUpgraded(id);
                     AddOperationsChoice(58 + i * 343, 428, 330, 37, available ? "Upgrade " + id + " · $" + costs.ElectricalUpgradeCost :
-                        "Upgrade installed on " + model.Electrical.UpgradedCircuitId, () => Session.PurchaseElectricalUpgrade(owner, id),
+                        "Upgrade installed on " + id, () => Session.PurchaseElectricalUpgrade(owner, id),
                         available && model.Economy.Cash >= costs.ElectricalUpgradeCost);
                 }
             }
@@ -41,9 +41,9 @@ namespace WorstHotel
             Label(new Rect(58, 245, 673, 45), "Rated " + boiler.RatedCapacity.ToString("F2") + " → " + rated.ToString("F2") +
                 " u. Same guests, more reserve. Existing wear still needs service.", Small, Muted);
             Fill(new Rect(42, 350, 705, 125), LightPaper);
-            Label(new Rect(58, 359, 673, 30), "ELECTRICITY / CHOOSE A OR B", Heading);
+            Label(new Rect(58, 359, 673, 30), "ELECTRICITY / INDEPENDENT A + B UPGRADES", Heading);
             Label(new Rect(58, 394, 673, 32), "Permanent +" + model.Electrical.Settings.CapacityUpgradeAmount.ToString("F2") +
-                " u on one branch. More rooms and heaters; reset tripped breakers separately.", Small, Muted);
+                " u per branch, purchased separately. Reset tripped breakers separately.", Small, Muted);
             Fill(new Rect(42, 485, 705, 120), LightPaper);
             Label(new Rect(58, 493, 673, 30), "COLD ROOM 102 / WINDOW INSULATION", Heading);
             Label(new Rect(58, 528, 673, 30), "80% less window heat loss and 25% lower base heating demand. Permanent.", Small, Muted);

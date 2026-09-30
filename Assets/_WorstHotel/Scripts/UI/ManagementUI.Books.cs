@@ -11,6 +11,9 @@ namespace WorstHotel
         DiegeticBookInteraction readingBook;
         BookCameraFocus bookCamera;
         int bookPage, bookListPage;
+        int accountsTextPage, accountsReceiptPage;
+        GuestReceipt accountsReceipt;
+        bool accountsReceiptNotes;
         bool bookDetail;
         string bookHeading, bookCopy, bookLastMessage;
         readonly List<(string title, Action action, bool enabled)> bookChoices = new();
@@ -41,6 +44,7 @@ namespace WorstHotel
             bookPage = kind != HotelBook.Accounts ? 0 : !model.ContractEnabled ? 1 :
                 model.LastContractPayment != null && (accountsModel != model || model.LastContractPayment.Period > viewedAccountsPayment) ? 4 : 0;
             bookListPage = 0; bookDetail = false; bookLastMessage = Session.LastMessage;
+            ResetAccountsDetail();
             if (!readingBook) return;
             var player = LocalCoopBootstrap.Instance.Players[owner];
             bookCamera = player.PlayerCamera.GetComponent<BookCameraFocus>() ?? player.PlayerCamera.gameObject.AddComponent<BookCameraFocus>();
@@ -55,7 +59,13 @@ namespace WorstHotel
         }
 
         void BookChoice(string title, Action command, bool enabled = true) => bookChoices.Add((title, command, enabled));
-        void BookPage(int page) { bookPage = page; bookListPage = 0; bookDetail = false; focus = 0; HotelFeedback.PlayUIClick(); }
+        void BookPage(int page) { bookPage = page; bookListPage = 0; bookDetail = false; ResetAccountsDetail(); focus = 0; HotelFeedback.PlayUIClick(); }
+
+        void ResetAccountsDetail()
+        {
+            accountsTextPage = accountsReceiptPage = 0;
+            accountsReceipt = null; accountsReceiptNotes = false;
+        }
 
         void UpdateBookChoices()
         {
@@ -66,8 +76,10 @@ namespace WorstHotel
             {
                 case HotelBook.Reservations: ReservationPages(); break;
                 case HotelBook.Services: ServiceNotes(); break;
+                case HotelBook.Supplies: SupplyPages(); PaginateAccountsText(); break;
                 case HotelBook.Accounts:
                     AccountsPages();
+                    PaginateAccountsText();
                     UpdateAccountsReadState();
                     break;
                 case HotelBook.Renovation:
@@ -144,9 +156,12 @@ namespace WorstHotel
                 if (report != null)
                 {
                     viewedAccountsReport = Math.Max(viewedAccountsReport, report.DayNumber);
-                    if (report.ContractPayment != null)
-                        viewedAccountsPayment = Math.Max(viewedAccountsPayment, report.ContractPayment.Period);
                 }
+            }
+            if (bookPage == 7)
+            {
+                var payment = Session.Reports.FirstOrDefault(r => r.DayNumber == operationsReportNumber)?.ContractPayment;
+                if (payment != null) viewedAccountsPayment = Math.Max(viewedAccountsPayment, payment.Period);
             }
             UpdateAccountsMarker();
         }
@@ -154,8 +169,24 @@ namespace WorstHotel
         void AccountsPages()
         {
             var model = Session.Simulation;
+            if (bookPage == 5 || bookPage == 6)
+            {
+                AccountsGuestReceipts(bookPage == 5 ? model.CurrentReceipts :
+                    Session.Reports.FirstOrDefault(r => r.DayNumber == operationsReportNumber)?.Receipts);
+                return;
+            }
+            if (bookPage == 7)
+            {
+                var report = Session.Reports.FirstOrDefault(r => r.DayNumber == operationsReportNumber);
+                bookHeading = "DAY " + operationsReportNumber + " · CONTRACT";
+                bookCopy = report?.ContractPayment == null ? "No contract receipt retained." :
+                    ContractReceiptCopy(model, report.ContractPayment) + "\n\nCash at report   $" + report.Cash;
+                BookChoice("‹ Report summary", ReturnToAccountsReport);
+                return;
+            }
             if (model.ContractEnabled) BookChoice("Ownership contract", () => BookPage(0));
             BookChoice("Current cash / charges", () => BookPage(1));
+            BookChoice("Current guest receipts", () => BookPage(5));
             BookChoice("Daily reports", () =>
             {
                 BookPage(2);
@@ -167,8 +198,10 @@ namespace WorstHotel
             if (bookPage == 0)
             {
                 long shortfall = Math.Max(0L, (long)model.ContractDue - model.Economy.Cash);
-                bookCopy = "Cash now   $" + model.Economy.Cash +
-                    "\nDue " + GuestLabels.HotelMoment(model, model.NextContractAt) + "\nLocked payment   $" + model.ContractDue +
+                bookCopy = "NEXT CONTRACT PAYMENT\nDue " + GuestLabels.HotelMoment(model, model.NextContractAt) +
+                    "\nNext payment   $" + model.ContractDue +
+                    (model.CalendarDay < model.Operations.Contract.FirstPaymentDay ? "\nNO PAYMENT TODAY" : "") +
+                    "\nCash now   $" + model.Economy.Cash +
                     "\n" + (shortfall == 0 ? "COVERED by current cash" : "SHORT $" + shortfall + " at current cash") +
                     "\n\nAssessed rooms   " + model.ContractAssessedRooms + "\nFollowing payment   $" + model.NextContractDue +
                     "\n\nNext operating charge   $" + Session.Economy.DailyOperatingCost +
@@ -201,6 +234,7 @@ namespace WorstHotel
                     "\n\nRoom charges   $" + model.PeriodGross + "\nCredits / refunds   $" + model.PeriodCompensation +
                     "\nCollected at checkout   $" + model.PeriodCheckoutIncome + "\nMaintenance paid   $" + model.PeriodMaintenanceSpend +
                     "\nRenovation paid   $" + model.PeriodCapitalSpend + "\nOperations paid   $" + model.PeriodOperatingSpend +
+                    "\nLaundry service   $" + model.PeriodLaundrySpend + "\nBulb orders   $" + model.PeriodBulbSpend +
                     (model.PeriodContractPayment == null ? "" : "\nContract paid   $" + model.PeriodContractPayment.PaidAmount) +
                     "\n\nNext operations   $" + Session.Economy.DailyOperatingCost +
                     "\n" + GuestLabels.HotelMoment(model, model.NextOperatingCostAt) +
@@ -211,13 +245,13 @@ namespace WorstHotel
             var reports = Session.Reports.Reverse().ToArray();
             bookCopy = "Reports are written at 06:00.\nWriting a report moves no cash.\n\nChoose a day to read its accounts.\nOperating result excludes the contract.\nA receipt appears if paid that period.\nReport cash is the balance at 06:00.";
             if (reports.Length == 0) bookCopy += "\n\nNo completed report yet.";
-            foreach (var report in reports.Skip(bookListPage * 5).Take(5))
+            foreach (var report in reports.Skip(bookListPage * 3).Take(bookDetail ? 0 : 3))
             {
                 var item = report;
                 BookChoice("Day " + item.DayNumber + " · result $" + item.Net, () =>
-                { operationsReportNumber = item.DayNumber; bookDetail = true; focus = 0; });
+                { operationsReportNumber = item.DayNumber; bookDetail = true; ResetAccountsDetail(); focus = 0; });
             }
-            if (reports.Length > 5) BookChoice("Older pages ›", () => { bookListPage = (bookListPage + 1) % ((reports.Length + 4) / 5); bookDetail = false; });
+            if (!bookDetail && reports.Length > 3) BookChoice("Older pages ›", () => { bookListPage = (bookListPage + 1) % ((reports.Length + 2) / 3); accountsTextPage = 0; });
             if (!bookDetail) return;
             var selected = reports.FirstOrDefault(r => r.DayNumber == operationsReportNumber);
             if (selected == null) return;
@@ -225,10 +259,117 @@ namespace WorstHotel
             bookCopy = "Opening cash   $" + selected.OpeningCash + "\nRoom charges   $" + selected.Gross +
                 "\nCredits / refunds   $" + selected.Compensation + "\nOperations   $" + selected.OperatingCost +
                 "\nMaintenance   $" + selected.MaintenanceSpend + "\nRenovation   $" + selected.CapitalSpend +
+                "\nLaundry service   $" + selected.LaundrySpend + "\nBulb orders   $" + selected.BulbSpend +
                 "\nOperating result   $" + selected.Net;
             var payment = selected.ContractPayment;
-            if (payment != null) bookCopy += "\n\n" + ContractReceiptCopy(model, payment);
-            bookCopy += "\n\nCash at report   $" + selected.Cash;
+            bookCopy += "\n\nCash at report   $" + selected.Cash + "\nOperating result excludes contract.";
+            BookChoice("Guest receipts (" + selected.Receipts.Count + ")", () => BookPage(6));
+            if (payment != null) BookChoice("Report contract receipt", () => BookPage(7));
+            BookChoice("‹ All daily reports", () => BookPage(2));
+        }
+
+        void ReturnToAccountsReport() { BookPage(2); bookDetail = true; }
+
+        void AccountsGuestReceipts(IReadOnlyList<GuestReceipt> receipts)
+        {
+            bool current = bookPage == 5;
+            bookHeading = current ? "CURRENT GUEST RECEIPTS" : "DAY " + operationsReportNumber + " · RECEIPTS";
+            if (accountsReceipt != null)
+            {
+                // Keep the selected frozen receipt readable even if the live period closes while reading.
+                var receipt = accountsReceipt;
+                bookHeading = accountsReceiptNotes ? "GUEST NOTES" : "GUEST RECEIPT";
+                bookCopy = receipt.RoomId + " · " + receipt.Name + "\n" + GuestReceiptStatus(receipt) +
+                    (receipt.EarlyCheckout ? "\n" + GuestLabels.HotelMoment(Session.Simulation, receipt.CheckoutAt) : "") + "\n\n" +
+                    (accountsReceiptNotes ? GuestReceiptNotes(receipt) : GuestReceiptAmounts(receipt) +
+                    "\n\nReason / guest note\n" + GuestReceiptBriefReason(receipt));
+                BookChoice(accountsReceiptNotes ? "Receipt amounts" : "Full guest notes", () =>
+                { accountsReceiptNotes = !accountsReceiptNotes; accountsTextPage = 0; focus = 0; });
+                BookChoice("‹ Guest receipt list", () => { accountsReceipt = null; accountsTextPage = 0; focus = 0; });
+            }
+            else
+            {
+                int count = receipts?.Count ?? 0;
+                int pages = Math.Max(1, (count + 3) / 4);
+                accountsReceiptPage = Mathf.Clamp(accountsReceiptPage, 0, pages - 1);
+                bookCopy = (current ? "Checkouts since the last report." : "Checkouts in this published report.") +
+                    "\nAmounts are already posted.\nReading moves no money.\n\n" +
+                    (count == 0 ? "No guest receipts in this period." : count + " receipts · page " + (accountsReceiptPage + 1) + " / " + pages +
+                    "\nChoose a guest for amounts and notes.");
+                if (receipts != null) foreach (var receipt in receipts.Skip(accountsReceiptPage * 4).Take(4))
+                {
+                    var item = receipt;
+                    string name = item.Name ?? item.GuestId;
+                    if (name.Length > 16) name = name.Substring(0, 15) + "…";
+                    BookChoice(item.RoomId + " · " + name + " · $" + item.Net, () =>
+                    { accountsReceipt = item; accountsReceiptNotes = false; accountsTextPage = 0; focus = 0; });
+                }
+                if (accountsReceiptPage > 0) BookChoice("‹ Previous receipts", () => { accountsReceiptPage--; focus = 0; });
+                if (accountsReceiptPage + 1 < pages) BookChoice("More guest receipts ›", () => { accountsReceiptPage++; focus = 0; });
+            }
+            BookChoice(current ? "‹ Current cash / charges" : "‹ Report summary", () =>
+            { if (current) BookPage(1); else ReturnToAccountsReport(); });
+        }
+
+        static string GuestReceiptStatus(GuestReceipt receipt) => receipt.Price == 0 ? "UNSERVED / NO CHARGE" :
+            receipt.EarlyCheckout ? "EARLY CHECKOUT" : "CHECKOUT";
+
+        static string GuestReceiptAmounts(GuestReceipt receipt) =>
+            (receipt.AgreedPrice == 0 && receipt.Price == 0 ? "Agreed price   not recorded" : "Agreed price   $" + receipt.AgreedPrice) +
+            "\nStay charged   $" + receipt.Price +
+            "\nCredits / refunds   $" + receipt.Compensation + "\nNet received   $" + receipt.Net;
+
+        static string GuestReceiptNotes(GuestReceipt receipt)
+        {
+            string review = receipt.Review ?? "";
+            string reason = receipt.DepartureReason;
+            return !string.IsNullOrWhiteSpace(reason) && !review.StartsWith(reason, StringComparison.Ordinal) ?
+                reason + "\n\n" + review : string.IsNullOrWhiteSpace(review) ? "No guest note recorded." : review;
+        }
+
+        static string GuestReceiptBriefReason(GuestReceipt receipt)
+        {
+            string note = GuestReceiptNotes(receipt);
+            int sentence = note.IndexOf(". ", StringComparison.Ordinal);
+            if (sentence >= 0) note = note.Substring(0, sentence + 1);
+            if (note.Length > 150)
+            {
+                int end = note.LastIndexOf(' ', 147);
+                note = note.Substring(0, end > 0 ? end : 147) + "…";
+            }
+            return note;
+        }
+
+        void PaginateAccountsText()
+        {
+            // Use the actual book font's wrapped height, not character counts or smaller type.
+            if (financeBody == null || string.IsNullOrEmpty(bookCopy)) return;
+            var pages = new List<string>();
+            string remaining = bookCopy;
+            while (remaining.Length > 0)
+            {
+                int low = 1, high = remaining.Length, fit = 1;
+                while (low <= high)
+                {
+                    int mid = low + (high - low) / 2;
+                    if (financeBody.CalcHeight(new GUIContent(remaining.Substring(0, mid)), 420) <= 475)
+                    { fit = mid; low = mid + 1; }
+                    else high = mid - 1;
+                }
+                if (fit < remaining.Length)
+                {
+                    int boundary = remaining.LastIndexOfAny(new[] { ' ', '\n' }, fit - 1, fit);
+                    if (boundary > 0) fit = boundary + 1;
+                }
+                pages.Add(remaining.Substring(0, fit).TrimEnd());
+                remaining = remaining.Substring(fit).TrimStart();
+            }
+            accountsTextPage = Mathf.Clamp(accountsTextPage, 0, pages.Count - 1);
+            bookCopy = pages[accountsTextPage];
+            if (pages.Count <= 1) return;
+            bookCopy += "\n" + (accountsTextPage + 1) + " / " + pages.Count;
+            if (accountsTextPage > 0) BookChoice("‹ Previous text page", () => { accountsTextPage--; focus = 0; });
+            if (accountsTextPage + 1 < pages.Count) BookChoice("Continue reading ›", () => { accountsTextPage++; focus = 0; });
         }
 
         static string ContractReceiptCopy(HotelSimulation model, ContractPayment payment) =>
@@ -322,6 +463,9 @@ namespace WorstHotel
             {
                 bookChoices.Clear();
                 bookCopy = "ROOM SALES\n\nOpen rooms are offered at the written rate. Higher prices attract fewer bookings.\n\nChanges affect future sales; existing reservations keep their agreed price.\n\n";
+                if (model.Operations.Sales != null)
+                    bookCopy += "Reputation: " + SalesSettings.ReputationLabel(model.Economy.Reputation) +
+                        "\nOrdinary demand: " + model.Operations.Sales.DemandLabel(model.Economy.Reputation) + "\n\n";
                 if (bookDetail)
                 {
                     bookCopy += "ROOM " + salesRoomId + "\nDraft: " + (salesOpen ? "OPEN" : "CLOSED") + "\nNightly rate $" + salesPrice;
@@ -383,10 +527,11 @@ namespace WorstHotel
             var old = GUI.matrix;
             GUI.matrix = Matrix4x4.TRS(new Vector3(page.x, page.y, 0), Quaternion.identity, new Vector3(page.width / 1000, page.height / 680, 1));
             Ensure();
-            bool finance = readingBook.kind == HotelBook.Accounts || readingBook.kind == HotelBook.Renovation;
+            bool finance = readingBook.kind == HotelBook.Accounts || readingBook.kind == HotelBook.Renovation || readingBook.kind == HotelBook.Supplies;
             financeBody ??= new GUIStyle(Body) { fontSize = 22 };
             financeHeading ??= new GUIStyle(Heading) { fontSize = 25 };
             financeButton ??= new GUIStyle(HotelTheme.Button) { fontSize = 21 };
+            if (readingBook.kind == HotelBook.Accounts || readingBook.kind == HotelBook.Supplies) UpdateBookChoices();
             // The ink stays registered to the physical page; the real cover, spine and desk frame it.
             Fill(new Rect(18, 14, 468, 646), Paper);
             Fill(new Rect(514, 14, 468, 646), Paper);

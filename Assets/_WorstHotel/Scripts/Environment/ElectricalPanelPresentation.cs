@@ -105,6 +105,8 @@ namespace WorstHotel
                 if (view.lever != null) view.lever.localRotation = Quaternion.Euler(circuit.Tripped ? 28 : -28, 0, 0);
                 string readout = circuit.Tripped ? "TRIPPED" : circuit.Warning ? "OVERLOAD" :
                     CapacityBands.AtLeast(circuit.CapacityBand, CapacityBand.Strained) ? "HIGH" : "NORMAL";
+                readout += "\n" + circuit.RequestedLoad.ToString("F2") + " / " + circuit.Capacity.ToString("F2") + " u" +
+                    (simulation.Electrical.IsCapacityUpgraded(circuit.Id) ? "\nUPGRADED" : "");
                 if (view.meterNeedle) view.meterNeedle.localRotation = Quaternion.Euler(0, 0,
                     Mathf.Lerp(70, -70, Mathf.Clamp01(circuit.RequestedLoad / Mathf.Max(.1f, circuit.Capacity * 1.4f))));
                 if (view.lastReadout != readout && view.readout != null)

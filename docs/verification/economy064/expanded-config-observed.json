@@ -1,0 +1,115 @@
+{
+    "guestArchetypes": [
+        {
+            "instanceID": 38074
+        },
+        {
+            "instanceID": 38164
+        },
+        {
+            "instanceID": 38238
+        }
+    ],
+    "rooms": [
+        {
+            "instanceID": 38548
+        },
+        {
+            "instanceID": 38324
+        },
+        {
+            "instanceID": 38214
+        },
+        {
+            "instanceID": 38326
+        },
+        {
+            "instanceID": 38470
+        },
+        {
+            "instanceID": 38148
+        },
+        {
+            "instanceID": 37970
+        },
+        {
+            "instanceID": 38478
+        },
+        {
+            "instanceID": 38102
+        },
+        {
+            "instanceID": 38222
+        }
+    ],
+    "boiler": {
+        "instanceID": 38636
+    },
+    "economy": {
+        "instanceID": 38004
+    },
+    "living": {
+        "instanceID": 38206
+    },
+    "needs": {
+        "instanceID": 38578
+    },
+    "noise": {
+        "instanceID": 38284
+    },
+    "heater": {
+        "instanceID": 38388
+    },
+    "electricity": {
+        "instanceID": 37996
+    },
+    "housekeeping": {
+        "instanceID": 37994
+    },
+    "soloAssist": {
+        "instanceID": 38048
+    },
+    "services": {
+        "instanceID": 38292
+    },
+    "infrastructure": {
+        "instanceID": 38242
+    },
+    "tickRate": 5.0,
+    "serviceSeconds": 300.0,
+    "totalDays": 3,
+    "day3BusinessReferencePrice": 525,
+    "temperatureBase": 9.0,
+    "heatTemperatureGain": 13.0,
+    "temperatureTimeConstant": 45.0,
+    "incidentDelaySeconds": 15.0,
+    "resolutionDelaySeconds": 10.0,
+    "coldResolutionHysteresis": 0.5,
+    "overnightSeconds": 180.0,
+    "continuousOperations": true,
+    "hotelDaySeconds": 720.0,
+    "openingHour": 8.0,
+    "reportHour": 6.0,
+    "operatingCostHour": 6.0,
+    "automaticBookings": true,
+    "initiallyOpenRooms": 4,
+    "roomSalePrice": 180,
+    "bookingBaseDemand": 0.8999999761581421,
+    "bookingPriceElasticity": 1.5,
+    "firstDayBookingHour": 8.5,
+    "advanceBookingHour": 16.0,
+    "bookingDecisionSpacingHours": 0.4000000059604645,
+    "bookingSeed": 73129,
+    "specialBookings": {
+        "Enabled": true,
+        "FirstOfferDay": 2,
+        "IntervalDays": 2,
+        "OfferHour": 10.0
+    },
+    "ownershipContractEnabled": true,
+    "initialContractPayment": 350,
+    "contractDailyIncrease": 50,
+    "contractExtraRoomCharge": 60,
+    "contractPaymentHour": 22.0,
+    "firstContractPaymentDay": 2
+}

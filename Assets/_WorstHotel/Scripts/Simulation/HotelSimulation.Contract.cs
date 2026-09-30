@@ -45,7 +45,7 @@ namespace WorstHotel
             {
                 OwnershipLossReport = new DayReport(ReportSequence + 1, periodReceipts, periodOpeningCash,
                     PeriodOperatingSpend, Economy.Cash, Economy.Reputation, Elapsed - periodStartedAt,
-                    PeriodMaintenanceSpend, PeriodCapitalSpend, payment);
+                    PeriodMaintenanceSpend, PeriodCapitalSpend, payment, laundrySpend: PeriodLaundrySpend, bulbSpend: PeriodBulbSpend);
                 OwnershipLost = true;
                 Running = false;
                 Economy.OwnershipRevoked = true;

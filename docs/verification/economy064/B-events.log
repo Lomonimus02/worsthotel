@@ -1,0 +1,147 @@
+BOOKING 15.19999 stay-1-1 arrivalDay=1 price=180 room=101
+BOOKING 27.00003 stay-1-2 arrivalDay=1 price=180 room=102
+BOOKING 39.0000763 stay-1-3 arrivalDay=1 price=180 room=103
+BOOKING 51.0001221 stay-1-4 arrivalDay=1 price=180 room=104
+BOOKING 63.0001678 stay-1-5 arrivalDay=1 price=180 room=105
+BOOKING 75 stay-1-6 arrivalDay=1 price=180 room=106
+CHECKIN 192.7982 stay-1-1
+CHECKIN 203.598038 stay-1-2
+CHECKIN 238.19751 stay-1-3
+BOOKING 240.197479 stay-2-1 arrivalDay=2 price=180 room=101
+CHECKIN 243.597427 stay-1-4
+CHECKIN 248.997345 stay-1-5
+BOOKING 252.1973 stay-2-2 arrivalDay=2 price=180 room=102
+CHECKIN 254.397263 stay-1-6
+BOOKING 264.197723 stay-2-3 arrivalDay=2 price=180 room=103
+BOOKING 276.198456 stay-2-4 arrivalDay=2 price=180 room=104
+BOOKING 288.1992 stay-2-5 arrivalDay=2 price=180 room=105
+BOOKING 300.199921 stay-2-6 arrivalDay=2 price=180 room=106
+RECEIPT 466.610077 stay-1-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+RECEIPT 481.4001 stay-1-3 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 543.003845 maintenance=200 capital=0 operating=0
+COST 660.011 maintenance=0 capital=0 operating=350
+RECEIPT 780.0183 stay-1-1 agreed=180 gross=180 refunds=0 net=180 satisfaction=82.81282 early=False
+RECEIPT 780.0183 stay-1-2 agreed=180 gross=180 refunds=0 net=180 satisfaction=73.49261 early=False
+RECEIPT 780.0183 stay-1-4 agreed=180 gross=180 refunds=0 net=180 satisfaction=80.36801 early=False
+RECEIPT 780.0183 stay-1-5 agreed=180 gross=180 refunds=0 net=180 satisfaction=76.33892 early=False
+COST 830.6214 maintenance=350 capital=0 operating=0
+COST 884.8247 maintenance=350 capital=0 operating=0
+CHECKIN 933.4277 stay-2-1
+CHECKIN 938.628 stay-2-2
+CHECKIN 943.8283 stay-2-3
+CHECKIN 949.0286 stay-2-4
+BOOKING 960.0293 stay-3-1 arrivalDay=3 price=180 room=101
+BOOKING 972.03 stay-3-2 arrivalDay=3 price=180 room=102
+BOOKING 984.030762 stay-3-3 arrivalDay=3 price=180 room=103
+CHECKIN 987.030945 stay-2-5
+CHECKIN 992.231262 stay-2-6
+BOOKING 1008.03223 stay-3-5 arrivalDay=3 price=180 room=104
+BOOKING 1020.03296 stay-3-6 arrivalDay=3 price=180 room=105
+BOOKING 1032.03125 stay-3-7 arrivalDay=3 price=180 room=106
+CONTRACT 1140,005 due=350 paid=350 cashAfter=900
+RECEIPT 1160 stay-2-2 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+RECEIPT 1186.99341 stay-2-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 1380.156 maintenance=0 capital=0 operating=350
+COST 1468.53442 maintenance=200 capital=0 operating=0
+RECEIPT 1500.12671 stay-2-1 agreed=180 gross=180 refunds=0 net=180 satisfaction=95.77573 early=False
+RECEIPT 1500.12671 stay-2-3 agreed=180 gross=180 refunds=0 net=180 satisfaction=81.60591 early=False
+RECEIPT 1500.12671 stay-2-4 agreed=180 gross=180 refunds=0 net=180 satisfaction=69.9049454 early=False
+RECEIPT 1500.12671 stay-2-5 agreed=180 gross=180 refunds=0 net=180 satisfaction=92.7606354 early=False
+CHECKIN 1654.689 stay-3-1
+CHECKIN 1660.08765 stay-3-2
+CHECKIN 1665.48633 stay-3-3
+BOOKING 1680.08276 stay-4-1 arrivalDay=4 price=180 room=101
+BOOKING 1692.07983 stay-4-2 arrivalDay=4 price=180 room=102
+CHECKIN 1703.877 stay-3-5
+BOOKING 1704.0769 stay-4-3 arrivalDay=4 price=180 room=103
+CHECKIN 1709.27563 stay-3-6
+CHECKIN 1714.67432 stay-3-7
+BOOKING 1716.074 stay-4-4 arrivalDay=4 price=180 room=104
+BOOKING 1728.071 stay-4-5 arrivalDay=4 price=180 room=105
+BOOKING 1740.06812 stay-4-6 arrivalDay=4 price=180 room=106
+CONTRACT 1860,039 due=400 paid=400 cashAfter=850
+RECEIPT 1861.43848 stay-3-7 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 1891.6311 maintenance=200 capital=0 operating=0
+RECEIPT 1912.426 stay-3-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+RECEIPT 1925.59863 stay-3-3 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+RECEIPT 1945.7937 stay-3-2 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 2100.156 maintenance=0 capital=0 operating=350
+RECEIPT 2220.12671 stay-3-1 agreed=180 gross=180 refunds=0 net=180 satisfaction=92.49124 early=False
+RECEIPT 2220.12671 stay-3-5 agreed=180 gross=180 refunds=0 net=180 satisfaction=64.55288 early=False
+CHECKIN 2352.69434 stay-4-1
+CHECKIN 2363.69165 stay-4-2
+CHECKIN 2398.2832 stay-4-3
+CHECKIN 2403.682 stay-4-4
+CHECKIN 2409.08057 stay-4-5
+BOOKING 2412.07983 stay-5-2 arrivalDay=5 price=180 room=101
+CHECKIN 2414.47925 stay-4-6
+BOOKING 2424.077 stay-5-3 arrivalDay=5 price=180 room=102
+BOOKING 2436.074 stay-5-4 arrivalDay=5 price=180 room=103
+BOOKING 2448.071 stay-5-5 arrivalDay=5 price=180 room=104
+BOOKING 2460.068 stay-5-6 arrivalDay=5 price=180 room=105
+BOOKING 2472.06519 stay-5-7 arrivalDay=5 price=180 room=106
+CONTRACT 2580,039 due=450 paid=450 cashAfter=570
+RECEIPT 2585.0376 stay-4-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 2592.63574 maintenance=200 capital=0 operating=0
+RECEIPT 2604.033 stay-4-3 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 2820.156 maintenance=0 capital=0 operating=350
+RECEIPT 2940.12671 stay-4-1 agreed=180 gross=180 refunds=0 net=180 satisfaction=95.73225 early=False
+RECEIPT 2940.12671 stay-4-2 agreed=180 gross=180 refunds=0 net=180 satisfaction=82.84926 early=False
+RECEIPT 2940.12671 stay-4-4 agreed=180 gross=180 refunds=0 net=180 satisfaction=66.8102646 early=False
+RECEIPT 2940.12671 stay-4-5 agreed=180 gross=180 refunds=0 net=180 satisfaction=87.05795 early=False
+CHECKIN 3094.689 stay-5-2
+CHECKIN 3100.08765 stay-5-3
+CHECKIN 3105.48633 stay-5-4
+BOOKING 3120.08276 stay-6-1 arrivalDay=6 price=180 room=101
+BOOKING 3132.07983 stay-6-2 arrivalDay=6 price=180 room=102
+CHECKIN 3143.877 stay-5-5
+BOOKING 3144.077 stay-6-3 arrivalDay=6 price=180 room=103
+CHECKIN 3149.27563 stay-5-6
+CHECKIN 3154.67432 stay-5-7
+BOOKING 3156.074 stay-6-4 arrivalDay=6 price=180 room=104
+BOOKING 3168.071 stay-6-5 arrivalDay=6 price=180 room=105
+BOOKING 3180.068 stay-6-6 arrivalDay=6 price=180 room=106
+RECEIPT 3294.64014 stay-5-7 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+CONTRACT 3300,039 due=500 paid=500 cashAfter=510
+RECEIPT 3303.238 stay-5-3 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 3313.6355 maintenance=200 capital=0 operating=0
+RECEIPT 3326.03247 stay-5-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 3540.156 maintenance=0 capital=0 operating=350
+RECEIPT 3660.12671 stay-5-2 agreed=180 gross=180 refunds=0 net=180 satisfaction=91.9242554 early=False
+RECEIPT 3660.12671 stay-5-4 agreed=180 gross=180 refunds=0 net=180 satisfaction=92.5362244 early=False
+RECEIPT 3660.12671 stay-5-5 agreed=180 gross=180 refunds=0 net=180 satisfaction=66.91183 early=False
+CHECKIN 3814.689 stay-6-1
+CHECKIN 3820.08765 stay-6-2
+CHECKIN 3825.48633 stay-6-3
+CHECKIN 3830.885 stay-6-4
+CHECKIN 3836.28369 stay-6-5
+BOOKING 3840.08276 stay-7-1 arrivalDay=7 price=180 room=101
+BOOKING 3852.07983 stay-7-2 arrivalDay=7 price=180 room=102
+BOOKING 3864.077 stay-7-3 arrivalDay=7 price=180 room=103
+CHECKIN 3869.27563 stay-6-6
+BOOKING 3876.074 stay-7-4 arrivalDay=7 price=180 room=104
+BOOKING 3888.071 stay-7-5 arrivalDay=7 price=180 room=105
+BOOKING 3900.068 stay-7-6 arrivalDay=7 price=180 room=106
+CONTRACT 4020,039 due=550 paid=550 cashAfter=130
+RECEIPT 4034.4353 stay-6-6 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+RECEIPT 4044.43286 stay-6-3 agreed=180 gross=180 refunds=90 net=90 satisfaction=35 early=True
+COST 4069.02686 maintenance=200 capital=0 operating=0
+COST 4260.15625 maintenance=0 capital=0 operating=350
+RECEIPT 4380.073 stay-6-1 agreed=180 gross=180 refunds=0 net=180 satisfaction=63.8343353 early=False
+RECEIPT 4380.073 stay-6-2 agreed=180 gross=180 refunds=0 net=180 satisfaction=78.31702 early=False
+RECEIPT 4380.073 stay-6-4 agreed=180 gross=180 refunds=0 net=180 satisfaction=62.16919 early=False
+RECEIPT 4380.073 stay-6-5 agreed=180 gross=180 refunds=0 net=180 satisfaction=78.7437057 early=False
+COST 4416.709 maintenance=200 capital=0 operating=0
+CHECKIN 4519.60938 stay-7-1
+CHECKIN 4524.81445 stay-7-2
+CHECKIN 4562.85156 stay-7-3
+CHECKIN 4568.05664 stay-7-4
+BOOKING 4572.06055 stay-8-2 arrivalDay=8 price=180 room=101
+CHECKIN 4573.26172 stay-7-6
+BOOKING 4584.07227 stay-8-3 arrivalDay=8 price=180 room=102
+BOOKING 4596.084 stay-8-4 arrivalDay=8 price=180 room=103
+BOOKING 4608.0957 stay-8-5 arrivalDay=8 price=180 room=104
+CHECKIN 4611.299 stay-7-5
+BOOKING 4620.10742 stay-8-6 arrivalDay=8 price=180 room=105
+BOOKING 4632.119 stay-8-7 arrivalDay=8 price=180 room=106
+CONTRACT 4740 due=600 paid=0 cashAfter=280

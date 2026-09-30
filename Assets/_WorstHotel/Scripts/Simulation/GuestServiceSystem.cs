@@ -67,8 +67,11 @@ namespace WorstHotel
             if (simulation.IsReadOnlyMirror) return;
             if (dayNumber < 1) throw new ArgumentOutOfRangeException(nameof(dayNumber));
             if (dayNumber <= LastRefillDay) return;
-            RefillStock(ServiceItemKind.Blanket, "blanket:", Settings.BlanketStock);
-            RefillStock(ServiceItemKind.ReplacementBulb, "bulb:", Settings.BulbStock);
+            if (!simulation.ContinuousOperations)
+            {
+                RefillStock(ServiceItemKind.Blanket, "blanket:", Settings.BlanketStock);
+                RefillStock(ServiceItemKind.ReplacementBulb, "bulb:", Settings.BulbStock);
+            }
             LastRefillDay = dayNumber;
         }
 
