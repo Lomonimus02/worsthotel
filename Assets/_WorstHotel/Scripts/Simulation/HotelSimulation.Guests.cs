@@ -20,6 +20,7 @@ namespace WorstHotel
 
         private void ReleaseRoom(GuestStay guest)
         {
+            guest.LockedOut = false;
             Services?.EndGuestStay(guest);
             ReleasePendingMove(guest);
             if (LivingEnabled) NeedEvaluator.ClearInstantaneous(guest);
@@ -68,7 +69,8 @@ namespace WorstHotel
             if (IsReadOnlyMirror) return CommandResult.Fail(MirrorMessage);
             var guest = FindLivingGuest(guestId);
             if (guest == null || guest.Agent.State != GuestAgentState.Arriving) return CommandResult.Fail("Guest is not approaching reception.");
-            Transition(guest, GuestAgentState.WaitingForCheckIn, Elapsed, guest.Name + " is waiting for check-in");
+            Transition(guest, GuestAgentState.WaitingForCheckIn, Elapsed, guest.LockedOut ?
+                "Room " + guest.RoomId + ": key left inside; STAFF key needed at the door" : guest.Name + " is waiting for check-in");
             return CommandResult.Ok("Guest reached reception.");
         }
 
@@ -79,6 +81,7 @@ namespace WorstHotel
             var guest = FindLivingGuest(guestId);
             if (guest == null || guest.Agent.State != GuestAgentState.WaitingForCheckIn) return CommandResult.Fail("This guest is not waiting at reception.");
             var room = rooms[guest.RoomId];
+            if (guest.LockedOut) return CommandResult.Fail("Use the physical STAFF key at this guest's door.");
             if (room.ReservedGuestId != guestId || room.Occupied) return CommandResult.Fail("The assigned room is not available for this booking.");
             if (room.Cleanliness != Cleanliness.Clean) return CommandResult.Fail("The assigned room must be clean before check-in.");
             if (RoomTurnoverProtected(room)) return CommandResult.Fail("Wait for the previous guest to leave and for bed preparation to finish.");
@@ -106,7 +109,8 @@ namespace WorstHotel
                 return CommandResult.Fail("The assigned room is not ready for the guest's arrival.");
             if (guest.Agent.IsRelocating)
             {
-                if (room.ReservedGuestId != guestId || room.Occupied)
+                if (guest.LockedOut) return CommandResult.Fail("Use the physical STAFF key at this guest's door.");
+            if (room.ReservedGuestId != guestId || room.Occupied)
                     return CommandResult.Fail("The relocation destination is no longer reserved for this guest.");
                 room.ReservedGuestId = null; room.GuestId = guestId;
                 guest.Agent.IsRelocating = false;
@@ -176,8 +180,11 @@ namespace WorstHotel
                     float previous = agent.WaitingSeconds;
                     float waiting = Math.Min(dt, Math.Max(0, agent.CheckoutTime - (now - dt)));
                     agent.WaitingSeconds += waiting;
-                    guest.CheckInWaitingSeconds += waiting;
-                    guest.CheckInDelayPenaltySeconds += Math.Max(0, agent.WaitingSeconds - agent.WaitingPatience) - Math.Max(0, previous - agent.WaitingPatience);
+                    if (!guest.LockedOut)
+                    {
+                        guest.CheckInWaitingSeconds += waiting;
+                        guest.CheckInDelayPenaltySeconds += Math.Max(0, agent.WaitingSeconds - agent.WaitingPatience) - Math.Max(0, previous - agent.WaitingPatience);
+                    }
                     if (!agent.PatienceEventSent && agent.WaitingPatienceRemaining <= 0)
                     {
                         agent.PatienceEventSent = true;

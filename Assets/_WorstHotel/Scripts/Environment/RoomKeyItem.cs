@@ -7,6 +7,7 @@ namespace WorstHotel
     {
         public int roomId;
         public Transform rackAnchor;
+        public Transform leftInsideAnchor;
         public Rigidbody Body { get; private set; }
         public RoomKeyState State => simulation?.Keys.Find(roomId);
         public HotelSimulation BoundSimulation => simulation;
@@ -36,7 +37,7 @@ namespace WorstHotel
             }
             var state = State;
             if (state == null) return;
-            bool locked = !simulation.IsRoomOperational(roomId);
+            bool locked = roomId != 0 && !simulation.IsRoomOperational(roomId);
             if (locked)
             {
                 foreach (var visual in visuals) visual.enabled = false;
@@ -67,19 +68,21 @@ namespace WorstHotel
                     Body.rotation = pose.rotation;
                 }
             }
-            // No lost-key system: an accidental fall outside the playable building returns the same key.
+            // Recover physics falls outside the building; guest keys left inside stay on their table.
             if (state.Location == RoomKeyLocation.Dropped && Body.position.y < -3)
                 simulation.Keys.ReturnToRack(roomId);
         }
 
         void ShowState(RoomKeyState state)
         {
+            bool leftInside = state.Location == RoomKeyLocation.LeftInside;
             bool guestOwned = state.Location == RoomKeyLocation.HeldByGuest;
             bool onRack = state.Location == RoomKeyLocation.OnRack || state.Location == RoomKeyLocation.Returned;
             foreach (var visual in visuals) visual.enabled = true;
-            foreach (var shape in colliders) shape.enabled = !guestOwned;
-            Body.isKinematic = guestOwned;
-            Body.useGravity = !guestOwned && !onRack;
+            foreach (var shape in colliders) shape.enabled = !guestOwned && !leftInside;
+            Body.isKinematic = guestOwned || leftInside;
+            Body.useGravity = !guestOwned && !onRack && !leftInside;
+            if (leftInside && leftInsideAnchor) { Body.position = leftInsideAnchor.position; Body.rotation = leftInsideAnchor.rotation; }
             Body.constraints = onRack ? RigidbodyConstraints.FreezeAll : RigidbodyConstraints.None;
             if (onRack && rackAnchor)
             {
@@ -92,7 +95,7 @@ namespace WorstHotel
         public override bool TryBeginCarry(PlayerInteractor player)
         {
             var current = GameSession.Instance ? GameSession.Instance.Simulation : null;
-            if (current == null || current != simulation || player == null || !current.IsRoomOperational(roomId)) return false;
+            if (current == null || current != simulation || player == null || roomId != 0 && !current.IsRoomOperational(roomId)) return false;
             var result = simulation.Keys.PickUp(player.ActorId, roomId);
             if (!result.Success) return false;
             Body.constraints = RigidbodyConstraints.None;

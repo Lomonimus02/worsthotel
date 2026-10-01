@@ -1,3 +1,11 @@
+## Prototype 0.6.6 — operational chaos and hotel entropy
+
+Persistent room use extends existing linen turnover: four in-room hotel hours leave one waste bundle, staged showers leave used towels, and substantial loud activity or unpacking three or more bags displaces the existing chair. Coarse hold interactions clear those elements only after physical vacancy; the bed still needs a real clean linen set. A new run starts with one unfinished bed. Calendar changes do not clear this work.
+
+Reception waiting now escalates through visible impatience and check-in abandonment with zero room revenue. Existing arrivals form small schedule clusters, with earlier first-day guests. A rare actual outing can leave the room key inside; a physical STAFF key behind reception opens that guest's actual door. Ignored lockouts and promised undelivered baggage use existing dissatisfaction and early-departure receipts, not an extra fine. Stored baggage persists until handled; departed luggage can be physically filed as lost property. Lamp wear requires actual in-room use.
+
+LAN 27 / model schema 23 replicate room use, lockouts, the master key and persistent baggage. Contract, paid laundry, supplies, special guest types and night sleep remain. [Implementation and verification scope](OPERATIONAL_CHAOS_066.md).
+
 ## Prototype 0.6.5 — operating economy and supplies
 
 Paid laundry ($18/set) and bulb packs (3/$45) return at the next future 06:00 delivery. Physical hamper, linen bundles and shelves remain; no free continuous-day restocks or automatic orders. Blankets return through completed turnover. A physical supply ledger and delivery note live in the existing laundry room; ACCOUNTS separates laundry and bulbs. Ordinary demand now reads a modest 0.80/1.00/1.10 reputation curve at 0/60/100, with original pricing, reputation generation and special offers preserved. LAN 26 / model schema 22 carry host-authoritative purchases and pending stock.

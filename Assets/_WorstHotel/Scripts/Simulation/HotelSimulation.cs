@@ -180,7 +180,9 @@ namespace WorstHotel
             bool infrastructureStepCompleted = false;
             try
             {
+                TickOperationalUse(step);
                 if (LivingEnabled) TickLivingGuests(Elapsed + step, step);
+                TickOperationalConsequences(step);
                 if (LivingEnabled)
                 {
                     Housekeeping.Tick(step);

@@ -128,6 +128,8 @@ namespace WorstHotel
             if (task == null || !Eligible(rooms[roomId])) return CommandResult.Fail("The room must be dirty and physically vacant.");
             if (task.Step == RoomPreparationStep.MakingBed && task.WorkingPlayerId == playerId && task.CleanLinenId == cleanId)
                 return CommandResult.Ok("Continue making this bed.");
+            if (rooms[roomId].Disorder != RoomDisorder.None)
+                return CommandResult.Fail("Reset the visible waste, towels or chair before fitting fresh linen.");
             if (task.Step != RoomPreparationStep.NeedsCleanLinen)
                 return CommandResult.Fail(task.Step == RoomPreparationStep.MakingBed ? "Another player is making this bed." : "Deposit this room's dirty linen in the hamper first.");
             if (ordered.Any(candidate => candidate.WorkingPlayerId == playerId))
@@ -161,6 +163,7 @@ namespace WorstHotel
             linen.Location = LinenLocation.Consumed; linen.PlayerId = null;
             task.WorkingPlayerId = null; task.Step = RoomPreparationStep.Ready; task.State = HousekeepingState.None;
             var room = rooms[roomId]; room.Cleanliness = Cleanliness.Clean; room.TurnoverState = HousekeepingState.None;
+            room.UsedHours = room.ShowerHours = room.DisplacedHours = 0;
             tasks.Remove(roomId); ordered.Remove(task);
             Changed?.Invoke(task, "clean linen fitted; room ready for key handoff");
             LinenChanged?.Invoke(linen, "fitted to room " + roomId + " bed");

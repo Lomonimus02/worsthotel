@@ -31,6 +31,7 @@ namespace WorstHotel
             periodOpeningCash = Economy.Cash;
             periodStartedAt = Elapsed;
             Running = true;
+            SeedStartingWork();
             // Initial setup only. Calendar boundaries never call StartDay or BeginService.
             Services?.StartDay(dayNumber, Calendar.At(dayNumber + 1, Operations.CheckoutHour));
             RefreshBookingSchedule(Elapsed);

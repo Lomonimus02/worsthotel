@@ -5,7 +5,7 @@ namespace WorstHotel
     // Explicit wire data only: arrays, strings, enums and finite scalar values. No Unity or transport API.
     [Serializable] public sealed class HotelModelSnapshot
     {
-        public const int ProtocolVersion = 22;
+        public const int ProtocolVersion = 23;
         public int Version = ProtocolVersion;
         public long Epoch, Sequence;
         public int Day, LastMaintenanceDay, DebugGuestCounter, EventRevision, LastReportDay, Cash, LastRefillDay;
@@ -56,6 +56,7 @@ namespace WorstHotel
         public Cleanliness Cleanliness; public RepairState RepairState; public HousekeepingState TurnoverState;
         public RoomOccupancyState OccupancyState; public RoomPrivacyState PrivacyState; public RoomDoorState DoorState;
         public int RadiatorSetting; public float LampCondition; public bool LampBroken;
+        public float UsedHours, ShowerHours, DisplacedHours; public RoomDisorder Disorder;
     }
     [Serializable] public sealed class NeedSnapshot
     { public float Severity, ExposureSeconds, Dissatisfaction; }
@@ -63,6 +64,8 @@ namespace WorstHotel
     {
         public BookingSnapshot Application; public int RoomId, Price, CompensationCredit;
         public bool Compensated, HasNeeds, ExpiredRoomComplaint, ReceiptPosted;
+        public bool LockedOut, KeyLossConsidered, AbandonedCheckIn;
+        public float LockoutSeconds, LuggageDelaySeconds;
         public float CheckInWaitingSeconds, CheckInDelayPenaltySeconds, Elapsed, QualityIntegral, ExpiredComplaintSeconds;
         public float ColdExposureSeconds, HotExposureSeconds, NoiseExposureSeconds, DirtyExposureSeconds, FixtureExposureSeconds, PowerLossExposureSeconds;
         public float CombinedRoomDeficit, ServiceIntegral;

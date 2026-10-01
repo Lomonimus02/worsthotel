@@ -70,7 +70,8 @@ namespace WorstHotel
             Border(new Rect(78, 228, 644, 494), Brass, 2);
             Label(new Rect(99, 271, 598, 34), "ROOM " + guest.RoomId + "  /  " + guest.Name, Heading);
             var service = CurrentGuestService(guest);
-            string line = !present ? "No answer; the guest is out." : privateActivity ? "I need some privacy. Please come back later." :
+            string line = guest.LockedOut || guest.Agent.State == GuestAgentState.WaitingForCheckIn ? Session.Simulation.WaitingClue(guest) :
+                guest.LuggageDelaySeconds > Session.Simulation.CheckInPatience(guest) * 2 ? "My luggage still has not arrived. Please bring it to my room." : !present ? "No answer; the guest is out." : privateActivity ? "I need some privacy. Please come back later." :
                 service?.Kind == ServiceKind.ExtraBlanket && Session.Simulation.ContinuousOperations ? GuestLabels.ServiceClue(service, Session.Simulation) :
                 cases.Length > 0 ? GuestLabels.ComplaintClue(cases[0]) : service != null ? GuestLabels.ServiceClue(service, Session.Simulation) : noisy ?
                     (guest.Memory.PreviousNoiseWarnings > 0 ? "Yes? We have already spoken about the noise." : "Yes? You wanted to speak to me?") : "Yes? What is it?";
@@ -87,6 +88,12 @@ namespace WorstHotel
         void BuildGuestContextChoices(GuestStay guest)
         {
             contextChoices.Clear();
+            if (guest.LockedOut)
+            {
+                contextChoices.Add(("I will fetch the STAFF key and open your door", Close));
+                contextChoices.Add(("End conversation", Close));
+                return;
+            }
             if (choosingMoveRoom)
             {
                 foreach (var room in Session.Rooms.Where(r => r.Operational && !r.Occupied && !r.Reserved && r.DepartingGuestId == null && r.Cleanliness == Cleanliness.Clean))

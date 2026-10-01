@@ -4,7 +4,7 @@ namespace WorstHotel
     public enum ServiceStatus { Requested, Acknowledged, InProgress, Fulfilled, Declined, Expired, Escalated }
     public enum PromiseStatus { Accepted, Completed, Missed, Cancelled }
     public enum ServiceItemKind { Blanket, ReplacementBulb, Luggage }
-    public enum ServiceItemLocation { OnShelf, HeldByPlayer, Dropped, Delivered, Stored, AwaitingReceipt }
+    public enum ServiceItemLocation { OnShelf, HeldByPlayer, Dropped, Delivered, Stored, AwaitingReceipt, LostProperty }
 
     public sealed class ServiceCase
     {

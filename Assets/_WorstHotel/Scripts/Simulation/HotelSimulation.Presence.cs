@@ -69,6 +69,7 @@ namespace WorstHotel
 
         void StartGuestHotelTrip(GuestStay guest, float duration, float plannedReturnAt = -1)
         {
+            TryLeaveRoomKeyBehind(guest);
             guest.Agent.Activity = GuestActivity.LeaveHotel;
             guest.Agent.PendingActivityDuration = duration;
             guest.Agent.AwayReturnTime = plannedReturnAt >= 0 ? plannedReturnAt : float.PositiveInfinity;
@@ -98,6 +99,12 @@ namespace WorstHotel
             var guest = FindLivingGuest(guestId);
             if (guest?.Agent == null || guest.Agent.State != GuestAgentState.GuestAway || rooms[guest.RoomId].GuestId != guestId)
                 return CommandResult.Fail("Only an away guest who still owns their room can return.");
+            if (Keys.Find(guest.RoomId)?.Location == RoomKeyLocation.LeftInside)
+            {
+                guest.LockedOut = true; guest.LockoutSeconds = 0; guest.Agent.WaitingSeconds = 0;
+                Transition(guest, GuestAgentState.Arriving, Elapsed, null);
+                return CommandResult.Ok("The returning guest needs staff to open the door.");
+            }
             Transition(guest, GuestAgentState.ReturningToRoom, Elapsed, null);
             return CommandResult.Ok("Guest is returning to their room.");
         }
@@ -110,6 +117,7 @@ namespace WorstHotel
                 return CommandResult.Fail("Guest is not returning to their own room.");
             SetActivity(guest, GuestActivity.QuietRest, Elapsed, LivingSettings.FirstActivityDelay);
             RefreshGuestLoad(); RefreshElectrical();
+            Keys.RecoverInside(guest.GuestId, guest.RoomId);
             return CommandResult.Ok("Guest returned; their existing stay and schedule continue.");
         }
 

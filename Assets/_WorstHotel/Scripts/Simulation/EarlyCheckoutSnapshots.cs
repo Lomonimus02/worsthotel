@@ -74,10 +74,13 @@ namespace WorstHotel
                 {
                     Require(model.HasOperations && tuning?.Enabled == true && guest.Agent != null && guest.Agent.CheckedIn &&
                         guest.Agent.HasReachedRoom && roomIds.Contains(value.RoomId), "Early-departure policy or stay is unavailable.");
+                    bool physicalService = value.Reason == IncidentReason.Service && value.State == EarlyCheckoutState.Committed &&
+                        (guest.LockoutSeconds >= Math.Max(35, guest.Agent.WaitingPatience) * 4 ||
+                         guest.LuggageDelaySeconds >= Math.Max(35, guest.Agent.WaitingPatience) * 5);
                     Text(value.IncidentId, 512);
                     Require(value.IncidentEpisode >= 1, "Early-departure cause needs a real episode.");
                     Require(value.Reason == IncidentReason.Temperature || value.Reason == IncidentReason.Noise ||
-                        value.Reason == IncidentReason.RoomCondition, "Unsupported early-departure cause.");
+                        value.Reason == IncidentReason.RoomCondition || physicalService, "Unsupported early-departure cause.");
                     Range(value.GraceRemainingSeconds, 0, (float)Math.Min(float.MaxValue, (double)operations.SecondsPerDay * tuning.GraceHours / 24));
                     Require(value.WarningAt == -1 || value.WarningAt >= guest.Agent.ArrivalTime, "Warning precedes arrival.");
                     if (value.State == EarlyCheckoutState.Committed)

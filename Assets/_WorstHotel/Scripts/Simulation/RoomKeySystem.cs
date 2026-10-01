@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WorstHotel
 {
-    public enum RoomKeyLocation { OnRack, HeldByPlayer, HeldByGuest, Dropped, Returned }
+    public enum RoomKeyLocation { OnRack, HeldByPlayer, HeldByGuest, Dropped, Returned, LeftInside }
 
     public sealed class RoomKeyState
     {
@@ -28,7 +28,7 @@ namespace WorstHotel
             var ids = roomIds.OrderBy(id => id).ToArray();
             if (ids.Length == 0 || ids.Any(id => id <= 0) || ids.Distinct().Count() != ids.Length)
                 throw new ArgumentException("Keys require unique positive room IDs.");
-            var items = ids.Select(id => new RoomKeyState(id)).ToArray();
+            var items = new[] { 0 }.Concat(ids).Select(id => new RoomKeyState(id)).ToArray();
             Items = Array.AsReadOnly(items);
             keys = items.ToDictionary(key => key.RoomId);
         }
@@ -47,7 +47,7 @@ namespace WorstHotel
                 return CommandResult.Fail("Put down your current room key before taking another.");
             key.Location = RoomKeyLocation.HeldByPlayer; key.PlayerId = playerId; key.GuestId = null;
             Changed?.Invoke(key, "picked up by player " + playerId);
-            return CommandResult.Ok("Carrying the key for room " + roomId + ".");
+            return CommandResult.Ok(roomId == 0 ? "Carrying the STAFF key. Use it at a locked-out guest's door." : "Carrying the key for room " + roomId + ".");
         }
 
         public CommandResult Drop(int playerId, int roomId)
@@ -77,10 +77,23 @@ namespace WorstHotel
         {
             if (ReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
             if (string.IsNullOrWhiteSpace(guestId)) return CommandResult.Fail("A guest identity is required.");
-            var owned = Items.Where(key => key.Location == RoomKeyLocation.HeldByGuest && key.GuestId == guestId).ToArray();
+            var owned = Items.Where(key => (key.Location == RoomKeyLocation.HeldByGuest || key.Location == RoomKeyLocation.LeftInside) && key.GuestId == guestId).ToArray();
             foreach (var key in owned) ReturnGuestKeyState(key);
             foreach (var key in owned) Changed?.Invoke(key, "returned at checkout");
             return CommandResult.Ok(owned.Length == 0 ? "This guest has no outstanding room key." : "Guest room key returned to reception.");
+        }
+
+        internal void LeaveInside(string guestId, int roomId)
+        {
+            var key = Find(roomId);
+            if (key?.Location != RoomKeyLocation.HeldByGuest || key.GuestId != guestId) return;
+            key.Location = RoomKeyLocation.LeftInside; Changed?.Invoke(key, "left inside before an outing");
+        }
+        internal void RecoverInside(string guestId, int roomId)
+        {
+            var key = Find(roomId);
+            if (key?.Location != RoomKeyLocation.LeftInside || key.GuestId != guestId) return;
+            key.Location = RoomKeyLocation.HeldByGuest; Changed?.Invoke(key, "collected inside the room");
         }
 
         internal CommandResult CanHandToGuest(int playerId, int roomId, string guestId, int? previousRoomId = null)

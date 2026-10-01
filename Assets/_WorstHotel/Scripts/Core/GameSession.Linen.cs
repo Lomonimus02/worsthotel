@@ -37,7 +37,7 @@ namespace WorstHotel
             if (!target || !CanHandleLinen(player, target) || HeldLinen(player)?.State.Kind != LinenKind.Clean) return false;
             var room = Array.Find(Rooms, item => item.Profile.Id == target.roomId);
             var task = Simulation.Housekeeping.Find(target.roomId);
-            return room != null && !room.Occupied && string.IsNullOrEmpty(room.DepartingGuestId) && task != null &&
+            return room != null && room.Disorder == RoomDisorder.None && !room.Occupied && string.IsNullOrEmpty(room.DepartingGuestId) && task != null &&
                 (task.Step == RoomPreparationStep.NeedsCleanLinen ||
                  task.Step == RoomPreparationStep.MakingBed && task.WorkingPlayerId == player.ActorId);
         }

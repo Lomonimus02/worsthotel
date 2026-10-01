@@ -81,6 +81,10 @@ namespace WorstHotel
         public int RadiatorSetting { get; internal set; } = 1;
         public float LampCondition { get; internal set; } = 100;
         public bool LampBroken { get; internal set; }
+        public float UsedHours { get; internal set; }
+        public float ShowerHours { get; internal set; }
+        public float DisplacedHours { get; internal set; }
+        public RoomDisorder Disorder { get; internal set; }
         public string DepartingGuestId { get; internal set; }
         public HousekeepingState TurnoverState { get; internal set; }
         public Cleanliness Cleanliness { get; set; }

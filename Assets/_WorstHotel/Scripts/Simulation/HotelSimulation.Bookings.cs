@@ -201,7 +201,14 @@ namespace WorstHotel
                 var offers = GuestSystem.GenerateContinuousApplications(offerDay, settings.GuestArchetypes);
                 for (int index = 0; index < offers.Length; index++)
                 {
-                    float arrivalHour = Operations.ArrivalStartHour + (Operations.ArrivalEndHour - Operations.ArrivalStartHour) * index / Math.Max(1, offers.Length - 1);
+                    // Small schedule clusters produce natural overlaps without a separate rush phase.
+                    float fraction = (index / 3 * 3 + index % 3 * .45f) / Math.Max(1, offers.Length - 1);
+                    float arrivalHour = Operations.ArrivalStartHour + (Operations.ArrivalEndHour - Operations.ArrivalStartHour) * fraction;
+                    if (offerDay == 1 && Operations.Sales.Enabled)
+                    {
+                        float lastDecision = Operations.Sales.FirstDayDecisionStartHour + (index / 3 * 3 + 2) * Operations.Sales.DecisionSpacingHours;
+                        arrivalHour = Math.Min(arrivalHour, Math.Max(Operations.StartHour + 2, lastDecision + .8f) + index % 3 * .18f);
+                    }
                     float arrival = Calendar.At(offerDay, arrivalHour);
                     if (arrival <= now) continue;
                     var timing = BookingTiming(offers[index], offerDay, arrival);
@@ -229,7 +236,7 @@ namespace WorstHotel
                 if (stay?.Agent?.CheckedIn == true && reservation.RoomId != stay.RoomId)
                 { reservation.RoomId = stay.RoomId; reservation.Revision++; }
                 var room = rooms[reservation.RoomId];
-                if (LivingEnabled && stay?.Agent != null && !stay.Agent.CheckedIn && !stay.ReceiptPosted &&
+                if (LivingEnabled && stay?.Agent != null && !stay.Agent.CheckedIn && !stay.ReceiptPosted && !stay.AbandonedCheckIn &&
                     now < stay.Agent.CheckoutTime && !room.Occupied && !room.Reserved)
                     room.ReservedGuestId = stay.GuestId;
             }
@@ -250,7 +257,7 @@ namespace WorstHotel
                 var receipt = LivingEnabled && (!guest.Agent.HasReachedRoom || guest.Elapsed <= 0) ?
                     new GuestReceipt(guest.GuestId, guest.Name, guest.RoomId, 0,
                         guest.Agent.WaitingSeconds > 0 || guest.Agent.CheckedIn ? 0 : 75, 0,
-                        "No room time was received. No stay was charged.", agreedPrice: guest.Price) : Economy.CalculateReceipt(guest, Satisfaction.Evaluate(guest));
+                        guest.AbandonedCheckIn ? "Left after waiting for check-in. No stay was charged." : "No room time was received. No stay was charged.", agreedPrice: guest.Price) : Economy.CalculateReceipt(guest, Satisfaction.Evaluate(guest));
                 Economy.PostCheckout(receipt);
                 periodReceipts.Add(receipt);
                 guest.ReceiptPosted = true;

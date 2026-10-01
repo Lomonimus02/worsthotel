@@ -18,6 +18,7 @@ namespace WorstHotel
             if (!actor.HeldBody && actor.FocusedPickup && target && target.CanInteract(actor))
                 line += "  ·  " + player.Input.GrabLabel + " — Pick up";
             if (target is RadiatorValveInteraction) line += "  ·  " + player.Input.SecondaryLabel + " — Turn down";
+            if (target is LuggageStorageZone storage && storage.CanFileLostProperty(actor)) line += "  ·  " + player.Input.SecondaryLabel + " — File lost property";
             if (actor.HeldBody) line = (line == null ? "" : line + "\n") + player.Input.GrabLabel + " — Put down";
             return line;
         }
@@ -29,6 +30,7 @@ namespace WorstHotel
             if (target is ReceptionPhoneInteraction) return GameSession.Instance?.Simulation?.Services?.IncomingCall != null ? "Answer" : "Pick up handset";
             if (target is DoorInteractable || target is RoomNoiseInteraction)
             {
+                if (detail.StartsWith("Unlock")) return "Unlock with STAFF key";
                 if (detail.Contains("EMERGENCY ACCESS")) return "Hold to enter";
                 if (detail.Contains("Knock") || detail.Contains("PRIVATE") || detail.Contains("Guest needs privacy")) return "Knock";
                 if (detail.Contains("Guest answers")) return "Talk";
@@ -36,7 +38,9 @@ namespace WorstHotel
                 if (detail.StartsWith("Open") || detail.StartsWith("Agreed luggage delivery")) return "Open";
                 return "Knock";
             }
-            if (target is GuestReceptionInteraction) return actor.HeldBody ? "Give key" : "Talk";
+            if (target is GuestReceptionInteraction) return actor.HeldBody && !detail.StartsWith("Locked out") ? "Give key" : "Talk";
+            if (target is RoomResetInteraction reset) return reset.element == RoomDisorder.Waste ? "Hold to empty basket" :
+                reset.element == RoomDisorder.Towels ? "Hold to collect towels" : "Hold to straighten chair";
             if (target is ElectricalBreakerControl) return "Flip breaker";
             if (target is RadiatorValveInteraction) return "Turn up";
             if (target is RepairControl control) return control.kind switch {

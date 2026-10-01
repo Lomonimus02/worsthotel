@@ -89,6 +89,8 @@ namespace WorstHotel
                 { AddObject(door.doorPivot); if (door.doorPivot) doors[Id(door.doorPivot)] = door; }
                 foreach (var bed in root.GetComponentsInChildren<LinenBedInteraction>(true))
                     if (bed.madeBedPieces != null) foreach (var piece in bed.madeBedPieces) AddVisualTree(piece);
+                foreach (var reset in root.GetComponentsInChildren<RoomResetInteraction>(true))
+                { AddVisualTree(reset.disorderVisual); AddObject(reset.movingProp); }
                 foreach (var heater in root.GetComponentsInChildren<PortableHeater>(true))
                 { AddObject(heater.switchLever); AddVisual(heater.heatGlow); AddVisual(heater.statusLamp); }
                 foreach (var panel in root.GetComponentsInChildren<ElectricalPanelPresentation>(true))

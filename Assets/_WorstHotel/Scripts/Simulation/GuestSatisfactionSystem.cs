@@ -84,7 +84,8 @@ namespace WorstHotel
             float averageDeficit = stay.Elapsed > 0 ? stay.QualityIntegral / stay.Elapsed : 0;
             float serviceFraction = Number.Clamp(stay.Needs.ServiceIntegral / Math.Max(1, stay.Elapsed + stay.CheckInWaitingSeconds), 0, 1);
             float premium = Math.Max(0, (float)stay.Price / stay.Application.ReferencePrice - 1);
-            float score = 100 - settings.QualityPenaltyScale * PriceExpectation(stay.Price, stay.Application.ReferencePrice) * averageDeficit
+            float arrivalImpression = Math.Min(18, stay.CheckInDelayPenaltySeconds / Math.Max(35, stay.Agent.WaitingPatience) * 9);
+            float score = 100 - arrivalImpression - settings.QualityPenaltyScale * PriceExpectation(stay.Price, stay.Application.ReferencePrice) * averageDeficit
                 - stay.Application.Archetype.PriceSensitivity * premium - settings.PatiencePenalty * serviceFraction
                 + (stay.Compensated ? settings.CompensationGoodwill : 0) + stay.ServiceSatisfactionAdjustment;
             return Number.Clamp(score, 0, 100);

@@ -36,7 +36,8 @@ namespace WorstHotel
                 case RoomPreparationStep.DeliverDirtyLinen: return "Dirty linen must reach the utility hamper";
                 case RoomPreparationStep.MakingBed:
                     return task.WorkingPlayerId == player?.ActorId ? "Making bed · " + Mathf.RoundToInt(task.Progress01 * 100) + "%" : "Another owner is making this bed";
-                default: return CanInteract(player) ? "Hold briefly to make bed · " +
+                default: if (room.Disorder != RoomDisorder.None) return "Reset the room: " + room.Disorder + " before making the bed";
+                    return CanInteract(player) ? "Hold briefly to make bed · " +
                     session.Simulation.Housekeeping.Settings.MakeBedSeconds.ToString("0.#") + " seconds" :
                     "Bring a clean bundle from the utility linen shelf";
             }

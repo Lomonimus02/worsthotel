@@ -177,7 +177,7 @@ namespace WorstHotel
                     Require(i.Payload == LuggagePayload.Suitcase && i.LuggageIndex == 0, "Stock cannot contain equipment.");
                     string prefix = i.Kind == ServiceItemKind.Blanket ? "blanket:" : "bulb:";
                     Require(Enumerable.Range(0, 6).Any(slot => i.Id == prefix + slot), "Invalid stock identity.");
-                    Require(i.Location != ServiceItemLocation.Stored, "Only luggage belongs in luggage storage.");
+                    Require(i.Location != ServiceItemLocation.Stored && i.Location != ServiceItemLocation.LostProperty, "Only luggage belongs in luggage storage.");
                 }
             }
             GuestResponses(snapshot, naturalCommunicationEnabled);

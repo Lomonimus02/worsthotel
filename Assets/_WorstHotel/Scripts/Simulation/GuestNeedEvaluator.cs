@@ -100,7 +100,8 @@ namespace WorstHotel
             // The two service causes are mutually exclusive physical states. Never stack them or add a second legacy penalty.
             needs.ExpiredRoomComplaint = inRoom && expiredRoomComplaint;
             float expiredWaiting = reception ? Math.Max(0, agent.WaitingSeconds - agent.WaitingPatience) : 0;
-            float service = needs.ExpiredRoomComplaint || expiredWaiting > 0 ? Settings.ServiceExpiredSeverity : 0;
+            float service = needs.ExpiredRoomComplaint || expiredWaiting > 0 ||
+                stay.LockedOut || stay.LuggageDelaySeconds > Math.Max(35, agent.WaitingPatience) * 2 ? Settings.ServiceExpiredSeverity : 0;
             float serviceStep = reception && expiredWaiting > 0 ? Math.Min(dt, expiredWaiting) : dt;
             needs.Service = Advance(needs.Service, service, serviceStep);
             needs.ServiceIntegral = (float)Math.Min(float.MaxValue, (double)needs.ServiceIntegral + service * (double)serviceStep);

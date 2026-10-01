@@ -53,7 +53,7 @@ namespace WorstHotel
             assignedRoom.TurnoverState != HousekeepingState.Moving && assignedRoom.TurnoverState != HousekeepingState.Cleaning;
         int NeededKey => stay?.Agent?.PendingMoveRoomId ?? displayedRoom;
         bool HasPendingMove => IsInRoom && stay.Agent.PendingMoveRoomId.HasValue;
-        InteractionMode Mode => HasPendingMove ? InteractionMode.RoomKey : IsWaiting ? (RoomPrepared ? InteractionMode.RoomKey : InteractionMode.Conversation) :
+        InteractionMode Mode => stay?.LockedOut == true ? InteractionMode.Conversation : HasPendingMove ? InteractionMode.RoomKey : IsWaiting ? (RoomPrepared ? InteractionMode.RoomKey : InteractionMode.Conversation) :
             AtServiceDesk || IsInRoom && stay.Agent.State != GuestAgentState.Sleeping && stay.Agent.Activity != GuestActivity.Shower ? InteractionMode.Conversation : InteractionMode.None;
 
         void Update()
@@ -89,6 +89,9 @@ namespace WorstHotel
         {
             if (OwnerActorId >= 0 && actor != null && OwnerActorId != actor.ActorId)
                 return "Staff " + (OwnerActorId + 1) + " is speaking with this guest";
+            if (stay.LockedOut) return "Locked out of " + displayedRoom + " · talk";
+            if (IsWaiting && stay.Agent.WaitingSeconds >= session.Simulation.CheckInPatience(stay) * 2)
+                return RoomPrepared ? "Guest about to leave · give room key" : "Guest about to leave · room still needs preparation";
             if (AtServiceDesk) return "Guest waiting at reception · talk";
             if (IsWaiting && !RoomPrepared) return "Room " + displayedRoom + " awaiting preparation · " +
                 (actor && actor.HeldBody && actor.HeldBody.GetComponent<RoomKeyItem>() ? "keep the key until ready" : "talk to guest");
@@ -113,7 +116,7 @@ namespace WorstHotel
             if (!CanInteract(actor)) return;
             // A carried room key always attempts the physical exchange first. The authority
             // rejects a wrong key or unprepared room without opening UI or dropping the body.
-            if ((IsWaiting || HasPendingMove) && actor.HeldBody && actor.HeldBody.GetComponent<RoomKeyItem>())
+            if (!stay.LockedOut && (IsWaiting || HasPendingMove) && actor.HeldBody && actor.HeldBody.GetComponent<RoomKeyItem>())
             {
                 session.GiveRoomKey(actor.ActorId, GuestId);
                 return;

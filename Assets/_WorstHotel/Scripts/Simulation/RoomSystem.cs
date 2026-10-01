@@ -59,7 +59,7 @@ namespace WorstHotel
             if (rooms == null || !Number.IsFinite(dt) || dt < 0) throw new ArgumentException("Valid rooms and elapsed time required.");
             foreach (var room in rooms)
             {
-                if (room.LampBroken || !room.Occupied || !room.HasPower) continue;
+                if (room.LampBroken || !room.Occupied || !room.HasPower || room.OccupancyState != RoomOccupancyState.GuestInside || room.PrivacyState == RoomPrivacyState.Private) continue;
                 room.LampCondition = Math.Max(0, room.LampCondition - Infrastructure.LampWearPerSecond * dt);
                 if (room.LampCondition <= 0) room.LampBroken = true;
             }

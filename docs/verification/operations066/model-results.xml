@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="9" result="Passed" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-01 17:16:16Z" end-time="2026-10-01 17:16:18Z" duration="2.0086915">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="910" result="Passed" start-time="2026-10-01 17:16:16Z" end-time="2026-10-01 17:16:18Z" duration="2.008692" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="2098" name="WorstHotel.Tests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="910" result="Passed" start-time="2026-10-01 17:16:16Z" end-time="2026-10-01 17:16:18Z" duration="1.997128" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="29940" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="2099" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="910" result="Passed" start-time="2026-10-01 17:16:16Z" end-time="2026-10-01 17:16:18Z" duration="1.990668" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2100" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="910" result="Passed" start-time="2026-10-01 17:16:16Z" end-time="2026-10-01 17:16:18Z" duration="1.985134" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1732" name="OperationalChaosTests" fullname="WorstHotel.Tests.OperationalChaosTests" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-10-01 17:16:16Z" end-time="2026-10-01 17:16:18Z" duration="1.974694" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="ParameterizedMethod" id="1738" name="ForgottenKeyUsesStaffKeyOrExistingEarlyCheckoutRefund" fullname="WorstHotel.Tests.OperationalChaosTests.ForgottenKeyUsesStaffKeyOrExistingEarlyCheckoutRefund" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-01 17:16:16Z" end-time="2026-10-01 17:16:17Z" duration="0.270880" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1736" name="ForgottenKeyUsesStaffKeyOrExistingEarlyCheckoutRefund(False)" fullname="WorstHotel.Tests.OperationalChaosTests.ForgottenKeyUsesStaffKeyOrExistingEarlyCheckoutRefund(False)" methodname="ForgottenKeyUsesStaffKeyOrExistingEarlyCheckoutRefund" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" seed="1277983380" result="Passed" start-time="2026-10-01 17:16:16Z" end-time="2026-10-01 17:16:16Z" duration="0.192547" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1737" name="ForgottenKeyUsesStaffKeyOrExistingEarlyCheckoutRefund(True)" fullname="WorstHotel.Tests.OperationalChaosTests.ForgottenKeyUsesStaffKeyOrExistingEarlyCheckoutRefund(True)" methodname="ForgottenKeyUsesStaffKeyOrExistingEarlyCheckoutRefund" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" seed="709955228" result="Passed" start-time="2026-10-01 17:16:16Z" end-time="2026-10-01 17:16:17Z" duration="0.073261" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1735" name="IgnoredUnpreparedArrivalLeavesWithNoChargeAndRoomStaysDirty" fullname="WorstHotel.Tests.OperationalChaosTests.IgnoredUnpreparedArrivalLeavesWithNoChargeAndRoomStaysDirty" methodname="IgnoredUnpreparedArrivalLeavesWithNoChargeAndRoomStaysDirty" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" seed="597084681" result="Passed" start-time="2026-10-01 17:16:17Z" end-time="2026-10-01 17:16:17Z" duration="0.079584" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1742" name="MoreActualStaysLeaveMoreRoomsToPrepare" fullname="WorstHotel.Tests.OperationalChaosTests.MoreActualStaysLeaveMoreRoomsToPrepare" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-01 17:16:17Z" end-time="2026-10-01 17:16:18Z" duration="1.059607" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1739" name="MoreActualStaysLeaveMoreRoomsToPrepare(2)" fullname="WorstHotel.Tests.OperationalChaosTests.MoreActualStaysLeaveMoreRoomsToPrepare(2)" methodname="MoreActualStaysLeaveMoreRoomsToPrepare" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" seed="430183401" result="Passed" start-time="2026-10-01 17:16:17Z" end-time="2026-10-01 17:16:17Z" duration="0.196129" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[2 stays -> 2 linen changes; 2 additional physical resets
+]]></output>
+              </test-case>
+              <test-case id="1740" name="MoreActualStaysLeaveMoreRoomsToPrepare(6)" fullname="WorstHotel.Tests.OperationalChaosTests.MoreActualStaysLeaveMoreRoomsToPrepare(6)" methodname="MoreActualStaysLeaveMoreRoomsToPrepare" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" seed="818640904" result="Passed" start-time="2026-10-01 17:16:17Z" end-time="2026-10-01 17:16:17Z" duration="0.426684" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[6 stays -> 6 linen changes; 7 additional physical resets
+]]></output>
+              </test-case>
+              <test-case id="1741" name="MoreActualStaysLeaveMoreRoomsToPrepare(10)" fullname="WorstHotel.Tests.OperationalChaosTests.MoreActualStaysLeaveMoreRoomsToPrepare(10)" methodname="MoreActualStaysLeaveMoreRoomsToPrepare" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" seed="779879461" result="Passed" start-time="2026-10-01 17:16:17Z" end-time="2026-10-01 17:16:18Z" duration="0.435596" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[10 stays -> 10 linen changes; 10 additional physical resets
+]]></output>
+              </test-case>
+            </test-suite>
+            <test-case id="1743" name="PromisedBaggageHasConsequencesAndStoredBaggageNeedsPhysicalLostPropertyWork" fullname="WorstHotel.Tests.OperationalChaosTests.PromisedBaggageHasConsequencesAndStoredBaggageNeedsPhysicalLostPropertyWork" methodname="PromisedBaggageHasConsequencesAndStoredBaggageNeedsPhysicalLostPropertyWork" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" seed="903162918" result="Passed" start-time="2026-10-01 17:16:18Z" end-time="2026-10-01 17:16:18Z" duration="0.397287" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1734" name="RealShowerAndRoomTimeCreateDeeperWorkThatBedCannotBypass" fullname="WorstHotel.Tests.OperationalChaosTests.RealShowerAndRoomTimeCreateDeeperWorkThatBedCannotBypass" methodname="RealShowerAndRoomTimeCreateDeeperWorkThatBedCannotBypass" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" seed="1516826407" result="Passed" start-time="2026-10-01 17:16:18Z" end-time="2026-10-01 17:16:18Z" duration="0.073287" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1733" name="StartHasOneUsedBedAndItSurvivesTwoCalendarBoundaries" fullname="WorstHotel.Tests.OperationalChaosTests.StartHasOneUsedBedAndItSurvivesTwoCalendarBoundaries" methodname="StartHasOneUsedBedAndItSurvivesTwoCalendarBoundaries" classname="WorstHotel.Tests.OperationalChaosTests" runstate="Runnable" seed="32480904" result="Passed" start-time="2026-10-01 17:16:18Z" end-time="2026-10-01 17:16:18Z" duration="0.086373" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

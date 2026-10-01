@@ -5,6 +5,17 @@ namespace WorstHotel
     public sealed partial class GuestServiceSystem
     {
         public static int LuggageCount(BookingApplication application) => application.Special?.Baggage.Count ?? LuggageCount(application.Id);
+        public CommandResult FileLostProperty(int actorId, string itemId)
+        {
+            var allowed = CanHandle(actorId); if (!allowed.Success) return allowed;
+            var bag = FindItem(itemId);
+            if (bag?.Kind != ServiceItemKind.Luggage || bag.Location != ServiceItemLocation.HeldByPlayer ||
+                bag.PlayerId != actorId || Guest(bag.GuestId)?.Agent?.State != GuestAgentState.Left)
+                return CommandResult.Fail("Only baggage left by a departed guest belongs in lost property.");
+            bag.Location = ServiceItemLocation.LostProperty; bag.PlayerId = null;
+            ItemChanged?.Invoke(bag);
+            return CommandResult.Ok("Departed guest's suitcase filed in lost property.");
+        }
         public static string LuggageId(string guestId, int index) => "luggage:" + guestId + (index == 0 ? "" : ":" + (index + 1));
         public ServiceItemState ActiveAmplifier(GuestStay guest)
         {
@@ -26,7 +37,7 @@ namespace WorstHotel
         public bool CanOfferLuggage(string guestId, bool storage)
         {
             var guest = Guest(guestId);
-            if (guest?.Agent == null || guest.Agent.State != GuestAgentState.WaitingForCheckIn ||
+            if (guest?.Agent == null || guest.Agent.CheckedIn || guest.Agent.State != GuestAgentState.WaitingForCheckIn ||
                 !items.Any(item => item.Kind == ServiceItemKind.Luggage && item.GuestId == guestId &&
                     !item.StaffHandling && !item.LuggageOfferAnswered)) return false;
             return !storage || !LuggageRoomReady(guestId);

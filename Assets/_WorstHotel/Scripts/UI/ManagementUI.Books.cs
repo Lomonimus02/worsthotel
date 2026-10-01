@@ -492,13 +492,16 @@ namespace WorstHotel
             bookCopy = "Requests heard by reception.\nCompleted promises are crossed out.";
             var services = Session.Simulation.Services;
             if (services == null) return;
+            var lockouts = Session.Simulation.Guests.Where(g => g.LockedOut && !g.ReceiptPosted &&
+                g.Agent.State == GuestAgentState.WaitingForCheckIn).ToArray();
+            if (lockouts.Length > 0) BookChoice("Guests locked out", () => BookPage(2));
             var notes = services.Cases.Where(GuestLabels.IsKnownToHotel).OrderBy(c => !c.Active).ThenBy(c => c.CreatedAt).ToArray();
             bookListPage = Mathf.Clamp(bookListPage, 0, Math.Max(0, (notes.Length - 1) / 7));
             foreach (var item in notes.Skip(bookListPage * 7).Take(7))
                 noteLines.Add((item.RoomId + " · " + GuestLabels.Service(item.Kind, Session.Simulation) + "\n" +
                     (item.Kind == ServiceKind.WakeUpCall || item.Kind == ServiceKind.LateCheckout ? GuestLabels.HotelMoment(Session.Simulation, item.DueTime) + " · " : "") +
                     GuestLabels.ServiceBrief(item, Session.Simulation), item.Status == ServiceStatus.Fulfilled));
-            var bags = services.Items.Where(i => i.Kind == ServiceItemKind.Luggage && i.StaffHandling)
+            var bags = services.Items.Where(i => i.Kind == ServiceItemKind.Luggage && i.StaffHandling && i.Location != ServiceItemLocation.LostProperty)
                 .GroupBy(i => i.GuestId).Where(g => g.Any(i => i.Location != ServiceItemLocation.Delivered)).ToArray();
             if (bags.Length > 0) BookChoice("Luggage promises", () => BookPage(bookPage == 1 ? 0 : 1));
             if (bookPage == 1)
@@ -513,7 +516,14 @@ namespace WorstHotel
                 }
                 BookChoice("‹ Guest messages", () => BookPage(0));
             }
-            if (notes.Length == 0 && bags.Length == 0) bookCopy += "\n\nNo messages written yet.";
+            if (bookPage == 2)
+            {
+                noteLines.Clear();
+                foreach (var guest in lockouts.Take(7))
+                    noteLines.Add(("Room " + guest.RoomId + " · " + guest.Name + "\nKey left inside. Take STAFF key to the room door.", false));
+                BookChoice("‹ Guest messages", () => BookPage(0));
+            }
+            if (notes.Length == 0 && bags.Length == 0 && lockouts.Length == 0) bookCopy += "\n\nNo messages written yet.";
             if (notes.Length > 7) BookChoice("Turn page ›", () => bookListPage = (bookListPage + 1) % ((notes.Length + 6) / 7));
         }
 

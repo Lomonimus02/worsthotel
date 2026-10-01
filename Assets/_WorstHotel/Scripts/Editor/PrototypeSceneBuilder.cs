@@ -46,6 +46,7 @@ namespace WorstHotel.Editor
             RelocateBoilerAssembly();
             BuildDiegeticHotel(gameplay);
             AddElectricalPanel(gameplay);
+            AddOperationalWork(gameplay);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };

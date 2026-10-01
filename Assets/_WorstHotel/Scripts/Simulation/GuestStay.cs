@@ -19,6 +19,11 @@ namespace WorstHotel
         public GuestEarlyCheckout EarlyCheckout { get; } = new GuestEarlyCheckout();
         public float BlanketComfortBonus { get; internal set; }
         public float ServiceSatisfactionAdjustment { get; internal set; }
+        public bool LockedOut { get; internal set; }
+        public bool KeyLossConsidered { get; internal set; }
+        public bool AbandonedCheckIn { get; internal set; }
+        public float LockoutSeconds { get; internal set; }
+        public float LuggageDelaySeconds { get; internal set; }
         public float CheckInWaitingSeconds { get; internal set; }
         public float CheckInDelayPenaltySeconds { get; internal set; }
         public float Elapsed { get; internal set; }

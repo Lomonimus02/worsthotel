@@ -35,7 +35,7 @@ namespace WorstHotel
                 if (intent.ResponseId != null && !protectedResponses.Contains(intent.ResponseId)) intent.ResponseId = null;
 
             items.RemoveAll(item => item.Kind == ServiceItemKind.Luggage && !historyOwnerIds.Contains(item.GuestId) &&
-                item.Location != ServiceItemLocation.HeldByPlayer && item.Location != ServiceItemLocation.Dropped &&
+                item.Location != ServiceItemLocation.HeldByPlayer && item.Location != ServiceItemLocation.Dropped && item.Location != ServiceItemLocation.Stored &&
                 (Guest(item.GuestId) == null || Departed(Guest(item.GuestId))));
             foreach (var item in items)
             {

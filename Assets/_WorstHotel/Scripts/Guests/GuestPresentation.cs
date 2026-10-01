@@ -30,6 +30,7 @@ namespace WorstHotel
             public bool InsideRoom, RouteComplete;
             public int AppearanceIndex, ReceptionSlot = -1;
             public bool WaitingForReception, Detouring;
+            public int WaitingStage;
             public float TrafficSeconds;
             public float PoseBlend, SettlingTime, BlockedSeconds;
             public int RecoveryCount;
@@ -246,7 +247,7 @@ namespace WorstHotel
             Vector3 reception = receptionSlot >= 0 ? receptionPlaces[receptionSlot].position : new Vector3(.55f, .01f, .35f);
             if (stay.Agent.State == GuestAgentState.Arriving || stay.Agent.State == GuestAgentState.WaitingForCheckIn)
                 SetRoute(guest, AuthoredGuestRoute.Arrival(reception), RoutePurpose.Reception);
-            if (stay.Agent.State == GuestAgentState.GoingToRoom)
+            else if (stay.Agent.State == GuestAgentState.GoingToRoom)
             {
                 if (stay.Agent.IsRelocating && stay.Agent.TransferFromRoomId.HasValue &&
                     rooms.TryGetValue(stay.Agent.TransferFromRoomId.Value, out var origin))
@@ -409,10 +410,18 @@ namespace WorstHotel
                 return;
             }
             if (SynchronizeResponseRoute(guest)) return;
+            if (agent.State == GuestAgentState.Arriving && guest.Stay.LockedOut && !HasReceptionSlot(guest))
+            {
+                guest.ReceptionSlot = AcquireReceptionSlot(guest.Id);
+                if (!HasReceptionSlot(guest)) return;
+            }
             if (guest.State == agent.State && guest.Activity == agent.Activity) return;
             guest.State = agent.State; guest.Activity = agent.Activity;
             switch (agent.State)
             {
+                case GuestAgentState.Arriving:
+                    if (HasReceptionSlot(guest)) SetRoute(guest, AuthoredGuestRoute.Arrival(receptionPlaces[guest.ReceptionSlot].position), RoutePurpose.Reception);
+                    break;
                 case GuestAgentState.GoingToRoom:
                     SetRoute(guest, AuthoredGuestRoute.ToRoom(guest.Root.position, guest.Room, guest.InsideRoom), RoutePurpose.Room);
                     break;
@@ -572,7 +581,15 @@ namespace WorstHotel
             guest.LeftLeg.localRotation = Quaternion.Euler(swing * 25, 0, 0);
             guest.RightLeg.localRotation = Quaternion.Euler(-swing * 25, 0, 0);
             float left = -swing * 18, right = swing * 18;
-            if (!walking && (guest.State == GuestAgentState.WaitingForCheckIn || guest.State == GuestAgentState.WaitingAtServiceReception)) { left = -32; right = -55; }
+            if (!walking && (guest.State == GuestAgentState.WaitingForCheckIn || guest.State == GuestAgentState.WaitingAtServiceReception))
+            {
+                float patience = Mathf.Max(35, guest.Stay.Agent.WaitingPatience);
+                int stage = guest.Stay.LockedOut ? 1 : guest.Stay.Agent.WaitingSeconds >= patience * 2 ? 2 : guest.Stay.Agent.WaitingSeconds >= patience ? 1 : 0;
+                left = stage >= 2 ? -75 : -32;
+                right = stage > 0 ? -85 + Mathf.Sin(guest.AnimationTime * 2) * 22 : -55;
+                guest.Root.rotation = Quaternion.Euler(0, 180 + Mathf.Sin(guest.AnimationTime * .4f) * (stage > 0 ? 18 : 4), 0);
+                if (stage > guest.WaitingStage) { guest.WaitingStage = stage; HotelFeedback.PlayReceptionArrival(); }
+            }
             if (activity && guest.Activity == GuestActivity.Shower) { left = -135 + Mathf.Sin(guest.AnimationTime) * 12; right = -135 - Mathf.Sin(guest.AnimationTime) * 12; }
             if (activity && guest.Activity == GuestActivity.LoudRoom) { left = -35 + Mathf.Sin(guest.AnimationTime * 2) * 22; right = -35 - Mathf.Sin(guest.AnimationTime * 2) * 22; }
             if (activity && (guest.Activity == GuestActivity.PhoneCall || guest.Activity == GuestActivity.CallReception)) { left = -18; right = -155 + Mathf.Sin(guest.AnimationTime) * 4; }

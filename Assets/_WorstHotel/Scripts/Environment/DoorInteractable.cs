@@ -53,6 +53,9 @@ namespace WorstHotel
             }
         }
         bool Inside(PlayerInteractor actor) => actor && transform.InverseTransformPoint(actor.transform.position).z > .35f;
+        bool HasStaffKeyForLockout(PlayerInteractor actor) => actor && actor.HeldBody &&
+            actor.HeldBody.TryGetComponent<RoomKeyItem>(out var key) && key.roomId == 0 &&
+            key.BoundSimulation == boundSimulation && boundSimulation.CanUnlockForGuest(actor.ActorId, roomId);
         bool NeedsPermission(PlayerInteractor actor) => room != null && room.Occupied && !Inside(actor) &&
             !HasDeliveryAccess(actor);
         bool HasDeliveryAccess(PlayerInteractor actor)
@@ -66,6 +69,7 @@ namespace WorstHotel
         public override string GetPrompt(PlayerInteractor actor)
         {
             BindRoom();
+            if (HasStaffKeyForLockout(actor)) return "Unlock room " + roomId + " for the guest · STAFF key";
             if (!IsOpen && room != null && room.Occupied && !Inside(actor) && HasDeliveryAccess(actor))
                 return "Agreed luggage delivery · Open " + displayName;
             return !IsOpen && NeedsPermission(actor) && Conversation ? Conversation.GetPrompt(actor) : (IsOpen ? "Close " : "Open ") + displayName;
@@ -75,6 +79,12 @@ namespace WorstHotel
         {
             if (!Authority) return;
             BindRoom();
+            if (actor && actor.Focused == this && HasStaffKeyForLockout(actor))
+            {
+                if (boundSimulation.UnlockForGuest(actor.ActorId, roomId).Success)
+                { OpenForStaff(actor); GameSession.Instance.RaiseChanged(); }
+                return;
+            }
             if (IsOpen) { IsOpen = false; return; }
             if (NeedsPermission(actor)) { if (Conversation) Conversation.Interact(actor); return; }
             OpenForStaff(actor);

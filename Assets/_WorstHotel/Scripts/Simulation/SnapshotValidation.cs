@@ -44,6 +44,9 @@ namespace WorstHotel
             var gs=Array(s.Guests,continuous?128:6);foreach(var g in gs)
             {
                 Booking(g.Application);Require(Room(g.RoomId) && g.Price>=0 && g.CompensationCredit>=0 && g.CompensationCredit<=g.Price,"Invalid guest room or credit.");
+                Nonnegative(g.LockoutSeconds,g.LuggageDelaySeconds);
+                Require(!g.LockedOut || g.KeyLossConsidered && g.Agent != null && g.Agent.CheckedIn && g.Agent.HasReachedRoom,"Invalid lockout.");
+                Require(!g.AbandonedCheckIn || g.Agent != null && !g.Agent.CheckedIn,"Invalid check-in abandonment.");
                 Nonnegative(g.CheckInWaitingSeconds,g.CheckInDelayPenaltySeconds,g.Elapsed,g.QualityIntegral,g.ExpiredComplaintSeconds,g.ColdExposureSeconds,g.HotExposureSeconds,g.NoiseExposureSeconds,g.DirtyExposureSeconds,g.FixtureExposureSeconds,g.PowerLossExposureSeconds,g.ServiceIntegral);
                 Range(g.CombinedRoomDeficit);Require((g.Agent!=null)==living && (!g.HasNeeds || living),"Guest mode differs from this hotel.");
                 Range(g.BlanketComfortBonus,0,8);Range(g.ServiceSatisfactionAdjustment,-15,15);
@@ -82,7 +85,7 @@ namespace WorstHotel
             {
                 Range(r.Temperature,-100,100);Unit(r.Noise,r.PowerLossConditionSeverity);Nonnegative(r.SourceNoise,r.ReceivedNoise);EnumValue(r.Cleanliness);EnumValue(r.RepairState);EnumValue(r.TurnoverState);
                 EnumValue(r.OccupancyState);EnumValue(r.PrivacyState);EnumValue(r.DoorState);
-                Require(r.RadiatorSetting>=0 && r.RadiatorSetting<=3,"Invalid radiator setting.");Range(r.LampCondition,0,100);
+                Require(r.RadiatorSetting>=0 && r.RadiatorSetting<=3,"Invalid radiator setting.");Range(r.LampCondition,0,100);Range(r.UsedHours,0,48);Range(r.ShowerHours,0,24);Range(r.DisplacedHours,0,24);Require(((int)r.Disorder & ~7)==0,"Invalid room reset state.");
                 OptionalId(r.GuestId);OptionalId(r.ReservedGuestId);OptionalId(r.DepartingGuestId);OptionalId(r.CircuitId,32);
                 Require((string.IsNullOrEmpty(r.GuestId)||guestIds.Contains(r.GuestId)) && (string.IsNullOrEmpty(r.ReservedGuestId)||guestIds.Contains(r.ReservedGuestId)),"Unknown room guest.");
             }
@@ -105,9 +108,9 @@ namespace WorstHotel
             foreach(var c in cs){Text(c.Id,32);Nonnegative(c.ActualRequestedLoad,c.LoadOverride,c.OverloadSeconds);Require(c.TripCount>=0,"Invalid trip count.");}
             var consumers=Array(s.Consumers,40);Unique(consumers.Select(c=>c.Id));foreach(var c in consumers){Text(c.Id);OptionalId(c.CircuitId,32);Require(Room(c.RoomId,true) && (string.IsNullOrEmpty(c.CircuitId)||cs.Any(x=>x.Id==c.CircuitId)),"Invalid consumer placement.");Nonnegative(c.RequestedLoad,c.DeliveredLoad);Require(c.DeliveredLoad<=c.RequestedLoad,"Invalid delivered power.");}
             var heaters=Array(s.Heaters,6);Unique(heaters.Select(h=>h.Id));foreach(var h in heaters){Text(h.Id);Require(Room(h.RoomId,true),"Invalid heater placement.");Range(h.HeatOutput,float.Epsilon);Range(h.ElectricalLoad,float.Epsilon);}
-            var keys=Array(s.Keys,10);Require(keys.Length==rs.Length,"Incomplete keys.");Unique(keys.Select(k=>k.RoomId));Unique(keys.Where(k=>k.PlayerId>=0).Select(k=>k.PlayerId));
+            var keys=Array(s.Keys,11);Require(keys.Length==rs.Length+1 && keys.Any(k=>k.RoomId==0),"Incomplete keys.");Unique(keys.Select(k=>k.RoomId));Unique(keys.Where(k=>k.PlayerId>=0).Select(k=>k.PlayerId));
             Unique(keys.Where(k=>!string.IsNullOrEmpty(k.GuestId)).Select(k=>k.GuestId));
-            foreach(var k in keys){Require(Room(k.RoomId) && k.PlayerId>=-1,"Invalid key.");EnumValue(k.Location);OptionalId(k.GuestId);Require((k.Location==RoomKeyLocation.HeldByPlayer)==(k.PlayerId>=0) && (k.Location==RoomKeyLocation.HeldByGuest)==!string.IsNullOrEmpty(k.GuestId),"Invalid key ownership.");if(k.Location==RoomKeyLocation.HeldByGuest)Require(guestIds.Contains(k.GuestId),"Unknown key guest.");}
+            foreach(var k in keys){Require(Room(k.RoomId,true) && k.PlayerId>=-1,"Invalid key.");EnumValue(k.Location);OptionalId(k.GuestId);Require((k.Location==RoomKeyLocation.HeldByPlayer)==(k.PlayerId>=0) && ((k.Location==RoomKeyLocation.HeldByGuest || k.Location==RoomKeyLocation.LeftInside))==!string.IsNullOrEmpty(k.GuestId),"Invalid key ownership.");if(k.Location==RoomKeyLocation.HeldByGuest || k.Location==RoomKeyLocation.LeftInside)Require(k.RoomId!=0 && guestIds.Contains(k.GuestId),"Unknown key guest.");}
             var ls=Array(s.Linens,20);Require(ls.Length==linenCount,"Incomplete linen slots.");Unique(ls.Select(l=>l.Id));Unique(ls.Where(l=>l.PlayerId>=0).Select(l=>l.PlayerId));
             foreach(var l in ls){Text(l.Id);EnumValue(l.Kind);EnumValue(l.Location);Require(l.Generation>=0 && l.PlayerId>=-1 && Room(l.SourceRoomId,true) && (l.Location==LinenLocation.HeldByPlayer)==(l.PlayerId>=0),"Invalid linen state.");}
             var ts=Array(s.Turnover,10);Unique(ts.Select(t=>t.RoomId));foreach(var t in ts){Require(Room(t.RoomId) && t.Generation>=1 && t.WorkingPlayerId>=-1 && t.CleanLinenGeneration>=0 && t.QueuedOrder>=0,"Invalid turnover task.");Text(t.DirtyLinenId);OptionalId(t.CleanLinenId);EnumValue(t.Step);EnumValue(t.State);Range(t.RequiredSeconds,float.Epsilon);Range(t.ProgressSeconds,0,t.RequiredSeconds);Require(ls.Any(l=>l.Id==t.DirtyLinenId && l.Kind==LinenKind.Dirty && l.SourceRoomId==t.RoomId && l.Generation==t.Generation),"Missing task dirty linen.");if(!string.IsNullOrEmpty(t.CleanLinenId))Require(ls.Any(l=>l.Id==t.CleanLinenId && l.Kind==LinenKind.Clean && l.Generation==t.CleanLinenGeneration),"Missing task clean linen.");}

@@ -64,7 +64,8 @@ namespace WorstHotel
         internal static GuestSnapshot Capture(GuestStay g) => new GuestSnapshot
         {
             Application=Capture(g.Application),RoomId=g.RoomId,Price=g.Price,CompensationCredit=g.CompensationCredit,Compensated=g.Compensated,
-            ReceiptPosted=g.ReceiptPosted,
+            ReceiptPosted=g.ReceiptPosted,LockedOut=g.LockedOut,KeyLossConsidered=g.KeyLossConsidered,AbandonedCheckIn=g.AbandonedCheckIn,
+            LockoutSeconds=g.LockoutSeconds,LuggageDelaySeconds=g.LuggageDelaySeconds,
             CheckInWaitingSeconds=g.CheckInWaitingSeconds,CheckInDelayPenaltySeconds=g.CheckInDelayPenaltySeconds,
             Elapsed=g.Elapsed,QualityIntegral=g.QualityIntegral,ExpiredComplaintSeconds=g.ExpiredComplaintSeconds,
             ColdExposureSeconds=g.ColdExposureSeconds,HotExposureSeconds=g.HotExposureSeconds,NoiseExposureSeconds=g.NoiseExposureSeconds,
@@ -94,7 +95,8 @@ namespace WorstHotel
             Restore(g.Memory,s.Memory);Restore(g.Perception,s.Perception);
             Restore(g.EarlyCheckout,s.EarlyCheckout);
             g.RoomId=s.RoomId;g.CompensationCredit=s.CompensationCredit;g.Compensated=s.Compensated;
-            g.ReceiptPosted=s.ReceiptPosted;
+            g.ReceiptPosted=s.ReceiptPosted;g.LockedOut=s.LockedOut;g.KeyLossConsidered=s.KeyLossConsidered;g.AbandonedCheckIn=s.AbandonedCheckIn;
+            g.LockoutSeconds=s.LockoutSeconds;g.LuggageDelaySeconds=s.LuggageDelaySeconds;
             g.BlanketComfortBonus=s.BlanketComfortBonus;g.ServiceSatisfactionAdjustment=s.ServiceSatisfactionAdjustment;
             g.CheckInWaitingSeconds=s.CheckInWaitingSeconds;g.CheckInDelayPenaltySeconds=s.CheckInDelayPenaltySeconds;
             g.Elapsed=s.Elapsed;g.QualityIntegral=s.QualityIntegral;g.ExpiredComplaintSeconds=s.ExpiredComplaintSeconds;
@@ -128,6 +130,7 @@ namespace WorstHotel
         {
             Id=r.Profile.Id,Temperature=r.Temperature,Noise=r.Noise,SourceNoise=r.SourceNoise,ReceivedNoise=r.ReceivedNoise,
             RadiatorSetting=r.RadiatorSetting,LampCondition=r.LampCondition,LampBroken=r.LampBroken,
+            UsedHours=r.UsedHours,ShowerHours=r.ShowerHours,DisplacedHours=r.DisplacedHours,Disorder=r.Disorder,
             PowerLossConditionSeverity=r.PowerLossConditionSeverity,HasPower=r.HasPower,CircuitId=OptionalId(r.CircuitId),
             GuestId=OptionalId(r.GuestId),ReservedGuestId=OptionalId(r.ReservedGuestId),DepartingGuestId=OptionalId(r.DepartingGuestId),
             Cleanliness=r.Cleanliness,RepairState=r.RepairState,TurnoverState=r.TurnoverState,
@@ -136,6 +139,7 @@ namespace WorstHotel
         internal static void Restore(RoomState r, RoomSnapshot s)
         {
             r.RadiatorSetting=s.RadiatorSetting;r.LampCondition=s.LampCondition;r.LampBroken=s.LampBroken;
+            r.UsedHours=s.UsedHours;r.ShowerHours=s.ShowerHours;r.DisplacedHours=s.DisplacedHours;r.Disorder=s.Disorder;
             r.Temperature=s.Temperature;r.Noise=s.Noise;r.SourceNoise=s.SourceNoise;r.ReceivedNoise=s.ReceivedNoise;
             r.PowerLossConditionSeverity=s.PowerLossConditionSeverity;r.HasPower=s.HasPower;r.CircuitId=OptionalId(s.CircuitId);
             r.GuestId=OptionalId(s.GuestId);r.ReservedGuestId=OptionalId(s.ReservedGuestId);r.DepartingGuestId=OptionalId(s.DepartingGuestId);

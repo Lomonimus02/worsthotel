@@ -121,7 +121,7 @@ namespace WorstHotel
             GuestStay guest = null;
             foreach (var stay in simulation.Guests) if (stay.GuestId == state.GuestId) { guest = stay; break; }
             bool ownCarry = state.Location == ServiceItemLocation.OnShelf;
-            bool visible = guest?.Agent != null && (guest.Agent.State != GuestAgentState.Left ||
+            bool visible = state.Location != ServiceItemLocation.LostProperty && guest?.Agent != null && (guest.Agent.State != GuestAgentState.Left ||
                 state.Location == ServiceItemLocation.Dropped || state.Location == ServiceItemLocation.HeldByPlayer || state.Location == ServiceItemLocation.Stored);
             if (ownCarry) visible &= presentation && presentation.TryGetGuestTransform(state.GuestId, out _);
             if (shownLocation != state.Location || shownGeneration != state.Generation || shownVisible != visible)
