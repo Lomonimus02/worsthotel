@@ -1,0 +1,12 @@
+Outcome=PASS CompleteWindowsBuild=True EveryEntrySHA256Matches=True
+Utc=2026-10-01T22:55:54.1678711Z
+Build=Builds/Windows-0.7.0-r2
+Archive=Builds/TheWorstHotelEver-0.7.0-Windows.zip
+Files=281
+UncompressedBytes=183648239
+ArchiveBytes=72455699
+ArchiveSHA256=015CA822B5A70CDC1FFFC54C5C0EFEE9310C9843FCDA2589C9889DF9C85117F1
+ExecutableSHA256=ABC8179E345B70C9D7CA423C54E02739ED9B9ADCA668C2C745FFB81AADC05CC6
+GameplayAssemblySHA256=DC984D3C5A49784F5E915A0B4FC42B35D86D4AD8D1F9468C2D77AF6F80D7D3BF
+Includes=README-RU.txt, executable, UnityPlayer.dll, Data, Mono runtime and all other build files
+Verification=Archive integrity only; runtime and visual evidence are recorded separately in docs/VERIFICATION.md

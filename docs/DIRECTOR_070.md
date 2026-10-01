@@ -70,6 +70,8 @@ The physical-fix rerun passed room waste/towel/chair work and the staff-key lock
 
 The Windows development build succeeded in `Builds/Windows-0.7.0-r2`; the `Играть 0.7.0` shortcut points there. The earlier `Windows-0.7.0` player was kept intact because the user was playing it. The r2 build adds the basket clearance and concise visitor action labels.
 
+The complete Windows package is distributed as the [v0.7.0 prerelease](https://github.com/Lomonimus02/worsthotel/releases/tag/v0.7.0). [Package verification](verification/director070/release-package.txt) checked all 281 ZIP entries against their source SHA256 hashes; this is archive verification, not another gameplay test.
+
 The final **two-process Windows LAN run passed on both host and client with zero errors** (`20261001-224943-fcf0d4b1`). Normal NGO transport carried a real remote key pickup/release with exclusive ownership, a remote visitor decision, the visitor's actual route to the room, visible guest/visitor replicas and agreeing cash/contract/history/budget. The read-only client could neither tick nor author director decisions. This focused fixture openly uses one manually booked guest, a visitor-only deck, three-second quiet dwell and explicit empty-staff approach poses. It does not manufacture the visitor's route callbacks or use diagnostic RPCs.
 
 Evidence is retained in [verification/director070](verification/director070), including the broad archive failure list, targeted XML, multi-day traces, physical screenshots and both LAN reports. The regular Windows build log and intermediate runs remain in ignored `Logs`.
