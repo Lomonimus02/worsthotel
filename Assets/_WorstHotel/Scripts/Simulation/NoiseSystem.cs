@@ -37,7 +37,7 @@ namespace WorstHotel
         public float? GetNoiseOverride(int roomId) => overrides.TryGetValue(roomId, out var value) ? value : (float?)null;
         public void ClearOverrides() { if (!ReadOnlyMirror) overrides.Clear(); }
 
-        public void Tick(IEnumerable<GuestStay> guests, IEnumerable<RoomState> roomStates, float simulationTime, GuestServiceSystem services = null)
+        public void Tick(IEnumerable<GuestStay> guests, IEnumerable<RoomState> roomStates, float simulationTime, GuestServiceSystem services = null, HotelDirector director = null)
         {
             if (ReadOnlyMirror) return;
             if (guests == null || roomStates == null) throw new ArgumentNullException("Guests and room states are required.");
@@ -85,6 +85,14 @@ namespace WorstHotel
                 var source = new RoomNoiseSource(guest.GuestId + "/" + category, guest.GuestId, guest.RoomId, category, output);
                 if (source.Active) actualSources.Add(source);
                 sources[guest.RoomId] += output;
+            }
+            if (director != null) foreach (var visitor in director.Visitors)
+            {
+                if (!director.VisitorUsingRoom(visitor)) continue;
+                var host = orderedGuests.Find(g => g.GuestId == visitor.HostGuestId);
+                float volume = director.Settings.VisitorNoise * (host.Agent.QuietUntil > simulationTime ? Settings.QuietSourceMultiplier : 1);
+                actualSources.Add(new RoomNoiseSource(host.GuestId + "/Visitor", host.GuestId, visitor.RoomId, NoiseCategory.Visitor, volume));
+                sources[visitor.RoomId] += volume;
             }
             foreach (var source in actualSources)
                 foreach (var link in Graph.Links)

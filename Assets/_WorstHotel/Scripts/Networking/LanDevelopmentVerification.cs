@@ -18,7 +18,7 @@ namespace WorstHotel
     {
         const string PadLayout = "WorstHotelLanVerificationGamepad";
         string output, side;
-        bool host, finished, layoutRegistered, clockTracking, capture, agency, services, continuous, sleep;
+        bool host, finished, layoutRegistered, clockTracking, capture, agency, services, continuous, sleep, director;
         int errors, checks, stableClockChecks;
         float began, serviceClockStart, lastClientClock;
         long lastClientSequence;
@@ -55,6 +55,7 @@ namespace WorstHotel
             runner.services = Array.IndexOf(args, "-verifyLanServices") >= 0;
             runner.continuous = Array.IndexOf(args, "-verifyLanContinuous") >= 0;
             runner.sleep = Array.IndexOf(args, "-verifyLanSleep") >= 0;
+            runner.director = Array.IndexOf(args, "-verifyLanDirector") >= 0;
             runner.side = isHost ? "host" : "client"; runner.began = Time.realtimeSinceStartup;
             Directory.CreateDirectory(runner.output);
             DontDestroyOnLoad(runner.gameObject);
@@ -75,6 +76,8 @@ namespace WorstHotel
         void PrepareLegacyVerification(Scene scene, LoadSceneMode mode)
         {
             var current = GameSession.Instance;
+            if (director && current && current.gameObject.scene == scene)
+            { if (!continuousFundingConfig) PrepareDirectorFixture(current); return; }
             if (continuous && current && current.gameObject.scene == scene)
             {
                 if (continuousFundingConfig) return;
@@ -105,7 +108,7 @@ namespace WorstHotel
         void Update()
         {
             if (finished) return;
-            float watchdog = sleep || continuous ? 420 : services ? 330 : 140;
+            float watchdog = sleep || continuous ? 420 : services ? 330 : director ? 210 : 140;
             if (Time.realtimeSinceStartup - began > watchdog) { Fail(watchdog + "-second internal watchdog"); return; }
             if (agency && host) MaintainAgencyFixture();
             if (services && host) MaintainServicesFixture();
@@ -165,7 +168,8 @@ namespace WorstHotel
             Require(key && key.rackAnchor, "real authored room101 key exists");
             facts.Add("Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.");
             facts.Add("Stage files coordinate waits and compare measured poses; they never apply hotel state or input.");
-            if (sleep) { if (host) yield return RunSleepHost(); else yield return RunSleepClient(); }
+            if (director) { if (host) yield return RunDirectorHost(); else yield return RunDirectorClient(); }
+            else if (sleep) { if (host) yield return RunSleepHost(); else yield return RunSleepClient(); }
             else if (continuous) { if (host) yield return RunContinuousHost(); else yield return RunContinuousClient(); }
             else if (services) { if (host) yield return RunServicesHost(); else yield return RunServicesClient(); }
             else if (agency) { if (host) yield return RunAgencyHost(); else yield return RunAgencyClient(); }
@@ -463,7 +467,7 @@ namespace WorstHotel
         void WriteReport(string outcome)
         {
             WriteText(side + "-report.txt", "Outcome=" + outcome + " Errors=" + errors + " Role=" + side +
-                " Mode=" + (sleep ? "SleepFixtures" : continuous ? "ContinuousFixtures" : services ? "ServiceFixtures" : agency ? "AgencyFixtures" : "PhysicalKeys") +
+                " Mode=" + (director ? "DirectorFixtures" : sleep ? "SleepFixtures" : continuous ? "ContinuousFixtures" : services ? "ServiceFixtures" : agency ? "AgencyFixtures" : "PhysicalKeys") +
                 " Checks=" + checks + "\nUtc=" + DateTime.UtcNow.ToString("O") + "\nRun=" + Path.GetFileName(output) +
                 "\n" + string.Join("\n", facts) +
                 "\nScope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.\n");

@@ -146,7 +146,7 @@ namespace WorstHotel.Tests
             yield return WaitForCondition(() => session.Report != null, 4,
                 "The same calendar should later reach its report using resumed simulation time.");
             Assert.That(session.Reports.Count, Is.EqualTo(1));
-            Assert.That(session.Cash, Is.EqualTo(cash - session.Economy.DailyOperatingCost));
+            Assert.That(session.Cash, Is.EqualTo(cash), "Reporting at 01:00 does not charge the independent 06:00 operating bill.");
             LogAssert.NoUnexpectedReceived();
         }
 

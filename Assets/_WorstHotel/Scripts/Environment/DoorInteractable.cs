@@ -116,6 +116,16 @@ namespace WorstHotel
             if (!IsOpen && Quaternion.Angle(closedRotation, doorPivot.localRotation) < 2) activeOpenAngle = openAngle;
             IsOpen = true;
         }
+        public bool RequestVisitorOpen(string visitorId)
+        {
+            BindRoom();
+            var visitor = GameSession.Instance?.Simulation?.Director?.FindVisitor(visitorId);
+            if (!Authority || room == null || visitor == null || visitor.RoomId != room.Profile.Id ||
+                (visitor.State != HotelVisitorState.Leaving &&
+                    (visitor.State != HotelVisitorState.GoingToRoom || room.GuestId != visitor.HostGuestId))) return false;
+            closeAt = 0; RequestOpen(); return true;
+        }
+
         public bool RequestGuestOpen(string guestId)
         {
             BindRoom();

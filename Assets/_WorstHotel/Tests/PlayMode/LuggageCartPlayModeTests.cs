@@ -159,11 +159,11 @@ namespace WorstHotel.Tests
             yield return new WaitForSeconds(.6f);
             // The handle collider intentionally occupies the rear. Walk around it to
             // grab the suitcase from the side rather than asserting a through-handle ray.
-            yield return WalkBesideCart(cart.transform.TransformPoint(new Vector3(-1.35f, 0, -1.3f)));
-            yield return WalkBesideCart(cart.transform.TransformPoint(new Vector3(-1.35f, 0, 0)));
-            yield return GrabServiceSupply(bags[0]);
-            Assert.That(bags[0].OnCart, Is.False, "Real F-grab must detach the cart joint.");
-            Assert.That(bags[1].OnCart, Is.True, "The other suitcase stays aboard.");
+            yield return WalkBesideCart(cart.transform.TransformPoint(new Vector3(1.2f, 0, -1.3f)));
+            yield return WalkBesideCart(cart.transform.TransformPoint(new Vector3(1.2f, 0, 0)));
+            yield return GrabServiceSupply(bags[1]);
+            Assert.That(bags[1].OnCart, Is.False, "Real F-grab must detach the cart joint.");
+            Assert.That(bags[0].OnCart, Is.True, "The other suitcase stays aboard.");
             LogAssert.NoUnexpectedReceived();
         }
     }

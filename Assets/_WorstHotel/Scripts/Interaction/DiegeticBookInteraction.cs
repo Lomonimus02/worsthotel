@@ -8,12 +8,14 @@ namespace WorstHotel
     public sealed class DiegeticBookInteraction : HotelInteractable
     {
         public HotelBook kind;
+        void Awake() { if (kind == HotelBook.Reservations && !GetComponent<ReservationCorrespondence>()) gameObject.AddComponent<ReservationCorrespondence>(); }
         public string ShortTitle => kind switch {
             HotelBook.Reservations => "reservations", HotelBook.Services => "notes",
             HotelBook.Accounts => "accounts", HotelBook.Renovation => "renovation plans", HotelBook.Supplies => "supply ledger", _ => "manual" };
         public static DiegeticBookInteraction Find(HotelBook kind) =>
             FindObjectsByType<DiegeticBookInteraction>(FindObjectsSortMode.None).FirstOrDefault(book => book.kind == kind);
-        public override string GetPrompt(PlayerInteractor actor) => "Read " + ShortTitle;
+        public override string GetPrompt(PlayerInteractor actor) => "Read " + ShortTitle +
+            (kind == HotelBook.Reservations && GameSession.Instance?.Simulation?.SpecialEnquiries.Any(e => e.Status == SpecialOfferStatus.Pending) == true ? " · new enquiry" : "");
         public override void Interact(PlayerInteractor actor)
         {
             var lan = LanSession.Instance;

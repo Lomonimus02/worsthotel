@@ -7,8 +7,8 @@ namespace WorstHotel
         {
             if (IsReadOnlyMirror || OwnershipLost) return;
             if (Electrical == null) return;
-            Electrical.Tick(guests, rooms.Values, Heaters, 0, Services);
-            Noise.Tick(guests, rooms.Values, Elapsed, Services);
+            Electrical.Tick(guests, rooms.Values, Heaters, 0, Services, Director);
+            Noise.Tick(guests, rooms.Values, Elapsed, Services, Director);
             ObserveInfrastructureChanges();
         }
 

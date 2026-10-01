@@ -121,6 +121,11 @@ namespace WorstHotel.Tests
             yield return DiegeticCapture("09-private-request-not-written");
             ui.Close(); yield return new WaitForSecondsRealtime(.3f);
             Object.FindAnyObjectByType<GuestPresentation>().enabled = false;
+            // This phone-input fixture already substitutes model room arrival. A room
+            // callback no longer certifies the separately acknowledged activity anchor.
+            Assert.That(session.Simulation.ForceActivity(guest.GuestId, GuestActivity.QuietRest).Success, Is.True);
+            if (!guest.Agent.ActivityStaged)
+                Assert.That(session.Simulation.SignalGuestActivityReady(guest.GuestId, guest.Agent.State, guest.Agent.Activity).Success, Is.True);
             Assert.That(session.DebugBeginGuestContact(guest.GuestId, GuestContactChannel.Phone).Success, Is.True);
             Assert.That(session.Simulation.SignalGuestResponseAnchorReached(guest.GuestId, request.Response.Id,
                 request.Response.ActionVersion, GuestResponseAnchor.RoomPhone).Success, Is.True);

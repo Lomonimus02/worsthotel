@@ -53,7 +53,7 @@ namespace WorstHotel
         public HotelSimulation(SessionSettings settings, RoomState[] roomStates, LivingHotelSettings living = null, NeedSettings needs = null,
             NoiseSettings noise = null, HeaterSettings heater = null, ElectricitySettings electricity = null,
             HousekeepingSettings housekeeping = null, GuestServiceSettings services = null, RoomInfrastructureSettings infrastructure = null,
-            OperationsSettings operations = null)
+            OperationsSettings operations = null, HotelDirectorSettings director = null)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Operations = operations;
@@ -114,6 +114,7 @@ namespace WorstHotel
             InitializeServices(services);
             InitializeSupplies();
             InitializeInfrastructureHistory();
+            if (ContinuousOperations && LivingEnabled && director != null) Director = new HotelDirector(this, director);
         }
 
         public CommandResult StartShift(IEnumerable<BookingAssignment> assignments, IEnumerable<BookingApplication> applications)
@@ -187,8 +188,8 @@ namespace WorstHotel
                 {
                     Housekeeping.Tick(step);
                     UpdateQuietRequests(Elapsed + step);
-                    Electrical.Tick(guests, rooms.Values, Heaters, step, Services);
-                    Noise.Tick(guests, rooms.Values, Elapsed + step, Services);
+                    Electrical.Tick(guests, rooms.Values, Heaters, step, Services, Director);
+                    Noise.Tick(guests, rooms.Values, Elapsed + step, Services, Director);
                 }
                 RefreshGuestLoad();
                 bool wasWarning = Boiler.Pressure >= settings.Boiler.WarningPressure;
@@ -213,6 +214,7 @@ namespace WorstHotel
                     foreach (var guest in guests) Satisfaction.Accumulate(guest, rooms[guest.RoomId], step, Requests.HasExpiredRequest(guest.GuestId));
                 }
                 Clock.Advance(step);
+                Director?.Tick(step);
                 var completedService = Boiler.ActiveServiceKind;
                 if (ContinuousOperations && Boiler.CompleteMaintenance(Elapsed))
                     SignalEvent(completedService == BoilerServiceKind.Basic ?

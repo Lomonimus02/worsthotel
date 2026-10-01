@@ -1,0 +1,9 @@
+Outcome=PASS Errors=0 Role=host Mode=DirectorFixtures Checks=24
+Utc=2026-10-01T22:52:35.4712313Z
+Run=20261001-224943-fcf0d4b1
+DIRECTOR FIXTURE: ordinary 480s continuous clock and economy; one manual guest at16:00, 3s quiet dwell, visitor-only deck. Physical NPC routes remain production. Empty remote staff approach is an explicit adapter.
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=0 WorldAuthority=True
+DirectorReplicated=True RemoteKeyOwnership=True RemoteVisitorDecision=True RealVisitorRoute=True EconomyAgreement=True
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.

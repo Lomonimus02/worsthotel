@@ -21,7 +21,7 @@ namespace WorstHotel.Tests
             Assert.That(model.ContractEnabled, Is.True);
             Assert.That(model.ContractDue, Is.EqualTo(350));
             Assert.That(model.FirstContractAt, Is.EqualTo(model.Calendar.At(2, 22)));
-            Assert.That(model.FirstContractAt, Is.EqualTo(1140));
+            Assert.That(model.Operations.SecondsPerDay, Is.EqualTo(480));
             var hud = bootstrap.Players[0].GetComponent<InteractionHUD>();
             ui.Close(); yield return null;
             Assert.That(hud.EconomyCaption, Does.Contain("NEXT QUOTA  $350").And.Contain("CASH  $1600").And.Contain("Due Day 2 · 22:00"));

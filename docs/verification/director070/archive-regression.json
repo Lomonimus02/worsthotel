@@ -1,0 +1,897 @@
+{
+  "total": "925",
+  "passed": "702",
+  "failed": "222",
+  "skipped": "1",
+  "note": "Broad archive before final targeted fixes. Failures retained; not all classified as pre-existing.",
+  "failures": [
+    {
+      "test": "WorstHotel.Tests.AutomaticBookingTests.AllClosedConsumesEightDecisionsWithoutCatchUpBurstWhenRoomsReopen",
+      "message": "  Expected: 8\n  But was:  10\n"
+    },
+    {
+      "test": "WorstHotel.Tests.AutomaticBookingTests.ClosingAndChangingAdvertisedRatePreservesExistingGuestContractAndAssignmentCanUseClosedRoom",
+      "message": "  Expected: Reserved\n  But was:  Arrived\n"
+    },
+    {
+      "test": "WorstHotel.Tests.AutomaticBookingTests.CoarseAndFineTicksProduceIdenticalDatedReservationsAndBoundedCursors",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.AutomaticBookingTests.DirtyFutureRoomCanSellButRealCheckInStillNeedsLinenAndNumberedKey",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.AutomaticBookingTests.OpeningOrRepricingRoomDoesNotInstantlyFillItOrRerollConsumedEnquiries",
+      "message": "System.InvalidOperationException : Sequence contains no elements"
+    },
+    {
+      "test": "WorstHotel.Tests.AutomaticBookingTests.ProductionEnablesTimedSalesButRawHistoricalCalendarRemainsManual",
+      "message": "  Expected: 6\n  But was:  10\n"
+    },
+    {
+      "test": "WorstHotel.Tests.AutomaticBookingTests.ReadOnlyMirrorCanInspectDemandButCannotAdvancePolicyOrCreateReservation",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.AutomaticBookingTests.SameProductionSeedHigherPriceReducesBookingsWithoutChangingEnquiriesOrCreditingRevenue",
+      "message": "  Expected: greater than 12\n  But was:  12\n"
+    },
+    {
+      "test": "WorstHotel.Tests.AutomaticSalesCommandTests.PolicyCommandsRejectForeignFieldsMissingRevisionAndInvalidRoomBeforeModelMutation",
+      "message": "  Expected: False\n  But was:  True\n"
+    },
+    {
+      "test": "WorstHotel.Tests.BoilerPowerInteractionTests.AcknowledgedNaturalGuestRadiatorSelfHelpRaisesOnlyAttributedCentralDemand",
+      "message": "  Guest activity changed before its physical staging completed.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.BoilerPowerInteractionTests.BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure(\"failure\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.BoilerPowerInteractionTests.BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure(\"paid restart\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.BoilerPowerInteractionTests.BoilerTransitionDoesNotAddConsumersChangePowerOrRewriteCircuitExposure(\"maintenance start\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.BoilerPowerInteractionTests.SevereRoomColdDoesNotAutomaticallySwitchOrPowerAnyPortableHeater",
+      "message": "  Guest activity changed before its physical staging completed.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.BookingLoadForecastTests.CurrentAgreedLateCheckoutExtendsOverlapBeyondTheOriginalOffer",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.BookingLoadForecastTests.MaterializedRoomOwnerIsNotCountedTwiceAndCommittedKeyMoveImmediatelyChangesAttribution",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.BookingLoadForecastTests.SequentialCohortsAreSweptInsteadOfSummingEveryReservationTouchingTheCandidate",
+      "message": "  Expected: 1.70000005f\n  But was:  0.850000024f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CapacitySnapshotTests.LegacyBoilerCannotAcquireContinuousStressThroughAHostPacket",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.ActualDiscussionAndCreditRoundTripWithoutMirrorDecisionsOrPrematureReturn(Phone)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.ActualDiscussionAndCreditRoundTripWithoutMirrorDecisionsOrPrematureReturn(Reception)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.APrivateRecurringEpisodePreservesThePreviousCompletedDiscussionOnTheWire(True)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.APrivateRecurringEpisodePreservesThePreviousCompletedDiscussionOnTheWire(False)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.InvalidDiscussionFramesAreRejectedBeforeChangingAnyMirroredState(\"missing-cause\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.InvalidDiscussionFramesAreRejectedBeforeChangingAnyMirroredState(\"case-impersonation\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.InvalidDiscussionFramesAreRejectedBeforeChangingAnyMirroredState(\"missing-owner\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.InvalidDiscussionFramesAreRejectedBeforeChangingAnyMirroredState(\"sleeping-owner\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.InvalidDiscussionFramesAreRejectedBeforeChangingAnyMirroredState(\"past-checkout\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.InvalidDiscussionFramesAreRejectedBeforeChangingAnyMirroredState(\"private-response\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.InvalidDiscussionFramesAreRejectedBeforeChangingAnyMirroredState(\"private-current-cause\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.InvalidDiscussionFramesAreRejectedBeforeChangingAnyMirroredState(\"unearned-credit\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.InvalidDiscussionFramesAreRejectedBeforeChangingAnyMirroredState(\"old-schema\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.CompensationIntentSnapshotTests.TimeoutAndRoomMoveSnapshotsRemainSelfConsistentAtTheExactCommandBoundary",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousBookingTests.AGuestWithoutActualRoomTimeIsNeverCharged(False)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousBookingTests.AGuestWithoutActualRoomTimeIsNeverCharged(True)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousBookingTests.CheckoutPostsIncomeOnceAndFollowingReportDisplaysItWithoutPayingAgain",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousBookingTests.ConsecutiveNightsStillWaitForPreviousBodyExitAndLinenBeforeReusingTheRoom",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousBookingTests.DirtyReservationIsAllowedButCheckInWaitsForRealLinenPreparationAndKey",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousBookingTests.MaterializedScheduleSleepsOverMidnightWakesNextMorningAndChecksOutOnce",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousBookingTests.NextNightReservationPreservesTheCurrentOccupantAndTheirPhysicalKey",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousBookingTests.ReservationAndReceptionArrivalDoNotBypassPhysicalKeyHandoff",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCausalRetentionTests.FullProtectedDepartureSetRefusesNewAdmissionUntilOneOldBodyActuallyExits",
+      "message": "  Reset the visible waste, towels or chair before fitting fresh linen.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCompensationIntentTests.CompensationWaitSurvivesBedtimeThenTimesOutOnceAndScheduleCanSleep",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCompensationIntentTests.DeskCreditCompletesWaitOnceButKeepsTheCauseAndRequiresTheRealReturnBoundary",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCompensationIntentTests.ExplicitRefusalAtReceptionReleasesOnlyDiscussionAndStartsReturn",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCompensationIntentTests.InvalidRoomChoicePreservesDiscussionAndValidKeyProposalReplacesItAtomically",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCompensationIntentTests.MeasuredRecoveryCancelsAnUnpaidDiscussionWithoutInventingCompensation",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCompensationIntentTests.PhysicalConversationStartsOneFiniteWaitAndReopeningNeverExtendsIt(RoomConversation)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCompensationIntentTests.PhysicalConversationStartsOneFiniteWaitAndReopeningNeverExtendsIt(Phone)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCompensationIntentTests.PhysicalConversationStartsOneFiniteWaitAndReopeningNeverExtendsIt(Reception)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousCompensationIntentTests.StaleCancelCannotEndAnotherDiscussionAndUnauthorizedOrPrivateRequestsNeverMutate",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousEconomyComparisonTests.ProductionSeededThreeDayBookingStrategiesExposeBothRevenueOpportunityAndCausalCosts",
+      "message": "  Production working capital covers the first 06:00 bill before the first 10:00 checkout.\n  Expected: 750\n  But was:  1600\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousFinanceProjectionTests.ActualCheckoutMovesNominalCommitmentIntoCollectedIncomeAndMirrorProjectsIdenticalFinances",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousFinanceProjectionTests.NominalBookingRevenueChangesWithPriceAndCancellationWithoutPretendingItWasCollected",
+      "message": "  Expected: 750\n  But was:  1600\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousFinanceProjectionTests.ProductionWorkingCapitalCoversFirstOperatingBillAndOneEmergencyPatchBeforeAnyCheckout",
+      "message": "  Expected: 750\n  But was:  1600\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousGuestServiceTests.DepartedDroppedLuggageCanBePhysicallyReclaimedAndStoredWithoutAnAgreementOrBonus",
+      "message": "  Putting the actual suitcase in storage releases its retention pin.\n  Expected: null\n  But was:  <WorstHotel.ServiceItemState>\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousMaintenanceTests.SameSixOwnedRoomsCauseFasterStressGrowthAfterPatchThanAfterProperMaintenance",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRetentionTests.OldPhysicalDeparturePinsIdentityUntilItsActualExitThenPrunesQuietly",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRetentionTests.ThirtyDaysOfSixStaysRetireOldRecordsAndStillAcceptFreshServiceAndWireSnapshots",
+      "message": "  Reset the visible waste, towels or chair before fitting fresh linen.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.AwayOwnerKeepsRadiatorDemandAndHeatButCannotUseHotWaterInTransitOrOutside",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.CheckoutRemovesProfileDemandBeforeDepartureBodyIsGone",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.ClosedOwnAndOtherValvesCannotCancelAnActualShower",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.CommittedRelocationDropsOldRoomOwnershipAndStartsNewProfileDemandOnlyAtArrival",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.DuplicateOrStaleRoomOwnershipCannotDuplicateAGuestConsumer",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.JsonMirrorDerivesSameRoomRowsAndCannotChangeThemByTickOrValveCommand",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.OtherStagedActivitiesDoNotInventHotWaterOrChangeRadiatorDemand(LoudRoom)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.OtherStagedActivitiesDoNotInventHotWaterOrChangeRadiatorDemand(PhoneCall)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.OtherStagedActivitiesDoNotInventHotWaterOrChangeRadiatorDemand(WatchTV)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.OtherStagedActivitiesDoNotInventHotWaterOrChangeRadiatorDemand(Work)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.ReservationAndLobbyWaitingDoNotClaimProfileDemandButKeyHandoffDoesImmediately",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.ShowerIncrementCannotBecomeNegativeUnderCustomActivityTuning",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousRoomHeatingDemandTests.ShowerTapStartsOnlyAfterItsCurrentAnchorAcknowledgementAndStopsOnActivityChange",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"zero-charged-day\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"negative-day\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"future-budget-day\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"uncharged-dated-case\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"future-layer-day\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"future-refill\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"duplicate-stock-owner\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"unknown-guest\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"nonfinite-deadline\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"case-cap\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"promise-cap\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"item-cap\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.InvalidContinuousServiceDataIsRejectedBeforeAnyReplicaMutation(\"response-cap\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousServiceSnapshotTests.PastDayThreeServicesKeepTheirOriginalBudgetDatesAcrossJsonAndReadOnlyRestore",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousUpgradeTests.AdditionalRealBookingsCanOverloadAnUpgradedBoilerWithoutRemovingThePurchasedCapacity",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousUpgradeTests.BoilerUpgradeReducesUtilizationOfTheSameSixOwnedRoomsWithoutErasingWearOrStress",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ContinuousUpgradeTests.OneActualHeaterCanFitAfterChosenBranchUpgradeButTheTripNeedsResetAndTwoStillOverload",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutLifecycleTests.CheckoutPreservesAnAlreadyMissedOrCompletedWakeOutcomeExactlyOnce(False)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutLifecycleTests.CheckoutPreservesAnAlreadyMissedOrCompletedWakeOutcomeExactlyOnce(True)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutLifecycleTests.EarlyBillPreservesContractAndTakesOneMaximumRefundAcrossReceiptAndReport(0.2f,0.5f)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutLifecycleTests.EarlyBillPreservesContractAndTakesOneMaximumRefundAcrossReceiptAndReport(0.8f,0.8f)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutLifecycleTests.EveningEarlyDepartureCancelsTomorrowWakeWithoutInventingABrokenPromise",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutLifecycleTests.LaterDirectDiscussionCanFinishButCannotRenewExhaustedDepartureGrace",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutLifecycleTests.StayEndCancelsDirectMoveAndPendingParcelButPreservesTheActualReclaimableItem",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutPresentationTests.KnownCurrentWarningShowsRiskButNoPrivateCountersAndReadingDoesNotMutateHotel",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutPresentationTests.PrivateStaleRecoveredAndTerminalRecordsNeverBecomeCurrentPublicWarnings(\"private\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutPresentationTests.PrivateStaleRecoveredAndTerminalRecordsNeverBecomeCurrentPublicWarnings(\"monitoring\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutPresentationTests.PrivateStaleRecoveredAndTerminalRecordsNeverBecomeCurrentPublicWarnings(\"old_episode\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutPresentationTests.PrivateStaleRecoveredAndTerminalRecordsNeverBecomeCurrentPublicWarnings(\"old_room\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutPresentationTests.PrivateStaleRecoveredAndTerminalRecordsNeverBecomeCurrentPublicWarnings(\"inactive_cause\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutPresentationTests.PrivateStaleRecoveredAndTerminalRecordsNeverBecomeCurrentPublicWarnings(\"settled\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutPresentationTests.PrivateStaleRecoveredAndTerminalRecordsNeverBecomeCurrentPublicWarnings(\"committed\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.ActualWarningThenCommittedBillRoundTripsAndReplicaCannotProgressThem",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidCommittedOutcomeRejectsBeforeCashOrReceiptChanges(\"receipt-flag\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidCommittedOutcomeRejectsBeforeCashOrReceiptChanges(\"missing-receipt\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidCommittedOutcomeRejectsBeforeCashOrReceiptChanges(\"receipt-time\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidCommittedOutcomeRejectsBeforeCashOrReceiptChanges(\"receipt-reason\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidCommittedOutcomeRejectsBeforeCashOrReceiptChanges(\"refund\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidCommittedOutcomeRejectsBeforeCashOrReceiptChanges(\"commit-time\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidCommittedOutcomeRejectsBeforeCashOrReceiptChanges(\"grace\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidCommittedOutcomeRejectsBeforeCashOrReceiptChanges(\"reason-size\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"missing\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"enum\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"reason\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"negative\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"nan\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"oversized\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"room\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"incident\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"episode\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"zero-episode\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"future-warning\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"missing-warning\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"grace\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"pending-commit\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutSnapshotTests.InvalidPendingEvidenceRejectsAtomicallyWithoutConsumingSequence(\"empty-dirty\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutTests.OutingAndReturnTravelFreezeWarningAndPartialImprovementCancelsIt",
+      "message": "  Expected: Warning\n  But was:  Committed\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutTests.PersonalityAndPreviousEpisodeAffectPatienceOnceWithoutReusingOldSevereExposure",
+      "message": "  Expected: 67.5f +/- 0.300000012f\n  But was:  45.0f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutTests.ProductionEnablesConservativePolicyAndRawHistoricalSettingsRemainExplicitlyOptIn",
+      "message": "  Expected: 90 +/- 0.300000012f\n  But was:  60.25f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutTests.ReceivedBlanketAtLastGraceStepUsesFreshComfortInsteadOfStaleNeedSnapshot",
+      "message": "  Only a guest in their assigned room can leave it.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutTests.SevereKnownEpisodeWarnsThenLeavesOnceWithoutChangingContractOrInventingAnExitCallback",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.EarlyCheckoutTests.TooLittleContractRemainingUsesNormalCheckoutEvenWithAnOldFrozenWarning",
+      "message": "  Only an away guest who still owns their room can return.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ElectricalDebugTests.RevertReadsCurrentRealDemandAndEndsOnlyTheCurrentContinuousWarning",
+      "message": "  Expected: 6\n  But was:  4.0f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ElectricalDebugTests.SustainedOverrideTripsNormallyAndClearingItDoesNotRepairBreaker",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ElectricityTests.AuthoredCircuitsAndThreeOrdinaryRoomsHaveHeadroomWithoutAHeater",
+      "message": "  Expected is <System.Int32[3]>, actual is <System.Collections.ObjectModel.ReadOnlyCollection`1[System.Int32]> with 3 elements\n  Values differ at index [1]\n  Expected: 102\n  But was:  103\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ElectricityTests.ExactCapacityAndLightBookingWithOneLoudGuestRemainSafe",
+      "message": "  Expected: 4.0f +/- 9.99999975E-05f\n  But was:  3.0f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ElectricityTests.HeaterOverloadCreatesASecondaryGuestComplaintAndWorseReceiptThanDistributingBookings",
+      "message": "  Expected: in range (17.9,18.5)\n  But was:  -1.0f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ElectricityTests.OverloadNeedsContinuousExposureAndRecoversWhenTheExtraConsumerIsRemoved",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ElectricityTests.ResetWithoutReducingDemandRetripsWhileReducedLoadStaysPowered",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ElectricityTests.UniqueRequestedConsumersPersistThroughPowerCutWhileDeliveryAndHeaterHeatStop",
+      "message": "  Expected: 4.55000019f +/- 9.99999975E-05f\n  But was:  3.70000005f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.GuestPresenceTests.JsonHostSnapshotPreservesPrivatePendingActivityAndRejectsClientMutations",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.GuestRouteTests.ActivityApproachesSkirtSolidRoomFurnitureAndKeepSleepOnTheFloorUntilPoseTransition",
+      "message": "Room 101 route from RoomTarget101 target QuietRest intersects Used towels turnover 101 between (-4.18, 0.01, 8.40) and (-7.20, 0.01, 8.40)"
+    },
+    {
+      "test": "WorstHotel.Tests.HotelDirectorTests.PremiumOpportunityRequiresAcceptanceAndRealEquipmentBeforeDirectorRehearsal",
+      "message": "  Expected: Rehearsal\n  But was:  SpecialArrival\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanAgencySnapshotTests.CaptureAndAppliedAgencyDataAreDeepCopiesAcrossMemoryPerceptionCauseAndHistory",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanAgencySnapshotTests.JsonWirePreservesRealSourceCauseHistoryRepeatPatienceMemoryAndExperiencedNoise",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanAgencySnapshotTests.MissingSourceGuestsAndMalformedCausalPacketsRejectAtomicallyWithoutConsumingSequence",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanAgencySnapshotTests.ReplicaCannotAdvanceGuestLifePerceptionSituationsOrGuestResponses",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanServiceSnapshotTests.CompletedOrMissedWakePromiseRoundTripPreservesItsOutcomeAndServiceMemory(True)",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanServiceSnapshotTests.CompletedOrMissedWakePromiseRoundTripPreservesItsOutcomeAndServiceMemory(False)",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanServiceSnapshotTests.MalformedServicesAreRejectedAtomicallyAndDoNotConsumeTheIncomingSequence",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanServiceSnapshotTests.MovingGuestsKeepsPromiseAndCaseDestinationsCoherentAndTheDeliveredBlanketFollowsItsOwner",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanServiceSnapshotTests.MutableLateCheckoutRoundTripPreservesExistingGuestAndAgentPresentationIdentity",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanServiceSnapshotTests.PlanningAndRichServiceJsonRoundTripsPreserveRealStockOwnersComfortAndMemoryWithoutEvents",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanServiceSnapshotTests.ServiceMirrorCannotRespondMoveStockChangePromisesOrRefillLocally",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanSnapshotTests.CheckoutJsonWireSnapshotAcceptsDirtyBedWithoutCleanLinenAndPreservesDepartureOwnership",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanSnapshotTests.InitialJsonWireSnapshotAcceptsUnplacedHeaterAndGuestBeforeItsFirstNeedTick",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LanSnapshotTests.RichSnapshotRoundTripIsDeeplyIsolatedAndEmitsNoGameplayCallbacks",
+      "message": "  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.LivingEmergenceTests.NaturalMeasuredColdAndChosenHeaterCreateRealSecondaryPowerLossWithoutAPrematureComplaint",
+      "message": "  This naturally late trip leaves less than a complaint interval before departure.\n  Expected: less than 20.0f\n  But was:  54.2001343f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.MaintenanceSnapshotTests.MalformedPaidStateRejectsAtomicallyWithoutConsumingSequence(\"overflow\")",
+      "message": "  overflow\n  Expected: False\n  But was:  True\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NaturalServiceSnapshotTests.MalformedResponsePacketsAreRejectedBeforeAnyReplicaMutation(\"attempts\")",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NaturalServiceSnapshotTests.MalformedResponsePacketsAreRejectedBeforeAnyReplicaMutation(\"action-version\")",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NaturalServiceSnapshotTests.MalformedResponsePacketsAreRejectedBeforeAnyReplicaMutation(\"source\")",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NaturalServiceSnapshotTests.MalformedResponsePacketsAreRejectedBeforeAnyReplicaMutation(\"case-link\")",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NaturalServiceSnapshotTests.MalformedResponsePacketsAreRejectedBeforeAnyReplicaMutation(\"false-knowledge\")",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NaturalServiceSnapshotTests.MalformedResponsePacketsAreRejectedBeforeAnyReplicaMutation(\"invalid-sentinel\")",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NaturalServiceSnapshotTests.MalformedResponsePacketsAreRejectedBeforeAnyReplicaMutation(\"duplicate\")",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NaturalServiceSnapshotTests.NoticeTravelRingingAndDisclosureRoundTripWithStableGuestIdentityAndReadOnlyMirror",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NaturalServiceSnapshotTests.ReceptionTravelCancellationAndReturnReplicateWithoutLosingRoomOrKey",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.NeedsSituationTests.ReceptionDelayAffectsServiceHistoryWithoutInventingAFourthSituationFamily",
+      "message": "  The same reception wait must not be charged again by the legacy check-in-delay penalty.\n  Expected: 98.1651154f +/- 0.00100000005f\n  But was:  97.1651154f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.FailedOrdersDoNotChargeOrChangeStock",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(\"duplicate-deposit\")",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(\"future-generation\")",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(\"extra-linen\")",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(\"bulb-overbook\")",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(\"past-delivery\")",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.InvalidSupplySnapshotsRejectBeforeMutationOrSequenceConsumption(\"config\")",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.LaundryCostsOnceReturnsLaterAndKeepsOverflowUntilAPhysicalSlotIsFree",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.LinenCanRunOutAndMidnightDoesNotPrepareRoomsOrReplenishIt",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.SharedDeliveryIsStrictlyFutureAndMirrorCanPreviewButCannotPurchase",
+      "message": "  This room is already dirty and needs its existing cleaning task.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned(False)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OperatingSuppliesTests.UsedBlanketReturnsOnlyAfterCompletedTurnoverEvenWhenGuestHistoryWasPruned(True)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OwnershipContractTests.PostedRevenueAboveTheObligationDoesNotProtectCashSpentOnRealPurchases",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OwnershipContractTests.ProductionChargesAtSixAndFirstContractAtTwentyTwoAfterCheckoutWhileNullDisablesContract",
+      "message": "  Expected: 720\n  But was:  480.0f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.OwnershipContractTests.TickStopsAtFailureBeforeFutureCheckoutAndLaterCommandsCannotSpendOrRevive",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.Phase1SceneTests.AllAuthoredGameplayAnchorsExistExactlyOnce",
+      "message": "  ReceptionTerminal must exist exactly once for subsequent gameplay wiring.\n  Expected: 1\n  But was:  0\n"
+    },
+    {
+      "test": "WorstHotel.Tests.Phase1SceneTests.AvailableCarryablePropsHaveFiniteBodiesWhileFutureDirtyLinenStaysHidden",
+      "message": "  Dirty linen 101\n  Expected: False\n  But was:  True\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RemoteIncidentTests.ActualRepairWhileAwayWaitsForPhysicalReturnAndFreshRecovery(Power)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "test": "WorstHotel.Tests.RemoteIncidentTests.LeavingDoesNotResolveOrEscalateFactualRemoteProblemWithoutOptionalServiceCase(Power)",
+      "message": "System.InvalidOperationException : Sequence contains no matching element"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmAutomaticEconomyTests.ThreeAutomaticCohortsAtRealSaleRatesCompareCautiousAggressiveAndObservedPreventivePolicies",
+      "message": "  Expected: 750\n  But was:  1600\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmBoilerConsequenceTests.FourFiveSixOwnedRoomsCauseOrderedHeatAndWeakRoomConsequencesBeforeFailure",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmBoilerConsequenceTests.NaturalWeakRoomSelfResponsePrecedesFailureAndOnlyRealAnchorChangesValveDemand",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmBoilerConsequenceTests.RemovingOtherRoomRadiatorDemandRestoresHeatAndReducesStoredStressWithoutRepairingCondition",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmDailyDemandTests.ProductionDatedCohortCreatesMorningShowerDemandAfternoonOutingsAndQuietNightWithoutHourlyLoadMultiplier",
+      "message": "  Space heat follows owner/valve/loss, not a hidden hourly multiplier.\n  Expected: 0.0812800005f +/- 9.99999975E-06f\n  But was:  0.0f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmDebugTests.ForcedDemandWaitsForOneRealDueCursorAndKeepsPolicyPriceAndUnpaidReservation",
+      "message": "  String lengths are both 8. Strings differ at index 7.\n  Expected: \"stay-1-1\"\n  But was:  \"stay-1-2\"\n  ------------------^\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmGuestScheduleTests.LateRealCheckInSkipsExpiredOutingWithoutChangingTheContractOrMorning",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmGuestScheduleTests.MorningShowerIsOneActualStagedActionAndLateCheckoutCannotLoopTheItinerary",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmGuestScheduleTests.NaturalOutingNeedsExitAndReturnAcknowledgementsAndKeepsOnlyActualRoomDemand",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmGuestScheduleTests.PromisedWakeUsesImmutableStaggeredWakeAndCannotStartTwoMorningShowers(True)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RhythmGuestScheduleTests.PromisedWakeUsesImmutableStaggeredWakeAndCannotStartTwoMorningShowers(False)",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RoomCapacityCounterfactualTests.SixColdSensitiveGuestsDemandMoreThanSixBudgetGuestsAtIdenticalValvesRoomsAndCondition",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RoomCapacityCounterfactualTests.ThreeToSixRealMixedStaysRaiseMeasuredDemandAndClosingValvesReducesItWithoutRemovingGuests",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RoomInfrastructureTests.LampOnlyWearsWhenOccupiedAndPoweredAndBreakagePersistsWithoutPower",
+      "message": "  Expected: 2\n  But was:  20.0f\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RoomKeyTests.RackHasExactlyOneNumberedKeyPerRoomAndRejectsInvalidRegistrations",
+      "message": "  Expected is <System.Linq.Enumerable+RangeIterator>, actual is <System.Linq.Enumerable+SelectIListIterator`2[WorstHotel.RoomKeyState,System.Int32]>\n  Values differ at index [0]\n  Expected: 101\n  But was:  0\n"
+    },
+    {
+      "test": "WorstHotel.Tests.RoomThermalBreakdownTests.QuerySharesActualStagedAndAwayOwnershipDemandAndNeverMutatesHostOrMirror",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.SalesSnapshotTests.InvalidPolicyCursorOrOriginRejectsBeforeReplicaCashClockOrSequenceChanges(\"exhausted-booking-revision\")",
+      "message": "  exhausted-booking-revision\n  Expected: False\n  But was:  True\n"
+    },
+    {
+      "test": "WorstHotel.Tests.SalesSnapshotTests.PoliciesAndConsumedDemandRoundTripBeforeOpeningAndAcrossReportWhileReplicaCannotSell",
+      "message": "  Only a future booking can be changed or cancelled.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.DirectWaitAndPhysicalParcelCrossMidnightAndJsonWithoutEarlyReceiptOrLostGuestIdentity",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"owner\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"revision\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"deadline\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"agent-link\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"missing-case-purpose\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"item-generation\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"duplicate-parcel-owner\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"wrong-item-recipient\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"remote-awaiting-receipt\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"unplaced-drop-with-parcel\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"remote-response-cause\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.InvalidIntentRelationsRejectAtomicallyWithoutConsumingTheSnapshotSequence(\"agreement-cause\")",
+      "message": "  The assigned room must be clean before check-in.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.ServiceIntentSnapshotTests.LegacyShiftWithEmptyIntentsStillRoundTrips",
+      "message": "  Rejected hotel snapshot: Legacy hotel cannot contain continuous operations state.\n  Expected: True\n  But was:  False\n"
+    },
+    {
+      "test": "WorstHotel.Tests.SupplyFinanceTests.ActualOrdinaryEnquiriesRespectReputationBeforeAnyGuestReceipts",
+      "message": "  Expected: less than 12.9999924f\n  But was:  98.2499924f\n"
+    }
+  ]
+}

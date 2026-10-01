@@ -23,15 +23,19 @@ namespace WorstHotel.Tests
                 bootstrap.ConfigureSolo();
                 InputSystem.RemoveDevice(padB); padB = null;
             }
+            // Opening demand now starts at time zero; start this explicitly empty sleep
+            // fixture with closed sale inventory before its first tick.
+            waitScenarioSessionConfig = Object.Instantiate(session.config);
+            waitScenarioSessionConfig.initiallyOpenRooms = 0;
             if (fundedMaintenance)
             {
                 // Starting capital only. Full price, shutdown duration and heat remain production.
-                waitScenarioSessionConfig = Object.Instantiate(session.config);
                 maintenanceFixtureEconomy = Object.Instantiate(session.config.economy);
                 maintenanceFixtureEconomy.startingCash = maintenanceFixtureEconomy.properRepairCost + 750;
                 waitScenarioSessionConfig.economy = maintenanceFixtureEconomy;
                 session.config = waitScenarioSessionConfig;
             }
+            session.config = waitScenarioSessionConfig;
             session.NewGame(); ManagementUI.Instance.Close();
             yield return null; yield return null;
             Assert.That(session.Simulation.ContinuousOperations && session.Simulation.AutomaticBookingsEnabled, Is.True);

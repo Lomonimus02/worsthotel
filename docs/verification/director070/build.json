@@ -1,0 +1,8 @@
+{
+  "milestone": "0.7.0",
+  "build": "Builds/Windows-0.7.0-r2",
+  "result": "Succeeded",
+  "unity": "6000.3.2f1",
+  "executableSha256": "ABC8179E345B70C9D7CA423C54E02739ED9B9ADCA668C2C745FFB81AADC05CC6",
+  "note": "Windows development player. Distribute the complete folder, not only the EXE."
+}

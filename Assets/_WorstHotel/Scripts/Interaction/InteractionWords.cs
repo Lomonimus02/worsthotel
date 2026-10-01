@@ -18,6 +18,7 @@ namespace WorstHotel
             if (!actor.HeldBody && actor.FocusedPickup && target && target.CanInteract(actor))
                 line += "  ·  " + player.Input.GrabLabel + " — Pick up";
             if (target is RadiatorValveInteraction) line += "  ·  " + player.Input.SecondaryLabel + " — Turn down";
+            if (target is VisitorInteraction) line += "  ·  " + player.Input.SecondaryLabel + " — Ask to leave";
             if (target is LuggageStorageZone storage && storage.CanFileLostProperty(actor)) line += "  ·  " + player.Input.SecondaryLabel + " — File lost property";
             if (actor.HeldBody) line = (line == null ? "" : line + "\n") + player.Input.GrabLabel + " — Put down";
             return line;
@@ -39,6 +40,7 @@ namespace WorstHotel
                 return "Knock";
             }
             if (target is GuestReceptionInteraction) return actor.HeldBody && !detail.StartsWith("Locked out") ? "Give key" : "Talk";
+            if (target is VisitorInteraction) return detail.Contains("Allow visit") ? "Allow visit" : "Talk";
             if (target is RoomResetInteraction reset) return reset.element == RoomDisorder.Waste ? "Hold to empty basket" :
                 reset.element == RoomDisorder.Towels ? "Hold to collect towels" : "Hold to straighten chair";
             if (target is ElectricalBreakerControl) return "Flip breaker";

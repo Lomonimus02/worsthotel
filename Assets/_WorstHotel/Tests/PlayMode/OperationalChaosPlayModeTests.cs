@@ -30,11 +30,12 @@ namespace WorstHotel.Tests
                 var target = reset.element == RoomDisorder.Chair ? reset.transform.TransformPoint(new Vector3(0, .64f, -.3f)) :
                     reset.transform.position + Vector3.up * (reset.element == RoomDisorder.Waste ? .45f : .15f);
                 Vector3 approach = reset.element == RoomDisorder.Chair ? new Vector3(-7.35f, .08f, 7.65f) :
-                    reset.element == RoomDisorder.Towels ? new Vector3(-5.1f, .08f, 8.2f) : new Vector3(-3.95f, .08f, 9.2f);
+                    reset.element == RoomDisorder.Towels ? new Vector3(-5.1f, .08f, 8.2f) : new Vector3(reset.transform.position.x + 1.15f, .08f, reset.transform.position.z - .5f);
                 var pose = new GameObject("Room work reach fixture"); pose.transform.position = approach;
                 actor.ResetToSpawn(pose.transform); Object.Destroy(pose); yield return WaitForGroundContact(actor);
                 yield return AimAtKeyScenarioPoint(actor, padA, () => target);
-                Assert.That(actor.Interactor.Focused, Is.SameAs(reset), "Reset target must be visible and reachable: " + reset.element);
+                Assert.That(actor.Interactor.Focused, Is.SameAs(reset), "Reset target must be visible and reachable: " + reset.element +
+                    " actor=" + actor.transform.position + " target=" + target);
                 if (reset.element == RoomDisorder.Waste)
                 {
                     System.IO.Directory.CreateDirectory("docs/screenshots/operations066");

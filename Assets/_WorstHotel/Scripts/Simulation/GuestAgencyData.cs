@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WorstHotel
 {
-    public enum NoiseCategory { Television, PhoneCall, Plumbing, Amplifier }
+    public enum NoiseCategory { Television, PhoneCall, Plumbing, Amplifier, Visitor }
 
     /// <summary>A measured, staged world emitter. Room ambience and developer overrides are not emitters.</summary>
     public interface INoiseSource
@@ -26,7 +26,7 @@ namespace WorstHotel
         public float NoiseOutput { get; }
         public float ReceivedNoise { get; }
         public bool Active => NoiseOutput > 0;
-        public string Label => Category == NoiseCategory.Amplifier ? "Amplifier" : Category == NoiseCategory.Television ? "Television" : Category == NoiseCategory.PhoneCall ? "Phone call" : "Shower / plumbing";
+        public string Label => Category == NoiseCategory.Amplifier ? "Amplifier" : Category == NoiseCategory.Television ? "Television" : Category == NoiseCategory.PhoneCall ? "Phone call" : Category == NoiseCategory.Visitor ? "Visitor conversation" : "Shower / plumbing";
         public RoomNoiseSource(string entityId, string guestId, int roomId, NoiseCategory category, float output, float received = 0)
         { SourceEntityId = entityId; SourceGuestId = guestId; SourceRoomId = roomId; Category = category; NoiseOutput = output; ReceivedNoise = received; }
     }

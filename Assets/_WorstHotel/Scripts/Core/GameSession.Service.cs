@@ -40,7 +40,7 @@ namespace WorstHotel
                 config.housekeeping ? config.housekeeping.ToData() : new HousekeepingSettings(),
                 config.services ? config.services.ToData() : null,
                 config.infrastructure ? config.infrastructure.ToData() : null,
-                operations);
+                operations, config.director);
 
         void Update()
         {

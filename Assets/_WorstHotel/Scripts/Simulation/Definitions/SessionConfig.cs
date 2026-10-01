@@ -20,6 +20,7 @@ namespace WorstHotel
         public SoloAssistConfig soloAssist;
         public GuestServiceConfig services;
         public RoomInfrastructureConfig infrastructure;
+        public HotelDirectorSettings director = new HotelDirectorSettings();
         [Range(1, 20)] public float tickRate = 5;
         [Min(1)] public float serviceSeconds = 300;
         public int totalDays = 3;

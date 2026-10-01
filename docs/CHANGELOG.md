@@ -1,3 +1,11 @@
+## Prototype 0.7.0 — Hotel Director and situation system
+
+The host now measures actionable hotel pressure and selects eligible premises after sustained quiet. A configurable ten-card deck reuses real guests, key ownership, service causes, musical equipment, room use and premium booking decisions. Budget, cooldown and per-stay history prevent repetitive escalation; Day 1 reserves space for a medium premise after one minor opportunity. Busy hotels and sleep suppress new selection.
+
+A physical temporary visitor walks through reception to an occupied room and can be allowed or dismissed. Actual presence adds conversation noise, power/heat demand and room use. A physical letter beside RESERVATIONS reveals pending enquiries. Director state and visitors travel with validated LAN 31 / model schema 25 snapshots; clients never choose events. No complaints, circuit trips or departures are scripted as outcomes. [Inventory and QA evidence/limits](DIRECTOR_070.md).
+
+Regression work moved ten waste baskets out of the armchairs, restored safe closure of already-closed unrestored wing rooms, canonicalized absent optional operation data on legacy wire snapshots and fixed a player-only shader stripping problem on the new reservation letter. Current physical key, service, cart, sleep and electrical fixtures now use the actual room layout and circuit mapping.
+
 ## Prototype 0.6.9 — pacing and occupied hotel gameplay
 
 The human 0.6.8 pass confirmed living guests and successful delivery, but too little operational work after check-in. The shipped calendar now uses 480 seconds/day; movement, physics and physical interaction durations remain unchanged. Shorter rest/work and outings preserve quiet intervals while leaving shower/TV activities sustained. The optional hotel-wide contact ceiling rises from three to eight charged cases/day, with the two-per-stay ceiling and causal deduplication preserved. Mild-need willingness and observe/tolerance timing are tuned in the existing service configuration; no event quota or new request generator exists.

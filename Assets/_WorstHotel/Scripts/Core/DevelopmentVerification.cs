@@ -76,6 +76,7 @@ namespace WorstHotel
         public static bool ShouldUseLegacyFixture(string[] arguments) => arguments != null &&
             Array.IndexOf(arguments, "-verifySoloSleep") < 0 && Array.IndexOf(arguments, "-verifyDiegetic") < 0 &&
             Array.IndexOf(arguments, "-verifyLanSleep") < 0 &&
+            Array.IndexOf(arguments, "-verifyLanDirector") < 0 &&
             Array.IndexOf(arguments, "-verifyLanContinuous") < 0 && Array.IndexOf(arguments, "-verifyOperationsUI") < 0 &&
             Array.IndexOf(arguments, "-verifyHotelContinuous") < 0;
 

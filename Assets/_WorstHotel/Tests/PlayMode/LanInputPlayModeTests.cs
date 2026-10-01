@@ -67,7 +67,7 @@ namespace WorstHotel.Tests
             var remote = bootstrap.Players[1]; var local = bootstrap.Players[bootstrap.LocalActorId];
             var key = PhysicalKey(101);
             yield return PositionEmptyActorForLinen(1,
-                new Vector3(key.rackAnchor.position.x, .08f, key.rackAnchor.position.z - 1.4f), key.Body.worldCenterOfMass);
+                new Vector3(-4.4f, .08f, 4.45f), key.Body.worldCenterOfMass);
             yield return AimRemoteAt(() => key.Body.worldCenterOfMass);
             Assert.That(remote.Interactor.FocusedPickup, Is.SameAs(key.GetComponent<PhysicsPickup>()));
             // Both packets arrive before one host Update: its one-shot grab edge must survive

@@ -19,6 +19,12 @@ namespace WorstHotel
                     rooms[guest.RoomId].GuestId != guest.GuestId) continue;
                 var room = rooms[guest.RoomId];
                 room.UsedHours = Math.Min(48, room.UsedHours + hours);
+                if (Director?.Visitors.Any(v => v.HostGuestId == guest.GuestId && Director.VisitorUsingRoom(v)) == true)
+                {
+                    room.UsedHours = Math.Min(48, room.UsedHours + hours);
+                    room.DisplacedHours = Math.Min(24, room.DisplacedHours + hours);
+                    if (room.DisplacedHours >= .4f) room.Disorder |= RoomDisorder.Chair;
+                }
                 if (room.UsedHours >= 4) room.Disorder |= RoomDisorder.Waste;
                 if (!a.ActivityStaged) continue;
                 if (a.Activity == GuestActivity.Shower && a.State != GuestAgentState.Sleeping)

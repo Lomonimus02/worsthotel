@@ -26,7 +26,8 @@ namespace WorstHotel
             if (!LivingEnabled) return new RoomHeatingDemand(room.Profile.Id, null, 0, 0);
             var occupant = room.Occupied ? guests.FirstOrDefault(guest => guest.GuestId == room.GuestId &&
                 guest.RoomId == room.Profile.Id && !guest.ReceiptPosted) : null;
-            return roomSystem.HeatingDemandForRoom(room, occupant, LivingSettings);
+            var demand = roomSystem.HeatingDemandForRoom(room, occupant, LivingSettings);
+            return new RoomHeatingDemand(demand.RoomId, demand.GuestId, demand.SpaceHeating + (Director?.VisitorHeatFor(room.Profile.Id) ?? 0), demand.HotWater);
         }
     }
 }

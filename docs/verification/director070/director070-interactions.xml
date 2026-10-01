@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Failed(Child)" total="3" passed="1" failed="2" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-01 22:41:19Z" end-time="2026-10-01 22:41:50Z" duration="31.1330212">
+  <test-suite type="TestSuite" id="1118" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="110" result="Failed" site="Child" start-time="2026-10-01 22:41:19Z" end-time="2026-10-01 22:41:50Z" duration="31.133021" total="3" passed="1" failed="2" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1115" name="WorstHotel.PlayModeTests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="110" result="Failed" site="Child" start-time="2026-10-01 22:41:19Z" end-time="2026-10-01 22:41:50Z" duration="31.080258" total="3" passed="1" failed="2" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="16420" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1116" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="110" result="Failed" site="Child" start-time="2026-10-01 22:41:19Z" end-time="2026-10-01 22:41:50Z" duration="31.076107" total="3" passed="1" failed="2" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1117" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="110" result="Failed" site="Child" start-time="2026-10-01 22:41:19Z" end-time="2026-10-01 22:41:50Z" duration="31.071402" total="3" passed="1" failed="2" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="110" result="Failed" site="Child" start-time="2026-10-01 22:41:19Z" end-time="2026-10-01 22:41:50Z" duration="31.058623" total="3" passed="1" failed="2" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="1084" name="OperationalRoomWorkUsesRealHoldAndPhysicalStaffKeyOpensOnlyLockout" fullname="WorstHotel.Tests.Phase1PlayModeTests.OperationalRoomWorkUsesRealHoldAndPhysicalStaffKeyOpensOnlyLockout" methodname="OperationalRoomWorkUsesRealHoldAndPhysicalStaffKeyOpensOnlyLockout" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="222911243" result="Failed" start-time="2026-10-01 22:41:19Z" end-time="2026-10-01 22:41:33Z" duration="13.815772" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="Category" value="AutomaticSales" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <failure>
+                <message><![CDATA[  Reset target must be visible and reachable: Waste actor=(-7.45, 0.03, 7.10) target=(-8.60, 0.45, 7.60)
+  Expected: same as <Waste basket turnover 101 (WorstHotel.RoomResetInteraction)>
+  But was:  <LobbyArmchair (WorstHotel.RoomResetInteraction)>
+]]></message>
+                <stack-trace><![CDATA[at WorstHotel.Tests.Phase1PlayModeTests+<OperationalRoomWorkUsesRealHoldAndPhysicalStaffKeyOpensOnlyLockout>d__154.MoveNext () [0x00403] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Tests\PlayMode\OperationalChaosPlayModeTests.cs:37
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in .\Library\PackageCache\com.unity.test-framework@0b7a23ab2e1d\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:44
+]]></stack-trace>
+              </failure>
+              <output><![CDATA[Physical reset: Waste
+]]></output>
+            </test-case>
+            <test-case id="1045" name="PhysicalBreakerRetripsWithHeaterLoadThenStaysPoweredAfterActualHeaterSwitchOff" fullname="WorstHotel.Tests.Phase1PlayModeTests.PhysicalBreakerRetripsWithHeaterLoadThenStaysPoweredAfterActualHeaterSwitchOff" methodname="PhysicalBreakerRetripsWithHeaterLoadThenStaysPoweredAfterActualHeaterSwitchOff" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1409267157" result="Failed" label="Error" start-time="2026-10-01 22:41:33Z" end-time="2026-10-01 22:41:44Z" duration="11.553646" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <failure>
+                <message><![CDATA[System.NullReferenceException : Object reference not set to an instance of an object]]></message>
+                <stack-trace><![CDATA[  at WorstHotel.Tests.Phase1PlayModeTests+<PhysicalBreakerRetripsWithHeaterLoadThenStaysPoweredAfterActualHeaterSwitchOff>d__69.MoveNext () [0x00960] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Tests\PlayMode\ElectricalPanelPlayModeTests.cs:90
+  at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in .\Library\PackageCache\com.unity.test-framework@0b7a23ab2e1d\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:44 ]]></stack-trace>
+              </failure>
+            </test-case>
+            <test-case id="1069" name="RemotePressBurstPhysicallyTakesRackKeyOnceAndExpiredInputDropsIt" fullname="WorstHotel.Tests.Phase1PlayModeTests.RemotePressBurstPhysicallyTakesRackKeyOnceAndExpiredInputDropsIt" methodname="RemotePressBurstPhysicallyTakesRackKeyOnceAndExpiredInputDropsIt" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="688334922" result="Passed" start-time="2026-10-01 22:41:44Z" end-time="2026-10-01 22:41:50Z" duration="5.566695" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -7,10 +7,12 @@ param(
     [switch]$AgencyFixtures,
     [switch]$ServiceFixtures,
     [switch]$ContinuousFixtures,
-    [switch]$SleepFixtures
+    [switch]$SleepFixtures,
+    [switch]$DirectorFixtures
 )
 $ErrorActionPreference = 'Stop'
-if ((@($AgencyFixtures, $ServiceFixtures, $ContinuousFixtures, $SleepFixtures) | Where-Object { $_ }).Count -gt 1) { throw 'Choose only one fixture mode per LAN run.' }
+if ((@($AgencyFixtures, $ServiceFixtures, $ContinuousFixtures, $SleepFixtures, $DirectorFixtures) | Where-Object { $_ }).Count -gt 1) { throw 'Choose only one fixture mode per LAN run.' }
+if ($DirectorFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 240 }
 if ($ServiceFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 345 }
 if ($ContinuousFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 480 }
 if ($SleepFixtures -and -not $PSBoundParameters.ContainsKey('TimeoutSeconds')) { $TimeoutSeconds = 480 }
@@ -39,6 +41,7 @@ function Start-OwnedHotel([string]$Side) {
     if ($ServiceFixtures) { $arguments += '-verifyLanServices' }
     if ($ContinuousFixtures) { $arguments += '-verifyLanContinuous' }
     if ($SleepFixtures) { $arguments += '-verifyLanSleep' }
+    if ($DirectorFixtures) { $arguments += '-verifyLanDirector' }
     $process = Start-Process -FilePath $playerPath -ArgumentList $arguments -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru
     $ownedPlayers.Add($process)
     return $process
@@ -72,7 +75,12 @@ try {
         if ($report -notmatch "Outcome=PASS Errors=0 Role=$side" -or $report -notmatch "Run=$runId") {
             throw "$side did not pass with a fresh zero-error report. Inspect $runPath"
         }
-        if ($SleepFixtures) {
+        if ($DirectorFixtures) {
+            foreach ($evidence in @('Mode=DirectorFixtures', 'DirectorReplicated=True', 'RemoteKeyOwnership=True', 'RemoteVisitorDecision=True', 'RealVisitorRoute=True', 'EconomyAgreement=True')) {
+                if ($report -notmatch [regex]::Escape($evidence)) { throw "$side lacks director evidence $evidence. Inspect $runPath" }
+            }
+        }
+        elseif ($SleepFixtures) {
             foreach ($evidence in @('Mode=SleepFixtures', 'ProductionContinuous=True', 'OwnedLocalPads=True',
                 'HostFirstConsent=True', 'RemoteFirstConsent=True', 'DistinctBeds=True', 'ReleasePreservesConsent=True',
                 'FreshUseCancels=True', 'HostFreshUseCancels=True', 'LeaseExpiryClearsSleep=True', 'LeaseRenewalDoesNotResume=True',
@@ -120,7 +128,7 @@ try {
         elseif ($side -eq 'host' -and ($report -notmatch 'PhysicalPickup=True' -or $report -notmatch 'DisconnectRelease=True')) {
             throw 'Host report lacks real remote physical pickup or disconnect-release evidence.'
         }
-        if (-not $SleepFixtures -and -not $ContinuousFixtures -and -not $AgencyFixtures -and -not $ServiceFixtures -and $side -eq 'client' -and ($report -notmatch 'WorldPoseAgreement=True' -or $report -notmatch 'AssignRoundtrip=True CommitRoundtrip=True' -or
+        if (-not $DirectorFixtures -and -not $SleepFixtures -and -not $ContinuousFixtures -and -not $AgencyFixtures -and -not $ServiceFixtures -and $side -eq 'client' -and ($report -notmatch 'WorldPoseAgreement=True' -or $report -notmatch 'AssignRoundtrip=True CommitRoundtrip=True' -or
             $report -notmatch 'DisconnectedReadOnly=True')) { throw 'Client report lacks model roundtrip, pose agreement or read-only disconnect evidence.' }
     }
     if ($Capture) {
@@ -142,7 +150,7 @@ try {
         }
         Write-Output 'Fresh GPU candidates captured with native IMGUI. Inspect pixels and layout separately.'
     }
-    $scenario = if ($SleepFixtures) { 'physical two-staff sleep, wake and reconnect' } elseif ($ContinuousFixtures) { 'continuous bookings and reporting' } elseif ($ServiceFixtures) { 'physical guest services' } elseif ($AgencyFixtures) { 'guest-agency interaction' } else { 'physical-key smoke' }
+    $scenario = if ($DirectorFixtures) { 'host director, visitor, key ownership and economy' } elseif ($SleepFixtures) { 'physical two-staff sleep, wake and reconnect' } elseif ($ContinuousFixtures) { 'continuous bookings and reporting' } elseif ($ServiceFixtures) { 'physical guest services' } elseif ($AgencyFixtures) { 'guest-agency interaction' } else { 'physical-key smoke' }
     Write-Output "LAN localhost $scenario passed in two actual EXE processes. Reports: $runPath"
     Write-Output 'This verifies the local transport path, not a second computer, firewall configuration, human controls, graphics or performance.'
     if ($ContinuousFixtures -or $SleepFixtures) {

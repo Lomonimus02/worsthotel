@@ -29,7 +29,7 @@ namespace WorstHotel
             var guest = guests.FirstOrDefault(g => g.GuestId == guestId);
             if (guest == null || !guest.Agent.InAssignedRoom || !guest.Agent.ActivityStaged ||
                 !Noise.Sources.Any(source => source.SourceGuestId == guestId && source.Active &&
-                    (source.Category == NoiseCategory.Amplifier || source.Category == NoiseCategory.Television || source.Category == NoiseCategory.PhoneCall)))
+                    (source.Category == NoiseCategory.Amplifier || source.Category == NoiseCategory.Television || source.Category == NoiseCategory.PhoneCall || source.Category == NoiseCategory.Visitor)))
                 return CommandResult.Fail("This guest is not making noise in their room.");
             if (guest.Agent.QuietUntil > Elapsed) return CommandResult.Fail("This guest has already agreed to keep it down for a while.");
             bool temporary = (guest.Application.Archetype.Traits & GuestTraits.Noisy) != 0;

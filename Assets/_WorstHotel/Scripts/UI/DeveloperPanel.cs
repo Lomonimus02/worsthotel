@@ -158,6 +158,10 @@ namespace WorstHotel
                 Apply(() => simulation.DebugSpawnGuest(guestKind, room.Profile.Id));
             NumericRow("Advance seconds", ref advance, "Advance simulation", value => { if (value <= 0 || (Session.Phase != DayPhase.Service && Session.Phase != DayPhase.Planning)) return CommandResult.Fail("Use preparation or service and enter positive seconds."); Session.AdvanceTime(value); return CommandResult.Ok("Simulation advanced in fixed ticks; physical travel still needs rendered frames."); });
             DrawClockDebug();
+            var director = Session.Simulation.Director;
+            if (director != null) GUILayout.Label("DIRECTOR (internal) · " + director.Pressure.Band + " " + director.Pressure.Score.ToString("F1") +
+                " · quiet " + director.QuietElapsed.ToString("F0") + "s · budget " + director.SpentToday + "/" + director.Budget +
+                "\n" + director.Pressure.Reason + " · premises " + director.History.Count, body);
             DrawRhythmClockDebug();
             DrawSalesRhythmDebug();
             DrawGuestDebug();

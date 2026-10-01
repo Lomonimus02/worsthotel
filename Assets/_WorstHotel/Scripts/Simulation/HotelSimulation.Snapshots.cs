@@ -38,6 +38,7 @@ namespace WorstHotel
                 SituationTime=Incidents.SituationTime,Reports=reports.Select(SnapshotData.Capture).ToArray(),
                 HasServices=Services!=null,ServiceLayer=Services?.CaptureSnapshot(),
                 HasOperations=ContinuousOperations,Operations=CaptureOperations(),
+                HasDirector=Director != null,Director=Director?.Capture(),
                 Maintenance=maintenance.Select(m=>new MaintenanceSnapshot{Day=m.DayNumber,ActorId=m.ActorId,Choice=m.Choice,Cost=m.Cost,ConditionBefore=m.ConditionBefore,ConditionAfter=m.ConditionAfter,CashAfter=m.CashAfter}).ToArray()
             };
         }
@@ -55,6 +56,10 @@ namespace WorstHotel
                 SnapshotValidation.Model(snapshot,rooms.Keys.ToArray(),LivingEnabled,Housekeeping?.Linens.Count??0,Electrical?.Circuits.Select(c=>c.Id)??Enumerable.Empty<string>());
                 SnapshotValidation.OperationsModel(snapshot, Operations, settings.Economy, rooms.Keys.ToArray(), Schedules);
                 ValidateSupplies(snapshot);
+                SnapshotValidation.Require(snapshot.HasDirector == (Director != null), "Director mode differs from this hotel.");
+                // Unity JSON materializes an empty optional class even when capture supplied
+                // null. The presence flag selects the mode, as with services and operations.
+                if (snapshot.HasDirector) Director.Validate(snapshot.Director, snapshot);
                 ValidateContractContinuity(snapshot);
                 SnapshotValidation.SalesModel(snapshot, Operations?.Sales, settings.Economy, rooms.Keys.ToArray(), SalesDecisionAt);
                 if (snapshot.Boiler.CapacityUpgradePurchased)
@@ -109,6 +114,7 @@ namespace WorstHotel
             reports.Clear();reports.AddRange(incomingReports);maintenance.Clear();maintenance.AddRange(incomingMaintenance);
             Economy.RestoreSnapshot(snapshot.Cash,snapshot.Reputation,reports);LastReport=reports.FirstOrDefault(r=>r.DayNumber==snapshot.LastReportDay);
             RestoreOperations(snapshot.HasOperations?snapshot.Operations:null, incomingLastPayment, incomingPeriodPayment, incomingLossReport);
+            Director?.Restore(snapshot.Director);
             dayNumber=snapshot.Day;lastMaintenanceDay=snapshot.LastMaintenanceDay;debugGuestCounter=snapshot.DebugGuestCounter;Running=snapshot.Running;
             EventRevision=snapshot.EventRevision;LastEvent=snapshot.LastEvent;BoilerFailureAcknowledged=snapshot.BoilerFailureAcknowledged;
             AppliedSnapshotEpoch=snapshot.Epoch;AppliedSnapshotSequence=snapshot.Sequence;

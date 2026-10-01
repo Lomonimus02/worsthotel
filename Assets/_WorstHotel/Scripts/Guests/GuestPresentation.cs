@@ -86,6 +86,8 @@ namespace WorstHotel
                 bool used = false;
                 foreach (var guest in guests.Values)
                     if (guest.ReceptionSlot == slot) { used = true; break; }
+                foreach (var visitor in visitorViews.Values)
+                    if (visitor.Visual.ReceptionSlot == slot) { used = true; break; }
                 if (!used) return slot;
             }
             return -1;
@@ -130,6 +132,7 @@ namespace WorstHotel
                     leftArm = guest.LeftArm.localRotation, rightArm = guest.RightArm.localRotation,
                     leftLeg = guest.LeftLeg.localRotation, rightLeg = guest.RightLeg.localRotation });
             }
+            CaptureLanVisitors(result);
             return result.ToArray();
         }
 
@@ -372,6 +375,7 @@ namespace WorstHotel
                 Animate(guest, moving, doingActivity, delta);
             }
             foreach (var id in removedGuests) RemoveGuest(id);
+            UpdateVisitors(delta);
             foreach (var room in rooms.Values)
             {
                 if (room.showerWater != null && room.showerWater.activeSelf != room.showerActive) room.showerWater.SetActive(room.showerActive);
@@ -832,6 +836,7 @@ namespace WorstHotel
 
         void ClearGuests(bool acknowledgeRemoval = false)
         {
+            ClearVisitors();
             foreach (var guest in guests.Values)
                 if (guest.Root != null)
                 {

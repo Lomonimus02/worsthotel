@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WorstHotel
@@ -99,7 +100,8 @@ namespace WorstHotel
                 bool staged = active && agent.ActivityStaged;
                 bool shower = staged && agent.Activity == GuestActivity.Shower;
                 bool music = staged && (agent.Activity == GuestActivity.LoudRoom || agent.Activity == GuestActivity.WatchTV) && channel.Room.HasPower;
-                bool phone = staged && agent.Activity == GuestActivity.PhoneCall;
+                bool phone = staged && agent.Activity == GuestActivity.PhoneCall || active && simulation.Director?.Visitors.Any(v =>
+                    v.RoomId == channel.Room.Profile.Id && simulation.Director.VisitorUsingRoom(v)) == true;
                 var amplifier = staged && channel.Room.HasPower ? simulation.Services?.ActiveAmplifier(channel.Guest) : null;
                 var equipmentAnchor = amplifier == null ? null : ServiceSupplyItem.FindLuggageTransform(amplifier.Id);
                 var anchor = equipmentAnchor ? equipmentAnchor : shower ? channel.Markers.shower : phone ? channel.Markers.phoneAnchor : channel.Markers.loud;

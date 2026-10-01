@@ -38,6 +38,146 @@ MonoBehaviour:
   soloAssist: {fileID: 11400000, guid: 5053e2ebed395514e8f09a560ab0328c, type: 2}
   services: {fileID: 11400000, guid: 74078d4b559090743b845c5616eba1c0, type: 2}
   infrastructure: {fileID: 11400000, guid: 6b6591b37302ac544be68dbeaa9a1c25, type: 2}
+  director:
+    Enabled: 1
+    Seed: 709
+    FirstDayMinorLimit: 1
+    QuietSeconds: 28
+    ConsiderEverySeconds: 4
+    RecoverySeconds: 40
+    StartHour: 7
+    EndHour: 23
+    QuietThreshold: 1.5
+    BusyThreshold: 3
+    OverloadedThreshold: 6
+    WaitingWeight: 1.5
+    ServiceWeight: 1
+    DirtyRoomWeight: 0.25
+    UpcomingUnreadyWeight: 0.8
+    LuggageWeight: 0.65
+    InfrastructureWeight: 1.5
+    FailureWeight: 6
+    SituationWeight: 0.3
+    FirstDayBudget: 3
+    DailyBudgetGrowth: 0.5
+    ExtraRoomBudget: 0.4
+    MaximumBudget: 6
+    VisitorWaitSeconds: 18
+    VisitorStaySeconds: 75
+    VisitorPower: 0.45
+    VisitorHeat: 0.25
+    VisitorNoise: 0.32
+    Deck:
+    - Id: ForgottenKey
+      Kind: 0
+      Size: 0
+      Weight: 1
+      Cost: 1
+      StartHour: 9
+      EndHour: 21
+      CooldownSeconds: 100
+      DurationSeconds: 20
+      MinimumDay: 1
+      RepeatForSameStay: 0
+    - Id: LuggageHelp
+      Kind: 1
+      Size: 0
+      Weight: 1
+      Cost: 1
+      StartHour: 9
+      EndHour: 21
+      CooldownSeconds: 100
+      DurationSeconds: 20
+      MinimumDay: 1
+      RepeatForSameStay: 0
+    - Id: ExtraBlanket
+      Kind: 2
+      Size: 0
+      Weight: 1
+      Cost: 1
+      StartHour: 9
+      EndHour: 23
+      CooldownSeconds: 100
+      DurationSeconds: 20
+      MinimumDay: 1
+      RepeatForSameStay: 0
+    - Id: SchedulePromise
+      Kind: 3
+      Size: 0
+      Weight: 1
+      Cost: 1
+      StartHour: 8
+      EndHour: 23
+      CooldownSeconds: 100
+      DurationSeconds: 20
+      MinimumDay: 1
+      RepeatForSameStay: 0
+    - Id: Rehearsal
+      Kind: 4
+      Size: 1
+      Weight: 1
+      Cost: 2
+      StartHour: 15
+      EndHour: 22.5
+      CooldownSeconds: 100
+      DurationSeconds: 28
+      MinimumDay: 1
+      RepeatForSameStay: 0
+    - Id: NoisyEvening
+      Kind: 5
+      Size: 1
+      Weight: 1
+      Cost: 2
+      StartHour: 16
+      EndHour: 22.5
+      CooldownSeconds: 100
+      DurationSeconds: 26
+      MinimumDay: 1
+      RepeatForSameStay: 0
+    - Id: Visitor
+      Kind: 6
+      Size: 1
+      Weight: 1
+      Cost: 2
+      StartHour: 14
+      EndHour: 22
+      CooldownSeconds: 100
+      DurationSeconds: 75
+      MinimumDay: 1
+      RepeatForSameStay: 0
+    - Id: WornLamp
+      Kind: 7
+      Size: 1
+      Weight: 1
+      Cost: 2
+      StartHour: 16
+      EndHour: 22.5
+      CooldownSeconds: 100
+      DurationSeconds: 20
+      MinimumDay: 2
+      RepeatForSameStay: 0
+    - Id: SocialEvening
+      Kind: 8
+      Size: 2
+      Weight: 1
+      Cost: 3
+      StartHour: 17
+      EndHour: 22
+      CooldownSeconds: 100
+      DurationSeconds: 38
+      MinimumDay: 3
+      RepeatForSameStay: 0
+    - Id: SpecialArrival
+      Kind: 9
+      Size: 2
+      Weight: 1
+      Cost: 3
+      StartHour: 11
+      EndHour: 19
+      CooldownSeconds: 100
+      DurationSeconds: 60
+      MinimumDay: 2
+      RepeatForSameStay: 0
   tickRate: 5
   serviceSeconds: 300
   totalDays: 3

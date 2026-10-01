@@ -10,6 +10,10 @@ namespace WorstHotel
         // before any replica mutation. Required reports themselves are never discarded.
         static void NormalizeFinancialOptionals(HotelModelSnapshot model)
         {
+            // JsonUtility creates a default object for a serialized null optional class.
+            // HasOperations is the protocol's authoritative presence bit. Mode matching
+            // is still validated against this replica before anything is installed.
+            if (!model.HasOperations) model.Operations = null;
             if (model.Reports != null)
                 foreach (var report in model.Reports)
                     if (report != null) report.ContractPayment = SnapshotData.OptionalPayment(report.ContractPayment);

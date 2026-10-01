@@ -32,7 +32,7 @@ namespace WorstHotel.Tests
             {
                 int min = session.Economy.MinPrice, step = session.Economy.PriceStep;
                 int price = min + Mathf.RoundToInt((offers[i].ReferencePrice - min) / (float)step) * step;
-                session.Assign(0, offers[i].Id, 104 + i, price);
+                session.Assign(0, offers[i].Id, 102 + i * 2, price);
             }
             session.CommitPlan(0);
             var simulation = session.Simulation;
@@ -83,28 +83,36 @@ namespace WorstHotel.Tests
             Assert.That(heater.State.SwitchedOn, Is.True);
             Assert.That(heater.State.Powered, Is.False);
             Assert.That(heater.State.EffectiveHeatOutput, Is.Zero);
-            Assert.That(heater.statusLabel.text, Does.Contain("NO POWER"));
+            Assert.That(heater.statusLabel.text, Is.EqualTo("ON"), "The physical switch remains on during a blackout.");
+            Assert.That(heater.GetPrompt(bootstrap.Players[0].Interactor), Does.Contain("No power"));
             Assert.That(room104.loudIndicator.activeSelf, Is.False);
             foreach (var binding in panel.roomLights)
-                Assert.That(binding.lights.All(light => light.enabled), Is.EqualTo(binding.roomId <= 103),
-                    "Only the lights belonging to Circuit B should lose power.");
+            {
+                var circuit = string.IsNullOrEmpty(binding.circuitId) ? simulation.Electrical.CircuitForRoom(binding.roomId) : simulation.Electrical.Find(binding.circuitId);
+                var boundRoom = session.Rooms.FirstOrDefault(room => room.Profile.Id == binding.roomId);
+                Assert.That(circuit, Is.Not.Null, "Every room or shared hall light must have an actual circuit.");
+                Assert.That(binding.lights.All(light => light.enabled), Is.EqualTo(circuit.Id == "A" && (boundRoom == null || boundRoom.Operational)),
+                    "Circuit B loses power; unopened North Wing rooms remain dark.");
+            }
             Assert.That(a.Tripped, Is.False); Assert.That(a.TripCount, Is.Zero);
 
             // A physical cover blocks the breakers until the player opens it.
             Vector3 coverAim = panel.cover.transform.TransformPoint(new Vector3(1.10f, 0, 0));
-            var coverApproach = new GameObject("Electrical cover approach outside hinge sweep");
-            coverApproach.transform.SetPositionAndRotation(new Vector3(coverAim.x, .08f, coverAim.z - 2.7f), Quaternion.identity);
-            bootstrap.Players[0].ResetToSpawn(coverApproach.transform);
-            Object.Destroy(coverApproach);
-            yield return WaitForGroundContact(bootstrap.Players[0]);
-            yield return AimSuitcasePitch(() => coverAim);
-            Assert.That(bootstrap.Players[0].Interactor.Focused, Is.SameAs(panel.cover));
+            // The relocated service cabinet faces into its room, not world +Z.
+            IEnumerator AimCabinet(HotelInteractable target, Vector3 point)
+            {
+                Vector3 approach = point - panel.transform.forward * 1.45f; approach.y = .08f;
+                yield return PositionEmptyActorForLinen(0, approach, point);
+                yield return AimAtKeyScenarioPoint(bootstrap.Players[0], padA, () => point);
+                Assert.That(bootstrap.Players[0].Interactor.Focused, Is.SameAs(target));
+            }
+            yield return AimCabinet(panel.cover, coverAim);
             QueueUse(padA, true);
             yield return null; yield return null;
             QueueUse(padA, false);
             yield return WaitForCondition(() => panel.cover.IsPassageOpen, 2, "The real hinged electrical cover did not open.");
             var breaker = panel.GetComponentsInChildren<ElectricalBreakerControl>().Single(control => control.circuitId == "B");
-            yield return FaceStation(bootstrap.Players[0], padA, breaker, breaker.transform.position);
+            yield return AimCabinet(breaker, breaker.transform.position);
             QueueUse(padA, true);
             yield return null; yield return null;
             QueueUse(padA, false);
@@ -124,7 +132,7 @@ namespace WorstHotel.Tests
             yield return null; yield return null;
             Assert.That(heater.State.SwitchedOn, Is.False);
             Assert.That(b.RequestedLoad, Is.LessThan(b.Capacity));
-            yield return FaceStation(bootstrap.Players[0], padA, breaker, breaker.transform.position);
+            yield return AimCabinet(breaker, breaker.transform.position);
             QueueUse(padA, true);
             yield return null; yield return null;
             QueueUse(padA, false);
@@ -135,7 +143,11 @@ namespace WorstHotel.Tests
             Assert.That(b.HasPower, Is.True); Assert.That(b.Warning || b.Tripped, Is.False);
             Assert.That(b.TripCount, Is.EqualTo(tripsAfterRepair));
             Assert.That(heater.State.EffectiveHeatOutput, Is.Zero, "Reset must not silently turn the heater switch back on.");
-            foreach (var binding in panel.roomLights) Assert.That(binding.lights.All(light => light.enabled), Is.True);
+            foreach (var binding in panel.roomLights)
+            {
+                var boundRoom = session.Rooms.FirstOrDefault(room => room.Profile.Id == binding.roomId);
+                Assert.That(binding.lights.All(light => light.enabled), Is.EqualTo(boundRoom == null || boundRoom.Operational));
+            }
             Assert.That(room104.loudIndicator.activeSelf, Is.True);
             Assert.That(a.HasPower, Is.True); Assert.That(a.TripCount, Is.Zero);
             Assert.That(Time.timeScale, Is.EqualTo(1));

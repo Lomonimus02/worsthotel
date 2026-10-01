@@ -1,0 +1,13 @@
+Outcome=PASS Errors=0 Role=client Mode=DirectorFixtures Checks=29
+Utc=2026-10-01T22:52:35.4636079Z
+Run=20261001-224943-fcf0d4b1
+DIRECTOR FIXTURE: ordinary 480s continuous clock and economy; one manual guest at16:00, 3s quiet dwell, visitor-only deck. Physical NPC routes remain production. Empty remote staff approach is an explicit adapter.
+Diagnostic fixture only: same EXE, normal -hotelHost/-hotelJoin, real NGO messages. No diagnostic RPC.
+Stage files coordinate waits and compare measured poses; they never apply hotel state or input.
+OneCamera=True OneListener=True LocalActor=1 WorldAuthority=False
+SERVICE AIM: target=(-3.080, 1.937, 4.021) actor=(-4.400, 0.035, 4.450) camera=(-4.367, 1.645, 4.439) angle=4.71 yawError=0.00 pitchError=-4.71 startAngle=12.19 bestAngle=12.19 elapsed=0.53 pulses=1 settled=True worldSequence=144 inputLook=(0.000, 0.000) intendedSurface=True maxSampleFrameMs=37.8 uiBlocked=False pickup=True caption=A / Cross — Pick up
+SERVICE LOOK DOSE: dose=(0.00, 7.48) world=133->144 responseAndSettle=0.30 observed=7.48 angle=4.71 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+SERVICE AIM: target=(-2.800, 1.110, 1.285) actor=(-2.800, 0.035, 0.085) camera=(-2.800, 1.645, 0.120) angle=24.67 yawError=0.00 pitchError=24.67 startAngle=24.67 bestAngle=24.67 elapsed=0.25 pulses=0 settled=True worldSequence=627 inputLook=(0.000, 0.000) intendedSurface=True maxSampleFrameMs=0.0 uiBlocked=False pickup=False caption=A / Cross — Allow visit  ·  X / Square — Ask to leave
+SERVICE LOOK DOSE: dose=(0.00, 0.00) world=623->627 responseAndSettle=0.25 observed=0.00 angle=24.67 settled=True raw=(0.000, 0.000) input=(0.000, 0.000) hostSample=unavailable
+DirectorReplicated=True RemoteKeyOwnership=True RemoteVisitorDecision=True RealVisitorRoute=True EconomyAgreement=True ReadOnlyMirror=True
+Scope=localhost two actual development EXE processes; no human controls, remote-machine LAN, image or performance claim.
