@@ -5,7 +5,8 @@ namespace WorstHotel
     [CreateAssetMenu(menuName = "Worst Hotel/Guest service configuration")]
     public sealed class GuestServiceConfig : ScriptableObject
     {
-        [Range(0, 32)] public int maxCasesPerShift = 3;
+        [Tooltip("Ceiling on optional contacts started per hotel day, including completed ones. Serious factual complaints are independent.")]
+        [Range(0, 32)] public int maxCasesPerShift = 8;
         [Range(1, 8)] public int maxCasesPerGuest = 2;
         [Range(0, 6)] public int blanketStock = 3;
         [Range(0, 6)] public int bulbStock = 3;

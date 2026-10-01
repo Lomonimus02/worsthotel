@@ -50,7 +50,7 @@ MonoBehaviour:
   coldResolutionHysteresis: 0.5
   overnightSeconds: 180
   continuousOperations: 1
-  hotelDaySeconds: 720
+  hotelDaySeconds: 480
   openingHour: 8
   reportHour: 6
   operatingCostHour: 6

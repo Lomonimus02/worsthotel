@@ -1,5 +1,7 @@
 # 0.6.8 — Guest life and physical delivery receipts
 
+Subsequent human feedback for the [0.6.9 milestone](PACING_069.md) confirmed living guests and successful item delivery, but still found too little operational work after check-in. The original automated evidence below proves the route/receipt correction; it does not establish that the evening pacing was sufficient.
+
 ## Human finding and reproduced cause
 
 The 0.6.7 human pass confirmed that the opening board, room preparation, keys and luggage were understandable. The hotel then felt inactive from roughly 16:00 until morning, apart from a wake-up request. A promised extra blanket remained on the designated corridor shelf without a receipt or thanks.

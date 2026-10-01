@@ -22,13 +22,21 @@ namespace WorstHotel.Tests
             session.config = waitScenarioSessionConfig;
             session.NewGame(); ManagementUI.Instance.Close();
             var model = session.Simulation;
+            // Current opening has real dirty linen in 101. This is a labelled staff setup;
+            // the sleep/wake observation below still uses actual guest routes.
+            var bed = model.Housekeeping.Find(101);
+            Assert.That(model.PickUpLinen(0, bed.DirtyLinenId).Success, Is.True);
+            Assert.That(model.DepositDirtyLinen(0, bed.DirtyLinenId).Success, Is.True);
+            Assert.That(model.PickUpLinen(0, "clean:0").Success, Is.True);
+            Assert.That(model.BeginMakeBed(0, 101, "clean:0").Success, Is.True);
+            Assert.That(model.AdvanceMakeBed(0, 101, model.Housekeeping.Settings.MakeBedSeconds).Success, Is.True);
             Assert.That(model.ContinuousOperations && model.AutomaticBookingsEnabled, Is.True);
             Assert.That(model.LivingSettings.Rhythm.Enabled, Is.True,
                 "This acceptance case must use the production dated rhythm, not a legacy schedule clone.");
 
             // A normal room-sales policy supplies exactly one automatic dated stay.
             // No manual AcceptBooking, developer guest creation or activity selection is used.
-            foreach (var policy in model.RoomSalesPolicies)
+            foreach (var policy in model.RoomSalesPolicies.Where(p => session.Rooms.Single(r => r.Profile.Id == p.RoomId).Operational))
                 Assert.That(model.SetRoomSalesPolicy(0, policy.RoomId, policy.RoomId == 101,
                     session.Economy.MinPrice, policy.Revision).Success, Is.True);
             session.AdvanceTime(model.NextSalesDecisionAt - model.Elapsed + .25f);

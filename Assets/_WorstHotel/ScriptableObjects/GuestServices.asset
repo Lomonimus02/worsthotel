@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ede7564f85596584d9749548c9c1a131, type: 3}
   m_Name: GuestServices
   m_EditorClassIdentifier: WorstHotel.Runtime::WorstHotel.GuestServiceConfig
-  maxCasesPerShift: 3
+  maxCasesPerShift: 8
   maxCasesPerGuest: 2
   blanketStock: 3
   bulbStock: 3
-  eligibility: 0.55
-  soloFrequencyMultiplier: 0.8
+  eligibility: 0.65
+  soloFrequencyMultiplier: 0.9
   observationSeconds: 7
   mildColdMinimum: 0.035
   mildColdMaximum: 0.32
@@ -33,8 +33,8 @@ MonoBehaviour:
   brokenPromisePenalty: 3
   maximumScoreAdjustment: 6
   naturalCommunicationEnabled: 1
-  selfResponseObserveSeconds: 5
-  toleranceSeconds: 10
+  selfResponseObserveSeconds: 3
+  toleranceSeconds: 6
   phoneRingSeconds: 12
   contactRetryDelaySeconds: 25
   receptionWaitSeconds: 35

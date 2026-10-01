@@ -31,7 +31,9 @@ namespace WorstHotel.Editor
                 keyAnchor.localRotation = Quaternion.Euler(90, 0, 0);
                 key.leftInsideAnchor = keyAnchor;
                 if (room.GetComponentInChildren<RoomResetInteraction>()) continue;
-                var waste = Group("Waste basket turnover " + key.roomId, room, new Vector3(-side * 1.0f, 0, -.5f));
+                // The inner bedside position overlapped the guest's standing sleep anchor.
+                // Keep the solid basket accessible at the outer foot corner instead.
+                var waste = Group("Waste basket turnover " + key.roomId, room, new Vector3(side * 2.6f, 0, -2.4f));
                 Cylinder("Waste basket", waste.transform, new Vector3(0, .22f, 0), .24f, .44f, "Pipe iron");
                 var wasteHit = waste.AddComponent<BoxCollider>(); wasteHit.center = new Vector3(0, .34f, 0); wasteHit.size = new Vector3(.58f, .68f, .58f);
                 var trash = Sphere("One coarse waste bundle", waste.transform, new Vector3(0, .48f, 0), new Vector3(.46f, .46f, .42f), "Cream plaster");

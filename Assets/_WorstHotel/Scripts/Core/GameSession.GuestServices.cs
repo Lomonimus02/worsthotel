@@ -65,7 +65,12 @@ namespace WorstHotel
                 return CommandResult.Fail("Carry a spare blanket to the occupied bed.");
             var room = Array.Find(Rooms, r => r.Profile.Id == target.roomId);
             var result = Simulation.DeliverBlanket(actor, room?.GuestId);
-            if (result.Success) player.ReleaseGrab();
+            if (result.Success)
+            {
+                player.ReleaseGrab();
+                var guest = Simulation.Guests.FirstOrDefault(g => g.GuestId == room.GuestId);
+                if (guest != null) HotelSubtitle.Say(actor, guest.Name + " · Room " + guest.RoomId, "Thank you. That's the extra blanket I needed.");
+            }
             return GuestCommand(result);
         }
         public CommandResult DropOffBlanket(int actor, RoomBlanketDropOffInteraction target)

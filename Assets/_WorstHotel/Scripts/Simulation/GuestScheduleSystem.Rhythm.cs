@@ -92,6 +92,10 @@ namespace WorstHotel
                 float duration = min + Next(ref random) * (max - min);
                 if (activity == GuestActivity.Unpack) duration = Math.Min(duration, 6 + Next(ref random) * 4);
                 if (activity == GuestActivity.QuietRest) duration = Math.Min(duration, 12 + Next(ref random) * 6);
+                // Morning has a dated wake-to-checkout window. Keep the shower around half
+                // a hotel hour, leaving room for unchanged physical bed/shower/packing travel.
+                // Daytime showers stay sustained so staff can react to their actual load.
+                if (index == MorningIndex) duration = Math.Min(duration, Math.Max(6, secondsPerHour * .5f));
                 if (activity == GuestActivity.Shower && (profile.Traits & GuestTraits.ColdSensitive) != 0)
                     duration *= Settings.ColdShowerDurationMultiplier;
                 result[index] = new GuestScheduleEntry(activity, duration);

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-01 20:47:22Z" end-time="2026-10-01 20:48:11Z" duration="49.1904184">
+  <test-suite type="TestSuite" id="1114" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="106" result="Passed" start-time="2026-10-01 20:47:22Z" end-time="2026-10-01 20:48:11Z" duration="49.190418" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1111" name="WorstHotel.PlayModeTests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="106" result="Passed" start-time="2026-10-01 20:47:22Z" end-time="2026-10-01 20:48:11Z" duration="49.174099" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="22812" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <test-suite type="TestSuite" id="1112" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="106" result="Passed" start-time="2026-10-01 20:47:22Z" end-time="2026-10-01 20:48:11Z" duration="49.171894" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1113" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="106" result="Passed" start-time="2026-10-01 20:47:22Z" end-time="2026-10-01 20:48:11Z" duration="49.170915" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="106" result="Passed" start-time="2026-10-01 20:47:22Z" end-time="2026-10-01 20:48:11Z" duration="49.169132" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1045" name="BedApproachesClearTheFullGuestBody" fullname="WorstHotel.Tests.Phase1PlayModeTests.BedApproachesClearTheFullGuestBody" methodname="BedApproachesClearTheFullGuestBody" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="1850891087" result="Passed" start-time="2026-10-01 20:47:22Z" end-time="2026-10-01 20:47:31Z" duration="8.707007" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="Category" value="AutomaticSales" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Old bed approach 101: 
+Old bed approach 102: 
+Old bed approach 103: 
+Old bed approach 104: 
+Old bed approach 105: 
+Old bed approach 106: 
+Old bed approach 107: 
+Old bed approach 108: 
+Old bed approach 109: 
+Old bed approach 110: 
+]]></output>
+            </test-case>
+            <test-case id="1086" name="DatedMorningWakeWalksFromRealBedToShowerBeforeHotWaterStarts" fullname="WorstHotel.Tests.Phase1PlayModeTests.DatedMorningWakeWalksFromRealBedToShowerBeforeHotWaterStarts" methodname="DatedMorningWakeWalksFromRealBedToShowerBeforeHotWaterStarts" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2120347587" result="Passed" start-time="2026-10-01 20:47:31Z" end-time="2026-10-01 20:48:11Z" duration="40.417913" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="Category" value="AutomaticSales" />
+                <property name="Category" value="RhythmDaily" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

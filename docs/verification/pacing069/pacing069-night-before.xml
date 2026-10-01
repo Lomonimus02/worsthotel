@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-01 20:32:09Z" end-time="2026-10-01 20:37:31Z" duration="322.3242602">
+  <test-suite type="TestSuite" id="1113" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="105" result="Failed" site="Child" start-time="2026-10-01 20:32:09Z" end-time="2026-10-01 20:37:31Z" duration="322.324260" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1110" name="WorstHotel.PlayModeTests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.PlayModeTests.dll" runstate="Runnable" testcasecount="105" result="Failed" site="Child" start-time="2026-10-01 20:32:09Z" end-time="2026-10-01 20:37:31Z" duration="322.304801" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="28968" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1111" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="105" result="Failed" site="Child" start-time="2026-10-01 20:32:09Z" end-time="2026-10-01 20:37:31Z" duration="322.294292" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1112" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="105" result="Failed" site="Child" start-time="2026-10-01 20:32:09Z" end-time="2026-10-01 20:37:31Z" duration="322.292314" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="1004" name="Phase1PlayModeTests" fullname="WorstHotel.Tests.Phase1PlayModeTests" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" testcasecount="105" result="Failed" site="Child" start-time="2026-10-01 20:32:09Z" end-time="2026-10-01 20:37:31Z" duration="322.289009" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="1047" name="SixRoomEveningAndMorningUseShippedPacing" fullname="WorstHotel.Tests.Phase1PlayModeTests.SixRoomEveningAndMorningUseShippedPacing" methodname="SixRoomEveningAndMorningUseShippedPacing" classname="WorstHotel.Tests.Phase1PlayModeTests" runstate="Runnable" seed="2012784734" result="Failed" start-time="2026-10-01 20:32:09Z" end-time="2026-10-01 20:37:31Z" duration="322.256817" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="Category" value="ContinuousOperations" />
+                <property name="Category" value="AutomaticSales" />
+                <property name="Timeout" value="540000" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <failure>
+                <message><![CDATA[Room 101 stuck for 141.6002s: Sleeping/QuietRest/staged=False//Blocked / recalculating authored route / recoveries 48 BedAnchor (-5.0, 0.0, 9.3) at (-4.98, 0.01, 8.86)]]></message>
+                <stack-trace><![CDATA[at WorstHotel.Tests.Phase1PlayModeTests+<ObserveOccupiedHotel>d__73.MoveNext () [0x010d2] in C:\Users\betty\OneDrive\Documents\ChatGPT\worst hotel ever 2\Assets\_WorstHotel\Tests\PlayMode\GuestLifeCadencePlayModeTests.cs:165
+at UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0003a] in .\Library\PackageCache\com.unity.test-framework@0b7a23ab2e1d\UnityEngine.TestRunner\NUnitExtensions\Attributes\TestEnumerator.cs:44
+]]></stack-trace>
+              </failure>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -7,6 +7,27 @@ namespace WorstHotel
     {
         RoomBlanketDropOffInteraction[] blanketPoints;
 
+        void AcknowledgeDeliveredBags(VisualGuest guest)
+        {
+            var agent = guest.Stay.Agent;
+            // The actual suitcases remain in the room. A guest notices staff-delivered
+            // luggage on settling/return, not while outside or asleep. No repeated bonus.
+            if (simulation.Services == null || !guest.InsideRoom || !guest.RouteComplete || !agent.IsRoomState || !agent.ActivityStaged ||
+                agent.State == GuestAgentState.Sleeping || agent.Activity == GuestActivity.Shower || agent.Activity == GuestActivity.PhoneCall || agent.ResponseActionId != null) return;
+            int count = simulation.Services.Items.Count(i => i.Kind == ServiceItemKind.Luggage && i.GuestId == guest.Id &&
+                i.StaffHandling && i.Location == ServiceItemLocation.Delivered);
+            if (count <= guest.AcknowledgedBags) return;
+            var coop = LocalCoopBootstrap.Instance; bool heard = false;
+            if (coop) foreach (var player in coop.Players)
+                if (player && Vector3.Distance(player.transform.position, guest.Root.position) < 7)
+                {
+                    HotelSubtitle.Say(player.ActorId, guest.Stay.Name + " · Room " + guest.Stay.RoomId,
+                        "My luggage is here. Thank you for bringing it up.");
+                    heard = true;
+                }
+            if (heard) guest.AcknowledgedBags = count;
+        }
+
         bool SynchronizeBlanketRoute(VisualGuest guest)
         {
             var agent = guest.Stay.Agent;

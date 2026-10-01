@@ -1,0 +1,120 @@
+0.2 STATE cases=0 pending=0 boiler=0.4896 rooms=101:temp=21.0,valve=1,noise=0.00;102:temp=21.0,valve=1,noise=0.00;103:temp=21.0,valve=1,noise=0.00;104:temp=21.0,valve=1,noise=0.00;105:temp=21.0,valve=1,noise=0.00;106:temp=21.0,valve=1,noise=0.00
+10.2 STATE cases=0 pending=0 boiler=0.4896 rooms=101:temp=21.2,valve=1,noise=0.00;102:temp=20.9,valve=1,noise=0.00;103:temp=21.2,valve=1,noise=0.00;104:temp=21.1,valve=1,noise=0.00;105:temp=21.1,valve=1,noise=0.00;106:temp=21.1,valve=1,noise=0.00
+13.0 room 101 Unpack
+20.0 STATE cases=0 pending=0 boiler=1.1321 rooms=101:temp=21.4,valve=1,noise=0.00;102:temp=20.9,valve=1,noise=0.00;103:temp=21.3,valve=1,noise=0.00;104:temp=21.2,valve=1,noise=0.00;105:temp=21.3,valve=1,noise=0.00;106:temp=21.1,valve=1,noise=0.00
+20.2 room 101 Shower
+21.0 room 102 Unpack
+24.0 room 102 QuietRest
+29.0 room 103 Unpack
+30.0 room 102 CallReception
+30.0 CONTACT room 102 Phone stay-1-2/service/ExtraBlanket/room/102/temperature stay-1-2:Temperature:room/102/temperature
+30.0 STATE cases=1 pending=1 boiler=3.63938 rooms=101:temp=21.5,valve=1,noise=0.00;102:temp=21.0,valve=2,noise=0.07;103:temp=21.4,valve=1,noise=0.15;104:temp=21.3,valve=1,noise=0.07;105:temp=21.3,valve=1,noise=0.00;106:temp=21.1,valve=1,noise=0.00
+30.2 room 102 QuietRest
+36.2 room 103 Work
+37.0 room 104 Unpack
+38.0 room 102 Shower
+40.0 STATE cases=1 pending=0 boiler=5.07966 rooms=101:temp=21.5,valve=1,noise=0.07;102:temp=21.1,valve=2,noise=0.07;103:temp=21.3,valve=1,noise=0.22;104:temp=21.2,valve=1,noise=0.22;105:temp=21.3,valve=1,noise=0.00;106:temp=21.0,valve=1,noise=0.00
+41.8 room 101 WatchTV
+45.0 room 105 Unpack
+45.4 room 104 Shower
+45.8 room 103 QuietRest
+48.0 room 105 QuietRest
+50.0 STATE cases=1 pending=0 boiler=6.341913 rooms=101:temp=21.0,valve=1,noise=0.13;102:temp=20.6,valve=2,noise=0.21;103:temp=20.9,valve=2,noise=0.26;104:temp=20.7,valve=1,noise=0.21;105:temp=20.8,valve=2,noise=0.07;106:temp=20.5,valve=1,noise=0.15
+53.0 room 106 Unpack
+54.0 room 105 CallReception
+54.0 CONTACT room 105 Phone stay-1-5/service/ExtraBlanket/room/105/temperature stay-1-5:Temperature:room/105/temperature
+54.2 room 105 QuietRest
+56.0 room 106 QuietRest
+60.0 STATE cases=2 pending=0 boiler=7.351923 rooms=101:temp=20.1,valve=1,noise=0.13;102:temp=19.8,valve=2,noise=0.21;103:temp=20.2,valve=2,noise=0.26;104:temp=19.8,valve=1,noise=0.21;105:temp=20.1,valve=2,noise=0.07;106:temp=19.7,valve=2,noise=0.15
+62.0 room 105 Shower
+62.0 room 106 CallReception
+62.0 CONTACT room 106 Phone stay-1-6/service/AskNeighborsQuiet/stay-1-4/Plumbing stay-1-6:Noise:stay-1-4/Plumbing
+64.4 room 103 Work
+70.0 STATE cases=3 pending=1 boiler=8.139422 rooms=101:temp=19.2,valve=1,noise=0.13;102:temp=18.8,valve=2,noise=0.15;103:temp=19.5,valve=2,noise=0.29;104:temp=18.9,valve=1,noise=0.22;105:temp=19.3,valve=2,noise=0.07;106:temp=18.9,valve=2,noise=0.22
+70.2 room 104 QuietRest
+70.2 room 106 QuietRest
+72.2 room 102 QuietRest
+76.4 room 104 CallReception
+76.4 CONTACT room 104 Phone stay-1-4/service/ExtraBlanket/room/104/temperature stay-1-4:Temperature:room/104/temperature
+76.6 room 104 QuietRest
+77.8 room 103 QuietRest
+80.2 STATE cases=4 pending=0 boiler=7.133557 rooms=101:temp=18.7,valve=1,noise=0.00;102:temp=18.4,valve=3,noise=0.00;103:temp=19.0,valve=2,noise=0.15;104:temp=18.5,valve=2,noise=0.07;105:temp=18.9,valve=2,noise=0.00;106:temp=18.5,valve=2,noise=0.07
+80.4 room 102 Shower
+84.6 room 101 QuietRest
+84.6 room 104 LoudRoom
+86.2 room 106 Work
+87.4 room 103 WatchTV
+90.2 STATE cases=4 pending=0 boiler=8.101683 rooms=101:temp=18.1,valve=2,noise=0.42;102:temp=17.9,valve=3,noise=0.58;103:temp=18.5,valve=2,noise=0.45;104:temp=18.0,valve=2,noise=0.27;105:temp=18.4,valve=2,noise=0.35;106:temp=17.9,valve=2,noise=0.65
+93.2 room 106 CallReception
+93.2 CONTACT room 106 Phone  stay-1-6:Temperature:room/106/temperature
+96.0 room 101 PhoneCall
+97.0 room 105 QuietRest
+99.4 room 103 CallReception
+99.4 CONTACT room 103 Phone  stay-1-3:Temperature:room/103/temperature
+100.2 STATE cases=4 pending=0 boiler=7.539985 rooms=101:temp=17.8,valve=2,noise=0.29;102:temp=17.5,valve=3,noise=0.73;103:temp=18.1,valve=2,noise=0.77;104:temp=17.7,valve=2,noise=0.36;105:temp=18.0,valve=3,noise=0.23;106:temp=17.5,valve=2,noise=0.53
+103.4 room 105 CallReception
+103.4 CONTACT room 105 Phone stay-1-5/service/AskNeighborsQuiet/stay-1-4/Television stay-1-5:Noise:stay-1-4/Television
+110.2 room 105 QuietRest
+110.2 STATE cases=5 pending=1 boiler=7.539985 rooms=101:temp=17.7,valve=2,noise=0.07;102:temp=17.3,valve=3,noise=0.20;103:temp=17.8,valve=2,noise=0.54;104:temp=17.5,valve=2,noise=0.36;105:temp=17.9,valve=3,noise=0.00;106:temp=17.3,valve=2,noise=0.00
+120.2 STATE cases=5 pending=0 boiler=6.752485 rooms=101:temp=17.6,valve=2,noise=0.00;102:temp=17.3,valve=3,noise=0.20;103:temp=17.7,valve=2,noise=0.48;104:temp=17.4,valve=2,noise=0.20;105:temp=18.0,valve=3,noise=0.00;106:temp=17.2,valve=2,noise=0.00
+121.6 room 101 QuietRest
+126.2 room 105 WatchTV
+130.2 STATE cases=5 pending=0 boiler=6.752485 rooms=101:temp=17.7,valve=2,noise=0.00;102:temp=17.3,valve=3,noise=0.00;103:temp=17.7,valve=2,noise=0.13;104:temp=17.4,valve=2,noise=0.05;105:temp=18.1,valve=3,noise=0.00;106:temp=17.2,valve=2,noise=0.05
+131.8 room 104 WatchTV
+132.4 room 101 PhoneCall
+133.4 room 106 QuietRest
+135.0 room 104 QuietRest
+137.8 room 105 CallReception
+137.8 CONTACT room 105 Phone  stay-1-5:Temperature:room/105/temperature
+139.6 room 103 QuietRest
+140.2 STATE cases=5 pending=0 boiler=6.936 rooms=101:temp=17.7,valve=2,noise=0.00;102:temp=17.3,valve=3,noise=0.20;103:temp=17.7,valve=2,noise=0.48;104:temp=17.5,valve=3,noise=0.20;105:temp=18.1,valve=3,noise=0.00;106:temp=17.2,valve=2,noise=0.00
+142.0 room 102 WatchTV
+143.2 room 104 LoudRoom
+147.6 room 103 Shower
+149.6 room 106 PhoneCall
+150.2 STATE cases=5 pending=0 boiler=7.686 rooms=101:temp=17.6,valve=2,noise=0.43;102:temp=17.2,valve=3,noise=0.80;103:temp=17.6,valve=2,noise=0.87;104:temp=17.6,valve=3,noise=0.66;105:temp=18.1,valve=3,noise=0.49;106:temp=17.1,valve=2,noise=0.59
+151.2 room 101 LoudRoom
+151.4 room 102 CallReception
+151.4 CONTACT room 102 Phone  stay-1-2:Temperature:room/102/temperature
+160.2 STATE cases=5 pending=0 boiler=7.686 rooms=101:temp=17.0,valve=2,noise=0.38;102:temp=16.5,valve=3,noise=0.82;103:temp=16.9,valve=2,noise=0.86;104:temp=16.9,valve=3,noise=0.56;105:temp=17.4,valve=3,noise=0.49;106:temp=16.4,valve=2,noise=0.59
+165.0 room 104 WatchTV
+170.2 STATE cases=5 pending=0 boiler=5.9658 rooms=101:temp=15.7,valve=2,noise=0.05;102:temp=15.0,valve=3,noise=0.35;103:temp=15.6,valve=2,noise=0.69;104:temp=15.6,valve=3,noise=0.49;105:temp=16.0,valve=3,noise=0.17;106:temp=15.0,valve=2,noise=0.13
+170.8 room 106 QuietRest
+176.4 room 101 CallReception
+176.4 CONTACT room 101 Phone  stay-1-1:Temperature:room/101/temperature
+178.0 room 105 QuietRest
+180.2 STATE cases=5 pending=0 boiler=5.9658 rooms=101:temp=14.6,valve=2,noise=0.05;102:temp=13.9,valve=3,noise=0.13;103:temp=14.5,valve=2,noise=0.05;104:temp=14.5,valve=3,noise=0.00;105:temp=14.8,valve=3,noise=0.05;106:temp=14.0,valve=2,noise=0.13
+186.0 room 105 Work
+190.2 room 104 CallReception
+190.2 CONTACT room 104 Phone  stay-1-4:Temperature:room/104/temperature
+190.2 STATE cases=5 pending=0 boiler=4.97635 rooms=101:temp=13.8,valve=2,noise=0.00;102:temp=12.9,valve=3,noise=0.00;103:temp=13.7,valve=2,noise=0.00;104:temp=13.7,valve=3,noise=0.00;105:temp=13.9,valve=3,noise=0.00;106:temp=13.1,valve=2,noise=0.00
+191.6 room 102 QuietRest
+199.6 room 102 Work
+199.6 room 105 PhoneCall
+200.2 STATE cases=5 pending=0 boiler=4.97635 rooms=101:temp=13.1,valve=2,noise=0.00;102:temp=12.2,valve=3,noise=0.00;103:temp=13.0,valve=2,noise=0.27;104:temp=13.0,valve=3,noise=0.11;105:temp=13.2,valve=3,noise=0.00;106:temp=12.5,valve=2,noise=0.11
+210.2 STATE cases=5 pending=0 boiler=4.97635 rooms=101:temp=12.6,valve=2,noise=0.00;102:temp=11.6,valve=3,noise=0.00;103:temp=12.4,valve=2,noise=0.27;104:temp=12.4,valve=3,noise=0.11;105:temp=12.6,valve=3,noise=0.00;106:temp=11.9,valve=2,noise=0.11
+211.2 room 102 QuietRest
+216.6 room 101 QuietRest
+220.2 STATE cases=5 pending=0 boiler=4.97635 rooms=101:temp=12.2,valve=2,noise=0.00;102:temp=11.1,valve=3,noise=0.00;103:temp=12.0,valve=2,noise=0.27;104:temp=12.0,valve=3,noise=0.11;105:temp=12.2,valve=3,noise=0.00;106:temp=11.5,valve=2,noise=0.11
+222.8 room 102 PhoneCall
+224.6 room 101 LoudRoom
+227.4 room 105 QuietRest
+230.2 STATE cases=5 pending=0 boiler=4.97635 rooms=101:temp=11.8,valve=2,noise=0.11;102:temp=10.7,valve=3,noise=0.23;103:temp=11.7,valve=2,noise=0.64;104:temp=11.6,valve=3,noise=0.49;105:temp=11.8,valve=3,noise=0.00;106:temp=11.2,valve=2,noise=0.00
+230.4 room 104 QuietRest
+236.4 room 105 WatchTV
+236.6 room 104 CallReception
+236.6 CONTACT room 104 Phone stay-1-4/service/AskNeighborsQuiet/stay-1-2/PhoneCall stay-1-4:Noise:stay-1-2/PhoneCall
+239.4 room 104 QuietRest
+240.2 STATE cases=6 pending=1 boiler=3.68935 rooms=101:temp=11.6,valve=2,noise=0.00;102:temp=10.4,valve=3,noise=0.23;103:temp=11.4,valve=2,noise=0.65;104:temp=11.4,valve=3,noise=0.28;105:temp=11.5,valve=3,noise=0.00;106:temp=10.9,valve=2,noise=0.05
+244.6 room 101 QuietRest
+250.2 STATE cases=6 pending=0 boiler=2.455975 rooms=101:temp=11.3,valve=2,noise=0.00;102:temp=10.2,valve=3,noise=0.00;103:temp=11.2,valve=2,noise=0.00;104:temp=11.1,valve=3,noise=0.00;105:temp=11.3,valve=3,noise=0.00;106:temp=10.7,valve=2,noise=0.00
+253.8 room 101 Shower
+255.4 room 104 PhoneCall
+260.2 STATE cases=6 pending=0 boiler=3.093475 rooms=101:temp=11.2,valve=2,noise=0.20;102:temp=10.0,valve=3,noise=0.54;103:temp=11.0,valve=2,noise=0.36;104:temp=10.9,valve=3,noise=0.07;105:temp=11.1,valve=3,noise=0.20;106:temp=10.5,valve=2,noise=0.48
+270.2 STATE cases=6 pending=0 boiler=3.093475 rooms=101:temp=11.0,valve=2,noise=0.20;102:temp=9.8,valve=3,noise=0.54;103:temp=10.8,valve=2,noise=0.36;104:temp=10.8,valve=3,noise=0.07;105:temp=10.9,valve=3,noise=0.20;106:temp=10.3,valve=2,noise=0.48
+273.8 room 101 WatchTV
+279.4 room 104 LoudRoom
+280.2 STATE cases=6 pending=0 boiler=1.65285 rooms=101:temp=10.9,valve=2,noise=0.23;102:temp=9.7,valve=3,noise=0.53;103:temp=10.7,valve=2,noise=0.23;104:temp=10.7,valve=3,noise=0.00;105:temp=10.8,valve=3,noise=0.23;106:temp=10.2,valve=2,noise=0.53
+290.2 STATE cases=6 pending=0 boiler=1.65285 rooms=101:temp=10.8,valve=2,noise=0.23;102:temp=9.6,valve=3,noise=0.53;103:temp=10.6,valve=2,noise=0.23;104:temp=10.6,valve=3,noise=0.00;105:temp=10.7,valve=3,noise=0.23;106:temp=10.1,valve=2,noise=0.53
+300.2 STATE cases=6 pending=0 boiler=0.67368 rooms=101:temp=10.7,valve=2,noise=0.00;102:temp=9.5,valve=3,noise=0.00;103:temp=10.6,valve=2,noise=0.00;104:temp=10.5,valve=3,noise=0.00;105:temp=10.6,valve=3,noise=0.00;106:temp=10.1,valve=2,noise=0.00
+0.6.9 headless, six base rooms for sale: guests=6 contacts=12 evening contacts=3 peak concurrent services=2 budget-saturated waiting ticks=0 evening boiler load=0.67368..7.686

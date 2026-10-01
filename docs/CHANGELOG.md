@@ -1,3 +1,11 @@
+## Prototype 0.6.9 — pacing and occupied hotel gameplay
+
+The human 0.6.8 pass confirmed living guests and successful delivery, but too little operational work after check-in. The shipped calendar now uses 480 seconds/day; movement, physics and physical interaction durations remain unchanged. Shorter rest/work and outings preserve quiet intervals while leaving shower/TV activities sustained. The optional hotel-wide contact ceiling rises from three to eight charged cases/day, with the two-per-stay ceiling and causal deduplication preserved. Mild-need willingness and observe/tolerance timing are tuned in the existing service configuration; no event quota or new request generator exists.
+
+Existing direct blanket delivery and staff-delivered luggage now receive a nearby guest thank-you; the 0.6.8 physical shelf pickup is preserved. Economy prices, contract, onboarding, room board and sleep remain. LAN 30 / schema 24. [Audit, measurements and acceptance limits](PACING_069.md).
+
+The physical evening observation exposed a separate night blocker: solid waste baskets overlapped standing bed approaches. Ten baskets now sit in clear outer foot corners. Morning shower duration follows the shorter wake-to-checkout window, leaving time for physical travel and the next activity. Bed clearance and physical sleep/wake/shower checks passed; ordinary human pacing acceptance is pending.
+
 ## Prototype 0.6.8 — guest life and physical delivery receipts
 
 The human 0.6.7 pass found an inactive afternoon/evening and an unreceived blanket on the correct shelf. Sustained scene observations reproduced two physical blockers: used-towel interaction colliders blocked routes after showers, and guest motion into stationary luggage was incorrectly treated as an incoming impact. Guests now step over soft towels, and incoming object velocity controls object knockback. Existing schedules, request budgets and economy remain unchanged; nearby activity audio is more audible.

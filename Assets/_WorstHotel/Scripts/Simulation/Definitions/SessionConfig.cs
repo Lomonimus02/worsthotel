@@ -34,7 +34,8 @@ namespace WorstHotel
 
         [Header("Continuous operations (opt-in)")]
         public bool continuousOperations;
-        [Min(24)] public float hotelDaySeconds = 720;
+        [Tooltip("Real seconds per 24 hotel hours at 1x. Does not change physics or physical interaction speed.")]
+        [Min(24)] public float hotelDaySeconds = 480;
         [Range(0, 23.99f)] public float openingHour = 8;
         [Range(0, 23.99f)] public float reportHour = 6;
         [Range(0, 23.99f)] public float operatingCostHour = 6;

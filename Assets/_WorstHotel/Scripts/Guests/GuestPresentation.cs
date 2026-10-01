@@ -46,6 +46,7 @@ namespace WorstHotel
             public bool BlanketReturning;
             public float BlanketReachTime;
             public Transform BlanketPoint;
+            public int AcknowledgedBags;
         }
 
         readonly Dictionary<string, VisualGuest> guests = new Dictionary<string, VisualGuest>();
@@ -357,6 +358,7 @@ namespace WorstHotel
                 ReportVacatedRooms(guest, false);
                 if (guest.RouteComplete) OnRouteComplete(guest);
                 UpdateBlanketCollection(guest, delta);
+                AcknowledgeDeliveredBags(guest);
                 ReleaseClearedReceptionSlot(guest);
                 RetryCompletedResponseRoute(guest);
                 bool doingActivity = guest.InsideRoom && guest.RouteComplete && guest.Stay.Agent.IsRoomState;
