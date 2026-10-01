@@ -59,16 +59,23 @@ namespace WorstHotel
             float outingChance = business ? rhythm.BusinessOutingProbability : profile.Kind == GuestKind.Budget ?
                 rhythm.BudgetOutingProbability : rhythm.ColdSensitiveOutingProbability;
             bool outing = Next(ref random) < outingChance;
+            int outingIndex = 3 + (int)(Next(ref random) * 3);
             bool noisy = (profile.Traits & GuestTraits.Noisy) != 0;
             for (int index = 0; index < result.Length; index++)
             {
                 GuestActivity activity;
                 if (index == 0) activity = GuestActivity.Unpack;
-                else if (index == 1) activity = business ? GuestActivity.Work : GuestActivity.QuietRest;
-                else if (index == 2 && outing) activity = GuestActivity.LeaveHotel;
+                else if (index == 1) activity = business ? GuestActivity.Work :
+                    Next(ref random) < .5f ? GuestActivity.Shower : GuestActivity.WatchTV;
+                else if (index == outingIndex && outing) activity = GuestActivity.LeaveHotel;
                 else if (index == MorningIndex) activity = GuestActivity.Shower;
-                else if (index == MorningIndex - 1 || index > MorningIndex)
-                    activity = index == MorningIndex + 2 && business ? GuestActivity.Work : GuestActivity.QuietRest;
+                else if (index > MorningIndex)
+                    activity = index == MorningIndex + 1 ? GuestActivity.QuietRest :
+                        index == MorningIndex + 2 ? (business ? GuestActivity.Work : GuestActivity.WatchTV) : GuestActivity.PhoneCall;
+                else if (index >= MorningIndex - 4)
+                    // A varied evening tail can repeat without replaying arrival or another outing.
+                    activity = index == 16 ? GuestActivity.QuietRest : index == 17 ? GuestActivity.WatchTV :
+                        index == 18 ? (business ? GuestActivity.Work : GuestActivity.PhoneCall) : GuestActivity.Shower;
                 else
                 {
                     activity = PickActivity(profile.Kind, noisy, ref random);
@@ -76,11 +83,15 @@ namespace WorstHotel
                     if (index > 0 && activity == result[index - 1].Activity)
                         activity = activity == GuestActivity.QuietRest ? GuestActivity.WatchTV : GuestActivity.QuietRest;
                 }
+                if (index > 0 && activity == GuestActivity.QuietRest && result[index - 1].Activity == GuestActivity.QuietRest)
+                    activity = business ? GuestActivity.Work : GuestActivity.WatchTV;
                 float min = activity == GuestActivity.LeaveHotel ? Settings.AwayDurationMin :
                     activity == GuestActivity.QuietRest || activity == GuestActivity.Work ? Settings.QuietDurationMin : Settings.ActivityDurationMin;
                 float max = activity == GuestActivity.LeaveHotel ? Settings.AwayDurationMax :
                     activity == GuestActivity.QuietRest || activity == GuestActivity.Work ? Settings.QuietDurationMax : Settings.ActivityDurationMax;
                 float duration = min + Next(ref random) * (max - min);
+                if (activity == GuestActivity.Unpack) duration = Math.Min(duration, 6 + Next(ref random) * 4);
+                if (activity == GuestActivity.QuietRest) duration = Math.Min(duration, 12 + Next(ref random) * 6);
                 if (activity == GuestActivity.Shower && (profile.Traits & GuestTraits.ColdSensitive) != 0)
                     duration *= Settings.ColdShowerDurationMultiplier;
                 result[index] = new GuestScheduleEntry(activity, duration);

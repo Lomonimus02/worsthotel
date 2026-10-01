@@ -53,7 +53,8 @@ namespace WorstHotel
             bool dirty = rooms[guest.RoomId].Cleanliness != Cleanliness.Clean;
             return ratio >= 2 ? "I cannot wait much longer. I will find another hotel." :
                 ratio >= 1 ? (dirty ? "My room is still not ready. Please finish preparing it." : "I have been waiting for my key. Please check me in.") :
-                dirty ? "I can wait a little while you prepare my room." : "Hello. I have a reservation for room " + guest.RoomId + ".";
+                "Hello. I have a reservation for room " + guest.RoomId + ". " +
+                (dirty ? "Is it not ready yet? I can wait a little while you prepare it." : "May I have my room key, please?");
         }
 
         void TickOperationalConsequences(float dt)

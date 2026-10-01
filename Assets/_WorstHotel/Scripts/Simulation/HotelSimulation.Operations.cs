@@ -36,6 +36,7 @@ namespace WorstHotel
             Services?.StartDay(dayNumber, Calendar.At(dayNumber + 1, Operations.CheckoutHour));
             RefreshBookingSchedule(Elapsed);
             RefreshSalesDays(Elapsed);
+            ProcessDueSalesDecisions(Elapsed);
             RefreshGuestLoad();
             Boiler.BeginService();
             SignalEvent("Hotel open — continuous operations");

@@ -119,8 +119,12 @@ namespace WorstHotel
             }
             else if (room.GuestId != guestId) return CommandResult.Fail("The assigned room no longer belongs to this guest.");
             guest.Agent.HasReachedRoom = true;
-            SetActivity(guest, GuestActivity.QuietRest, Elapsed, LivingSettings.FirstActivityDelay);
-            Transition(guest, GuestAgentState.InRoom, Elapsed, null);
+            if (guest.Agent.Schedule.HasDailyRhythm) StartNextScheduledActivity(guest, Elapsed);
+            else
+            {
+                SetActivity(guest, GuestActivity.QuietRest, Elapsed, LivingSettings.FirstActivityDelay);
+                Transition(guest, GuestAgentState.InRoom, Elapsed, null);
+            }
             RefreshGuestLoad();
             RefreshElectrical();
             return CommandResult.Ok("Guest reached their room and settled in.");
@@ -267,7 +271,7 @@ namespace WorstHotel
                     now + duration + LivingSettings.ActivityDurationMin >= agent.Schedule.SleepTime;
                 if (missed)
                 { activity = GuestActivity.QuietRest; duration = LivingSettings.QuietDurationMin; }
-                else { StartGuestHotelTrip(guest, duration, agent.Schedule.HasDailyRhythm ? agent.Schedule.OutingReturnAt : -1); return; }
+                else { StartGuestHotelTrip(guest, duration, agent.Schedule.HasDailyRhythm && guest.Application.Special != null ? agent.Schedule.OutingReturnAt : -1); return; }
             }
             agent.Activity = activity;
             agent.TemporarySleep = false;
@@ -306,7 +310,8 @@ namespace WorstHotel
             if (!schedule.HasDailyRhythm) agent.ActivityIndex++;
             else if (index < schedule.MorningActivityIndex - 1 || index >= schedule.MorningActivityIndex && index < schedule.Activities.Count - 1)
                 agent.ActivityIndex++;
-            // The finite quiet evening/morning tails never wrap into unpacking or a second morning.
+            else agent.ActivityIndex = index < schedule.MorningActivityIndex ? schedule.MorningActivityIndex - 4 : schedule.MorningActivityIndex + 1;
+            // Only the bounded late-day / post-shower blocks repeat, never arrival or another outing.
             SetActivity(guest, entry.Activity, now, entry.Duration);
         }
 

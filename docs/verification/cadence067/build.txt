@@ -1,0 +1,9 @@
+Unity 6000.3.2f1
+Prototype 0.6.7 - First Day & Activity Cadence
+Windows build process exit code: 0
+Log result: WORST HOTEL: Windows build succeeded.
+Complete build size: 174.8 mb
+Model checks: 2 passed
+Scene / packet checks: 2 passed
+Full-world decoded packet bytes: 458746 / 524288
+Manual Day 1 -> normal sleep -> Day 2 morning: pending user feedback

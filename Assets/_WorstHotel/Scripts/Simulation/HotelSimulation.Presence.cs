@@ -89,6 +89,8 @@ namespace WorstHotel
                 return CommandResult.Fail("Guest is not leaving their room.");
             guest.Agent.AwayReturnTime = Number.IsFinite(guest.Agent.AwayReturnTime) ?
                 Math.Max(Elapsed, guest.Agent.AwayReturnTime) : Elapsed + Math.Max(1, guest.Agent.PendingActivityDuration);
+            if (guest.Agent.Schedule.HasDailyRhythm && guest.Application.Special == null)
+                guest.Agent.AwayReturnTime = Math.Max(Elapsed, Math.Min(guest.Agent.AwayReturnTime, guest.Agent.Schedule.OutingReturnAt));
             Transition(guest, GuestAgentState.GuestAway, Elapsed, null);
             return CommandResult.Ok("Guest reached the exterior hotel exit and is now away.");
         }
@@ -115,7 +117,8 @@ namespace WorstHotel
             var guest = FindLivingGuest(guestId);
             if (guest?.Agent == null || guest.Agent.State != GuestAgentState.ReturningToRoom || rooms[guest.RoomId].GuestId != guestId)
                 return CommandResult.Fail("Guest is not returning to their own room.");
-            SetActivity(guest, GuestActivity.QuietRest, Elapsed, LivingSettings.FirstActivityDelay);
+            if (guest.Agent.Schedule.HasDailyRhythm) StartNextScheduledActivity(guest, Elapsed);
+            else SetActivity(guest, GuestActivity.QuietRest, Elapsed, LivingSettings.FirstActivityDelay);
             RefreshGuestLoad(); RefreshElectrical();
             Keys.RecoverInside(guest.GuestId, guest.RoomId);
             return CommandResult.Ok("Guest returned; their existing stay and schedule continue.");

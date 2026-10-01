@@ -31,6 +31,7 @@ namespace WorstHotel
             public int AppearanceIndex, ReceptionSlot = -1;
             public bool WaitingForReception, Detouring;
             public int WaitingStage;
+            public readonly int[] ReceptionSpokenStage = { -1, -1 };
             public float TrafficSeconds;
             public float PoseBlend, SettlingTime, BlockedSeconds;
             public int RecoveryCount;
@@ -589,6 +590,21 @@ namespace WorstHotel
                 right = stage > 0 ? -85 + Mathf.Sin(guest.AnimationTime * 2) * 22 : -55;
                 guest.Root.rotation = Quaternion.Euler(0, 180 + Mathf.Sin(guest.AnimationTime * .4f) * (stage > 0 ? 18 : 4), 0);
                 if (stage > guest.WaitingStage) { guest.WaitingStage = stage; HotelFeedback.PlayReceptionArrival(); }
+                if (guest.State == GuestAgentState.WaitingForCheckIn)
+                {
+                    var coop = LocalCoopBootstrap.Instance;
+                    int spokenStage = guest.Stay.LockedOut ? 3 : stage;
+                    if (coop) foreach (var player in coop.Players)
+                    {
+                        if (!player || player.ActorId < 0 || player.ActorId > 1 || player.IsUIBlocked ||
+                            guest.ReceptionSpokenStage[player.ActorId] >= spokenStage ||
+                            Vector3.Distance(player.transform.position, guest.Root.position) > 7 ||
+                            !string.IsNullOrEmpty(HotelSubtitle.Current(player.ActorId))) continue;
+                        guest.ReceptionSpokenStage[player.ActorId] = spokenStage;
+                        HotelSubtitle.Say(player.ActorId, guest.Stay.Name + " · Room " + guest.Stay.RoomId,
+                            GameSession.Instance.Simulation.WaitingClue(guest.Stay));
+                    }
+                }
             }
             if (activity && guest.Activity == GuestActivity.Shower) { left = -135 + Mathf.Sin(guest.AnimationTime) * 12; right = -135 - Mathf.Sin(guest.AnimationTime) * 12; }
             if (activity && guest.Activity == GuestActivity.LoudRoom) { left = -35 + Mathf.Sin(guest.AnimationTime * 2) * 22; right = -35 - Mathf.Sin(guest.AnimationTime * 2) * 22; }

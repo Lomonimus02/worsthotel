@@ -47,6 +47,7 @@ namespace WorstHotel.Editor
             BuildDiegeticHotel(gameplay);
             AddElectricalPanel(gameplay);
             AddOperationalWork(gameplay);
+            AddFirstDayPresentation(gameplay);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };

@@ -1,3 +1,9 @@
+## Prototype 0.6.7 — first day and activity cadence
+
+An opening reservation and nearby Day 1 arrivals replace the long initial wait: 08:39, 09:03 and 09:27 for the first three sold enquiries at the unchanged clock. The physical reception board reports actual room state; Room 101, used linen, laundry and key-rack signs explain existing interactions. Nearby waiting guests identify their room and need through existing subtitles and impatience behavior.
+
+Dated stays start unpacking on reaching their room, then use varied activities. Ordinary outings use bounded time away from the actual exit rather than keeping every guest outside until evening. Varied evening/morning tails replace indefinite quiet rest, without replaying unpacking or another outing. Special dated returns, sleep, economy and actual activity-driven loads remain. LAN 28 / model schema 23. [Implementation and verification limits](FIRST_DAY_CADENCE_067.md).
+
 ## Prototype 0.6.6 — operational chaos and hotel entropy
 
 Persistent room use extends existing linen turnover: four in-room hotel hours leave one waste bundle, staged showers leave used towels, and substantial loud activity or unpacking three or more bags displaces the existing chair. Coarse hold interactions clear those elements only after physical vacancy; the bed still needs a real clean linen set. A new run starts with one unfinished bed. Calendar changes do not clear this work.

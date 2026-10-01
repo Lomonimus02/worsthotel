@@ -50,6 +50,8 @@ namespace WorstHotel
             if (!AutomaticBookingsEnabled || arrivalDay < 1 || offerIndex < 0 || offerIndex >= SalesSettings.DecisionsPerDay)
                 throw new ArgumentOutOfRangeException(nameof(arrivalDay), "Choose an enabled sales date and enquiry index 0–7.");
             var sales = Operations.Sales;
+            // The opening enquiry has already reached reception when a new hotel opens.
+            if (arrivalDay == 1 && offerIndex == 0) return 0;
             float hour = (arrivalDay == 1 ? sales.FirstDayDecisionStartHour : sales.AdvanceDecisionStartHour) +
                 offerIndex * sales.DecisionSpacingHours;
             return Calendar.At(arrivalDay == 1 ? 1 : arrivalDay - 1, hour);
@@ -93,7 +95,7 @@ namespace WorstHotel
                 string id = "stay-" + arrivalDay + "-" + (offerIndex + 1);
                 var offer = bookingOffers.FirstOrDefault(item => item.Id == id);
                 if (offer == null || FindReservation(id) != null || offer.ArrivalAt <= now) continue;
-                double roll = SalesRoll(offer.Id, Operations.Sales.Seed);
+                double roll = arrivalDay == 1 && offerIndex == 0 ? 0 : SalesRoll(offer.Id, Operations.Sales.Seed);
                 foreach (var policy in roomSalesPolicies.Where(item => item.OpenForSale).OrderBy(item => item.Price).ThenBy(item => item.RoomId))
                 {
                     if (!CanReserveInterval(policy.RoomId, offer.ArrivalAt, offer.CheckoutAt).Success ||

@@ -45,7 +45,7 @@ LAN protocol 27 / model schema 23 carry room counters, reset flags, waiting/lock
 
 Human pacing across a complete six-room day and two-PC LAN remain separate acceptance checks. The technical checks do not establish that six rooms are comfortably manageable or ten rooms are correctly balanced.
 
-The Windows build succeeded and reached its main menu through Computer Use on 1 October 2026. That process then suffered a native crash before SOLO was confirmed. Offline local symbols identify `BlockDoublingLinearAllocator::Rewind` via `ManagedTempMemScope::~ManagedTempMemScope` in the Unity player loop; this identifies the faulting stack, not its cause. No managed exception precedes it. The local ignored evidence is `Logs/operational066-native-menu-crash.log` and `Logs/operational066-menu-native-stacks.txt`. A normal manual launch was requested; it has not yet been confirmed. Do not interpret the passing scene checks as a successful standalone full-day playthrough or a fix for the older Alt-Tab issue.
+The Windows build succeeded and reached its main menu through Computer Use on 1 October 2026. That process then suffered a native crash before SOLO was confirmed. Offline local symbols identify `BlockDoublingLinearAllocator::Rewind` via `ManagedTempMemScope::~ManagedTempMemScope` in the Unity player loop; this identifies the faulting stack, not its cause. No managed exception precedes it. The local ignored evidence is `Logs/operational066-native-menu-crash.log` and `Logs/operational066-menu-native-stacks.txt`. The user subsequently confirmed that a normal manual launch enters SOLO successfully. This does not establish the native crash's cause, a complete first-day playthrough, or a fix for the older Alt-Tab issue.
 
 ## Local build
 

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-01 18:06:10Z" end-time="2026-10-01 18:06:10Z" duration="0.314008">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="912" result="Passed" start-time="2026-10-01 18:06:10Z" end-time="2026-10-01 18:06:10Z" duration="0.314008" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="2101" name="WorstHotel.Tests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="912" result="Passed" start-time="2026-10-01 18:06:10Z" end-time="2026-10-01 18:06:10Z" duration="0.304404" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="28492" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="2102" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="912" result="Passed" start-time="2026-10-01 18:06:10Z" end-time="2026-10-01 18:06:10Z" duration="0.300726" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2103" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="912" result="Passed" start-time="2026-10-01 18:06:10Z" end-time="2026-10-01 18:06:10Z" duration="0.297042" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1480" name="FirstDayCadenceTests" fullname="WorstHotel.Tests.FirstDayCadenceTests" classname="WorstHotel.Tests.FirstDayCadenceTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-01 18:06:10Z" end-time="2026-10-01 18:06:10Z" duration="0.286069" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1482" name="AwakeArcDoesNotCollapseIntoAllDayOutingOrRepeatedQuietTail" fullname="WorstHotel.Tests.FirstDayCadenceTests.AwakeArcDoesNotCollapseIntoAllDayOutingOrRepeatedQuietTail" methodname="AwakeArcDoesNotCollapseIntoAllDayOutingOrRepeatedQuietTail" classname="WorstHotel.Tests.FirstDayCadenceTests" runstate="Runnable" seed="587663506" result="Passed" start-time="2026-10-01 18:06:10Z" end-time="2026-10-01 18:06:10Z" duration="0.194295" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Headless arc: Unpack, Shower, WatchTV, QuietRest, PhoneCall, LoudRoom, Pack; longest awake rest 16.25s; away 31.25s; morning shower and turnover present.
+]]></output>
+            </test-case>
+            <test-case id="1481" name="ShippedOpeningIsSoonVisibleAndReplicatesWithoutAFreeReadyRoom" fullname="WorstHotel.Tests.FirstDayCadenceTests.ShippedOpeningIsSoonVisibleAndReplicatesWithoutAFreeReadyRoom" methodname="ShippedOpeningIsSoonVisibleAndReplicatesWithoutAFreeReadyRoom" classname="WorstHotel.Tests.FirstDayCadenceTests" runstate="Runnable" seed="192220413" result="Passed" start-time="2026-10-01 18:06:10Z" end-time="2026-10-01 18:06:10Z" duration="0.081242" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Opening arrival: 39 hotel minutes / 19.5 real seconds; first three at 19.49999, 31.49998, 43.49999
+Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

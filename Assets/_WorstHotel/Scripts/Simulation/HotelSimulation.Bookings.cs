@@ -206,8 +206,10 @@ namespace WorstHotel
                     float arrivalHour = Operations.ArrivalStartHour + (Operations.ArrivalEndHour - Operations.ArrivalStartHour) * fraction;
                     if (offerDay == 1 && Operations.Sales.Enabled)
                     {
-                        float lastDecision = Operations.Sales.FirstDayDecisionStartHour + (index / 3 * 3 + 2) * Operations.Sales.DecisionSpacingHours;
-                        arrivalHour = Math.Min(arrivalHour, Math.Max(Operations.StartHour + 2, lastDecision + .8f) + index % 3 * .18f);
+                        // Day one opens with near-term arrivals, following each ordinary sales decision.
+                        // At the shipped clock 08:39 is 19.5 real seconds after the 08:00 opening.
+                        float decision = Operations.Sales.FirstDayDecisionStartHour + index * Operations.Sales.DecisionSpacingHours;
+                        arrivalHour = Math.Min(arrivalHour, decision + .15f);
                     }
                     float arrival = Calendar.At(offerDay, arrivalHour);
                     if (arrival <= now) continue;
