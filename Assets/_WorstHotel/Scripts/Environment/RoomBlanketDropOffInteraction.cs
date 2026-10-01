@@ -32,7 +32,12 @@ namespace WorstHotel
         {
             var intent = Intent;
             if (intent?.Status == ServiceIntentStatus.AwaitingReceipt)
-                return "Room " + roomId + " delivery shelf\nBlanket left here · waiting for the guest";
+                return "Room " + roomId + " delivery shelf\n" + (intent.Collecting ? "The guest is coming to collect the blanket" : "Blanket left here · waiting for the guest");
+            var model = GameSession.Instance ? GameSession.Instance.Simulation : null;
+            if (intent == null && model != null)
+                foreach (var guest in model.Guests)
+                    if (guest.RoomId == roomId && guest.Agent?.InAssignedRoom == true && guest.Memory.BlanketsDelivered > 0)
+                        return "Room " + roomId + " delivery shelf\nBlanket received · thank you";
             if (intent?.Status != ServiceIntentStatus.Active)
                 return "Room " + roomId + " delivery shelf\nNo blanket delivery agreed";
             if (GameSession.Instance.Simulation.Services.FindCase(intent.CaseId)?.Status != ServiceStatus.InProgress)

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-01 19:43:48Z" end-time="2026-10-01 19:43:48Z" duration="0.2669225">
+  <test-suite type="TestSuite" id="1000" name="The Worst Hotel Ever" fullname="The Worst Hotel Ever" runstate="Runnable" testcasecount="913" result="Passed" start-time="2026-10-01 19:43:48Z" end-time="2026-10-01 19:43:48Z" duration="0.266923" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="2102" name="WorstHotel.Tests.dll" fullname="C:/Users/betty/OneDrive/Documents/ChatGPT/worst hotel ever 2/Library/ScriptAssemblies/WorstHotel.Tests.dll" runstate="Runnable" testcasecount="913" result="Passed" start-time="2026-10-01 19:43:48Z" end-time="2026-10-01 19:43:48Z" duration="0.258899" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="27040" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="2103" name="WorstHotel" fullname="WorstHotel" runstate="Runnable" testcasecount="913" result="Passed" start-time="2026-10-01 19:43:48Z" end-time="2026-10-01 19:43:48Z" duration="0.256505" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="2104" name="Tests" fullname="WorstHotel.Tests" runstate="Runnable" testcasecount="913" result="Passed" start-time="2026-10-01 19:43:48Z" end-time="2026-10-01 19:43:48Z" duration="0.254284" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1244" name="ContinuousGuestServiceTests" fullname="WorstHotel.Tests.ContinuousGuestServiceTests" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" testcasecount="26" result="Passed" start-time="2026-10-01 19:43:48Z" end-time="2026-10-01 19:43:48Z" duration="0.242310" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1273" name="PhysicalBlanketCollectionReplicatesAndNeedsOneActualReceipt" fullname="WorstHotel.Tests.ContinuousGuestServiceTests.PhysicalBlanketCollectionReplicatesAndNeedsOneActualReceipt" methodname="PhysicalBlanketCollectionReplicatesAndNeedsOneActualReceipt" classname="WorstHotel.Tests.ContinuousGuestServiceTests" runstate="Runnable" seed="1297609831" result="Passed" start-time="2026-10-01 19:43:48Z" end-time="2026-10-01 19:43:48Z" duration="0.230860" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/betty/AppData/LocalLow/Independent Prototype/The Worst Hotel Ever\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

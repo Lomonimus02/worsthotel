@@ -30,6 +30,7 @@ namespace WorstHotel
         bool CanCommunicateIntent(GuestStay guest, ServiceCase request)
         {
             if (!IntentBehaviorEnabled) return true;
+            if (DropOffIntent(guest.GuestId)?.Collecting == true) return false;
             var current = DirectIntent(guest.GuestId);
             if (current != null && (request == null || current.CaseId != request.Id)) return false;
             bool newDirect = request != null && request.Active && request.Kind != ServiceKind.ExtraBlanket &&
@@ -59,6 +60,7 @@ namespace WorstHotel
         internal CommandResult CanBeginRoomMoveIntent(GuestStay guest)
         {
             if (!IntentBehaviorEnabled) return CommandResult.Ok();
+            if (DropOffIntent(guest.GuestId)?.Collecting == true) return CommandResult.Fail("Let the guest collect the delivered blanket first.");
             var current = DirectIntent(guest.GuestId);
             if (current?.Purpose != ServiceIntentPurpose.RoomMove && simulation.EarlyCheckoutDecisionPending(guest))
                 return CommandResult.Fail("The guest's departure decision is pending. A new room proposal cannot restart the wait.");
@@ -107,6 +109,7 @@ namespace WorstHotel
         {
             if (intent == null || !intent.Active) return;
             bool pending = intent.Status == ServiceIntentStatus.AwaitingReceipt;
+            intent.Collecting = false;
             intent.Status = status; intent.ResolutionAt = simulation.Elapsed; intent.ResolutionReason = reason; intent.Revision++;
             var guest = Guest(intent.GuestId);
             if (pending && status != ServiceIntentStatus.Completed)
@@ -173,13 +176,40 @@ namespace WorstHotel
                     CloseIntent(intent, ServiceIntentStatus.Cancelled, "Compensation discussion no longer needed");
                     continue;
                 }
-                if (intent.Status == ServiceIntentStatus.AwaitingReceipt && CanReceiveBlanket(guest)) ReceiveBlanket(intent, guest);
+                if (intent.Status == ServiceIntentStatus.AwaitingReceipt && !guest.Agent.RequiresActivityStaging && CanReceiveBlanket(guest))
+                    ReceiveBlanket(intent, guest);
             }
         }
 
         bool CanReceiveBlanket(GuestStay guest) => guest?.Agent?.InAssignedRoom == true && !Departed(guest) &&
             guest.Agent.State != GuestAgentState.Sleeping && guest.Agent.Activity != GuestActivity.Shower &&
-            !guest.Agent.IsRelocating && guest.Agent.ActivityStaged && rooms[guest.RoomId].GuestId == guest.GuestId;
+            !guest.Agent.IsRelocating && guest.Agent.ActivityStaged && guest.Agent.ResponseActionId == null &&
+            DirectIntent(guest.GuestId) == null && rooms[guest.RoomId].GuestId == guest.GuestId;
+
+        public CommandResult BeginBlanketCollection(string intentId, int revision)
+        {
+            if (simulation.IsReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
+            var intent = FindIntent(intentId); var guest = intent == null ? null : Guest(intent.GuestId);
+            if (intent == null || intent.Status != ServiceIntentStatus.AwaitingReceipt || intent.Collecting || intent.Revision != revision ||
+                !CanReceiveBlanket(guest) || !guest.Agent.RequiresActivityStaging ||
+                guest.Agent.CheckoutTime - simulation.Elapsed < Settings.ContactLeadSeconds)
+                return CommandResult.Fail("The guest is not ready to collect this delivery.");
+            intent.Collecting = true; intent.Revision++;
+            simulation.BeginGuestBlanketCollection(guest);
+            return CommandResult.Ok();
+        }
+
+        public CommandResult ReceivePhysicalBlanket(string intentId, int revision)
+        {
+            if (simulation.IsReadOnlyMirror) return CommandResult.Fail(HotelSimulation.MirrorMessage);
+            var intent = FindIntent(intentId); var guest = intent == null ? null : Guest(intent.GuestId);
+            if (intent == null || !intent.Collecting || intent.Revision != revision || intent.Status != ServiceIntentStatus.AwaitingReceipt ||
+                guest?.Agent?.InAssignedRoom != true || guest.RoomId != intent.RoomId || Departed(guest) ||
+                guest.Agent.Activity != GuestActivity.Unpack || guest.Agent.ActivityStaged || guest.Agent.ResponseActionId != null)
+                return CommandResult.Fail("This physical collection is stale.");
+            ReceiveBlanket(intent, guest);
+            return intent.Status == ServiceIntentStatus.Completed ? CommandResult.Ok() : CommandResult.Fail("The parcel changed before collection.");
+        }
 
         public CommandResult DropOffBlanket(int actor, string guestId, int roomId, int expectedIntentRevision, int expectedItemGeneration)
         {

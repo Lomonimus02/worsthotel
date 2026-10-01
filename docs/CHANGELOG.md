@@ -1,3 +1,9 @@
+## Prototype 0.6.8 — guest life and physical delivery receipts
+
+The human 0.6.7 pass found an inactive afternoon/evening and an unreceived blanket on the correct shelf. Sustained scene observations reproduced two physical blockers: used-towel interaction colliders blocked routes after showers, and guest motion into stationary luggage was incorrectly treated as an incoming impact. Guests now step over soft towels, and incoming object velocity controls object knockback. Existing schedules, request budgets and economy remain unchanged; nearby activity audio is more audible.
+
+The existing blanket intent now supports physical collection: an available guest walks through their door to the delivered parcel, acknowledges it with a reach and nearby thank-you, receives comfort/service credit once, and returns to the existing schedule. LAN 29 / model schema 24 carry collection state and reject stale/duplicate receipts. [Evidence and validation limits](GUEST_LIFE_068.md).
+
 ## Prototype 0.6.7 — first day and activity cadence
 
 An opening reservation and nearby Day 1 arrivals replace the long initial wait: 08:39, 09:03 and 09:27 for the first three sold enquiries at the unchanged clock. The physical reception board reports actual room state; Room 101, used linen, laundry and key-rack signs explain existing interactions. Nearby waiting guests identify their room and need through existing subtitles and impatience behavior.

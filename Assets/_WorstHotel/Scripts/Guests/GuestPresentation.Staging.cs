@@ -95,7 +95,7 @@ namespace WorstHotel
             foreach (var hit in hits)
             {
                 var shape = hit.collider;
-                if (!shape || shape.transform.IsChildOf(guest.Root) || shape.attachedRigidbody != null ||
+                if (!shape || shape.transform.IsChildOf(guest.Root) || GuestPhysicalReaction.CanStepOver(shape) || shape.attachedRigidbody != null ||
                     shape.GetComponentInParent<GuestReceptionInteraction>() != null ||
                     shape.GetComponentInParent<FirstPersonController>() != null ||
                     shape.GetComponentInParent<DoorInteractable>() != null) continue;

@@ -2,6 +2,12 @@ namespace WorstHotel
 {
     public sealed partial class HotelSimulation
     {
+        internal void BeginGuestBlanketCollection(GuestStay guest)
+        {
+            SetActivity(guest, GuestActivity.Unpack, Elapsed, .8f);
+            RefreshGuestLoad(); RefreshElectrical();
+        }
+
         public CommandResult BeginCompensationDiscussion(int actorId, string guestId, string incidentId = null) =>
             Services?.BeginCompensationDiscussion(actorId, guestId, incidentId) ?? ServicesDisabled();
 

@@ -168,7 +168,7 @@ namespace WorstHotel
 
         bool CanInterrupt(GuestStay guest) => ContactWindowAvailable(guest, simulation.Elapsed) &&
             (guest.Agent.State == GuestAgentState.WaitingForCheckIn ||
-            guest.Agent.InAssignedRoom && guest.Agent.State != GuestAgentState.Sleeping && !guest.Agent.IsRelocating &&
+            guest.Agent.InAssignedRoom && guest.Agent.ActivityStaged && guest.Agent.State != GuestAgentState.Sleeping && !guest.Agent.IsRelocating &&
             guest.Agent.Activity != GuestActivity.Shower && guest.Agent.Activity != GuestActivity.Pack &&
             guest.Agent.Activity != GuestActivity.PhoneCall && guest.Agent.Activity != GuestActivity.LoudRoom);
 

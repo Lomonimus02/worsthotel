@@ -25,6 +25,7 @@ namespace WorstHotel
         public float DeliveredAt { get; internal set; } = -1;
         public float ReceivedAt { get; internal set; } = -1;
         public float ResolutionAt { get; internal set; } = -1;
+        public bool Collecting { get; internal set; }
         public string ResolutionReason { get; internal set; }
         public bool Active => Status == ServiceIntentStatus.Active || Status == ServiceIntentStatus.AwaitingReceipt;
 

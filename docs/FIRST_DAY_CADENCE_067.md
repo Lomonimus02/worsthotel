@@ -26,7 +26,7 @@ The physical scene check reads the board and captures labelled reception/101/lau
 
 Raw results: [model checks](verification/cadence067/model.xml), [scene and packet checks](verification/cadence067/scene.xml). Viewpoint captures are in `screenshots/cadence067/`; they are explicit fixtures, not evidence of walking a full day.
 
-The user confirmed manual SOLO in 0.6.6 and agreed to perform the main 0.6.7 acceptance pass after the build: new game → full Day 1 → ordinary staff sleep → first half of Day 2. The Windows build succeeded on 1 October 2026; its shortcut was delivered for that pass. Feedback on confusing actions, actual daytime idle gaps, evening contrast and morning work remains pending. Passing technical checks does not complete that acceptance requirement.
+The Windows build succeeded on 1 October 2026. The subsequent human pass confirmed the opening board, room preparation, key handoff and luggage were understandable, but reported almost no activity from roughly 16:00 until morning and a blanket left unreceived at its corridor shelf. The cadence acceptance therefore failed despite the passing model checks. [The 0.6.8 correction](GUEST_LIFE_068.md) investigates physical guest routes with accumulated room use and actual delivery receipt.
 
 ## Local build
 

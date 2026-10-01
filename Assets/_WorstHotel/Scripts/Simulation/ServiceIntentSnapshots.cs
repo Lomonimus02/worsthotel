@@ -12,6 +12,7 @@ namespace WorstHotel
         public ServiceIntentPurpose Purpose;
         public ServiceIntentStatus Status;
         public float CreatedAt, Deadline, DeliveredAt, ReceivedAt, ResolutionAt;
+        public bool Collecting;
     }
 
     public sealed partial class GuestServiceSystem
@@ -24,7 +25,7 @@ namespace WorstHotel
             ResponseId = SnapshotData.OptionalId(intent.ResponseId), IncidentId = SnapshotData.OptionalId(intent.IncidentId),
             DeliveryPointId = SnapshotData.OptionalId(intent.DeliveryPointId), ItemId = SnapshotData.OptionalId(intent.ItemId),
             ItemGeneration = intent.ItemGeneration, DeliveredAt = intent.DeliveredAt, ReceivedAt = intent.ReceivedAt,
-            ResolutionAt = intent.ResolutionAt, ResolutionReason = intent.ResolutionReason
+            ResolutionAt = intent.ResolutionAt, ResolutionReason = intent.ResolutionReason, Collecting = intent.Collecting
         }).ToArray();
 
         void RestoreIntents(ServiceLayerSnapshot data)
@@ -38,7 +39,7 @@ namespace WorstHotel
                     IncidentId = SnapshotData.OptionalId(intent.IncidentId), DeliveryPointId = SnapshotData.OptionalId(intent.DeliveryPointId),
                     ItemId = SnapshotData.OptionalId(intent.ItemId), ItemGeneration = intent.ItemGeneration,
                     DeliveredAt = intent.DeliveredAt, ReceivedAt = intent.ReceivedAt, ResolutionAt = intent.ResolutionAt,
-                    ResolutionReason = intent.ResolutionReason
+                    ResolutionReason = intent.ResolutionReason, Collecting = intent.Collecting
                 });
         }
     }
@@ -66,6 +67,10 @@ namespace WorstHotel
                 if (Active(intent)) Require(!guest.ReceiptPosted && guest.RoomId == intent.RoomId,
                     "Active intent no longer belongs to the current stay and room.");
                 Require(intent.Revision > 0, "Invalid intent revision.");
+                Require(!intent.Collecting || intent.Kind == ServiceIntentKind.DropOff && intent.Status == ServiceIntentStatus.AwaitingReceipt &&
+                    guest.Agent != null && guest.Agent.State == GuestAgentState.PerformingActivity &&
+                    guest.Agent.Activity == GuestActivity.Unpack && !guest.Agent.ActivityStaged && guest.Agent.RequiresActivityStaging,
+                    "Physical blanket collection has no corresponding guest action.");
                 Require(intent.Status != ServiceIntentStatus.AwaitingReceipt || intent.Kind == ServiceIntentKind.DropOff,
                     "Only a physical drop-off can await receipt.");
                 Range(intent.CreatedAt, 0, snapshot.Time);

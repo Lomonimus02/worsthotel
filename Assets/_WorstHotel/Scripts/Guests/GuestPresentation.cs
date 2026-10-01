@@ -12,7 +12,7 @@ namespace WorstHotel
         public GuestRoomMarkers[] roomMarkers;
         public int VisibleGuestCount => guests.Count;
 
-        enum RoutePurpose { Reception, Room, Activity, Exit, Transfer, Away, Return, ServiceReception, ServiceReturn }
+        enum RoutePurpose { Reception, Room, Activity, Exit, Transfer, Away, Return, ServiceReception, ServiceReturn, BlanketPickup, BlanketReturn }
         sealed class VisualGuest
         {
             public string Id;
@@ -41,6 +41,11 @@ namespace WorstHotel
             public int ResponseActionVersion;
             public bool ResponseArrivalReported;
             public float ResponseRetryAfter;
+            public string BlanketIntentId;
+            public int BlanketIntentRevision;
+            public bool BlanketReturning;
+            public float BlanketReachTime;
+            public Transform BlanketPoint;
         }
 
         readonly Dictionary<string, VisualGuest> guests = new Dictionary<string, VisualGuest>();
@@ -351,6 +356,7 @@ namespace WorstHotel
                 }
                 ReportVacatedRooms(guest, false);
                 if (guest.RouteComplete) OnRouteComplete(guest);
+                UpdateBlanketCollection(guest, delta);
                 ReleaseClearedReceptionSlot(guest);
                 RetryCompletedResponseRoute(guest);
                 bool doingActivity = guest.InsideRoom && guest.RouteComplete && guest.Stay.Agent.IsRoomState;
@@ -411,6 +417,7 @@ namespace WorstHotel
                 return;
             }
             if (SynchronizeResponseRoute(guest)) return;
+            if (SynchronizeBlanketRoute(guest)) return;
             if (agent.State == GuestAgentState.Arriving && guest.Stay.LockedOut && !HasReceptionSlot(guest))
             {
                 guest.ReceptionSlot = AcquireReceptionSlot(guest.Id);
@@ -491,7 +498,8 @@ namespace WorstHotel
                 guest.BlockedSeconds = 0;
                 if (guest.Purpose == RoutePurpose.Room || guest.Purpose == RoutePurpose.Transfer || guest.Purpose == RoutePurpose.Exit ||
                     guest.Purpose == RoutePurpose.Away || guest.Purpose == RoutePurpose.Return ||
-                    guest.Purpose == RoutePurpose.ServiceReception || guest.Purpose == RoutePurpose.ServiceReturn)
+                    guest.Purpose == RoutePurpose.ServiceReception || guest.Purpose == RoutePurpose.ServiceReturn ||
+                    guest.Purpose == RoutePurpose.BlanketPickup || guest.Purpose == RoutePurpose.BlanketReturn)
                     guest.InsideRoom = AuthoredGuestRoute.IsOnRoomSide(guest.Root.position, guest.Room);
                 // Sideways sliding can move a body without making useful forward progress.
                 if (distance - Vector3.Distance(nextPosition, destination) < step * .35f)
@@ -513,6 +521,15 @@ namespace WorstHotel
             guest.Route = null;
             switch (guest.Purpose)
             {
+                case RoutePurpose.BlanketPickup:
+                    guest.InsideRoom = false;
+                    guest.PathStatus = "Collecting delivered blanket";
+                    break;
+                case RoutePurpose.BlanketReturn:
+                    guest.InsideRoom = true; guest.Room.door.CloseAfterGuestPassage(guest.Id);
+                    guest.BlanketIntentId = null; guest.BlanketReturning = false;
+                    SetRoute(guest, AuthoredGuestRoute.Activity(guest.Root.position, guest.Room, guest.Stay.Agent.Activity), RoutePurpose.Activity);
+                    break;
                 case RoutePurpose.Reception:
                     if (guest.Stay.Agent.State == GuestAgentState.Arriving && session.ReportGuestReachedReception(guest.Id).Success)
                         HotelFeedback.PlayReceptionArrival();
@@ -562,7 +579,9 @@ namespace WorstHotel
                 guest.Root.rotation = Quaternion.RotateTowards(guest.Root.rotation, guest.Room.bedApproach.rotation, 160 * delta);
                 return;
             }
-            if (!guest.InsideRoom) direction = Vector3.back;
+            if (guest.Purpose == RoutePurpose.BlanketPickup && guest.RouteComplete && guest.BlanketPoint)
+                direction = guest.BlanketPoint.position - guest.Root.position;
+            else if (!guest.InsideRoom) direction = Vector3.back;
             else if (guest.Activity == GuestActivity.Shower) direction = new Vector3(Mathf.Sign(guest.Room.door.transform.position.x), 0, 0);
             else if (guest.Activity == GuestActivity.LoudRoom || guest.Activity == GuestActivity.WatchTV) direction = new Vector3(Mathf.Sign(guest.Room.door.transform.position.x), 0, .6f);
             else if (guest.Activity == GuestActivity.Work) direction = Vector3.forward;
@@ -625,6 +644,8 @@ namespace WorstHotel
             }
             else if (resting && needs != null && needs.Noise.Severity > .3f)
             { left = -145; right = -145; }
+            if (guest.Purpose == RoutePurpose.BlanketPickup && guest.RouteComplete)
+            { left = -45; right = -65; }
             guest.LeftArm.localRotation = Quaternion.Euler(left, 0, -5);
             guest.RightArm.localRotation = Quaternion.Euler(right, 0, 5);
             var upright = new Vector3(0, walking ? Mathf.Abs(swing) * .035f : Mathf.Sin(guest.AnimationTime) * .012f, 0);

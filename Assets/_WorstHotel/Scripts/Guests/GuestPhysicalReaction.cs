@@ -28,8 +28,9 @@ namespace WorstHotel
             if (!other || other.isKinematic) return;
             var direction = Vector3.ProjectOnPlane(transform.position - other.worldCenterOfMass, Vector3.up).normalized;
             float speed = Mathf.Max(0, Vector3.Dot(other.linearVelocity, direction));
-            // Contact resolution may already have slowed a moving object this frame.
-            speed = Mathf.Max(speed, collision.relativeVelocity.magnitude);
+            // A guest walking into a stationary suitcase contributes their own velocity to
+            // collision.relativeVelocity. Treating that as an incoming hit repeatedly knocked
+            // them backwards into the same bag. Only the object's approach can cause a shove.
             Impact(other.mass, speed, direction);
         }
 
@@ -102,6 +103,11 @@ namespace WorstHotel
 
         static bool Clear(Transform guest, Vector3 move) => SegmentClear(guest, guest.position, guest.position + move);
 
+        // The low towel bundle remains an E-interaction target. It is soft floor clutter,
+        // not a wall that should trap the guest after their own first shower.
+        internal static bool CanStepOver(Collider shape) =>
+            shape.GetComponentInParent<RoomResetInteraction>()?.element == RoomDisorder.Towels;
+
         public static bool SegmentClear(Transform guest, Vector3 from, Vector3 to)
         {
             var move = to - from;
@@ -110,7 +116,7 @@ namespace WorstHotel
                 from + Vector3.up * 1.65f, .32f, move.normalized, move.magnitude + .025f,
                 Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
             {
-                if (hit.transform.IsChildOf(guest)) continue;
+                if (hit.transform.IsChildOf(guest) || CanStepOver(hit.collider)) continue;
                 // Escape an existing contact, but never step farther into it.
                 if (hit.distance <= .001f && Vector3.Dot(move, from + Vector3.up - hit.collider.bounds.center) > 0) continue;
                 var door = hit.collider.GetComponentInParent<DoorInteractable>();

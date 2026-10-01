@@ -35,6 +35,14 @@ namespace WorstHotel.Tests
                 services: serviceSettings ?? new GuestServiceSettings(maxCasesPerShift: 1, eligibility: 0,
                     naturalCommunicationEnabled: true), operations: new OperationsSettings());
             Require(hotel.StartOperations());
+            // Since 0.6.6 the opening bed is genuinely unfinished. This service fixture
+            // must prepare it through linen commands before its labelled key adapter.
+            var startingBed = hotel.Housekeeping.Find(101);
+            Require(hotel.PickUpLinen(0, startingBed.DirtyLinenId));
+            Require(hotel.DepositDirtyLinen(0, startingBed.DirtyLinenId));
+            Require(hotel.PickUpLinen(0, "clean:0"));
+            Require(hotel.BeginMakeBed(0, 101, "clean:0"));
+            Require(hotel.AdvanceMakeBed(0, 101, hotel.Housekeeping.Settings.MakeBedSeconds));
             var first = hotel.BookingOffers.First(offer => offer.ArrivalDay == 1 && offer.Application.Archetype.Kind == GuestKind.Business);
             var second = hotel.BookingOffers.First(offer => offer.ArrivalDay == 1 && offer.Id != first.Id);
             Require(hotel.AcceptBooking(0, first.Id, 101, settings.Economy.MinPrice));

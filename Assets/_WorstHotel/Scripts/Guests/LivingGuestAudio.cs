@@ -112,7 +112,9 @@ namespace WorstHotel
                 }
                 if (clip == null) continue;
                 source.transform.position = anchor.position + Vector3.up;
-                float level = Mathf.Clamp01(channel.Room.SourceNoise);
+                // Audible activity feedback need not use the complaint-strength value as a
+                // second volume attenuator. Quiet real showers/TV remain audible nearby.
+                float level = Mathf.Sqrt(Mathf.Clamp01(channel.Room.SourceNoise));
                 float volume = .42f * masterVolume * level * Audibility(source.transform.position, coop);
                 // A closed room muffles, rather than erases, its real shower/radio source. Loud
                 // music is therefore discoverable from the corridor before a complaint arrives.
